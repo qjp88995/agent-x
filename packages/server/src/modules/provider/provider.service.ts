@@ -8,7 +8,11 @@ import { ConfigService } from "@nestjs/config";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { createDeepSeek } from "@ai-sdk/deepseek";
+import { createAlibaba } from "@ai-sdk/alibaba";
+import { createMoonshotAI } from "@ai-sdk/moonshotai";
+import { createZhipu } from "zhipu-ai-provider";
+import { APICallError, generateText } from "ai";
 import { PrismaService } from "../../prisma/prisma.service";
 import { encrypt, decrypt } from "../../common/crypto.util";
 import { CreateProviderDto } from "./dto/create-provider.dto";
@@ -190,6 +194,12 @@ export class ProviderService {
 
       return { success: true, message: "Connection successful" };
     } catch (error) {
+      if (APICallError.isInstance(error)) {
+        return {
+          success: false,
+          message: `Connection failed (${error.statusCode}): ${error.message}`,
+        };
+      }
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       return { success: false, message: `Connection failed: ${errorMessage}` };
@@ -262,7 +272,7 @@ export class ProviderService {
     switch (protocol) {
       case ProviderProtocol.OPENAI: {
         const openai = createOpenAI({ baseURL: baseUrl, apiKey });
-        return openai("gpt-4o-mini");
+        return openai.chat("gpt-4o-mini");
       }
       case ProviderProtocol.ANTHROPIC: {
         const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
@@ -273,13 +283,13 @@ export class ProviderService {
         return google("gemini-2.0-flash");
       }
       case ProviderProtocol.DEEPSEEK:
-        return createOpenAI({ baseURL: baseUrl, apiKey })("deepseek-chat");
+        return createDeepSeek({ baseURL: baseUrl, apiKey })("deepseek-chat");
       case ProviderProtocol.QWEN:
-        return createOpenAI({ baseURL: baseUrl, apiKey })("qwen-turbo");
+        return createAlibaba({ baseURL: baseUrl, apiKey })("qwen-turbo");
       case ProviderProtocol.ZHIPU:
-        return createOpenAI({ baseURL: baseUrl, apiKey })("glm-4-flash");
+        return createZhipu({ baseURL: baseUrl, apiKey })("glm-4-flash");
       case ProviderProtocol.MOONSHOT:
-        return createOpenAI({ baseURL: baseUrl, apiKey })("moonshot-v1-8k");
+        return createMoonshotAI({ baseURL: baseUrl, apiKey })("moonshot-v1-8k");
       default:
         throw new BadRequestException(
           `Unsupported protocol: ${protocol as string}`,

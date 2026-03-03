@@ -3,6 +3,10 @@ import { streamText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createDeepSeek } from "@ai-sdk/deepseek";
+import { createAlibaba } from "@ai-sdk/alibaba";
+import { createMoonshotAI } from "@ai-sdk/moonshotai";
+import { createZhipu } from "zhipu-ai-provider";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../../prisma/prisma.service";
 import { decrypt } from "../../common/crypto.util";
@@ -83,7 +87,7 @@ export class AgentRuntimeService {
     switch (protocol) {
       case "OPENAI": {
         const openai = createOpenAI({ baseURL: baseUrl, apiKey });
-        return openai(modelId);
+        return openai.chat(modelId);
       }
       case "ANTHROPIC": {
         const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
@@ -94,12 +98,13 @@ export class AgentRuntimeService {
         return google(modelId);
       }
       case "DEEPSEEK":
+        return createDeepSeek({ baseURL: baseUrl, apiKey })(modelId);
       case "QWEN":
+        return createAlibaba({ baseURL: baseUrl, apiKey })(modelId);
       case "ZHIPU":
-      case "MOONSHOT": {
-        const provider = createOpenAI({ baseURL: baseUrl, apiKey });
-        return provider(modelId);
-      }
+        return createZhipu({ baseURL: baseUrl, apiKey })(modelId);
+      case "MOONSHOT":
+        return createMoonshotAI({ baseURL: baseUrl, apiKey })(modelId);
       default:
         throw new Error(`Unsupported protocol: ${protocol}`);
     }
