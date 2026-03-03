@@ -198,7 +198,7 @@ export default function EditAgentPage() {
     );
   }
 
-  if (agentError || (!isLoadingAgent && !agent)) {
+  if (agentError || !agent) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
