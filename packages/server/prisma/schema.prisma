@@ -52,6 +52,8 @@ model ProviderModel {
   isActive   Boolean @default(true)
 
   provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, modelId])
 }
 
 enum AgentStatus {
