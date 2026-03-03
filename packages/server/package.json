@@ -29,6 +29,8 @@
     "@nestjs/core": "^11",
     "@nestjs/jwt": "^11",
     "@nestjs/platform-express": "^11",
+    "@opentelemetry/sdk-node": "^0.212.0",
+    "@opentelemetry/sdk-trace-node": "^2.5.1",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "ai": "^6.0.108",

@@ -75,6 +75,7 @@ export class AgentRuntimeService {
       messages: messages as any,
       temperature: agent.temperature,
       maxOutputTokens: agent.maxTokens,
+      experimental_telemetry: { isEnabled: true },
     });
   }
 
