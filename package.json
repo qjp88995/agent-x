@@ -1,0 +1,17 @@
+{
+  "name": "agent-x",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "db:migrate": "pnpm --filter @agent-x/server db:migrate",
+    "db:generate": "pnpm --filter @agent-x/server db:generate",
+    "db:studio": "pnpm --filter @agent-x/server db:studio"
+  },
+  "devDependencies": {
+    "turbo": "^2"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
