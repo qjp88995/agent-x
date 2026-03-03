@@ -6,4 +6,5 @@ dist/
 .turbo/
 coverage/
 .next/
-src/generated/
+*.tsbuildinfo
+.claude/
