@@ -15,7 +15,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { APICallError, generateText } from 'ai';
 import { createZhipu } from 'zhipu-ai-provider';
 
-import { decrypt,encrypt } from '../../common/crypto.util';
+import { decrypt, encrypt } from '../../common/crypto.util';
 import { ProviderProtocol } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProviderDto } from './dto/create-provider.dto';
@@ -192,6 +192,7 @@ export class ProviderService {
         model,
         prompt: 'Say hello in one word.',
         maxOutputTokens: 10,
+        experimental_telemetry: { isEnabled: true },
       });
 
       return { success: true, message: 'Connection successful' };
