@@ -1,9 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ProviderService } from './provider.service';
-import { ProviderProtocol } from '../../generated/prisma/client';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import * as cryptoUtil from '../../common/crypto.util';
+import { ProviderProtocol } from '../../generated/prisma/client';
+import { ProviderService } from './provider.service';
 
 jest.mock('../../generated/prisma/client', () => ({
   ProviderProtocol: {

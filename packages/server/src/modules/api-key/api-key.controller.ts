@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ApiKeyService } from './api-key.service';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('api-keys')
 export class ApiKeyController {

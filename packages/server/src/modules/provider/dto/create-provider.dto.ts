@@ -1,4 +1,5 @@
 import { IsEnum, IsString, IsUrl } from 'class-validator';
+
 import { ProviderProtocol } from '../../../generated/prisma/client';
 
 export class CreateProviderDto {

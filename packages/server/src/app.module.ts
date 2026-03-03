@@ -1,15 +1,16 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './prisma/prisma.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { ProviderModule } from './modules/provider/provider.module';
-import { AgentModule } from './modules/agent/agent.module';
-import { SkillModule } from './modules/skill/skill.module';
-import { McpModule } from './modules/mcp/mcp.module';
-import { ChatModule } from './modules/chat/chat.module';
-import { ApiKeyModule } from './modules/api-key/api-key.module';
-import { OpenaiCompatModule } from './modules/openai-compat/openai-compat.module';
+
 import { RequestLoggerMiddleware } from './common/request-logger.middleware';
+import { AgentModule } from './modules/agent/agent.module';
+import { ApiKeyModule } from './modules/api-key/api-key.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { McpModule } from './modules/mcp/mcp.module';
+import { OpenaiCompatModule } from './modules/openai-compat/openai-compat.module';
+import { ProviderModule } from './modules/provider/provider.module';
+import { SkillModule } from './modules/skill/skill.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [

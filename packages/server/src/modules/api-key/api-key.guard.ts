@@ -1,5 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+
 import { Request } from 'express';
+
 import { ApiKeyService } from './api-key.service';
 
 const API_KEY_PREFIX = 'sk-agx-';

@@ -7,10 +7,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ProviderService } from './provider.service';
+
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ProviderService } from './provider.service';
 
 @Controller('providers')
 export class ProviderController {

@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { AgentStatus, MessageRole } from '../../generated/prisma/client';
+import { ChatService } from './chat.service';
 
 jest.mock('../../generated/prisma/client', () => ({
   AgentStatus: {

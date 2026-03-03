@@ -8,11 +8,12 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+
+import { AgentStatus } from '../../generated/prisma/client';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AgentService } from './agent.service';
 import { CreateAgentDto } from './dto/create-agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AgentStatus } from '../../generated/prisma/client';
 
 @Controller('agents')
 export class AgentController {

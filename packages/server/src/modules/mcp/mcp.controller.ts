@@ -7,10 +7,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { McpService } from './mcp.service';
+
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateMcpServerDto } from './dto/create-mcp-server.dto';
 import { UpdateMcpServerDto } from './dto/update-mcp-server.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { McpService } from './mcp.service';
 
 @Controller('mcp-servers')
 export class McpController {

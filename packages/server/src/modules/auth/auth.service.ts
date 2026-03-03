@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+
 import * as bcrypt from 'bcryptjs';
+
 import { PrismaService } from '../../prisma/prisma.service';
 
 export interface AuthUser {

@@ -7,10 +7,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { SkillService } from './skill.service';
+
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { SkillService } from './skill.service';
 
 @Controller('skills')
 export class SkillController {

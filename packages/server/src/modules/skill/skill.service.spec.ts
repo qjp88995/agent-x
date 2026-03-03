@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { SkillService } from './skill.service';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { SkillType } from '../../generated/prisma/client';
+import { SkillService } from './skill.service';
 
 jest.mock('../../generated/prisma/client', () => ({
   SkillType: {

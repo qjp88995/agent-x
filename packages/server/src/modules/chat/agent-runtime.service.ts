@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { streamText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createDeepSeek } from '@ai-sdk/deepseek';
-import { createAlibaba } from '@ai-sdk/alibaba';
-import { createMoonshotAI } from '@ai-sdk/moonshotai';
-import { createZhipu } from 'zhipu-ai-provider';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../prisma/prisma.service';
+
+import { createAlibaba } from '@ai-sdk/alibaba';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createDeepSeek } from '@ai-sdk/deepseek';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createMoonshotAI } from '@ai-sdk/moonshotai';
+import { createOpenAI } from '@ai-sdk/openai';
+import { streamText } from 'ai';
+import { createZhipu } from 'zhipu-ai-provider';
+
 import { decrypt } from '../../common/crypto.util';
+import { PrismaService } from '../../prisma/prisma.service';
 
 interface AgentWithRelations {
   readonly systemPrompt: string;
@@ -33,7 +35,7 @@ export class AgentRuntimeService {
     private readonly config: ConfigService
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   async createStream(
     agentId: string,
     messages: Array<{ role: string; content: string }>
@@ -68,7 +70,7 @@ export class AgentRuntimeService {
       agent.modelId
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     return streamText({
       model,
       system: systemPrompt,

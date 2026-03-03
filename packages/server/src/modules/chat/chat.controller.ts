@@ -7,11 +7,13 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+
 import { Response } from 'express';
-import { ChatService } from './chat.service';
-import { AgentRuntimeService } from './agent-runtime.service';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+
 import { MessageRole } from '../../generated/prisma/client';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AgentRuntimeService } from './agent-runtime.service';
+import { ChatService } from './chat.service';
 
 @Controller('conversations')
 export class ChatController {

@@ -3,8 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+
 import { AgentStatus, MessageRole } from '../../generated/prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 
 interface MessageRecord {
   readonly id: string;

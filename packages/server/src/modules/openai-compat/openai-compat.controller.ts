@@ -1,8 +1,10 @@
 import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+
 import { Request, Response } from 'express';
+
+import { ApiKeyService } from '../api-key/api-key.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { AgentRuntimeService } from '../chat/agent-runtime.service';
-import { ApiKeyService } from '../api-key/api-key.service';
 
 const API_KEY_PREFIX = 'sk-agx-';
 

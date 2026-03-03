@@ -1,9 +1,9 @@
 import {
-  IsString,
-  IsOptional,
   IsNumber,
-  Min,
+  IsOptional,
+  IsString,
   Max,
+  Min,
   MinLength,
 } from 'class-validator';
 

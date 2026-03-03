@@ -1,8 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { McpTransport,McpType } from '../../generated/prisma/client';
 import { McpService } from './mcp.service';
 import { McpClientService } from './mcp-client.service';
-import { McpType, McpTransport } from '../../generated/prisma/client';
 
 jest.mock('../../generated/prisma/client', () => ({
   McpType: {

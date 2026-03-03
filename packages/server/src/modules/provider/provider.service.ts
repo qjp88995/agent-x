@@ -5,19 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createDeepSeek } from '@ai-sdk/deepseek';
+
 import { createAlibaba } from '@ai-sdk/alibaba';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createDeepSeek } from '@ai-sdk/deepseek';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createMoonshotAI } from '@ai-sdk/moonshotai';
-import { createZhipu } from 'zhipu-ai-provider';
+import { createOpenAI } from '@ai-sdk/openai';
 import { APICallError, generateText } from 'ai';
+import { createZhipu } from 'zhipu-ai-provider';
+
+import { decrypt,encrypt } from '../../common/crypto.util';
+import { ProviderProtocol } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import { encrypt, decrypt } from '../../common/crypto.util';
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
-import { ProviderProtocol } from '../../generated/prisma/client';
 
 export interface ModelInfo {
   readonly id: string;

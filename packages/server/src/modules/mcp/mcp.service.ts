@@ -3,11 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+
 import { McpType, Prisma } from '../../generated/prisma/client';
-import { McpClientService } from './mcp-client.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateMcpServerDto } from './dto/create-mcp-server.dto';
 import { UpdateMcpServerDto } from './dto/update-mcp-server.dto';
+import { McpClientService } from './mcp-client.service';
 
 @Injectable()
 export class McpService {

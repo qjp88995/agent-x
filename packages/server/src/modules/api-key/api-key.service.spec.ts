@@ -1,7 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { ApiKeyService } from './api-key.service';
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { createHash } from 'crypto';
+
+import { ApiKeyService } from './api-key.service';
 
 jest.mock('../../prisma/prisma.service', () => ({
   PrismaService: jest.fn(),
