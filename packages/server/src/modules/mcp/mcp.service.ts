@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { McpType } from "../../generated/prisma/client";
+import { McpType, Prisma } from "../../generated/prisma/client";
 import { McpClientService } from "./mcp-client.service";
 import { CreateMcpServerDto } from "./dto/create-mcp-server.dto";
 import { UpdateMcpServerDto } from "./dto/update-mcp-server.dto";
@@ -22,7 +22,7 @@ export class McpService {
         name: dto.name,
         description: dto.description,
         transport: dto.transport,
-        config: dto.config,
+        config: dto.config as Prisma.InputJsonValue,
         type: McpType.CUSTOM,
         createdBy: userId,
       },
@@ -74,9 +74,7 @@ export class McpService {
     }
 
     if (mcpServer.createdBy !== userId) {
-      throw new ForbiddenException(
-        "You can only update your own MCP servers",
-      );
+      throw new ForbiddenException("You can only update your own MCP servers");
     }
 
     const data: Record<string, unknown> = {};
@@ -114,9 +112,7 @@ export class McpService {
     }
 
     if (mcpServer.createdBy !== userId) {
-      throw new ForbiddenException(
-        "You can only delete your own MCP servers",
-      );
+      throw new ForbiddenException("You can only delete your own MCP servers");
     }
 
     await this.prisma.mcpServer.delete({ where: { id } });
@@ -133,13 +129,8 @@ export class McpService {
       throw new NotFoundException("MCP server not found");
     }
 
-    if (
-      mcpServer.type === McpType.CUSTOM &&
-      mcpServer.createdBy !== userId
-    ) {
-      throw new ForbiddenException(
-        "You can only test your own MCP servers",
-      );
+    if (mcpServer.type === McpType.CUSTOM && mcpServer.createdBy !== userId) {
+      throw new ForbiddenException("You can only test your own MCP servers");
     }
 
     try {
@@ -150,7 +141,7 @@ export class McpService {
 
       await this.prisma.mcpServer.update({
         where: { id },
-        data: { tools: tools as unknown as Record<string, unknown>[] },
+        data: { tools: tools as unknown as Prisma.InputJsonValue },
       });
 
       return {
