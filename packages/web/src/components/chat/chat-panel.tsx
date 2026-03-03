@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { Bot, MessageSquare } from 'lucide-react';
 
 import { useMessages } from '@/hooks/use-chat';
-import { type ChatMessage,useChatStream } from '@/hooks/use-chat-stream';
+import { type ChatMessage, useChatStream } from '@/hooks/use-chat-stream';
 
 import { ChatInput } from './chat-input';
 import { MessageItem } from './message-item';
@@ -53,7 +53,9 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
         return {
           id: msg.id,
           role:
-            msg.role === 'user' ? ('user' as const) : ('assistant' as const),
+            msg.role.toLowerCase() === 'user'
+              ? ('user' as const)
+              : ('assistant' as const),
           content: textContent,
         };
       });
