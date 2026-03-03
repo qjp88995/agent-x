@@ -146,7 +146,7 @@ function AgentCard({
                   Archive
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to={`/agents/${agent.id}/chat`}>
+                  <Link to={`/chat?agent=${agent.id}`}>
                     <MessageSquare className="mr-2 size-4" />
                     Chat
                   </Link>
