@@ -26,6 +26,10 @@ enum ProviderProtocol {
   OPENAI
   ANTHROPIC
   GEMINI
+  DEEPSEEK
+  QWEN
+  ZHIPU
+  MOONSHOT
 }
 
 model Provider {

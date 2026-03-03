@@ -213,6 +213,11 @@ export class ProviderService {
         return [...ANTHROPIC_MODELS];
       case ProviderProtocol.GEMINI:
         return [...GEMINI_MODELS];
+      case ProviderProtocol.DEEPSEEK:
+      case ProviderProtocol.QWEN:
+      case ProviderProtocol.ZHIPU:
+      case ProviderProtocol.MOONSHOT:
+        return this.fetchOpenAIModels(provider.baseUrl, apiKey);
       default:
         throw new BadRequestException(
           `Unsupported protocol: ${provider.protocol as string}`,
@@ -266,6 +271,14 @@ export class ProviderService {
         const google = createGoogleGenerativeAI({ baseURL: baseUrl, apiKey });
         return google("gemini-2.0-flash");
       }
+      case ProviderProtocol.DEEPSEEK:
+        return createOpenAI({ baseURL: baseUrl, apiKey })("deepseek-chat");
+      case ProviderProtocol.QWEN:
+        return createOpenAI({ baseURL: baseUrl, apiKey })("qwen-turbo");
+      case ProviderProtocol.ZHIPU:
+        return createOpenAI({ baseURL: baseUrl, apiKey })("glm-4-flash");
+      case ProviderProtocol.MOONSHOT:
+        return createOpenAI({ baseURL: baseUrl, apiKey })("moonshot-v1-8k");
       default:
         throw new BadRequestException(
           `Unsupported protocol: ${protocol as string}`,

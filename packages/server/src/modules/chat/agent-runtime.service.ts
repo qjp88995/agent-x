@@ -93,6 +93,13 @@ export class AgentRuntimeService {
         const google = createGoogleGenerativeAI({ baseURL: baseUrl, apiKey });
         return google(modelId);
       }
+      case "DEEPSEEK":
+      case "QWEN":
+      case "ZHIPU":
+      case "MOONSHOT": {
+        const provider = createOpenAI({ baseURL: baseUrl, apiKey });
+        return provider(modelId);
+      }
       default:
         throw new Error(`Unsupported protocol: ${protocol}`);
     }

@@ -1,10 +1,15 @@
 export const ProviderProtocol = {
-  OPENAI: 'OPENAI',
-  ANTHROPIC: 'ANTHROPIC',
-  GEMINI: 'GEMINI',
+  OPENAI: "OPENAI",
+  ANTHROPIC: "ANTHROPIC",
+  GEMINI: "GEMINI",
+  DEEPSEEK: "DEEPSEEK",
+  QWEN: "QWEN",
+  ZHIPU: "ZHIPU",
+  MOONSHOT: "MOONSHOT",
 } as const;
 
-export type ProviderProtocol = (typeof ProviderProtocol)[keyof typeof ProviderProtocol];
+export type ProviderProtocol =
+  (typeof ProviderProtocol)[keyof typeof ProviderProtocol];
 
 export interface CreateProviderDto {
   name: string;

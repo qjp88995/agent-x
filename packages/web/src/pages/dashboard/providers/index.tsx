@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
+import { useState } from "react";
+import { Link } from "react-router";
 import {
   AlertTriangle,
   Database,
@@ -10,17 +10,17 @@ import {
   PlugZap,
   RefreshCw,
   Trash2,
-} from 'lucide-react';
-import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import type { ProviderProtocol, ProviderResponse } from "@agent-x/shared";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogClose,
@@ -29,44 +29,67 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import {
   useDeleteProvider,
   useProviders,
   useSyncModels,
   useTestProvider,
-} from '@/hooks/use-providers';
+} from "@/hooks/use-providers";
 
 const PROTOCOL_CONFIG: Record<
   ProviderProtocol,
   { label: string; className: string }
 > = {
   OPENAI: {
-    label: 'OpenAI',
-    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    label: "OpenAI",
+    className:
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
   },
   ANTHROPIC: {
-    label: 'Anthropic',
-    className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+    label: "Anthropic",
+    className:
+      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
   },
   GEMINI: {
-    label: 'Gemini',
-    className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    label: "Gemini",
+    className:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  },
+  DEEPSEEK: {
+    label: "DeepSeek",
+    className:
+      "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
+  },
+  QWEN: {
+    label: "Qwen",
+    className:
+      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+  },
+  ZHIPU: {
+    label: "GLM",
+    className:
+      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
+  },
+  MOONSHOT: {
+    label: "Kimi",
+    className:
+      "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400",
   },
 };
 
 function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
   const config = PROTOCOL_CONFIG[protocol];
   return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
+    <Badge variant="outline" className={cn("border-0", config.className)}>
       {config.label}
     </Badge>
   );
@@ -77,12 +100,12 @@ function StatusDot({ active }: { readonly active: boolean }) {
     <div className="flex items-center gap-1.5">
       <span
         className={cn(
-          'inline-block size-2 rounded-full',
-          active ? 'bg-green-500' : 'bg-gray-400',
+          "inline-block size-2 rounded-full",
+          active ? "bg-green-500" : "bg-gray-400",
         )}
       />
       <span className="text-muted-foreground text-xs">
-        {active ? 'Active' : 'Inactive'}
+        {active ? "Active" : "Inactive"}
       </span>
     </div>
   );
@@ -111,7 +134,10 @@ function ProviderCard({
         onTestResult(result.message, result.success);
       },
       onError: () => {
-        onTestResult('Connection test failed. Check your configuration.', false);
+        onTestResult(
+          "Connection test failed. Check your configuration.",
+          false,
+        );
       },
     });
   }
@@ -122,7 +148,7 @@ function ProviderCard({
         onTestResult(`Synced ${models.length} model(s) successfully.`, true);
       },
       onError: () => {
-        onTestResult('Failed to sync models.', false);
+        onTestResult("Failed to sync models.", false);
       },
     });
   }
@@ -156,14 +182,19 @@ function ProviderCard({
               disabled={testProvider.isPending}
             >
               <PlugZap className="mr-2 size-4" />
-              {testProvider.isPending ? 'Testing...' : 'Test Connection'}
+              {testProvider.isPending ? "Testing..." : "Test Connection"}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleSync}
               disabled={syncModels.isPending}
             >
-              <RefreshCw className={cn('mr-2 size-4', syncModels.isPending && 'animate-spin')} />
-              {syncModels.isPending ? 'Syncing...' : 'Sync Models'}
+              <RefreshCw
+                className={cn(
+                  "mr-2 size-4",
+                  syncModels.isPending && "animate-spin",
+                )}
+              />
+              {syncModels.isPending ? "Syncing..." : "Sync Models"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -186,7 +217,8 @@ function ProviderCard({
 
       <CardFooter className="border-t pt-4">
         <div className="text-muted-foreground text-sm">
-          {provider.models.length} model{provider.models.length !== 1 ? 's' : ''}
+          {provider.models.length} model
+          {provider.models.length !== 1 ? "s" : ""}
         </div>
       </CardFooter>
     </Card>
@@ -223,10 +255,10 @@ function TestResultBanner({
   return (
     <div
       className={cn(
-        'flex items-center justify-between rounded-md px-4 py-3 text-sm',
+        "flex items-center justify-between rounded-md px-4 py-3 text-sm",
         success
-          ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+          ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+          : "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400",
       )}
     >
       <span>{message}</span>
@@ -245,7 +277,9 @@ function TestResultBanner({
 export default function ProviderListPage() {
   const { data: providers, isLoading, error } = useProviders();
   const deleteProvider = useDeleteProvider();
-  const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(
+    null,
+  );
   const [testResult, setTestResult] = useState<{
     message: string;
     success: boolean;
@@ -267,7 +301,9 @@ export default function ProviderListPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">Loading providers...</div>
+        <div className="text-muted-foreground text-sm">
+          Loading providers...
+        </div>
       </div>
     );
   }
@@ -338,8 +374,9 @@ export default function ProviderListPage() {
           <DialogHeader>
             <DialogTitle>Delete Provider</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &ldquo;{deleteTarget?.name}&rdquo;?
-              This action cannot be undone and will remove all associated models.
+              Are you sure you want to delete &ldquo;{deleteTarget?.name}
+              &rdquo;? This action cannot be undone and will remove all
+              associated models.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -351,7 +388,7 @@ export default function ProviderListPage() {
               onClick={handleDeleteConfirm}
               disabled={deleteProvider.isPending}
             >
-              {deleteProvider.isPending ? 'Deleting...' : 'Delete'}
+              {deleteProvider.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
