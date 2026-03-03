@@ -1,16 +1,19 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes } from 'react-router';
-import { ProtectedRoute } from '@/components/auth/protected-route';
+import { lazy, Suspense } from "react";
+import { Navigate, Route, Routes } from "react-router";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 
-const LoginPage = lazy(() => import('@/pages/login'));
-const RegisterPage = lazy(() => import('@/pages/register'));
-const DashboardLayout = lazy(() => import('@/pages/dashboard/layout'));
+const LoginPage = lazy(() => import("@/pages/login"));
+const RegisterPage = lazy(() => import("@/pages/register"));
+const DashboardLayout = lazy(() => import("@/pages/dashboard/layout"));
 const ProviderListPage = lazy(
-  () => import('@/pages/dashboard/providers/index'),
+  () => import("@/pages/dashboard/providers/index"),
 );
 const CreateProviderPage = lazy(
-  () => import('@/pages/dashboard/providers/create'),
+  () => import("@/pages/dashboard/providers/create"),
 );
+const AgentListPage = lazy(() => import("@/pages/dashboard/agents/index"));
+const CreateAgentPage = lazy(() => import("@/pages/dashboard/agents/create"));
+const EditAgentPage = lazy(() => import("@/pages/dashboard/agents/edit"));
 
 function PageLoader() {
   return (
@@ -35,6 +38,9 @@ export function AppRoutes() {
               path="/providers/:id/edit"
               element={<CreateProviderPage />}
             />
+            <Route path="/agents" element={<AgentListPage />} />
+            <Route path="/agents/new" element={<CreateAgentPage />} />
+            <Route path="/agents/:id/edit" element={<EditAgentPage />} />
           </Route>
         </Route>
       </Routes>
