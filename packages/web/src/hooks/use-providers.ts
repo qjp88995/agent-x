@@ -52,17 +52,8 @@ export function useUpdateProvider() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      dto,
-    }: {
-      id: string;
-      dto: UpdateProviderDto;
-    }) => {
-      const { data } = await api.put<ProviderResponse>(
-        `/providers/${id}`,
-        dto,
-      );
+    mutationFn: async ({ id, dto }: { id: string; dto: UpdateProviderDto }) => {
+      const { data } = await api.put<ProviderResponse>(`/providers/${id}`, dto);
       return data;
     },
     onSuccess: () => {
@@ -104,7 +95,7 @@ export function useSyncModels() {
   return useMutation({
     mutationFn: async (id: string) => {
       const { data } = await api.post<ProviderModelResponse[]>(
-        `/providers/${id}/sync-models`,
+        `/providers/${id}/sync-models`
       );
       return data;
     },

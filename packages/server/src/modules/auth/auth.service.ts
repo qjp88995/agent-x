@@ -2,11 +2,11 @@ import {
   ConflictException,
   Injectable,
   UnauthorizedException,
-} from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { JwtService, JwtSignOptions } from "@nestjs/jwt";
-import * as bcrypt from "bcryptjs";
-import { PrismaService } from "../../prisma/prisma.service";
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { PrismaService } from '../../prisma/prisma.service';
 
 export interface AuthUser {
   readonly id: string;
@@ -27,20 +27,20 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   async register(
     email: string,
     password: string,
-    name?: string,
+    name?: string
   ): Promise<AuthResponse> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
-      throw new ConflictException("A user with this email already exists");
+      throw new ConflictException('A user with this email already exists');
     }
 
     const passwordHash = await bcrypt.hash(password, AuthService.BCRYPT_ROUNDS);
@@ -62,13 +62,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException("Invalid email or password");
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException("Invalid email or password");
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     return this.generateAuthResponse(user);
@@ -80,11 +80,11 @@ export class AuthService {
     try {
       payload = await this.jwtService.verifyAsync(refreshToken);
     } catch {
-      throw new UnauthorizedException("Invalid or expired refresh token");
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    if (payload.type !== "refresh") {
-      throw new UnauthorizedException("Invalid token type");
+    if (payload.type !== 'refresh') {
+      throw new UnauthorizedException('Invalid token type');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -92,7 +92,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException("User not found");
+      throw new UnauthorizedException('User not found');
     }
 
     return this.generateAuthResponse(user);
@@ -104,7 +104,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException("User not found");
+      throw new UnauthorizedException('User not found');
     }
 
     return {
@@ -122,17 +122,17 @@ export class AuthService {
     const tokenPayload = { sub: user.id, email: user.email };
 
     const accessToken = this.jwtService.sign(
-      { ...tokenPayload, type: "access" },
+      { ...tokenPayload, type: 'access' },
       {
-        expiresIn: this.configService.get("JWT_EXPIRES_IN", "7d"),
-      } as JwtSignOptions,
+        expiresIn: this.configService.get('JWT_EXPIRES_IN', '7d'),
+      } as JwtSignOptions
     );
 
     const refreshToken = this.jwtService.sign(
-      { ...tokenPayload, type: "refresh" },
+      { ...tokenPayload, type: 'refresh' },
       {
-        expiresIn: this.configService.get("JWT_REFRESH_EXPIRES_IN", "30d"),
-      } as JwtSignOptions,
+        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN', '30d'),
+      } as JwtSignOptions
     );
 
     return {

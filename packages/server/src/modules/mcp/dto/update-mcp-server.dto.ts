@@ -1,5 +1,5 @@
-import { IsEnum, IsObject, IsOptional, IsString } from "class-validator";
-import { McpTransport } from "../../../generated/prisma/client";
+import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
+import { McpTransport } from '../../../generated/prisma/client';
 
 export class UpdateMcpServerDto {
   @IsOptional()

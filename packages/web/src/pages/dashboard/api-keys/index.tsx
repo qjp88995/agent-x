@@ -45,13 +45,19 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-function StatusBadge({ isActive, expiresAt }: {
+function StatusBadge({
+  isActive,
+  expiresAt,
+}: {
   readonly isActive: boolean;
   readonly expiresAt: string | null;
 }) {
   if (!isActive) {
     return (
-      <Badge variant="outline" className="border-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+      <Badge
+        variant="outline"
+        className="border-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+      >
         Revoked
       </Badge>
     );
@@ -59,14 +65,20 @@ function StatusBadge({ isActive, expiresAt }: {
 
   if (expiresAt && new Date(expiresAt) < new Date()) {
     return (
-      <Badge variant="outline" className="border-0 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+      <Badge
+        variant="outline"
+        className="border-0 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+      >
         Expired
       </Badge>
     );
   }
 
   return (
-    <Badge variant="outline" className="border-0 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+    <Badge
+      variant="outline"
+      className="border-0 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+    >
       Active
     </Badge>
   );
@@ -107,10 +119,10 @@ function CreateKeyDialog({
         expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: data => {
           setCreatedKey(data.plainKey);
         },
-      },
+      }
     );
   }
 
@@ -174,7 +186,7 @@ function CreateKeyDialog({
                 id="key-name"
                 placeholder="e.g. Production API Key"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
               />
             </div>
 
@@ -184,10 +196,10 @@ function CreateKeyDialog({
                 id="key-agent"
                 className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 value={agentId}
-                onChange={(e) => setAgentId(e.target.value)}
+                onChange={e => setAgentId(e.target.value)}
               >
                 <option value="">Any agent (specify in request)</option>
-                {agents?.map((agent) => (
+                {agents?.map(agent => (
                   <option key={agent.id} value={agent.id}>
                     {agent.name}
                   </option>
@@ -205,7 +217,7 @@ function CreateKeyDialog({
                 id="key-expires"
                 type="date"
                 value={expiresAt}
-                onChange={(e) => setExpiresAt(e.target.value)}
+                onChange={e => setExpiresAt(e.target.value)}
               />
             </div>
 
@@ -248,7 +260,7 @@ function DeleteConfirmDialog({
   return (
     <Dialog
       open={target !== null}
-      onOpenChange={(open) => {
+      onOpenChange={open => {
         if (!open) onOpenChange(false);
       }}
     >
@@ -343,9 +355,7 @@ export default function ApiKeysPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          Loading API keys...
-        </div>
+        <div className="text-muted-foreground text-sm">Loading API keys...</div>
       </div>
     );
   }
@@ -396,7 +406,7 @@ export default function ApiKeysPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {apiKeys.map((apiKey) => (
+              {apiKeys.map(apiKey => (
                 <TableRow key={apiKey.id}>
                   <TableCell className="font-medium">{apiKey.name}</TableCell>
                   <TableCell>
@@ -408,9 +418,7 @@ export default function ApiKeysPage() {
                     {apiKey.agent ? (
                       <span>{apiKey.agent.name}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">
-                        Any
-                      </span>
+                      <span className="text-muted-foreground text-xs">Any</span>
                     )}
                   </TableCell>
                   <TableCell>{formatDate(apiKey.lastUsedAt)}</TableCell>
@@ -452,7 +460,7 @@ export default function ApiKeysPage() {
       {/* Delete confirmation dialog */}
       <DeleteConfirmDialog
         target={deleteTarget}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           if (!open) setDeleteTarget(null);
         }}
       />

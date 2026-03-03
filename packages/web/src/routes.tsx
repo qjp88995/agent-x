@@ -1,25 +1,25 @@
-import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router";
-import { ProtectedRoute } from "@/components/auth/protected-route";
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router';
+import { ProtectedRoute } from '@/components/auth/protected-route';
 
-const LoginPage = lazy(() => import("@/pages/login"));
-const RegisterPage = lazy(() => import("@/pages/register"));
-const DashboardLayout = lazy(() => import("@/pages/dashboard/layout"));
+const LoginPage = lazy(() => import('@/pages/login'));
+const RegisterPage = lazy(() => import('@/pages/register'));
+const DashboardLayout = lazy(() => import('@/pages/dashboard/layout'));
 const ProviderListPage = lazy(
-  () => import("@/pages/dashboard/providers/index"),
+  () => import('@/pages/dashboard/providers/index')
 );
 const CreateProviderPage = lazy(
-  () => import("@/pages/dashboard/providers/create"),
+  () => import('@/pages/dashboard/providers/create')
 );
-const AgentListPage = lazy(() => import("@/pages/dashboard/agents/index"));
-const CreateAgentPage = lazy(() => import("@/pages/dashboard/agents/create"));
-const EditAgentPage = lazy(() => import("@/pages/dashboard/agents/edit"));
-const SkillsPage = lazy(() => import("@/pages/dashboard/skills/index"));
-const SkillEditorPage = lazy(() => import("@/pages/dashboard/skills/editor"));
-const McpPage = lazy(() => import("@/pages/dashboard/mcp/index"));
-const McpEditorPage = lazy(() => import("@/pages/dashboard/mcp/editor"));
-const ApiKeysPage = lazy(() => import("@/pages/dashboard/api-keys/index"));
-const ChatPage = lazy(() => import("@/pages/chat/index"));
+const AgentListPage = lazy(() => import('@/pages/dashboard/agents/index'));
+const CreateAgentPage = lazy(() => import('@/pages/dashboard/agents/create'));
+const EditAgentPage = lazy(() => import('@/pages/dashboard/agents/edit'));
+const SkillsPage = lazy(() => import('@/pages/dashboard/skills/index'));
+const SkillEditorPage = lazy(() => import('@/pages/dashboard/skills/editor'));
+const McpPage = lazy(() => import('@/pages/dashboard/mcp/index'));
+const McpEditorPage = lazy(() => import('@/pages/dashboard/mcp/editor'));
+const ApiKeysPage = lazy(() => import('@/pages/dashboard/api-keys/index'));
+const ChatPage = lazy(() => import('@/pages/chat/index'));
 
 function PageLoader() {
   return (

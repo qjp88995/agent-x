@@ -2,9 +2,9 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { AgentStatus, MessageRole } from "../../generated/prisma/client";
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AgentStatus, MessageRole } from '../../generated/prisma/client';
 
 interface MessageRecord {
   readonly id: string;
@@ -31,12 +31,12 @@ export class ChatService {
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     if (agent.status !== AgentStatus.PUBLISHED) {
       throw new BadRequestException(
-        "Only published agents can be used for conversations",
+        'Only published agents can be used for conversations'
       );
     }
 
@@ -44,7 +44,7 @@ export class ChatService {
       data: {
         userId,
         agentId,
-        title: title ?? "New Chat",
+        title: title ?? 'New Chat',
       },
       include: {
         agent: { select: { id: true, name: true, avatar: true } },
@@ -58,7 +58,7 @@ export class ChatService {
       include: {
         agent: { select: { id: true, name: true, avatar: true } },
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
     });
   }
 
@@ -67,7 +67,7 @@ export class ChatService {
 
     return this.prisma.message.findMany({
       where: { conversationId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: 'asc' },
     });
   }
 
@@ -75,7 +75,7 @@ export class ChatService {
     conversationId: string,
     role: MessageRole,
     parts: unknown,
-    tokenUsage?: unknown,
+    tokenUsage?: unknown
   ) {
     const message = await this.prisma.message.create({
       data: {
@@ -95,22 +95,22 @@ export class ChatService {
   }
 
   async getMessagesForAI(
-    conversationId: string,
+    conversationId: string
   ): Promise<Array<{ role: string; content: string }>> {
     const messages: MessageRecord[] = await this.prisma.message.findMany({
       where: { conversationId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: 'asc' },
     });
 
     return messages.map((msg: MessageRecord) => {
       const parts = msg.parts as TextPart[];
       const textContent = parts
-        .filter((p) => p.type === "text")
-        .map((p) => p.text ?? "")
-        .join("");
+        .filter(p => p.type === 'text')
+        .map(p => p.text ?? '')
+        .join('');
 
       return {
-        role: msg.role === MessageRole.USER ? "user" : "assistant",
+        role: msg.role === MessageRole.USER ? 'user' : 'assistant',
         content: textContent,
       };
     });
@@ -125,7 +125,7 @@ export class ChatService {
     });
 
     if (!conversation) {
-      throw new NotFoundException("Conversation not found");
+      throw new NotFoundException('Conversation not found');
     }
 
     return conversation;
@@ -136,6 +136,6 @@ export class ChatService {
 
     await this.prisma.conversation.delete({ where: { id } });
 
-    return { message: "Conversation deleted successfully" };
+    return { message: 'Conversation deleted successfully' };
   }
 }

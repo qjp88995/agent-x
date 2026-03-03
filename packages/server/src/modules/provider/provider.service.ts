@@ -3,21 +3,21 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { createOpenAI } from "@ai-sdk/openai";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createDeepSeek } from "@ai-sdk/deepseek";
-import { createAlibaba } from "@ai-sdk/alibaba";
-import { createMoonshotAI } from "@ai-sdk/moonshotai";
-import { createZhipu } from "zhipu-ai-provider";
-import { APICallError, generateText } from "ai";
-import { PrismaService } from "../../prisma/prisma.service";
-import { encrypt, decrypt } from "../../common/crypto.util";
-import { CreateProviderDto } from "./dto/create-provider.dto";
-import { UpdateProviderDto } from "./dto/update-provider.dto";
-import { ProviderProtocol } from "../../generated/prisma/client";
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createDeepSeek } from '@ai-sdk/deepseek';
+import { createAlibaba } from '@ai-sdk/alibaba';
+import { createMoonshotAI } from '@ai-sdk/moonshotai';
+import { createZhipu } from 'zhipu-ai-provider';
+import { APICallError, generateText } from 'ai';
+import { PrismaService } from '../../prisma/prisma.service';
+import { encrypt, decrypt } from '../../common/crypto.util';
+import { CreateProviderDto } from './dto/create-provider.dto';
+import { UpdateProviderDto } from './dto/update-provider.dto';
+import { ProviderProtocol } from '../../generated/prisma/client';
 
 export interface ModelInfo {
   readonly id: string;
@@ -25,31 +25,31 @@ export interface ModelInfo {
 }
 
 const ANTHROPIC_MODELS: readonly ModelInfo[] = [
-  { id: "claude-sonnet-4-20250514", name: "Claude Sonnet 4" },
-  { id: "claude-haiku-4-20250414", name: "Claude Haiku 4" },
-  { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet" },
-  { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku" },
+  { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4' },
+  { id: 'claude-haiku-4-20250414', name: 'Claude Haiku 4' },
+  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
+  { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku' },
 ] as const;
 
 const GEMINI_MODELS: readonly ModelInfo[] = [
-  { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
-  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-  { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
-  { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
-  { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" },
+  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
+  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
+  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
 ] as const;
 
 @Injectable()
 export class ProviderService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   private getEncryptionSecret(): string {
-    const secret = this.configService.get<string>("ENCRYPTION_SECRET");
+    const secret = this.configService.get<string>('ENCRYPTION_SECRET');
     if (!secret) {
-      throw new Error("ENCRYPTION_SECRET is not configured");
+      throw new Error('ENCRYPTION_SECRET is not configured');
     }
     return secret;
   }
@@ -83,7 +83,7 @@ export class ProviderService {
           select: { models: true },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return providers.map((provider: (typeof providers)[number]) => ({
@@ -104,7 +104,7 @@ export class ProviderService {
     });
 
     if (!provider) {
-      throw new NotFoundException("Provider not found");
+      throw new NotFoundException('Provider not found');
     }
 
     return {
@@ -119,7 +119,7 @@ export class ProviderService {
     });
 
     if (!provider) {
-      throw new NotFoundException("Provider not found");
+      throw new NotFoundException('Provider not found');
     }
 
     const data: Record<string, unknown> = {};
@@ -154,18 +154,18 @@ export class ProviderService {
     });
 
     if (!provider) {
-      throw new NotFoundException("Provider not found");
+      throw new NotFoundException('Provider not found');
     }
 
     if (provider._count.agents > 0) {
       throw new ConflictException(
-        `Cannot delete provider: ${provider._count.agents} agent(s) are still using it`,
+        `Cannot delete provider: ${provider._count.agents} agent(s) are still using it`
       );
     }
 
     await this.prisma.provider.delete({ where: { id } });
 
-    return { message: "Provider deleted successfully" };
+    return { message: 'Provider deleted successfully' };
   }
 
   async testConnection(id: string, userId: string) {
@@ -174,7 +174,7 @@ export class ProviderService {
     });
 
     if (!provider) {
-      throw new NotFoundException("Provider not found");
+      throw new NotFoundException('Provider not found');
     }
 
     const apiKey = decrypt(provider.apiKey, this.getEncryptionSecret());
@@ -183,16 +183,16 @@ export class ProviderService {
       const model = this.createLanguageModel(
         provider.protocol,
         provider.baseUrl,
-        apiKey,
+        apiKey
       );
 
       await generateText({
         model,
-        prompt: "Say hello in one word.",
+        prompt: 'Say hello in one word.',
         maxOutputTokens: 10,
       });
 
-      return { success: true, message: "Connection successful" };
+      return { success: true, message: 'Connection successful' };
     } catch (error) {
       if (APICallError.isInstance(error)) {
         return {
@@ -201,7 +201,7 @@ export class ProviderService {
         };
       }
       const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+        error instanceof Error ? error.message : 'Unknown error';
       return { success: false, message: `Connection failed: ${errorMessage}` };
     }
   }
@@ -212,7 +212,7 @@ export class ProviderService {
     });
 
     if (!provider) {
-      throw new NotFoundException("Provider not found");
+      throw new NotFoundException('Provider not found');
     }
 
     const apiKey = decrypt(provider.apiKey, this.getEncryptionSecret());
@@ -231,7 +231,7 @@ export class ProviderService {
         return this.fetchOpenAIModels(provider.baseUrl, apiKey);
       default:
         throw new BadRequestException(
-          `Unsupported protocol: ${provider.protocol as string}`,
+          `Unsupported protocol: ${provider.protocol as string}`
         );
     }
   }
@@ -239,7 +239,7 @@ export class ProviderService {
   async syncModels(id: string, userId: string) {
     const models = await this.getModels(id, userId);
 
-    const operations = models.map((model) =>
+    const operations = models.map(model =>
       this.prisma.providerModel.upsert({
         where: {
           providerId_modelId: {
@@ -256,7 +256,7 @@ export class ProviderService {
         update: {
           name: model.name,
         },
-      }),
+      })
     );
 
     const synced = await Promise.all(operations);
@@ -267,39 +267,39 @@ export class ProviderService {
   private createLanguageModel(
     protocol: ProviderProtocol,
     baseUrl: string,
-    apiKey: string,
+    apiKey: string
   ) {
     switch (protocol) {
       case ProviderProtocol.OPENAI: {
         const openai = createOpenAI({ baseURL: baseUrl, apiKey });
-        return openai.chat("gpt-4o-mini");
+        return openai.chat('gpt-4o-mini');
       }
       case ProviderProtocol.ANTHROPIC: {
         const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
-        return anthropic("claude-3-5-haiku-20241022");
+        return anthropic('claude-3-5-haiku-20241022');
       }
       case ProviderProtocol.GEMINI: {
         const google = createGoogleGenerativeAI({ baseURL: baseUrl, apiKey });
-        return google("gemini-2.0-flash");
+        return google('gemini-2.0-flash');
       }
       case ProviderProtocol.DEEPSEEK:
-        return createDeepSeek({ baseURL: baseUrl, apiKey })("deepseek-chat");
+        return createDeepSeek({ baseURL: baseUrl, apiKey })('deepseek-chat');
       case ProviderProtocol.QWEN:
-        return createAlibaba({ baseURL: baseUrl, apiKey })("qwen-turbo");
+        return createAlibaba({ baseURL: baseUrl, apiKey })('qwen-turbo');
       case ProviderProtocol.ZHIPU:
-        return createZhipu({ baseURL: baseUrl, apiKey })("glm-4-flash");
+        return createZhipu({ baseURL: baseUrl, apiKey })('glm-4-flash');
       case ProviderProtocol.MOONSHOT:
-        return createMoonshotAI({ baseURL: baseUrl, apiKey })("moonshot-v1-8k");
+        return createMoonshotAI({ baseURL: baseUrl, apiKey })('moonshot-v1-8k');
       default:
         throw new BadRequestException(
-          `Unsupported protocol: ${protocol as string}`,
+          `Unsupported protocol: ${protocol as string}`
         );
     }
   }
 
   private async fetchOpenAIModels(
     baseUrl: string,
-    apiKey: string,
+    apiKey: string
   ): Promise<readonly ModelInfo[]> {
     const response = await fetch(`${baseUrl}/models`, {
       headers: {
@@ -309,7 +309,7 @@ export class ProviderService {
 
     if (!response.ok) {
       throw new BadRequestException(
-        `Failed to fetch models: ${response.statusText}`,
+        `Failed to fetch models: ${response.statusText}`
       );
     }
 
@@ -317,7 +317,7 @@ export class ProviderService {
       data: Array<{ id: string; name?: string }>;
     };
 
-    return body.data.map((m) => ({
+    return body.data.map(m => ({
       id: m.id,
       name: m.name ?? m.id,
     }));

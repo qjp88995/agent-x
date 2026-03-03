@@ -1,8 +1,8 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { Request } from "express";
-import { ApiKeyService } from "./api-key.service";
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Request } from 'express';
+import { ApiKeyService } from './api-key.service';
 
-const API_KEY_PREFIX = "sk-agx-";
+const API_KEY_PREFIX = 'sk-agx-';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
@@ -16,9 +16,9 @@ export class ApiKeyGuard implements CanActivate {
       return false;
     }
 
-    const [type, token] = authHeader.split(" ");
+    const [type, token] = authHeader.split(' ');
 
-    if (type !== "Bearer" || !token?.startsWith(API_KEY_PREFIX)) {
+    if (type !== 'Bearer' || !token?.startsWith(API_KEY_PREFIX)) {
       return false;
     }
 
@@ -28,7 +28,7 @@ export class ApiKeyGuard implements CanActivate {
       return false;
     }
 
-    (request as unknown as Record<string, unknown>)["user"] = {
+    (request as unknown as Record<string, unknown>)['user'] = {
       id: keyData.userId,
       agentId: keyData.agentId,
     };

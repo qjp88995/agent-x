@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class McpClientService {
   async getTools(
     transport: string,
-    config: Record<string, unknown>,
+    config: Record<string, unknown>
   ): Promise<
     Array<{
       name: string;

@@ -3,17 +3,17 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
-} from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { JwtService } from "@nestjs/jwt";
-import { Request } from "express";
-import { IS_PUBLIC_KEY } from "./decorators/public.decorator";
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { IS_PUBLIC_KEY } from './decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly reflector: Reflector,
+    private readonly reflector: Reflector
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException("Missing authentication token");
+      throw new UnauthorizedException('Missing authentication token');
     }
 
     try {
@@ -39,12 +39,12 @@ export class AuthGuard implements CanActivate {
         email: string;
       }>(token);
 
-      (request as unknown as Record<string, unknown>)["user"] = {
+      (request as unknown as Record<string, unknown>)['user'] = {
         id: payload.sub,
         email: payload.email,
       };
     } catch {
-      throw new UnauthorizedException("Invalid or expired token");
+      throw new UnauthorizedException('Invalid or expired token');
     }
 
     return true;
@@ -57,8 +57,8 @@ export class AuthGuard implements CanActivate {
       return undefined;
     }
 
-    const [type, token] = authorization.split(" ");
+    const [type, token] = authorization.split(' ');
 
-    return type === "Bearer" ? token : undefined;
+    return type === 'Bearer' ? token : undefined;
   }
 }

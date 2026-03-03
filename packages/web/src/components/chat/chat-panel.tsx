@@ -40,16 +40,17 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
       savedMessages.length > 0 &&
       historyLoadedRef.current !== conversationId
     ) {
-      const history: ChatMessage[] = savedMessages.map((msg) => {
+      const history: ChatMessage[] = savedMessages.map(msg => {
         const parts = msg.parts as Array<{ type: string; text?: string }>;
         const textContent = parts
-          .filter((p) => p.type === 'text')
-          .map((p) => p.text ?? '')
+          .filter(p => p.type === 'text')
+          .map(p => p.text ?? '')
           .join('');
 
         return {
           id: msg.id,
-          role: msg.role === 'user' ? ('user' as const) : ('assistant' as const),
+          role:
+            msg.role === 'user' ? ('user' as const) : ('assistant' as const),
           content: textContent,
         };
       });
@@ -84,7 +85,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
           <EmptyChat agentName={agentName} />
         ) : (
           <div className="mx-auto max-w-3xl py-4">
-            {messages.map((message) => (
+            {messages.map(message => (
               <MessageItem key={message.id} message={message} />
             ))}
             <div ref={messagesEndRef} />
@@ -93,11 +94,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
       </div>
 
       {/* Input */}
-      <ChatInput
-        onSend={sendMessage}
-        onStop={stop}
-        isLoading={isLoading}
-      />
+      <ChatInput onSend={sendMessage} onStop={stop} isLoading={isLoading} />
     </div>
   );
 }

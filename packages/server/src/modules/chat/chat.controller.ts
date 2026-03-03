@@ -6,29 +6,29 @@ import {
   Param,
   Post,
   Res,
-} from "@nestjs/common";
-import { Response } from "express";
-import { ChatService } from "./chat.service";
-import { AgentRuntimeService } from "./agent-runtime.service";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { MessageRole } from "../../generated/prisma/client";
+} from '@nestjs/common';
+import { Response } from 'express';
+import { ChatService } from './chat.service';
+import { AgentRuntimeService } from './agent-runtime.service';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { MessageRole } from '../../generated/prisma/client';
 
-@Controller("conversations")
+@Controller('conversations')
 export class ChatController {
   constructor(
     private readonly chatService: ChatService,
-    private readonly runtime: AgentRuntimeService,
+    private readonly runtime: AgentRuntimeService
   ) {}
 
   @Post()
   createConversation(
     @CurrentUser() user: { id: string },
-    @Body() body: { agentId: string; title?: string },
+    @Body() body: { agentId: string; title?: string }
   ) {
     return this.chatService.createConversation(
       user.id,
       body.agentId,
-      body.title,
+      body.title
     );
   }
 
@@ -37,29 +37,29 @@ export class ChatController {
     return this.chatService.getConversations(user.id);
   }
 
-  @Get(":id/messages")
-  getMessages(@Param("id") id: string, @CurrentUser() user: { id: string }) {
+  @Get(':id/messages')
+  getMessages(@Param('id') id: string, @CurrentUser() user: { id: string }) {
     return this.chatService.getMessages(id, user.id);
   }
 
-  @Post(":id/chat")
+  @Post(':id/chat')
   async chat(
-    @Param("id") id: string,
+    @Param('id') id: string,
     @CurrentUser() user: { id: string },
     @Body() body: { content: string },
-    @Res() res: Response,
+    @Res() res: Response
   ) {
     const conversation = await this.chatService.verifyOwnership(id, user.id);
 
     await this.chatService.saveMessage(id, MessageRole.USER, [
-      { type: "text", text: body.content },
+      { type: 'text', text: body.content },
     ]);
 
     const history = await this.chatService.getMessagesForAI(id);
 
     const result = await this.runtime.createStream(
       conversation.agentId,
-      history,
+      history
     );
 
     // Save assistant message after streaming completes
@@ -68,8 +68,8 @@ export class ChatController {
       await this.chatService.saveMessage(
         id,
         MessageRole.ASSISTANT,
-        [{ type: "text", text }],
-        usage,
+        [{ type: 'text', text }],
+        usage
       );
     });
 
@@ -77,10 +77,10 @@ export class ChatController {
     result.pipeTextStreamToResponse(res);
   }
 
-  @Delete(":id")
+  @Delete(':id')
   deleteConversation(
-    @Param("id") id: string,
-    @CurrentUser() user: { id: string },
+    @Param('id') id: string,
+    @CurrentUser() user: { id: string }
   ) {
     return this.chatService.deleteConversation(id, user.id);
   }

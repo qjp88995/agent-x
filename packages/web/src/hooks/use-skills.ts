@@ -51,13 +51,7 @@ export function useUpdateSkill() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      dto,
-    }: {
-      id: string;
-      dto: UpdateSkillDto;
-    }) => {
+    mutationFn: async ({ id, dto }: { id: string; dto: UpdateSkillDto }) => {
       const { data } = await api.put<SkillResponse>(`/skills/${id}`, dto);
       return data;
     },

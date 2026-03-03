@@ -61,10 +61,7 @@ export default function EditAgentPage() {
     isLoading: isLoadingAgent,
     error: agentError,
   } = useAgent(id);
-  const {
-    data: providers,
-    isLoading: isLoadingProviders,
-  } = useProviders();
+  const { data: providers, isLoading: isLoadingProviders } = useProviders();
   const updateAgent = useUpdateAgent();
   const publishAgent = usePublishAgent();
   const archiveAgent = useArchiveAgent();
@@ -80,18 +77,18 @@ export default function EditAgentPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const activeProviders = useMemo(
-    () => providers?.filter((p) => p.isActive) ?? [],
-    [providers],
+    () => providers?.filter(p => p.isActive) ?? [],
+    [providers]
   );
 
   const selectedProvider = useMemo(
-    () => activeProviders.find((p) => p.id === providerId),
-    [activeProviders, providerId],
+    () => activeProviders.find(p => p.id === providerId),
+    [activeProviders, providerId]
   );
 
   const activeModels = useMemo(
-    () => selectedProvider?.models.filter((m) => m.isActive) ?? [],
-    [selectedProvider],
+    () => selectedProvider?.models.filter(m => m.isActive) ?? [],
+    [selectedProvider]
   );
 
   // Pre-fill form when agent data loads
@@ -132,7 +129,11 @@ export default function EditAgentPage() {
     const parsedTemperature = parseFloat(temperature);
     const parsedMaxTokens = parseInt(maxTokens, 10);
 
-    if (isNaN(parsedTemperature) || parsedTemperature < 0 || parsedTemperature > 2) {
+    if (
+      isNaN(parsedTemperature) ||
+      parsedTemperature < 0 ||
+      parsedTemperature > 2
+    ) {
       setError('Temperature must be a number between 0 and 2.');
       return;
     }
@@ -227,9 +228,7 @@ export default function EditAgentPage() {
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">
-                Edit Agent
-              </h1>
+              <h1 className="text-2xl font-bold tracking-tight">Edit Agent</h1>
               <Badge
                 variant="outline"
                 className={cn('border-0', statusConfig.className)}
@@ -248,27 +247,15 @@ export default function EditAgentPage() {
 
         <div className="flex items-center gap-2">
           {agent.status === AgentStatus.DRAFT && (
-            <Button
-              variant="outline"
-              onClick={handlePublish}
-              disabled={isBusy}
-            >
-              {isPublishing && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
+            <Button variant="outline" onClick={handlePublish} disabled={isBusy}>
+              {isPublishing && <Loader2 className="mr-2 size-4 animate-spin" />}
               <Rocket className="mr-2 size-4" />
               Publish
             </Button>
           )}
           {agent.status === AgentStatus.PUBLISHED && (
-            <Button
-              variant="outline"
-              onClick={handleArchive}
-              disabled={isBusy}
-            >
-              {isArchiving && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
+            <Button variant="outline" onClick={handleArchive} disabled={isBusy}>
+              {isArchiving && <Loader2 className="mr-2 size-4 animate-spin" />}
               <Archive className="mr-2 size-4" />
               Archive
             </Button>
@@ -313,7 +300,7 @@ export default function EditAgentPage() {
                     id="name"
                     placeholder="e.g., Customer Support Agent"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={e => setName(e.target.value)}
                     disabled={isBusy}
                     required
                   />
@@ -326,7 +313,7 @@ export default function EditAgentPage() {
                     id="description"
                     placeholder="Describe what this agent does..."
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={e => setDescription(e.target.value)}
                     disabled={isBusy}
                     rows={3}
                   />
@@ -338,7 +325,7 @@ export default function EditAgentPage() {
                   <select
                     id="provider"
                     value={providerId}
-                    onChange={(e) => handleProviderChange(e.target.value)}
+                    onChange={e => handleProviderChange(e.target.value)}
                     disabled={isBusy || isLoadingProviders}
                     className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -347,7 +334,7 @@ export default function EditAgentPage() {
                         ? 'Loading providers...'
                         : 'Select a provider'}
                     </option>
-                    {activeProviders.map((provider) => (
+                    {activeProviders.map(provider => (
                       <option key={provider.id} value={provider.id}>
                         {provider.name}
                       </option>
@@ -361,7 +348,7 @@ export default function EditAgentPage() {
                   <select
                     id="model"
                     value={modelId}
-                    onChange={(e) => setModelId(e.target.value)}
+                    onChange={e => setModelId(e.target.value)}
                     disabled={isBusy || !providerId}
                     className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -370,7 +357,7 @@ export default function EditAgentPage() {
                         ? 'Select a provider first'
                         : 'Select a model'}
                     </option>
-                    {activeModels.map((model) => (
+                    {activeModels.map(model => (
                       <option key={model.id} value={model.modelId}>
                         {model.name}
                       </option>
@@ -394,7 +381,7 @@ export default function EditAgentPage() {
                       max="2"
                       step="0.1"
                       value={temperature}
-                      onChange={(e) => setTemperature(e.target.value)}
+                      onChange={e => setTemperature(e.target.value)}
                       disabled={isBusy}
                       className="flex-1"
                     />
@@ -404,7 +391,7 @@ export default function EditAgentPage() {
                       max="2"
                       step="0.1"
                       value={temperature}
-                      onChange={(e) => setTemperature(e.target.value)}
+                      onChange={e => setTemperature(e.target.value)}
                       disabled={isBusy}
                       className="w-20"
                     />
@@ -420,7 +407,7 @@ export default function EditAgentPage() {
                     min="1"
                     placeholder="4096"
                     value={maxTokens}
-                    onChange={(e) => setMaxTokens(e.target.value)}
+                    onChange={e => setMaxTokens(e.target.value)}
                     disabled={isBusy}
                   />
                 </div>
@@ -441,7 +428,7 @@ export default function EditAgentPage() {
                 <Textarea
                   placeholder="You are a helpful assistant..."
                   value={systemPrompt}
-                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  onChange={e => setSystemPrompt(e.target.value)}
                   disabled={isBusy}
                   required
                   rows={20}

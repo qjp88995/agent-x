@@ -61,7 +61,7 @@ function ConversationItem({
         'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
         isActive
           ? 'bg-accent text-accent-foreground'
-          : 'hover:bg-accent/50 text-foreground/80',
+          : 'hover:bg-accent/50 text-foreground/80'
       )}
     >
       <MessageSquare className="mt-0.5 size-4 shrink-0 opacity-60" />
@@ -76,7 +76,7 @@ function ConversationItem({
       </div>
       <button
         type="button"
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           onDelete();
         }}
@@ -112,10 +112,10 @@ function Sidebar({
   readonly onNewChat: () => void;
   readonly onSelectAgent: (id: string) => void;
 }) {
-  const publishedAgents = agents.filter((a) => a.status === 'PUBLISHED');
-  const selectedAgent = publishedAgents.find((a) => a.id === selectedAgentId);
+  const publishedAgents = agents.filter(a => a.status === 'PUBLISHED');
+  const selectedAgent = publishedAgents.find(a => a.id === selectedAgentId);
   const filteredConversations = selectedAgentId
-    ? conversations.filter((c) => c.agentId === selectedAgentId)
+    ? conversations.filter(c => c.agentId === selectedAgentId)
     : conversations;
 
   return (
@@ -154,7 +154,7 @@ function Sidebar({
             <DropdownMenuItem onClick={() => onSelectAgent('')}>
               All Agents
             </DropdownMenuItem>
-            {publishedAgents.map((agent) => (
+            {publishedAgents.map(agent => (
               <DropdownMenuItem
                 key={agent.id}
                 onClick={() => onSelectAgent(agent.id)}
@@ -199,7 +199,7 @@ function Sidebar({
               </p>
             </div>
           )}
-          {filteredConversations.map((conv) => (
+          {filteredConversations.map(conv => (
             <ConversationItem
               key={conv.id}
               conversation={conv}
@@ -236,7 +236,7 @@ export default function ChatPage() {
   const conversationParam = searchParams.get('conversation');
 
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(
-    agentParam,
+    agentParam
   );
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
@@ -255,8 +255,7 @@ export default function ChatPage() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (selectedAgentId) params.set('agent', selectedAgentId);
-    if (activeConversationId)
-      params.set('conversation', activeConversationId);
+    if (activeConversationId) params.set('conversation', activeConversationId);
     setSearchParams(params, { replace: true });
   }, [selectedAgentId, activeConversationId, setSearchParams]);
 
@@ -279,7 +278,7 @@ export default function ChatPage() {
         },
       });
     },
-    [deleteConversation, activeConversationId],
+    [deleteConversation, activeConversationId]
   );
 
   const handleNewChat = useCallback(() => {
@@ -288,16 +287,16 @@ export default function ChatPage() {
     createConversation.mutate(
       { agentId: selectedAgentId },
       {
-        onSuccess: (data) => {
+        onSuccess: data => {
           setActiveConversationId(data.id);
         },
-      },
+      }
     );
   }, [selectedAgentId, createConversation]);
 
   // Find the active conversation's agent name
   const activeConversation = conversations?.find(
-    (c) => c.id === activeConversationId,
+    c => c.id === activeConversationId
   );
   const agentName = activeConversation?.agent.name ?? 'Assistant';
 

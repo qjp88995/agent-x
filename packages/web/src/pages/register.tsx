@@ -15,7 +15,7 @@ import { useAuthStore } from '@/stores/auth-store';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const register = useAuthStore((s) => s.register);
+  const register = useAuthStore(s => s.register);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,14 +37,14 @@ export default function RegisterPage() {
       await register(
         email.trim(),
         password,
-        trimmedName.length > 0 ? trimmedName : undefined,
+        trimmedName.length > 0 ? trimmedName : undefined
       );
       await navigate('/');
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Registration failed. Please try again.',
+          : 'Registration failed. Please try again.'
       );
     } finally {
       setIsSubmitting(false);
@@ -90,7 +90,7 @@ export default function RegisterPage() {
                   placeholder="Your name"
                   autoComplete="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>
@@ -104,7 +104,7 @@ export default function RegisterPage() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                   required
                   minLength={6}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>

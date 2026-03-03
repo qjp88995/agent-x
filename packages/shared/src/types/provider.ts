@@ -1,11 +1,11 @@
 export const ProviderProtocol = {
-  OPENAI: "OPENAI",
-  ANTHROPIC: "ANTHROPIC",
-  GEMINI: "GEMINI",
-  DEEPSEEK: "DEEPSEEK",
-  QWEN: "QWEN",
-  ZHIPU: "ZHIPU",
-  MOONSHOT: "MOONSHOT",
+  OPENAI: 'OPENAI',
+  ANTHROPIC: 'ANTHROPIC',
+  GEMINI: 'GEMINI',
+  DEEPSEEK: 'DEEPSEEK',
+  QWEN: 'QWEN',
+  ZHIPU: 'ZHIPU',
+  MOONSHOT: 'MOONSHOT',
 } as const;
 
 export type ProviderProtocol =

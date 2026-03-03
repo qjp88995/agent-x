@@ -2,11 +2,11 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { AgentStatus } from "../../generated/prisma/client";
-import { CreateAgentDto } from "./dto/create-agent.dto";
-import { UpdateAgentDto } from "./dto/update-agent.dto";
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AgentStatus } from '../../generated/prisma/client';
+import { CreateAgentDto } from './dto/create-agent.dto';
+import { UpdateAgentDto } from './dto/update-agent.dto';
 
 @Injectable()
 export class AgentService {
@@ -19,7 +19,7 @@ export class AgentService {
 
     if (!provider) {
       throw new NotFoundException(
-        "Provider not found or does not belong to user",
+        'Provider not found or does not belong to user'
       );
     }
 
@@ -53,7 +53,7 @@ export class AgentService {
           select: { skills: true, mcpServers: true },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -66,7 +66,7 @@ export class AgentService {
           include: {
             skill: true,
           },
-          orderBy: { priority: "desc" },
+          orderBy: { priority: 'desc' },
         },
         mcpServers: {
           include: {
@@ -77,7 +77,7 @@ export class AgentService {
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     return agent;
@@ -89,7 +89,7 @@ export class AgentService {
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     if (
@@ -97,7 +97,7 @@ export class AgentService {
       (dto.providerId !== undefined || dto.modelId !== undefined)
     ) {
       throw new BadRequestException(
-        "Provider and model can only be changed for DRAFT agents",
+        'Provider and model can only be changed for DRAFT agents'
       );
     }
 
@@ -108,7 +108,7 @@ export class AgentService {
 
       if (!provider) {
         throw new NotFoundException(
-          "Provider not found or does not belong to user",
+          'Provider not found or does not belong to user'
         );
       }
     }
@@ -138,12 +138,12 @@ export class AgentService {
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     if (!agent.systemPrompt || !agent.providerId || !agent.modelId) {
       throw new BadRequestException(
-        "Agent must have systemPrompt, providerId, and modelId to publish",
+        'Agent must have systemPrompt, providerId, and modelId to publish'
       );
     }
 
@@ -163,7 +163,7 @@ export class AgentService {
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     return this.prisma.agent.update({
@@ -181,30 +181,30 @@ export class AgentService {
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     if (agent.status !== AgentStatus.DRAFT) {
-      throw new BadRequestException("Only DRAFT agents can be deleted");
+      throw new BadRequestException('Only DRAFT agents can be deleted');
     }
 
     await this.prisma.agent.delete({ where: { id } });
 
-    return { message: "Agent deleted successfully" };
+    return { message: 'Agent deleted successfully' };
   }
 
   async addSkill(
     agentId: string,
     userId: string,
     skillId: string,
-    priority?: number,
+    priority?: number
   ) {
     const agent = await this.prisma.agent.findFirst({
       where: { id: agentId, userId },
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     return this.prisma.agentSkill.create({
@@ -225,7 +225,7 @@ export class AgentService {
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     const agentSkill = await this.prisma.agentSkill.findFirst({
@@ -233,28 +233,28 @@ export class AgentService {
     });
 
     if (!agentSkill) {
-      throw new NotFoundException("Agent skill association not found");
+      throw new NotFoundException('Agent skill association not found');
     }
 
     await this.prisma.agentSkill.delete({
       where: { id: agentSkill.id },
     });
 
-    return { message: "Skill removed from agent successfully" };
+    return { message: 'Skill removed from agent successfully' };
   }
 
   async addMcpServer(
     agentId: string,
     userId: string,
     mcpServerId: string,
-    enabledTools?: string[],
+    enabledTools?: string[]
   ) {
     const agent = await this.prisma.agent.findFirst({
       where: { id: agentId, userId },
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     return this.prisma.agentMcp.create({
@@ -269,17 +269,13 @@ export class AgentService {
     });
   }
 
-  async removeMcpServer(
-    agentId: string,
-    userId: string,
-    mcpServerId: string,
-  ) {
+  async removeMcpServer(agentId: string, userId: string, mcpServerId: string) {
     const agent = await this.prisma.agent.findFirst({
       where: { id: agentId, userId },
     });
 
     if (!agent) {
-      throw new NotFoundException("Agent not found");
+      throw new NotFoundException('Agent not found');
     }
 
     const agentMcp = await this.prisma.agentMcp.findFirst({
@@ -287,13 +283,13 @@ export class AgentService {
     });
 
     if (!agentMcp) {
-      throw new NotFoundException("Agent MCP server association not found");
+      throw new NotFoundException('Agent MCP server association not found');
     }
 
     await this.prisma.agentMcp.delete({
       where: { id: agentMcp.id },
     });
 
-    return { message: "MCP server removed from agent successfully" };
+    return { message: 'MCP server removed from agent successfully' };
   }
 }

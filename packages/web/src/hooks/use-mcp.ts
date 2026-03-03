@@ -18,7 +18,7 @@ export function useMcpMarket() {
     queryKey: MCP_MARKET_KEY,
     queryFn: async () => {
       const { data } = await api.get<McpServerResponse[]>(
-        '/mcp-servers/market',
+        '/mcp-servers/market'
       );
       return data;
     },
@@ -73,7 +73,7 @@ export function useUpdateMcpServer() {
     }) => {
       const { data } = await api.put<McpServerResponse>(
         `/mcp-servers/${id}`,
-        dto,
+        dto
       );
       return data;
     },
@@ -108,9 +108,7 @@ interface McpTestResult {
 export function useTestMcpServer() {
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.post<McpTestResult>(
-        `/mcp-servers/${id}/test`,
-      );
+      const { data } = await api.post<McpTestResult>(`/mcp-servers/${id}/test`);
       return data;
     },
   });

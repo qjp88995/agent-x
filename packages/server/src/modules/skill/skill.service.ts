@@ -2,11 +2,11 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { SkillType } from "../../generated/prisma/client";
-import { CreateSkillDto } from "./dto/create-skill.dto";
-import { UpdateSkillDto } from "./dto/update-skill.dto";
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { SkillType } from '../../generated/prisma/client';
+import { CreateSkillDto } from './dto/create-skill.dto';
+import { UpdateSkillDto } from './dto/update-skill.dto';
 
 @Injectable()
 export class SkillService {
@@ -34,7 +34,7 @@ export class SkillService {
           { isPublic: true },
         ],
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -44,7 +44,7 @@ export class SkillService {
     });
 
     if (!skill) {
-      throw new NotFoundException("Skill not found");
+      throw new NotFoundException('Skill not found');
     }
 
     return skill;
@@ -56,15 +56,15 @@ export class SkillService {
     });
 
     if (!skill) {
-      throw new NotFoundException("Skill not found");
+      throw new NotFoundException('Skill not found');
     }
 
     if (skill.type === SkillType.SYSTEM) {
-      throw new ForbiddenException("Cannot update SYSTEM skills");
+      throw new ForbiddenException('Cannot update SYSTEM skills');
     }
 
     if (skill.createdBy !== userId) {
-      throw new ForbiddenException("You can only update your own skills");
+      throw new ForbiddenException('You can only update your own skills');
     }
 
     const data: Record<string, unknown> = {};
@@ -94,19 +94,19 @@ export class SkillService {
     });
 
     if (!skill) {
-      throw new NotFoundException("Skill not found");
+      throw new NotFoundException('Skill not found');
     }
 
     if (skill.type === SkillType.SYSTEM) {
-      throw new ForbiddenException("Cannot delete SYSTEM skills");
+      throw new ForbiddenException('Cannot delete SYSTEM skills');
     }
 
     if (skill.createdBy !== userId) {
-      throw new ForbiddenException("You can only delete your own skills");
+      throw new ForbiddenException('You can only delete your own skills');
     }
 
     await this.prisma.skill.delete({ where: { id } });
 
-    return { message: "Skill deleted successfully" };
+    return { message: 'Skill deleted successfully' };
   }
 }

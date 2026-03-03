@@ -20,8 +20,19 @@ export type MessageRole = 'user' | 'assistant' | 'system' | 'tool';
 export type MessagePart =
   | { type: 'text'; text: string }
   | { type: 'reasoning'; text: string }
-  | { type: 'tool-call'; toolCallId: string; toolName: string; args: Record<string, unknown> }
-  | { type: 'tool-result'; toolCallId: string; toolName: string; result: unknown; isError?: boolean }
+  | {
+      type: 'tool-call';
+      toolCallId: string;
+      toolName: string;
+      args: Record<string, unknown>;
+    }
+  | {
+      type: 'tool-result';
+      toolCallId: string;
+      toolName: string;
+      result: unknown;
+      isError?: boolean;
+    }
   | { type: 'file'; mediaType: string; url: string };
 
 export interface MessageResponse {
@@ -29,6 +40,10 @@ export interface MessageResponse {
   role: MessageRole;
   parts: MessagePart[];
   metadata: Record<string, unknown> | null;
-  tokenUsage: { promptTokens: number; completionTokens: number; totalTokens: number } | null;
+  tokenUsage: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  } | null;
   createdAt: string;
 }

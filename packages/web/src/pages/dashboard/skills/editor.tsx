@@ -13,11 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  useCreateSkill,
-  useSkill,
-  useUpdateSkill,
-} from '@/hooks/use-skills';
+import { useCreateSkill, useSkill, useUpdateSkill } from '@/hooks/use-skills';
 
 export default function SkillEditorPage() {
   const navigate = useNavigate();
@@ -47,8 +43,8 @@ export default function SkillEditorPage() {
   function parseTags(input: string): string[] {
     return input
       .split(',')
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
   }
 
   const isFormValid = name.trim().length > 0 && content.trim().length > 0;
@@ -85,7 +81,7 @@ export default function SkillEditorPage() {
       setError(
         isEditMode
           ? 'Failed to update skill. Please try again.'
-          : 'Failed to create skill. Please try again.',
+          : 'Failed to create skill. Please try again.'
       );
     }
   }
@@ -161,7 +157,7 @@ export default function SkillEditorPage() {
                 id="name"
                 placeholder="e.g., Code Review Guidelines"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
@@ -177,7 +173,7 @@ export default function SkillEditorPage() {
                 id="description"
                 placeholder="Describe what this skill does..."
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 disabled={isSaving}
                 rows={3}
               />
@@ -193,7 +189,7 @@ export default function SkillEditorPage() {
                 id="tags"
                 placeholder="e.g., code-review, best-practices, testing"
                 value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
+                onChange={e => setTagsInput(e.target.value)}
                 disabled={isSaving}
               />
               <p className="text-muted-foreground text-xs">
@@ -208,7 +204,7 @@ export default function SkillEditorPage() {
                 id="content"
                 placeholder="Enter the skill content..."
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={e => setContent(e.target.value)}
                 disabled={isSaving}
                 required
                 rows={16}

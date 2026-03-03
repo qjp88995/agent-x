@@ -1,15 +1,15 @@
-import { type FormEvent, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { type FormEvent, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import {
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
   Loader2,
   XCircle,
-} from "lucide-react";
-import { ProviderProtocol } from "@agent-x/shared";
-import type { ProviderProtocol as ProviderProtocolType } from "@agent-x/shared";
-import { Button } from "@/components/ui/button";
+} from 'lucide-react';
+import { ProviderProtocol } from '@agent-x/shared';
+import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -17,25 +17,25 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import {
   useCreateProvider,
   useProvider,
   useTestProvider,
   useUpdateProvider,
-} from "@/hooks/use-providers";
+} from '@/hooks/use-providers';
 
 const DEFAULT_BASE_URLS: Record<ProviderProtocolType, string> = {
-  OPENAI: "https://api.openai.com/v1",
-  ANTHROPIC: "https://api.anthropic.com",
-  GEMINI: "https://generativelanguage.googleapis.com/v1beta",
-  DEEPSEEK: "https://api.deepseek.com",
-  QWEN: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-  ZHIPU: "https://open.bigmodel.cn/api/paas/v4/",
-  MOONSHOT: "https://api.moonshot.ai/v1",
+  OPENAI: 'https://api.openai.com/v1',
+  ANTHROPIC: 'https://api.anthropic.com',
+  GEMINI: 'https://generativelanguage.googleapis.com/v1beta',
+  DEEPSEEK: 'https://api.deepseek.com',
+  QWEN: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+  ZHIPU: 'https://open.bigmodel.cn/api/paas/v4/',
+  MOONSHOT: 'https://api.moonshot.ai/v1',
 };
 
 const PROTOCOL_OPTIONS: readonly {
@@ -45,38 +45,38 @@ const PROTOCOL_OPTIONS: readonly {
 }[] = [
   {
     value: ProviderProtocol.OPENAI,
-    label: "OpenAI",
-    description: "GPT models and compatible APIs",
+    label: 'OpenAI',
+    description: 'GPT models and compatible APIs',
   },
   {
     value: ProviderProtocol.ANTHROPIC,
-    label: "Anthropic",
-    description: "Claude models",
+    label: 'Anthropic',
+    description: 'Claude models',
   },
   {
     value: ProviderProtocol.GEMINI,
-    label: "Gemini",
-    description: "Google Gemini models",
+    label: 'Gemini',
+    description: 'Google Gemini models',
   },
   {
     value: ProviderProtocol.DEEPSEEK,
-    label: "DeepSeek",
-    description: "深度求索",
+    label: 'DeepSeek',
+    description: '深度求索',
   },
   {
     value: ProviderProtocol.QWEN,
-    label: "Qwen (通义千问)",
-    description: "阿里云百炼",
+    label: 'Qwen (通义千问)',
+    description: '阿里云百炼',
   },
   {
     value: ProviderProtocol.ZHIPU,
-    label: "GLM (智谱)",
-    description: "智谱 AI",
+    label: 'GLM (智谱)',
+    description: '智谱 AI',
   },
   {
     value: ProviderProtocol.MOONSHOT,
-    label: "Kimi (月之暗面)",
-    description: "Moonshot AI",
+    label: 'Kimi (月之暗面)',
+    description: 'Moonshot AI',
   },
 ] as const;
 
@@ -96,12 +96,12 @@ export default function CreateProviderPage() {
   const updateProvider = useUpdateProvider();
   const testProvider = useTestProvider();
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [protocol, setProtocol] = useState<ProviderProtocolType>(
-    ProviderProtocol.OPENAI,
+    ProviderProtocol.OPENAI
   );
   const [baseUrl, setBaseUrl] = useState(DEFAULT_BASE_URLS.OPENAI);
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState('');
   const [hasChangedUrl, setHasChangedUrl] = useState(false);
   const [testResult, setTestResult] = useState<TestResultState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -142,11 +142,11 @@ export default function CreateProviderPage() {
     if (!isEditMode) return;
     setTestResult(null);
     testProvider.mutate(id, {
-      onSuccess: (result) => setTestResult(result),
+      onSuccess: result => setTestResult(result),
       onError: () =>
         setTestResult({
           success: false,
-          message: "Connection test failed. Check your configuration.",
+          message: 'Connection test failed. Check your configuration.',
         }),
     });
   }
@@ -174,12 +174,12 @@ export default function CreateProviderPage() {
           apiKey: apiKey.trim(),
         });
       }
-      await navigate("/providers");
+      await navigate('/providers');
     } catch {
       setError(
         isEditMode
-          ? "Failed to update provider. Please try again."
-          : "Failed to create provider. Please try again.",
+          ? 'Failed to update provider. Please try again.'
+          : 'Failed to create provider. Please try again.'
       );
     }
   }
@@ -200,7 +200,7 @@ export default function CreateProviderPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           The provider you are looking for does not exist.
         </p>
-        <Button variant="outline" onClick={() => navigate("/providers")}>
+        <Button variant="outline" onClick={() => navigate('/providers')}>
           Back to Providers
         </Button>
       </div>
@@ -214,19 +214,19 @@ export default function CreateProviderPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/providers")}
+          onClick={() => navigate('/providers')}
           aria-label="Back to providers"
         >
           <ArrowLeft className="size-4" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode ? "Edit Provider" : "Add Provider"}
+            {isEditMode ? 'Edit Provider' : 'Add Provider'}
           </h1>
           <p className="text-muted-foreground text-sm">
             {isEditMode
-              ? "Update your provider configuration."
-              : "Configure a new AI provider connection."}
+              ? 'Update your provider configuration.'
+              : 'Configure a new AI provider connection.'}
           </p>
         </div>
       </div>
@@ -255,7 +255,7 @@ export default function CreateProviderPage() {
                 id="name"
                 placeholder="e.g., My OpenAI Provider"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
@@ -268,19 +268,19 @@ export default function CreateProviderPage() {
             <div className="flex flex-col gap-2">
               <Label>Protocol</Label>
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-                {PROTOCOL_OPTIONS.map((option) => (
+                {PROTOCOL_OPTIONS.map(option => (
                   <button
                     key={option.value}
                     type="button"
                     disabled={isEditMode || isSaving}
                     onClick={() => handleProtocolChange(option.value)}
                     className={cn(
-                      "flex flex-col items-start rounded-md border p-3 text-left transition-colors",
+                      'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
                       protocol === option.value
-                        ? "border-primary bg-primary/5 ring-primary/20 ring-2"
-                        : "hover:bg-accent",
+                        ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
+                        : 'hover:bg-accent',
                       (isEditMode || isSaving) &&
-                        "cursor-not-allowed opacity-60",
+                        'cursor-not-allowed opacity-60'
                     )}
                   >
                     <span className="text-sm font-medium">{option.label}</span>
@@ -305,7 +305,7 @@ export default function CreateProviderPage() {
                 type="url"
                 placeholder="https://api.example.com/v1"
                 value={baseUrl}
-                onChange={(e) => handleBaseUrlChange(e.target.value)}
+                onChange={e => handleBaseUrlChange(e.target.value)}
                 disabled={isSaving}
                 required
               />
@@ -322,18 +322,18 @@ export default function CreateProviderPage() {
                 id="apiKey"
                 type="password"
                 placeholder={
-                  isEditMode ? "Leave blank to keep current key" : "sk-..."
+                  isEditMode ? 'Leave blank to keep current key' : 'sk-...'
                 }
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                onChange={e => setApiKey(e.target.value)}
                 disabled={isSaving}
                 required={!isEditMode}
                 autoComplete="off"
               />
               <p className="text-muted-foreground text-xs">
                 {isEditMode
-                  ? "Leave blank to keep the existing API key."
-                  : "Your API key will be stored securely."}
+                  ? 'Leave blank to keep the existing API key.'
+                  : 'Your API key will be stored securely.'}
               </p>
             </div>
 
@@ -356,8 +356,8 @@ export default function CreateProviderPage() {
                   {testResult && (
                     <div
                       className={cn(
-                        "flex items-center gap-1.5 text-sm",
-                        testResult.success ? "text-green-600" : "text-red-600",
+                        'flex items-center gap-1.5 text-sm',
+                        testResult.success ? 'text-green-600' : 'text-red-600'
                       )}
                     >
                       {testResult.success ? (
@@ -377,14 +377,14 @@ export default function CreateProviderPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/providers")}
+              onClick={() => navigate('/providers')}
               disabled={isSaving}
             >
               Cancel
             </Button>
             <Button type="submit" disabled={!isFormValid || isSaving}>
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? "Save Changes" : "Create Provider"}
+              {isEditMode ? 'Save Changes' : 'Create Provider'}
             </Button>
           </CardFooter>
         </form>

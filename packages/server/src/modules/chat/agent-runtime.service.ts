@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { streamText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createDeepSeek } from "@ai-sdk/deepseek";
-import { createAlibaba } from "@ai-sdk/alibaba";
-import { createMoonshotAI } from "@ai-sdk/moonshotai";
-import { createZhipu } from "zhipu-ai-provider";
-import { ConfigService } from "@nestjs/config";
-import { PrismaService } from "../../prisma/prisma.service";
-import { decrypt } from "../../common/crypto.util";
+import { Injectable } from '@nestjs/common';
+import { streamText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createDeepSeek } from '@ai-sdk/deepseek';
+import { createAlibaba } from '@ai-sdk/alibaba';
+import { createMoonshotAI } from '@ai-sdk/moonshotai';
+import { createZhipu } from 'zhipu-ai-provider';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../../prisma/prisma.service';
+import { decrypt } from '../../common/crypto.util';
 
 interface AgentWithRelations {
   readonly systemPrompt: string;
@@ -30,13 +30,13 @@ interface AgentWithRelations {
 export class AgentRuntimeService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
+    private readonly config: ConfigService
   ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async createStream(
     agentId: string,
-    messages: Array<{ role: string; content: string }>,
+    messages: Array<{ role: string; content: string }>
   ): Promise<any> {
     const agent: AgentWithRelations = await this.prisma.agent.findUniqueOrThrow(
       {
@@ -45,27 +45,27 @@ export class AgentRuntimeService {
           provider: true,
           skills: {
             include: { skill: true },
-            orderBy: { priority: "desc" },
+            orderBy: { priority: 'desc' },
           },
           mcpServers: { include: { mcpServer: true } },
         },
-      },
+      }
     );
 
     const skillContents = agent.skills
-      .map((entry) => entry.skill.content)
-      .join("\n\n---\n\n");
+      .map(entry => entry.skill.content)
+      .join('\n\n---\n\n');
     const systemPrompt = skillContents
       ? `${agent.systemPrompt}\n\n## Skills\n\n${skillContents}`
       : agent.systemPrompt;
 
-    const encryptionSecret = this.config.get<string>("ENCRYPTION_SECRET")!;
+    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
     const apiKey = decrypt(agent.provider.apiKey, encryptionSecret);
     const model = this.createModel(
       agent.provider.protocol,
       agent.provider.baseUrl,
       apiKey,
-      agent.modelId,
+      agent.modelId
     );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,28 +83,28 @@ export class AgentRuntimeService {
     protocol: string,
     baseUrl: string,
     apiKey: string,
-    modelId: string,
+    modelId: string
   ) {
     switch (protocol) {
-      case "OPENAI": {
+      case 'OPENAI': {
         const openai = createOpenAI({ baseURL: baseUrl, apiKey });
         return openai.chat(modelId);
       }
-      case "ANTHROPIC": {
+      case 'ANTHROPIC': {
         const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
         return anthropic(modelId);
       }
-      case "GEMINI": {
+      case 'GEMINI': {
         const google = createGoogleGenerativeAI({ baseURL: baseUrl, apiKey });
         return google(modelId);
       }
-      case "DEEPSEEK":
+      case 'DEEPSEEK':
         return createDeepSeek({ baseURL: baseUrl, apiKey })(modelId);
-      case "QWEN":
+      case 'QWEN':
         return createAlibaba({ baseURL: baseUrl, apiKey })(modelId);
-      case "ZHIPU":
+      case 'ZHIPU':
         return createZhipu({ baseURL: baseUrl, apiKey })(modelId);
-      case "MOONSHOT":
+      case 'MOONSHOT':
         return createMoonshotAI({ baseURL: baseUrl, apiKey })(modelId);
       default:
         throw new Error(`Unsupported protocol: ${protocol}`);

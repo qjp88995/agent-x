@@ -35,18 +35,18 @@ export default function CreateAgentPage() {
   const [error, setError] = useState<string | null>(null);
 
   const activeProviders = useMemo(
-    () => providers?.filter((p) => p.isActive) ?? [],
-    [providers],
+    () => providers?.filter(p => p.isActive) ?? [],
+    [providers]
   );
 
   const selectedProvider = useMemo(
-    () => activeProviders.find((p) => p.id === providerId),
-    [activeProviders, providerId],
+    () => activeProviders.find(p => p.id === providerId),
+    [activeProviders, providerId]
   );
 
   const activeModels = useMemo(
-    () => selectedProvider?.models.filter((m) => m.isActive) ?? [],
-    [selectedProvider],
+    () => selectedProvider?.models.filter(m => m.isActive) ?? [],
+    [selectedProvider]
   );
 
   function handleProviderChange(newProviderId: string) {
@@ -70,7 +70,11 @@ export default function CreateAgentPage() {
     const parsedTemperature = parseFloat(temperature);
     const parsedMaxTokens = parseInt(maxTokens, 10);
 
-    if (isNaN(parsedTemperature) || parsedTemperature < 0 || parsedTemperature > 2) {
+    if (
+      isNaN(parsedTemperature) ||
+      parsedTemperature < 0 ||
+      parsedTemperature > 2
+    ) {
       setError('Temperature must be a number between 0 and 2.');
       return;
     }
@@ -152,7 +156,7 @@ export default function CreateAgentPage() {
                 id="name"
                 placeholder="e.g., Customer Support Agent"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
@@ -168,7 +172,7 @@ export default function CreateAgentPage() {
                 id="description"
                 placeholder="Describe what this agent does..."
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 disabled={isSaving}
                 rows={3}
               />
@@ -183,7 +187,7 @@ export default function CreateAgentPage() {
               <select
                 id="provider"
                 value={providerId}
-                onChange={(e) => handleProviderChange(e.target.value)}
+                onChange={e => handleProviderChange(e.target.value)}
                 disabled={isSaving || isLoadingProviders}
                 className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -192,7 +196,7 @@ export default function CreateAgentPage() {
                     ? 'Loading providers...'
                     : 'Select a provider'}
                 </option>
-                {activeProviders.map((provider) => (
+                {activeProviders.map(provider => (
                   <option key={provider.id} value={provider.id}>
                     {provider.name}
                   </option>
@@ -209,14 +213,14 @@ export default function CreateAgentPage() {
               <select
                 id="model"
                 value={modelId}
-                onChange={(e) => setModelId(e.target.value)}
+                onChange={e => setModelId(e.target.value)}
                 disabled={isSaving || !providerId}
                 className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <option value="">
                   {!providerId ? 'Select a provider first' : 'Select a model'}
                 </option>
-                {activeModels.map((model) => (
+                {activeModels.map(model => (
                   <option key={model.id} value={model.modelId}>
                     {model.name}
                   </option>
@@ -235,7 +239,7 @@ export default function CreateAgentPage() {
                 id="systemPrompt"
                 placeholder="You are a helpful assistant..."
                 value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
+                onChange={e => setSystemPrompt(e.target.value)}
                 disabled={isSaving}
                 required
                 rows={10}
@@ -263,7 +267,7 @@ export default function CreateAgentPage() {
                   max="2"
                   step="0.1"
                   value={temperature}
-                  onChange={(e) => setTemperature(e.target.value)}
+                  onChange={e => setTemperature(e.target.value)}
                   disabled={isSaving}
                   className="flex-1"
                 />
@@ -273,7 +277,7 @@ export default function CreateAgentPage() {
                   max="2"
                   step="0.1"
                   value={temperature}
-                  onChange={(e) => setTemperature(e.target.value)}
+                  onChange={e => setTemperature(e.target.value)}
                   disabled={isSaving}
                   className="w-20"
                 />
@@ -293,7 +297,7 @@ export default function CreateAgentPage() {
                 min="1"
                 placeholder="4096"
                 value={maxTokens}
-                onChange={(e) => setMaxTokens(e.target.value)}
+                onChange={e => setMaxTokens(e.target.value)}
                 disabled={isSaving}
               />
               <p className="text-muted-foreground text-xs">

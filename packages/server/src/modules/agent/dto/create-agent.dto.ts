@@ -5,7 +5,7 @@ import {
   Min,
   Max,
   MinLength,
-} from "class-validator";
+} from 'class-validator';
 
 export class CreateAgentDto {
   @IsString()

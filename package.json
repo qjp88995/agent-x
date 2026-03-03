@@ -8,9 +8,12 @@
     "test": "turbo test",
     "db:migrate": "pnpm --filter @agent-x/server db:migrate",
     "db:generate": "pnpm --filter @agent-x/server db:generate",
-    "db:studio": "pnpm --filter @agent-x/server db:studio"
+    "db:studio": "pnpm --filter @agent-x/server db:studio",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,css,json}\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx,css,json}\""
   },
   "devDependencies": {
+    "prettier": "^3.8.1",
     "turbo": "^2"
   },
   "packageManager": "pnpm@9.15.0"

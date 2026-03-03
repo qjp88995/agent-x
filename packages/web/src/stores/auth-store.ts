@@ -1,9 +1,9 @@
-import { create } from "zustand";
-import type { AuthResponse } from "@agent-x/shared";
-import { api } from "@/lib/api";
-import { AxiosError } from "axios";
+import { create } from 'zustand';
+import type { AuthResponse } from '@agent-x/shared';
+import { api } from '@/lib/api';
+import { AxiosError } from 'axios';
 
-type AuthUser = AuthResponse["user"];
+type AuthUser = AuthResponse['user'];
 
 interface AuthState {
   user: AuthUser | null;
@@ -21,13 +21,13 @@ interface AuthActions {
 type AuthStore = AuthState & AuthActions;
 
 function storeTokens(response: AuthResponse): void {
-  localStorage.setItem("accessToken", response.accessToken);
-  localStorage.setItem("refreshToken", response.refreshToken);
+  localStorage.setItem('accessToken', response.accessToken);
+  localStorage.setItem('refreshToken', response.refreshToken);
 }
 
 function clearTokens(): void {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
 }
 
 function extractErrorMessage(error: unknown): string {
@@ -39,17 +39,17 @@ function extractErrorMessage(error: unknown): string {
       return Array.isArray(data.message) ? data.message[0] : data.message;
     }
   }
-  return "An unexpected error occurred";
+  return 'An unexpected error occurred';
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthStore>(set => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
 
   login: async (email: string, password: string) => {
     try {
-      const { data } = await api.post<AuthResponse>("/auth/login", {
+      const { data } = await api.post<AuthResponse>('/auth/login', {
         email,
         password,
       });
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   register: async (email: string, password: string, name?: string) => {
     try {
-      const { data } = await api.post<AuthResponse>("/auth/register", {
+      const { data } = await api.post<AuthResponse>('/auth/register', {
         email,
         password,
         name,
@@ -80,14 +80,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   checkAuth: async () => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem('accessToken');
     if (!token) {
       set({ user: null, isAuthenticated: false, isLoading: false });
       return;
     }
 
     try {
-      const { data } = await api.get<AuthUser>("/auth/me");
+      const { data } = await api.get<AuthUser>('/auth/me');
       set({ user: data, isAuthenticated: true, isLoading: false });
     } catch {
       set({ user: null, isAuthenticated: false, isLoading: false });

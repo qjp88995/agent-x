@@ -1,8 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type {
-  CreateConversationDto,
-  MessageResponse,
-} from '@agent-x/shared';
+import type { CreateConversationDto, MessageResponse } from '@agent-x/shared';
 import { api } from '@/lib/api';
 
 interface ConversationAgent {
@@ -43,7 +40,7 @@ export function useCreateConversation() {
     mutationFn: async (dto: CreateConversationDto) => {
       const { data } = await api.post<ConversationWithAgent>(
         '/conversations',
-        dto,
+        dto
       );
       return data;
     },
@@ -71,7 +68,7 @@ export function useMessages(conversationId: string | undefined) {
     queryKey: messagesKey(conversationId ?? ''),
     queryFn: async () => {
       const { data } = await api.get<MessageResponse[]>(
-        `/conversations/${conversationId}/messages`,
+        `/conversations/${conversationId}/messages`
       );
       return data;
     },

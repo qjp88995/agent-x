@@ -1,9 +1,9 @@
-import { type FormEvent, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
-import { McpTransport } from "@agent-x/shared";
-import type { McpTransport as McpTransportType } from "@agent-x/shared";
-import { Button } from "@/components/ui/button";
+import { type FormEvent, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { McpTransport } from '@agent-x/shared';
+import type { McpTransport as McpTransportType } from '@agent-x/shared';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -11,16 +11,16 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import {
   useCreateMcpServer,
   useMcpServer,
   useUpdateMcpServer,
-} from "@/hooks/use-mcp";
+} from '@/hooks/use-mcp';
 
 const TRANSPORT_OPTIONS: readonly {
   value: McpTransportType;
@@ -29,18 +29,18 @@ const TRANSPORT_OPTIONS: readonly {
 }[] = [
   {
     value: McpTransport.STDIO,
-    label: "STDIO",
-    description: "Standard input/output process",
+    label: 'STDIO',
+    description: 'Standard input/output process',
   },
   {
     value: McpTransport.SSE,
-    label: "SSE",
-    description: "Server-Sent Events transport",
+    label: 'SSE',
+    description: 'Server-Sent Events transport',
   },
   {
     value: McpTransport.STREAMABLE_HTTP,
-    label: "Streamable HTTP",
-    description: "HTTP streaming transport",
+    label: 'Streamable HTTP',
+    description: 'HTTP streaming transport',
   },
 ] as const;
 
@@ -65,7 +65,7 @@ function StdioConfigFields({
           id="command"
           placeholder="e.g., npx or python"
           value={command}
-          onChange={(e) => onCommandChange(e.target.value)}
+          onChange={e => onCommandChange(e.target.value)}
           disabled={disabled}
           required
         />
@@ -80,7 +80,7 @@ function StdioConfigFields({
           id="args"
           placeholder="e.g., -y, @modelcontextprotocol/server-github"
           value={argsInput}
-          onChange={(e) => onArgsChange(e.target.value)}
+          onChange={e => onArgsChange(e.target.value)}
           disabled={disabled}
         />
         <p className="text-muted-foreground text-xs">
@@ -115,7 +115,7 @@ function HttpConfigFields({
           type="url"
           placeholder="e.g., https://mcp-server.example.com/sse"
           value={url}
-          onChange={(e) => onUrlChange(e.target.value)}
+          onChange={e => onUrlChange(e.target.value)}
           disabled={disabled}
           required
         />
@@ -126,14 +126,14 @@ function HttpConfigFields({
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="headers">
-          Headers{" "}
+          Headers{' '}
           <span className="text-muted-foreground font-normal">(optional)</span>
         </Label>
         <Textarea
           id="headers"
           placeholder={'{\n  "Authorization": "Bearer token"\n}'}
           value={headersInput}
-          onChange={(e) => onHeadersChange(e.target.value)}
+          onChange={e => onHeadersChange(e.target.value)}
           disabled={disabled}
           rows={4}
           className="font-mono text-sm"
@@ -158,15 +158,15 @@ export default function McpEditorPage() {
   const createMcpServer = useCreateMcpServer();
   const updateMcpServer = useUpdateMcpServer();
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [transport, setTransport] = useState<McpTransportType>(
-    McpTransport.STDIO,
+    McpTransport.STDIO
   );
-  const [command, setCommand] = useState("");
-  const [argsInput, setArgsInput] = useState("");
-  const [url, setUrl] = useState("");
-  const [headersInput, setHeadersInput] = useState("");
+  const [command, setCommand] = useState('');
+  const [argsInput, setArgsInput] = useState('');
+  const [url, setUrl] = useState('');
+  const [headersInput, setHeadersInput] = useState('');
   const [headersError, setHeadersError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -174,16 +174,16 @@ export default function McpEditorPage() {
   useEffect(() => {
     if (existingServer) {
       setName(existingServer.name);
-      setDescription(existingServer.description ?? "");
+      setDescription(existingServer.description ?? '');
       setTransport(existingServer.transport);
 
       const config = existingServer.config;
       if (existingServer.transport === McpTransport.STDIO) {
-        setCommand((config.command as string) ?? "");
+        setCommand((config.command as string) ?? '');
         const args = config.args as string[] | undefined;
-        setArgsInput(args?.join(", ") ?? "");
+        setArgsInput(args?.join(', ') ?? '');
       } else {
-        setUrl((config.url as string) ?? "");
+        setUrl((config.url as string) ?? '');
         const headers = config.headers as Record<string, string> | undefined;
         if (headers && Object.keys(headers).length > 0) {
           setHeadersInput(JSON.stringify(headers, null, 2));
@@ -194,16 +194,16 @@ export default function McpEditorPage() {
 
   function parseArgs(input: string): string[] {
     return input
-      .split(",")
-      .map((arg) => arg.trim())
-      .filter((arg) => arg.length > 0);
+      .split(',')
+      .map(arg => arg.trim())
+      .filter(arg => arg.length > 0);
   }
 
   function parseHeaders(input: string): Record<string, string> | null {
     if (input.trim().length === 0) return {};
     try {
       const parsed = JSON.parse(input) as Record<string, string>;
-      if (typeof parsed !== "object" || Array.isArray(parsed)) {
+      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
         return null;
       }
       return parsed;
@@ -222,7 +222,7 @@ export default function McpEditorPage() {
 
     const headers = parseHeaders(headersInput);
     if (headers === null) {
-      setHeadersError("Invalid JSON format. Please enter a valid JSON object.");
+      setHeadersError('Invalid JSON format. Please enter a valid JSON object.');
       return null;
     }
     setHeadersError(null);
@@ -269,12 +269,12 @@ export default function McpEditorPage() {
           config,
         });
       }
-      await navigate("/mcp-servers");
+      await navigate('/mcp-servers');
     } catch {
       setError(
         isEditMode
-          ? "Failed to update MCP server. Please try again."
-          : "Failed to create MCP server. Please try again.",
+          ? 'Failed to update MCP server. Please try again.'
+          : 'Failed to create MCP server. Please try again.'
       );
     }
   }
@@ -302,7 +302,7 @@ export default function McpEditorPage() {
         <p className="text-muted-foreground mb-4 text-sm">
           The MCP server you are looking for does not exist.
         </p>
-        <Button variant="outline" onClick={() => navigate("/mcp-servers")}>
+        <Button variant="outline" onClick={() => navigate('/mcp-servers')}>
           Back to MCP Servers
         </Button>
       </div>
@@ -316,19 +316,19 @@ export default function McpEditorPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/mcp-servers")}
+          onClick={() => navigate('/mcp-servers')}
           aria-label="Back to MCP servers"
         >
           <ArrowLeft className="size-4" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode ? "Edit MCP Server" : "Add MCP Server"}
+            {isEditMode ? 'Edit MCP Server' : 'Add MCP Server'}
           </h1>
           <p className="text-muted-foreground text-sm">
             {isEditMode
-              ? "Update your MCP server configuration."
-              : "Configure a new MCP server connection."}
+              ? 'Update your MCP server configuration.'
+              : 'Configure a new MCP server connection.'}
           </p>
         </div>
       </div>
@@ -357,7 +357,7 @@ export default function McpEditorPage() {
                 id="name"
                 placeholder="e.g., GitHub MCP Server"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
@@ -373,7 +373,7 @@ export default function McpEditorPage() {
                 id="description"
                 placeholder="Describe what this MCP server provides..."
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 disabled={isSaving}
                 rows={3}
               />
@@ -386,18 +386,18 @@ export default function McpEditorPage() {
             <div className="flex flex-col gap-2">
               <Label>Transport</Label>
               <div className="grid gap-3 sm:grid-cols-3">
-                {TRANSPORT_OPTIONS.map((option) => (
+                {TRANSPORT_OPTIONS.map(option => (
                   <button
                     key={option.value}
                     type="button"
                     disabled={isSaving}
                     onClick={() => handleTransportChange(option.value)}
                     className={cn(
-                      "flex flex-col items-start rounded-md border p-3 text-left transition-colors",
+                      'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
                       transport === option.value
-                        ? "border-primary bg-primary/5 ring-primary/20 ring-2"
-                        : "hover:bg-accent",
-                      isSaving && "cursor-not-allowed opacity-60",
+                        ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
+                        : 'hover:bg-accent',
+                      isSaving && 'cursor-not-allowed opacity-60'
                     )}
                   >
                     <span className="text-sm font-medium">{option.label}</span>
@@ -434,14 +434,14 @@ export default function McpEditorPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/mcp-servers")}
+              onClick={() => navigate('/mcp-servers')}
               disabled={isSaving}
             >
               Cancel
             </Button>
             <Button type="submit" disabled={!isFormValid || isSaving}>
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? "Save Changes" : "Create Server"}
+              {isEditMode ? 'Save Changes' : 'Create Server'}
             </Button>
           </CardFooter>
         </form>

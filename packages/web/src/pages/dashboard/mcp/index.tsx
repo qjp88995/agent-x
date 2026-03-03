@@ -9,7 +9,10 @@ import {
   Server,
   Trash2,
 } from 'lucide-react';
-import type { McpServerResponse, McpTransport as McpTransportType } from '@agent-x/shared';
+import type {
+  McpServerResponse,
+  McpTransport as McpTransportType,
+} from '@agent-x/shared';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -93,7 +96,7 @@ function TestResultBanner({
         'flex items-center justify-between rounded-md px-4 py-3 text-sm',
         success
           ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
       )}
     >
       <span>{message}</span>
@@ -109,11 +112,7 @@ function TestResultBanner({
   );
 }
 
-function MarketplaceCard({
-  server,
-}: {
-  readonly server: McpServerResponse;
-}) {
+function MarketplaceCard({ server }: { readonly server: McpServerResponse }) {
   const toolCount = server.tools?.length ?? 0;
 
   return (
@@ -160,13 +159,13 @@ function McpServerCard({
 
   function handleTest() {
     testMcpServer.mutate(server.id, {
-      onSuccess: (result) => {
+      onSuccess: result => {
         onTestResult(result.message, result.success);
       },
       onError: () => {
         onTestResult(
           'Connection test failed. Check your configuration.',
-          false,
+          false
         );
       },
     });
@@ -235,11 +234,7 @@ function McpServerCard({
   );
 }
 
-function EmptyState({
-  tab,
-}: {
-  readonly tab: 'marketplace' | 'custom';
-}) {
+function EmptyState({ tab }: { readonly tab: 'marketplace' | 'custom' }) {
   const isMarketplace = tab === 'marketplace';
 
   return (
@@ -278,7 +273,7 @@ export default function McpPage() {
   } = useMcpServers();
   const deleteMcpServer = useDeleteMcpServer();
   const [deleteTarget, setDeleteTarget] = useState<McpServerResponse | null>(
-    null,
+    null
   );
   const [testResult, setTestResult] = useState<{
     message: string;
@@ -362,7 +357,7 @@ export default function McpPage() {
             <EmptyState tab="marketplace" />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {marketServers.map((server) => (
+              {marketServers.map(server => (
                 <MarketplaceCard key={server.id} server={server} />
               ))}
             </div>
@@ -374,7 +369,7 @@ export default function McpPage() {
             <EmptyState tab="custom" />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {customServers.map((server) => (
+              {customServers.map(server => (
                 <McpServerCard
                   key={server.id}
                   server={server}
@@ -390,7 +385,7 @@ export default function McpPage() {
       {/* Delete confirmation dialog */}
       <Dialog
         open={deleteTarget !== null}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           if (!open) setDeleteTarget(null);
         }}
       >

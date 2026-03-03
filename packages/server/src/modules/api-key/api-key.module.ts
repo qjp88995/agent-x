@@ -1,7 +1,7 @@
-import { Module } from "@nestjs/common";
-import { ApiKeyService } from "./api-key.service";
-import { ApiKeyGuard } from "./api-key.guard";
-import { ApiKeyController } from "./api-key.controller";
+import { Module } from '@nestjs/common';
+import { ApiKeyService } from './api-key.service';
+import { ApiKeyGuard } from './api-key.guard';
+import { ApiKeyController } from './api-key.controller';
 
 @Module({
   controllers: [ApiKeyController],

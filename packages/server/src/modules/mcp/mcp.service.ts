@@ -2,18 +2,18 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { McpType, Prisma } from "../../generated/prisma/client";
-import { McpClientService } from "./mcp-client.service";
-import { CreateMcpServerDto } from "./dto/create-mcp-server.dto";
-import { UpdateMcpServerDto } from "./dto/update-mcp-server.dto";
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { McpType, Prisma } from '../../generated/prisma/client';
+import { McpClientService } from './mcp-client.service';
+import { CreateMcpServerDto } from './dto/create-mcp-server.dto';
+import { UpdateMcpServerDto } from './dto/update-mcp-server.dto';
 
 @Injectable()
 export class McpService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mcpClient: McpClientService,
+    private readonly mcpClient: McpClientService
   ) {}
 
   async create(userId: string, dto: CreateMcpServerDto) {
@@ -34,7 +34,7 @@ export class McpService {
       where: {
         OR: [{ type: McpType.OFFICIAL }, { isPublic: true }],
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -44,7 +44,7 @@ export class McpService {
         createdBy: userId,
         type: McpType.CUSTOM,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -54,7 +54,7 @@ export class McpService {
     });
 
     if (!mcpServer) {
-      throw new NotFoundException("MCP server not found");
+      throw new NotFoundException('MCP server not found');
     }
 
     return mcpServer;
@@ -66,15 +66,15 @@ export class McpService {
     });
 
     if (!mcpServer) {
-      throw new NotFoundException("MCP server not found");
+      throw new NotFoundException('MCP server not found');
     }
 
     if (mcpServer.type === McpType.OFFICIAL) {
-      throw new ForbiddenException("Cannot update OFFICIAL MCP servers");
+      throw new ForbiddenException('Cannot update OFFICIAL MCP servers');
     }
 
     if (mcpServer.createdBy !== userId) {
-      throw new ForbiddenException("You can only update your own MCP servers");
+      throw new ForbiddenException('You can only update your own MCP servers');
     }
 
     const data: Record<string, unknown> = {};
@@ -104,20 +104,20 @@ export class McpService {
     });
 
     if (!mcpServer) {
-      throw new NotFoundException("MCP server not found");
+      throw new NotFoundException('MCP server not found');
     }
 
     if (mcpServer.type === McpType.OFFICIAL) {
-      throw new ForbiddenException("Cannot delete OFFICIAL MCP servers");
+      throw new ForbiddenException('Cannot delete OFFICIAL MCP servers');
     }
 
     if (mcpServer.createdBy !== userId) {
-      throw new ForbiddenException("You can only delete your own MCP servers");
+      throw new ForbiddenException('You can only delete your own MCP servers');
     }
 
     await this.prisma.mcpServer.delete({ where: { id } });
 
-    return { message: "MCP server deleted successfully" };
+    return { message: 'MCP server deleted successfully' };
   }
 
   async testConnection(id: string, userId: string) {
@@ -126,17 +126,17 @@ export class McpService {
     });
 
     if (!mcpServer) {
-      throw new NotFoundException("MCP server not found");
+      throw new NotFoundException('MCP server not found');
     }
 
     if (mcpServer.type === McpType.CUSTOM && mcpServer.createdBy !== userId) {
-      throw new ForbiddenException("You can only test your own MCP servers");
+      throw new ForbiddenException('You can only test your own MCP servers');
     }
 
     try {
       const tools = await this.mcpClient.getTools(
         mcpServer.transport,
-        mcpServer.config as Record<string, unknown>,
+        mcpServer.config as Record<string, unknown>
       );
 
       await this.prisma.mcpServer.update({
@@ -146,12 +146,12 @@ export class McpService {
 
       return {
         success: true,
-        message: "Connection successful",
+        message: 'Connection successful',
         tools,
       };
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+        error instanceof Error ? error.message : 'Unknown error';
       return {
         success: false,
         message: `Connection failed: ${errorMessage}`,

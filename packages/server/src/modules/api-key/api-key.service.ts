@@ -1,16 +1,16 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { createHash, randomBytes } from "crypto";
-import { PrismaService } from "../../prisma/prisma.service";
-import { CreateApiKeyDto } from "./dto/create-api-key.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { createHash, randomBytes } from 'crypto';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateApiKeyDto } from './dto/create-api-key.dto';
 
-const KEY_PREFIX = "sk-agx-";
+const KEY_PREFIX = 'sk-agx-';
 
 @Injectable()
 export class ApiKeyService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string, dto: CreateApiKeyDto) {
-    const rawKey = `${KEY_PREFIX}${randomBytes(32).toString("hex")}`;
+    const rawKey = `${KEY_PREFIX}${randomBytes(32).toString('hex')}`;
     const hashedKey = this.hashKey(rawKey);
 
     const record = await this.prisma.apiKey.create({
@@ -38,7 +38,7 @@ export class ApiKeyService {
       include: {
         agent: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return keys.map((key: (typeof keys)[number]) => ({
@@ -53,11 +53,11 @@ export class ApiKeyService {
     });
 
     if (!apiKey) {
-      throw new NotFoundException("API key not found");
+      throw new NotFoundException('API key not found');
     }
 
     if (apiKey.userId !== userId) {
-      throw new NotFoundException("API key not found");
+      throw new NotFoundException('API key not found');
     }
 
     await this.prisma.apiKey.update({
@@ -65,11 +65,11 @@ export class ApiKeyService {
       data: { isActive: false },
     });
 
-    return { message: "API key deactivated successfully" };
+    return { message: 'API key deactivated successfully' };
   }
 
   async validate(
-    rawKey: string,
+    rawKey: string
   ): Promise<{ userId: string; agentId: string | null } | null> {
     const hashedKey = this.hashKey(rawKey);
 
@@ -101,7 +101,7 @@ export class ApiKeyService {
   }
 
   private hashKey(rawKey: string): string {
-    return createHash("sha256").update(rawKey).digest("hex");
+    return createHash('sha256').update(rawKey).digest('hex');
   }
 
   private maskKey(hashedKey: string): string {

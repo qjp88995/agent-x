@@ -36,7 +36,7 @@ export function ChatInput({
         handleSubmit();
       }
     },
-    [handleSubmit],
+    [handleSubmit]
   );
 
   const handleInput = useCallback(() => {

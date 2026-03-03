@@ -15,7 +15,7 @@ import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
+  const login = useAuthStore(s => s.login);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,7 +36,7 @@ export default function LoginPage() {
       await navigate('/');
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Login failed. Please try again.',
+        err instanceof Error ? err.message : 'Login failed. Please try again.'
       );
     } finally {
       setIsSubmitting(false);
@@ -78,7 +78,7 @@ export default function LoginPage() {
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>

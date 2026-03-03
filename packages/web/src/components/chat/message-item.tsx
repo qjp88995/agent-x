@@ -48,7 +48,7 @@ export function MessageItem({ message }: { readonly message: ChatMessage }) {
           'flex size-8 shrink-0 items-center justify-center rounded-full',
           isUser
             ? 'bg-primary text-primary-foreground'
-            : 'bg-muted text-muted-foreground',
+            : 'bg-muted text-muted-foreground'
         )}
       >
         {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
@@ -60,7 +60,7 @@ export function MessageItem({ message }: { readonly message: ChatMessage }) {
           'max-w-[75%] rounded-2xl px-4 py-2.5',
           isUser
             ? 'bg-primary text-primary-foreground'
-            : 'bg-muted text-foreground',
+            : 'bg-muted text-foreground'
         )}
       >
         {showTyping ? (

@@ -10,7 +10,10 @@ import {
   Trash2,
 } from 'lucide-react';
 import { SkillType } from '@agent-x/shared';
-import type { SkillResponse, SkillType as SkillTypeValue } from '@agent-x/shared';
+import type {
+  SkillResponse,
+  SkillType as SkillTypeValue,
+} from '@agent-x/shared';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -133,7 +136,7 @@ function SkillCard({
       <CardFooter className="border-t pt-4">
         <div className="flex flex-wrap gap-1.5">
           {skill.tags.length > 0 ? (
-            skill.tags.map((tag) => (
+            skill.tags.map(tag => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
@@ -147,11 +150,7 @@ function SkillCard({
   );
 }
 
-function EmptyState({
-  tab,
-}: {
-  readonly tab: 'system' | 'custom';
-}) {
+function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
   const isSystem = tab === 'system';
 
   return (
@@ -182,17 +181,17 @@ export default function SkillsPage() {
   const deleteSkill = useDeleteSkill();
   const [deleteTarget, setDeleteTarget] = useState<SkillResponse | null>(null);
   const [previewTarget, setPreviewTarget] = useState<SkillResponse | null>(
-    null,
+    null
   );
 
   const systemSkills = useMemo(
-    () => skills?.filter((s) => s.type === SkillType.SYSTEM) ?? [],
-    [skills],
+    () => skills?.filter(s => s.type === SkillType.SYSTEM) ?? [],
+    [skills]
   );
 
   const customSkills = useMemo(
-    () => skills?.filter((s) => s.type === SkillType.CUSTOM) ?? [],
-    [skills],
+    () => skills?.filter(s => s.type === SkillType.CUSTOM) ?? [],
+    [skills]
   );
 
   function handleDeleteConfirm() {
@@ -254,7 +253,7 @@ export default function SkillsPage() {
             <EmptyState tab="system" />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {systemSkills.map((skill) => (
+              {systemSkills.map(skill => (
                 <SkillCard
                   key={skill.id}
                   skill={skill}
@@ -271,7 +270,7 @@ export default function SkillsPage() {
             <EmptyState tab="custom" />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {customSkills.map((skill) => (
+              {customSkills.map(skill => (
                 <SkillCard
                   key={skill.id}
                   skill={skill}
@@ -287,7 +286,7 @@ export default function SkillsPage() {
       {/* Content preview dialog */}
       <Dialog
         open={previewTarget !== null}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           if (!open) setPreviewTarget(null);
         }}
       >
@@ -314,7 +313,7 @@ export default function SkillsPage() {
       {/* Delete confirmation dialog */}
       <Dialog
         open={deleteTarget !== null}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           if (!open) setDeleteTarget(null);
         }}
       >

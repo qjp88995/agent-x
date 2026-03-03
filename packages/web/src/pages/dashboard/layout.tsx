@@ -36,11 +36,14 @@ const NAV_ITEMS: readonly NavItem[] = [
   { label: 'API Keys', href: '/api-keys', icon: Key },
 ] as const;
 
-function getInitials(name: string | undefined, email: string | undefined): string {
+function getInitials(
+  name: string | undefined,
+  email: string | undefined
+): string {
   if (name) {
     return name
       .split(' ')
-      .map((part) => part[0])
+      .map(part => part[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -56,8 +59,9 @@ function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
 
   return (
     <nav className="flex flex-col gap-1 px-3">
-      {NAV_ITEMS.map((item) => {
-        const isActive = location.pathname === item.href ||
+      {NAV_ITEMS.map(item => {
+        const isActive =
+          location.pathname === item.href ||
           location.pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;
 
@@ -70,7 +74,7 @@ function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
               'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
               isActive
                 ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
+                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
             )}
           >
             <Icon className="size-4 shrink-0" />
@@ -83,11 +87,14 @@ function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
 }
 
 function UserSection() {
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const user = useAuthStore(s => s.user);
+  const logout = useAuthStore(s => s.logout);
 
   const displayName = user?.name ?? user?.email ?? 'User';
-  const initials = getInitials(user?.name ?? undefined, user?.email ?? undefined);
+  const initials = getInitials(
+    user?.name ?? undefined,
+    user?.email ?? undefined
+  );
 
   return (
     <div className="px-3 pb-4">
@@ -121,7 +128,10 @@ function DesktopSidebar() {
   return (
     <aside className="bg-sidebar text-sidebar-foreground border-sidebar-border hidden w-64 shrink-0 border-r md:flex md:flex-col">
       <div className="flex h-14 items-center px-6">
-        <Link to="/" className="text-lg font-bold tracking-tight text-sidebar-foreground">
+        <Link
+          to="/"
+          className="text-lg font-bold tracking-tight text-sidebar-foreground"
+        >
           Agent-X
         </Link>
       </div>

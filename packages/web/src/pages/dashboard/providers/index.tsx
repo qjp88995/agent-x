@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { useState } from 'react';
+import { Link } from 'react-router';
 import {
   AlertTriangle,
   Database,
@@ -10,17 +10,17 @@ import {
   PlugZap,
   RefreshCw,
   Trash2,
-} from "lucide-react";
-import type { ProviderProtocol, ProviderResponse } from "@agent-x/shared";
-import { Button } from "@/components/ui/button";
+} from 'lucide-react';
+import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogClose,
@@ -29,67 +29,67 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import {
   useDeleteProvider,
   useProviders,
   useSyncModels,
   useTestProvider,
-} from "@/hooks/use-providers";
+} from '@/hooks/use-providers';
 
 const PROTOCOL_CONFIG: Record<
   ProviderProtocol,
   { label: string; className: string }
 > = {
   OPENAI: {
-    label: "OpenAI",
+    label: 'OpenAI',
     className:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   },
   ANTHROPIC: {
-    label: "Anthropic",
+    label: 'Anthropic',
     className:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   },
   GEMINI: {
-    label: "Gemini",
+    label: 'Gemini',
     className:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   DEEPSEEK: {
-    label: "DeepSeek",
+    label: 'DeepSeek',
     className:
-      "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
+      'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400',
   },
   QWEN: {
-    label: "Qwen",
+    label: 'Qwen',
     className:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+      'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
   },
   ZHIPU: {
-    label: "GLM",
+    label: 'GLM',
     className:
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
+      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
   },
   MOONSHOT: {
-    label: "Kimi",
+    label: 'Kimi',
     className:
-      "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400",
+      'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400',
   },
 };
 
 function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
   const config = PROTOCOL_CONFIG[protocol];
   return (
-    <Badge variant="outline" className={cn("border-0", config.className)}>
+    <Badge variant="outline" className={cn('border-0', config.className)}>
       {config.label}
     </Badge>
   );
@@ -100,12 +100,12 @@ function StatusDot({ active }: { readonly active: boolean }) {
     <div className="flex items-center gap-1.5">
       <span
         className={cn(
-          "inline-block size-2 rounded-full",
-          active ? "bg-green-500" : "bg-gray-400",
+          'inline-block size-2 rounded-full',
+          active ? 'bg-green-500' : 'bg-gray-400'
         )}
       />
       <span className="text-muted-foreground text-xs">
-        {active ? "Active" : "Inactive"}
+        {active ? 'Active' : 'Inactive'}
       </span>
     </div>
   );
@@ -130,13 +130,13 @@ function ProviderCard({
 
   function handleTest() {
     testProvider.mutate(provider.id, {
-      onSuccess: (result) => {
+      onSuccess: result => {
         onTestResult(result.message, result.success);
       },
       onError: () => {
         onTestResult(
-          "Connection test failed. Check your configuration.",
-          false,
+          'Connection test failed. Check your configuration.',
+          false
         );
       },
     });
@@ -144,11 +144,11 @@ function ProviderCard({
 
   function handleSync() {
     syncModels.mutate(provider.id, {
-      onSuccess: (models) => {
+      onSuccess: models => {
         onTestResult(`Synced ${models.length} model(s) successfully.`, true);
       },
       onError: () => {
-        onTestResult("Failed to sync models.", false);
+        onTestResult('Failed to sync models.', false);
       },
     });
   }
@@ -182,7 +182,7 @@ function ProviderCard({
               disabled={testProvider.isPending}
             >
               <PlugZap className="mr-2 size-4" />
-              {testProvider.isPending ? "Testing..." : "Test Connection"}
+              {testProvider.isPending ? 'Testing...' : 'Test Connection'}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleSync}
@@ -190,11 +190,11 @@ function ProviderCard({
             >
               <RefreshCw
                 className={cn(
-                  "mr-2 size-4",
-                  syncModels.isPending && "animate-spin",
+                  'mr-2 size-4',
+                  syncModels.isPending && 'animate-spin'
                 )}
               />
-              {syncModels.isPending ? "Syncing..." : "Sync Models"}
+              {syncModels.isPending ? 'Syncing...' : 'Sync Models'}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -218,7 +218,7 @@ function ProviderCard({
       <CardFooter className="border-t pt-4">
         <div className="text-muted-foreground text-sm">
           {provider.models.length} model
-          {provider.models.length !== 1 ? "s" : ""}
+          {provider.models.length !== 1 ? 's' : ''}
         </div>
       </CardFooter>
     </Card>
@@ -255,10 +255,10 @@ function TestResultBanner({
   return (
     <div
       className={cn(
-        "flex items-center justify-between rounded-md px-4 py-3 text-sm",
+        'flex items-center justify-between rounded-md px-4 py-3 text-sm',
         success
-          ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-          : "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400",
+          ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
       )}
     >
       <span>{message}</span>
@@ -278,7 +278,7 @@ export default function ProviderListPage() {
   const { data: providers, isLoading, error } = useProviders();
   const deleteProvider = useDeleteProvider();
   const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(
-    null,
+    null
   );
   const [testResult, setTestResult] = useState<{
     message: string;
@@ -352,7 +352,7 @@ export default function ProviderListPage() {
         <EmptyState />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {providers.map((provider) => (
+          {providers.map(provider => (
             <ProviderCard
               key={provider.id}
               provider={provider}
@@ -366,7 +366,7 @@ export default function ProviderListPage() {
       {/* Delete confirmation dialog */}
       <Dialog
         open={deleteTarget !== null}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           if (!open) setDeleteTarget(null);
         }}
       >
@@ -388,7 +388,7 @@ export default function ProviderListPage() {
               onClick={handleDeleteConfirm}
               disabled={deleteProvider.isPending}
             >
-              {deleteProvider.isPending ? "Deleting..." : "Delete"}
+              {deleteProvider.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>

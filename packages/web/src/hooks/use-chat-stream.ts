@@ -23,11 +23,11 @@ export function useChatStream(conversationId: string) {
         role: 'user',
         content,
       };
-      setMessages((prev) => [...prev, userMsg]);
+      setMessages(prev => [...prev, userMsg]);
       setIsLoading(true);
 
       const assistantId = crypto.randomUUID();
-      setMessages((prev) => [
+      setMessages(prev => [
         ...prev,
         { id: assistantId, role: 'assistant', content: '', isStreaming: true },
       ]);
@@ -44,7 +44,7 @@ export function useChatStream(conversationId: string) {
             },
             body: JSON.stringify({ content }),
             signal: abortRef.current.signal,
-          },
+          }
         );
 
         if (!response.ok) throw new Error('Failed to send message');
@@ -60,40 +60,38 @@ export function useChatStream(conversationId: string) {
             const chunk = decoder.decode(value, { stream: true });
             accumulated += chunk;
             const currentAccumulated = accumulated;
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantId
-                  ? { ...m, content: currentAccumulated }
-                  : m,
-              ),
+            setMessages(prev =>
+              prev.map(m =>
+                m.id === assistantId ? { ...m, content: currentAccumulated } : m
+              )
             );
           }
         }
 
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantId ? { ...m, isStreaming: false } : m,
-          ),
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === assistantId ? { ...m, isStreaming: false } : m
+          )
         );
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
-          setMessages((prev) =>
-            prev.map((m) =>
+          setMessages(prev =>
+            prev.map(m =>
               m.id === assistantId
                 ? {
                     ...m,
                     content: 'Error: Failed to get response',
                     isStreaming: false,
                   }
-                : m,
-            ),
+                : m
+            )
           );
         }
       } finally {
         setIsLoading(false);
       }
     },
-    [conversationId],
+    [conversationId]
   );
 
   const stop = useCallback(() => {

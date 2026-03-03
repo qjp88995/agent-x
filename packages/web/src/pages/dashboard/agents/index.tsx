@@ -12,7 +12,10 @@ import {
   Trash2,
 } from 'lucide-react';
 import { AgentStatus } from '@agent-x/shared';
-import type { AgentResponse, AgentStatus as AgentStatusType } from '@agent-x/shared';
+import type {
+  AgentResponse,
+  AgentStatus as AgentStatusType,
+} from '@agent-x/shared';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -177,9 +180,7 @@ function AgentCard({
       </CardContent>
 
       <CardFooter className="border-t pt-4">
-        <div className="text-muted-foreground text-xs">
-          {agent.modelId}
-        </div>
+        <div className="text-muted-foreground text-xs">{agent.modelId}</div>
       </CardFooter>
     </Card>
   );
@@ -276,7 +277,7 @@ export default function AgentListPage() {
       {/* Filter tabs */}
       <Tabs
         value={activeTab}
-        onValueChange={(value) => setActiveTab(value as FilterTab)}
+        onValueChange={value => setActiveTab(value as FilterTab)}
       >
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
@@ -291,7 +292,7 @@ export default function AgentListPage() {
         <EmptyState filter={activeTab} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {agents.map((agent) => (
+          {agents.map(agent => (
             <AgentCard
               key={agent.id}
               agent={agent}
@@ -306,7 +307,7 @@ export default function AgentListPage() {
       {/* Delete confirmation dialog */}
       <Dialog
         open={deleteTarget !== null}
-        onOpenChange={(open) => {
+        onOpenChange={open => {
           if (!open) setDeleteTarget(null);
         }}
       >
