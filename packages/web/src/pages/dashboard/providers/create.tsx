@@ -1,0 +1,343 @@
+import { type FormEvent, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { AlertTriangle, ArrowLeft, CheckCircle2, Loader2, XCircle } from 'lucide-react';
+import { ProviderProtocol } from '@agent-x/shared';
+import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import {
+  useCreateProvider,
+  useProvider,
+  useTestProvider,
+  useUpdateProvider,
+} from '@/hooks/use-providers';
+
+const DEFAULT_BASE_URLS: Record<ProviderProtocolType, string> = {
+  OPENAI: 'https://api.openai.com/v1',
+  ANTHROPIC: 'https://api.anthropic.com',
+  GEMINI: 'https://generativelanguage.googleapis.com/v1beta',
+};
+
+const PROTOCOL_OPTIONS: readonly {
+  value: ProviderProtocolType;
+  label: string;
+  description: string;
+}[] = [
+  { value: ProviderProtocol.OPENAI, label: 'OpenAI', description: 'GPT models and compatible APIs' },
+  { value: ProviderProtocol.ANTHROPIC, label: 'Anthropic', description: 'Claude models' },
+  { value: ProviderProtocol.GEMINI, label: 'Gemini', description: 'Google Gemini models' },
+] as const;
+
+interface TestResultState {
+  success: boolean;
+  message: string;
+}
+
+export default function CreateProviderPage() {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = !!id;
+
+  const { data: existingProvider, isLoading: isLoadingProvider } = useProvider(id);
+  const createProvider = useCreateProvider();
+  const updateProvider = useUpdateProvider();
+  const testProvider = useTestProvider();
+
+  const [name, setName] = useState('');
+  const [protocol, setProtocol] = useState<ProviderProtocolType>(ProviderProtocol.OPENAI);
+  const [baseUrl, setBaseUrl] = useState(DEFAULT_BASE_URLS.OPENAI);
+  const [apiKey, setApiKey] = useState('');
+  const [hasChangedUrl, setHasChangedUrl] = useState(false);
+  const [testResult, setTestResult] = useState<TestResultState | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (existingProvider) {
+      setName(existingProvider.name);
+      setProtocol(existingProvider.protocol);
+      setBaseUrl(existingProvider.baseUrl);
+      setHasChangedUrl(true);
+    }
+  }, [existingProvider]);
+
+  // Auto-fill base URL when protocol changes (unless user has manually changed it)
+  function handleProtocolChange(newProtocol: ProviderProtocolType) {
+    setProtocol(newProtocol);
+    if (!hasChangedUrl) {
+      setBaseUrl(DEFAULT_BASE_URLS[newProtocol]);
+    }
+    setTestResult(null);
+  }
+
+  function handleBaseUrlChange(value: string) {
+    setBaseUrl(value);
+    setHasChangedUrl(true);
+    setTestResult(null);
+  }
+
+  const isFormValid = name.trim().length > 0 && baseUrl.trim().length > 0 &&
+    (isEditMode || apiKey.trim().length > 0);
+
+  const isSaving = createProvider.isPending || updateProvider.isPending;
+
+  function handleTest() {
+    if (!isEditMode) return;
+    setTestResult(null);
+    testProvider.mutate(id, {
+      onSuccess: (result) => setTestResult(result),
+      onError: () =>
+        setTestResult({
+          success: false,
+          message: 'Connection test failed. Check your configuration.',
+        }),
+    });
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!isFormValid || isSaving) return;
+    setError(null);
+
+    try {
+      if (isEditMode) {
+        await updateProvider.mutateAsync({
+          id,
+          dto: {
+            name: name.trim(),
+            baseUrl: baseUrl.trim(),
+            ...(apiKey.trim().length > 0 ? { apiKey: apiKey.trim() } : {}),
+          },
+        });
+      } else {
+        await createProvider.mutateAsync({
+          name: name.trim(),
+          protocol,
+          baseUrl: baseUrl.trim(),
+          apiKey: apiKey.trim(),
+        });
+      }
+      await navigate('/providers');
+    } catch {
+      setError(
+        isEditMode
+          ? 'Failed to update provider. Please try again.'
+          : 'Failed to create provider. Please try again.',
+      );
+    }
+  }
+
+  if (isEditMode && isLoadingProvider) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-muted-foreground text-sm">Loading provider...</div>
+      </div>
+    );
+  }
+
+  if (isEditMode && !isLoadingProvider && !existingProvider) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <AlertTriangle className="text-destructive mb-4 size-10" />
+        <h3 className="mb-1 font-semibold">Provider not found</h3>
+        <p className="text-muted-foreground mb-4 text-sm">
+          The provider you are looking for does not exist.
+        </p>
+        <Button variant="outline" onClick={() => navigate('/providers')}>
+          Back to Providers
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/providers')}
+          aria-label="Back to providers"
+        >
+          <ArrowLeft className="size-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {isEditMode ? 'Edit Provider' : 'Add Provider'}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {isEditMode
+              ? 'Update your provider configuration.'
+              : 'Configure a new AI provider connection.'}
+          </p>
+        </div>
+      </div>
+
+      {/* Form */}
+      <Card className="max-w-2xl">
+        <form onSubmit={handleSubmit}>
+          <CardHeader>
+            <CardTitle>Provider Details</CardTitle>
+            <CardDescription>
+              Enter the connection details for your AI provider.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="flex flex-col gap-6">
+            {error && (
+              <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
+                {error}
+              </div>
+            )}
+
+            {/* Name */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                placeholder="e.g., My OpenAI Provider"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isSaving}
+                required
+              />
+              <p className="text-muted-foreground text-xs">
+                A friendly name to identify this provider.
+              </p>
+            </div>
+
+            {/* Protocol */}
+            <div className="flex flex-col gap-2">
+              <Label>Protocol</Label>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {PROTOCOL_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    disabled={isEditMode || isSaving}
+                    onClick={() => handleProtocolChange(option.value)}
+                    className={cn(
+                      'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
+                      protocol === option.value
+                        ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
+                        : 'hover:bg-accent',
+                      (isEditMode || isSaving) && 'cursor-not-allowed opacity-60',
+                    )}
+                  >
+                    <span className="text-sm font-medium">{option.label}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {option.description}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {isEditMode && (
+                <p className="text-muted-foreground text-xs">
+                  Protocol cannot be changed after creation.
+                </p>
+              )}
+            </div>
+
+            {/* Base URL */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="baseUrl">Base URL</Label>
+              <Input
+                id="baseUrl"
+                type="url"
+                placeholder="https://api.example.com/v1"
+                value={baseUrl}
+                onChange={(e) => handleBaseUrlChange(e.target.value)}
+                disabled={isSaving}
+                required
+              />
+              <p className="text-muted-foreground text-xs">
+                The API endpoint for this provider. Auto-filled based on protocol.
+              </p>
+            </div>
+
+            {/* API Key */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="apiKey">API Key</Label>
+              <Input
+                id="apiKey"
+                type="password"
+                placeholder={isEditMode ? 'Leave blank to keep current key' : 'sk-...'}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                disabled={isSaving}
+                required={!isEditMode}
+                autoComplete="off"
+              />
+              <p className="text-muted-foreground text-xs">
+                {isEditMode
+                  ? 'Leave blank to keep the existing API key.'
+                  : 'Your API key will be stored securely.'}
+              </p>
+            </div>
+
+            {/* Test Connection (only in edit mode) */}
+            {isEditMode && (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTest}
+                    disabled={testProvider.isPending}
+                  >
+                    {testProvider.isPending && (
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    )}
+                    Test Connection
+                  </Button>
+                  {testResult && (
+                    <div
+                      className={cn(
+                        'flex items-center gap-1.5 text-sm',
+                        testResult.success ? 'text-green-600' : 'text-red-600',
+                      )}
+                    >
+                      {testResult.success ? (
+                        <CheckCircle2 className="size-4" />
+                      ) : (
+                        <XCircle className="size-4" />
+                      )}
+                      <span>{testResult.message}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+
+          <CardFooter className="flex justify-end gap-3 border-t pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/providers')}
+              disabled={isSaving}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!isFormValid || isSaving}>
+              {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isEditMode ? 'Save Changes' : 'Create Provider'}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
+  );
+}
