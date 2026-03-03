@@ -18,6 +18,7 @@ const SkillsPage = lazy(() => import("@/pages/dashboard/skills/index"));
 const SkillEditorPage = lazy(() => import("@/pages/dashboard/skills/editor"));
 const McpPage = lazy(() => import("@/pages/dashboard/mcp/index"));
 const McpEditorPage = lazy(() => import("@/pages/dashboard/mcp/editor"));
+const ChatPage = lazy(() => import("@/pages/chat/index"));
 
 function PageLoader() {
   return (
@@ -52,6 +53,7 @@ export function AppRoutes() {
             <Route path="/mcp-servers/new" element={<McpEditorPage />} />
             <Route path="/mcp-servers/:id/edit" element={<McpEditorPage />} />
           </Route>
+          <Route path="/chat" element={<ChatPage />} />
         </Route>
       </Routes>
     </Suspense>
