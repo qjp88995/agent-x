@@ -7,6 +7,8 @@ import { AgentModule } from "./modules/agent/agent.module";
 import { SkillModule } from "./modules/skill/skill.module";
 import { McpModule } from "./modules/mcp/mcp.module";
 import { ChatModule } from "./modules/chat/chat.module";
+import { ApiKeyModule } from "./modules/api-key/api-key.module";
+import { OpenaiCompatModule } from "./modules/openai-compat/openai-compat.module";
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ChatModule } from "./modules/chat/chat.module";
     SkillModule,
     McpModule,
     ChatModule,
+    ApiKeyModule,
+    OpenaiCompatModule,
   ],
 })
 export class AppModule {}
