@@ -74,6 +74,7 @@ export class ProviderService {
     const providers = await this.prisma.provider.findMany({
       where: { userId },
       include: {
+        models: true,
         _count: {
           select: { models: true },
         },
