@@ -27,6 +27,7 @@
     "@nestjs/jwt": "^11",
     "@nestjs/platform-express": "^11",
     "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
     "ai": "^6.0.108",
     "bcryptjs": "^2",
     "class-transformer": "^0.5",
