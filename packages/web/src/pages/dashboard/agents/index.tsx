@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+
+import type {
+  AgentResponse,
+  AgentStatus as AgentStatusType,
+} from '@agent-x/shared';
+import { AgentStatus } from '@agent-x/shared';
 import {
   AlertTriangle,
   Archive,
@@ -11,11 +17,9 @@ import {
   Rocket,
   Trash2,
 } from 'lucide-react';
-import { AgentStatus } from '@agent-x/shared';
-import type {
-  AgentResponse,
-  AgentStatus as AgentStatusType,
-} from '@agent-x/shared';
+
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,7 +28,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogClose,
@@ -42,14 +45,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
 import {
   useAgents,
   useArchiveAgent,
   useDeleteAgent,
   usePublishAgent,
 } from '@/hooks/use-agents';
+import { cn } from '@/lib/utils';
 
 const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,

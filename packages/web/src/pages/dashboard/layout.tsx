@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
+
 import {
   Bot,
   Database,
@@ -9,8 +10,10 @@ import {
   Server,
   Sparkles,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
@@ -18,7 +21,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 

@@ -1,5 +1,7 @@
-import { useRef, useCallback } from 'react';
+import { useCallback,useRef } from 'react';
+
 import { Send, Square } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 
 interface ChatInputProps {

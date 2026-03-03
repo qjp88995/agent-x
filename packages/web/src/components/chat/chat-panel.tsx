@@ -1,9 +1,12 @@
 import { useEffect, useRef } from 'react';
+
 import { Bot, MessageSquare } from 'lucide-react';
-import { MessageItem } from './message-item';
-import { ChatInput } from './chat-input';
-import { useChatStream, type ChatMessage } from '@/hooks/use-chat-stream';
+
 import { useMessages } from '@/hooks/use-chat';
+import { type ChatMessage,useChatStream } from '@/hooks/use-chat-stream';
+
+import { ChatInput } from './chat-input';
+import { MessageItem } from './message-item';
 
 interface ChatPanelProps {
   readonly conversationId: string;

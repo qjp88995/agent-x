@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, Link } from 'react-router';
+import { useCallback,useEffect, useState } from 'react';
+import { Link,useSearchParams } from 'react-router';
+
 import {
   AlertTriangle,
   ArrowLeft,
@@ -9,6 +10,8 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+
+import { ChatPanel } from '@/components/chat/chat-panel';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,15 +21,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
-import { ChatPanel } from '@/components/chat/chat-panel';
+import { useAgents } from '@/hooks/use-agents';
 import {
+  type ConversationWithAgent,
   useConversations,
   useCreateConversation,
   useDeleteConversation,
-  type ConversationWithAgent,
 } from '@/hooks/use-chat';
-import { useAgents } from '@/hooks/use-agents';
+import { cn } from '@/lib/utils';
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);

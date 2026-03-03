@@ -1,6 +1,7 @@
 import { Bot, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
 import type { ChatMessage } from '@/hooks/use-chat-stream';
+import { cn } from '@/lib/utils';
 
 function TypingIndicator() {
   return (

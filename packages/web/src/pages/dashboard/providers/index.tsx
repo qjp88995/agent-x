@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+
+import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
 import {
   AlertTriangle,
   Database,
   ExternalLink,
   MoreHorizontal,
   Pencil,
-  Plus,
   PlugZap,
+  Plus,
   RefreshCw,
   Trash2,
 } from 'lucide-react';
-import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,7 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogClose,
@@ -37,13 +39,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
 import {
   useDeleteProvider,
   useProviders,
   useSyncModels,
   useTestProvider,
 } from '@/hooks/use-providers';
+import { cn } from '@/lib/utils';
 
 const PROTOCOL_CONFIG: Record<
   ProviderProtocol,

@@ -1,8 +1,10 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
-import { McpTransport } from '@agent-x/shared';
+
 import type { McpTransport as McpTransportType } from '@agent-x/shared';
+import { McpTransport } from '@agent-x/shared';
+import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,12 +17,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
 import {
   useCreateMcpServer,
   useMcpServer,
   useUpdateMcpServer,
 } from '@/hooks/use-mcp';
+import { cn } from '@/lib/utils';
 
 const TRANSPORT_OPTIONS: readonly {
   value: McpTransportType;

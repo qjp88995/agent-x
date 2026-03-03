@@ -1,7 +1,8 @@
-import { create } from 'zustand';
 import type { AuthResponse } from '@agent-x/shared';
-import { api } from '@/lib/api';
 import { AxiosError } from 'axios';
+import { create } from 'zustand';
+
+import { api } from '@/lib/api';
 
 type AuthUser = AuthResponse['user'];
 

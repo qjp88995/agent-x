@@ -1,5 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
+
+import type {
+  SkillResponse,
+  SkillType as SkillTypeValue,
+} from '@agent-x/shared';
+import { SkillType } from '@agent-x/shared';
 import {
   AlertTriangle,
   Eye,
@@ -9,11 +15,8 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react';
-import { SkillType } from '@agent-x/shared';
-import type {
-  SkillResponse,
-  SkillType as SkillTypeValue,
-} from '@agent-x/shared';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,7 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogClose,
@@ -39,10 +41,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDeleteSkill, useSkills } from '@/hooks/use-skills';
+import { cn } from '@/lib/utils';
 
 const TYPE_BADGE_CONFIG: Record<
   SkillTypeValue,

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import {
   AlertTriangle,
   Check,
@@ -7,10 +8,9 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -20,6 +20,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -28,13 +30,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAgents } from '@/hooks/use-agents';
+import type { ApiKeyResponse } from '@/hooks/use-api-keys';
 import {
   useApiKeys,
   useCreateApiKey,
   useDeleteApiKey,
 } from '@/hooks/use-api-keys';
-import type { ApiKeyResponse } from '@/hooks/use-api-keys';
-import { useAgents } from '@/hooks/use-agents';
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '-';

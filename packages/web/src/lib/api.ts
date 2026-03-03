@@ -1,5 +1,5 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { AuthResponse } from '@agent-x/shared';
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 export const api = axios.create({
   baseURL: '/api',

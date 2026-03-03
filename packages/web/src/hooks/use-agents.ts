@@ -1,10 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   AgentResponse,
   AgentStatus,
   CreateAgentDto,
   UpdateAgentDto,
 } from '@agent-x/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { api } from '@/lib/api';
 
 const AGENTS_KEY = ['agents'] as const;

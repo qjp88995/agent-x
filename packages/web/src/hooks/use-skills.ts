@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CreateSkillDto,
   SkillResponse,
   UpdateSkillDto,
 } from '@agent-x/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { api } from '@/lib/api';
 
 const SKILLS_KEY = ['skills'] as const;

@@ -1,5 +1,8 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+
+import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
+import { ProviderProtocol } from '@agent-x/shared';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -7,8 +10,7 @@ import {
   Loader2,
   XCircle,
 } from 'lucide-react';
-import { ProviderProtocol } from '@agent-x/shared';
-import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,13 +22,13 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 import {
   useCreateProvider,
   useProvider,
   useTestProvider,
   useUpdateProvider,
 } from '@/hooks/use-providers';
+import { cn } from '@/lib/utils';
 
 const DEFAULT_BASE_URLS: Record<ProviderProtocolType, string> = {
   OPENAI: 'https://api.openai.com/v1',

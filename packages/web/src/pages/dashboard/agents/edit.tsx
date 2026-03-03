@@ -1,5 +1,8 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+
+import type { AgentStatus as AgentStatusType } from '@agent-x/shared';
+import { AgentStatus } from '@agent-x/shared';
 import {
   AlertTriangle,
   Archive,
@@ -8,8 +11,8 @@ import {
   Rocket,
   Save,
 } from 'lucide-react';
-import { AgentStatus } from '@agent-x/shared';
-import type { AgentStatus as AgentStatusType } from '@agent-x/shared';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,10 +23,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 import {
   useAgent,
   useArchiveAgent,
@@ -31,6 +32,7 @@ import {
   useUpdateAgent,
 } from '@/hooks/use-agents';
 import { useProviders } from '@/hooks/use-providers';
+import { cn } from '@/lib/utils';
 
 const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,

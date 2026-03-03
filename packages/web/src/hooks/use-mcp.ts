@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CreateMcpServerDto,
   McpServerResponse,
   UpdateMcpServerDto,
 } from '@agent-x/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { api } from '@/lib/api';
 
 const MCP_SERVERS_KEY = ['mcp-servers'] as const;

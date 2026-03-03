@@ -1,10 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CreateProviderDto,
   ProviderModelResponse,
   ProviderResponse,
   UpdateProviderDto,
 } from '@agent-x/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { api } from '@/lib/api';
 
 const PROVIDERS_KEY = ['providers'] as const;

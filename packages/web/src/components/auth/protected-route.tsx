@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router';
+
 import { useAuthStore } from '@/stores/auth-store';
 
 export function ProtectedRoute() {

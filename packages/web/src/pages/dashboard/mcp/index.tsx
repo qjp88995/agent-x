@@ -1,5 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+
+import type {
+  McpServerResponse,
+  McpTransport as McpTransportType,
+} from '@agent-x/shared';
 import {
   AlertTriangle,
   MoreHorizontal,
@@ -9,10 +14,8 @@ import {
   Server,
   Trash2,
 } from 'lucide-react';
-import type {
-  McpServerResponse,
-  McpTransport as McpTransportType,
-} from '@agent-x/shared';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,7 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogClose,
@@ -39,13 +41,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
 import {
   useDeleteMcpServer,
   useMcpMarket,
   useMcpServers,
   useTestMcpServer,
 } from '@/hooks/use-mcp';
+import { cn } from '@/lib/utils';
 
 const TRANSPORT_BADGE_CONFIG: Record<
   McpTransportType,

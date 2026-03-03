@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
+
 import { ProtectedRoute } from '@/components/auth/protected-route';
 
 const LoginPage = lazy(() => import('@/pages/login'));
