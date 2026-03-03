@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./modules/auth/auth.module";
@@ -9,6 +9,7 @@ import { McpModule } from "./modules/mcp/mcp.module";
 import { ChatModule } from "./modules/chat/chat.module";
 import { ApiKeyModule } from "./modules/api-key/api-key.module";
 import { OpenaiCompatModule } from "./modules/openai-compat/openai-compat.module";
+import { RequestLoggerMiddleware } from "./common/request-logger.middleware";
 
 @Module({
   imports: [
@@ -24,4 +25,8 @@ import { OpenaiCompatModule } from "./modules/openai-compat/openai-compat.module
     OpenaiCompatModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes("*");
+  }
+}
