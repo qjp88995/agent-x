@@ -1,0 +1,204 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  providers     Provider[]
+  agents        Agent[]
+  apiKeys       ApiKey[]
+  conversations Conversation[]
+}
+
+enum ProviderProtocol {
+  OPENAI
+  ANTHROPIC
+  GEMINI
+}
+
+model Provider {
+  id        String           @id @default(cuid())
+  userId    String
+  name      String
+  protocol  ProviderProtocol
+  baseUrl   String
+  apiKey    String
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user   User            @relation(fields: [userId], references: [id])
+  models ProviderModel[]
+  agents Agent[]
+}
+
+model ProviderModel {
+  id         String  @id @default(cuid())
+  providerId String
+  modelId    String
+  name       String
+  isActive   Boolean @default(true)
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+}
+
+enum AgentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Agent {
+  id           String      @id @default(cuid())
+  userId       String
+  providerId   String
+  modelId      String
+  name         String
+  description  String?
+  avatar       String?
+  systemPrompt String
+  temperature  Float       @default(0.7)
+  maxTokens    Int         @default(4096)
+  status       AgentStatus @default(DRAFT)
+  publishedAt  DateTime?
+  version      Int         @default(1)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id])
+  provider      Provider       @relation(fields: [providerId], references: [id])
+  skills        AgentSkill[]
+  mcpServers    AgentMcp[]
+  conversations Conversation[]
+  apiKeys       ApiKey[]
+}
+
+enum McpType {
+  OFFICIAL
+  CUSTOM
+}
+
+enum McpTransport {
+  STDIO
+  SSE
+  STREAMABLE_HTTP
+}
+
+model McpServer {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  type        McpType
+  transport   McpTransport
+  config      Json
+  tools       Json?
+  isPublic    Boolean      @default(false)
+  createdBy   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  agents AgentMcp[]
+}
+
+model AgentMcp {
+  id           String   @id @default(cuid())
+  agentId      String
+  mcpServerId  String
+  enabledTools String[]
+
+  agent     Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  mcpServer McpServer @relation(fields: [mcpServerId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, mcpServerId])
+}
+
+enum SkillType {
+  SYSTEM
+  CUSTOM
+}
+
+model Skill {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  content     String
+  type        SkillType
+  tags        String[]
+  isPublic    Boolean   @default(false)
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  agents AgentSkill[]
+}
+
+model AgentSkill {
+  id       String @id @default(cuid())
+  agentId  String
+  skillId  String
+  priority Int    @default(0)
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, skillId])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  agentId   String
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id])
+  agent    Agent     @relation(fields: [agentId], references: [id])
+  messages Message[]
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  TOOL
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  role           MessageRole
+  parts          Json
+  metadata       Json?
+  tokenUsage     Json?
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  agentId    String?
+  key        String    @unique
+  name       String
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  user  User   @relation(fields: [userId], references: [id])
+  agent Agent? @relation(fields: [agentId], references: [id])
+}
