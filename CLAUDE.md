@@ -178,6 +178,7 @@ Docker setup:
 - `CORS_ORIGIN` - Allowed CORS origin (default: http://localhost:5173)
 - `ENCRYPTION_SECRET` - AES-256-GCM key for provider API keys (32 chars)
 - `AI_SDK_TELEMETRY` - Enable OpenTelemetry tracing (optional, set to `true`)
+- `OTLP_ENDPOINT` - OTLP HTTP endpoint for traces (default: http://localhost:4318/v1/traces)
 
 ### Docker Production (`.env`)
 
