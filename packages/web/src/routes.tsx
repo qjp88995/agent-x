@@ -14,6 +14,10 @@ const CreateProviderPage = lazy(
 const AgentListPage = lazy(() => import("@/pages/dashboard/agents/index"));
 const CreateAgentPage = lazy(() => import("@/pages/dashboard/agents/create"));
 const EditAgentPage = lazy(() => import("@/pages/dashboard/agents/edit"));
+const SkillsPage = lazy(() => import("@/pages/dashboard/skills/index"));
+const SkillEditorPage = lazy(() => import("@/pages/dashboard/skills/editor"));
+const McpPage = lazy(() => import("@/pages/dashboard/mcp/index"));
+const McpEditorPage = lazy(() => import("@/pages/dashboard/mcp/editor"));
 
 function PageLoader() {
   return (
@@ -41,6 +45,12 @@ export function AppRoutes() {
             <Route path="/agents" element={<AgentListPage />} />
             <Route path="/agents/new" element={<CreateAgentPage />} />
             <Route path="/agents/:id/edit" element={<EditAgentPage />} />
+            <Route path="/skills" element={<SkillsPage />} />
+            <Route path="/skills/new" element={<SkillEditorPage />} />
+            <Route path="/skills/:id/edit" element={<SkillEditorPage />} />
+            <Route path="/mcp-servers" element={<McpPage />} />
+            <Route path="/mcp-servers/new" element={<McpEditorPage />} />
+            <Route path="/mcp-servers/:id/edit" element={<McpEditorPage />} />
           </Route>
         </Route>
       </Routes>
