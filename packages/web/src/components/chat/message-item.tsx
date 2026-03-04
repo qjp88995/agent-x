@@ -1,10 +1,11 @@
-import type { ReasoningUIPart,UIMessage } from 'ai';
+import type { ReasoningUIPart, UIMessage } from 'ai';
 import { Bot, User } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 import { MarkdownRenderer } from './markdown-renderer';
 import { ThinkingBlock } from './thinking-block';
+import { ToolCallBlock } from './tool-call-block';
 
 function TypingIndicator() {
   return (
@@ -14,6 +15,20 @@ function TypingIndicator() {
       <span className="bg-muted-foreground/60 size-1.5 animate-bounce rounded-full [animation-delay:300ms]" />
     </div>
   );
+}
+
+interface ToolUIPart {
+  readonly type: string;
+  readonly toolCallId: string;
+  readonly toolName: string;
+  readonly state: string;
+  readonly input?: unknown;
+  readonly output?: unknown;
+  readonly errorText?: string;
+}
+
+function isToolPart(part: { type: string }): part is ToolUIPart {
+  return 'toolName' in part;
 }
 
 function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
@@ -35,6 +50,24 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
           if (!text) return null;
           return <MarkdownRenderer key={`text-${i}`} content={text} />;
         }
+        if (isToolPart(part)) {
+          return (
+            <ToolCallBlock
+              key={part.toolCallId ?? `tool-${i}`}
+              toolName={part.toolName}
+              state={
+                part.state as
+                  | 'input-streaming'
+                  | 'input-available'
+                  | 'output-available'
+                  | 'output-error'
+              }
+              input={part.input}
+              output={part.output}
+              errorText={part.errorText}
+            />
+          );
+        }
         return null;
       })}
     </div>
@@ -47,7 +80,8 @@ export function MessageItem({ message }: { readonly message: UIMessage }) {
     p =>
       (p.type === 'text' &&
         (p as { type: 'text'; text: string }).text.length > 0) ||
-      p.type === 'reasoning'
+      p.type === 'reasoning' ||
+      isToolPart(p)
   );
   const showTyping = !isUser && !hasContent;
 

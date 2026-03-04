@@ -73,20 +73,52 @@ export class ChatController {
     );
 
     // Save assistant message asynchronously after stream completes
-    void result.text.then(async (text: string) => {
-      const reasoning = await result.reasoning;
+    void result.steps.then(async (steps: Array<Record<string, any>>) => {
       const usage = await result.usage;
-      const parts: Array<{ type: string; text: string }> = [];
+      const parts: Array<Record<string, unknown>> = [];
 
-      if (reasoning) {
-        const reasoningText = Array.isArray(reasoning)
-          ? reasoning.map(r => r.text).join('')
-          : String(reasoning);
-        if (reasoningText) {
-          parts.push({ type: 'reasoning', text: reasoningText });
+      for (const step of steps) {
+        // Reasoning
+        if (step.reasoning) {
+          const reasoningText = Array.isArray(step.reasoning)
+            ? step.reasoning.map((r: { text: string }) => r.text).join('')
+            : String(step.reasoning);
+          if (reasoningText) {
+            parts.push({ type: 'reasoning', text: reasoningText });
+          }
+        }
+
+        // Text before tool calls
+        if (step.text && step.toolCalls?.length > 0) {
+          parts.push({ type: 'text', text: step.text });
+        }
+
+        // Tool calls
+        for (const tc of step.toolCalls ?? []) {
+          parts.push({
+            type: 'tool-call',
+            toolCallId: tc.toolCallId,
+            toolName: tc.toolName,
+            args: tc.args,
+          });
+        }
+
+        // Tool results
+        for (const tr of step.toolResults ?? []) {
+          parts.push({
+            type: 'tool-result',
+            toolCallId: tr.toolCallId,
+            toolName: tr.toolName,
+            result: tr.result,
+            isError: false,
+          });
+        }
+
+        // Final text (no tool calls in this step)
+        if (step.text && !step.toolCalls?.length) {
+          parts.push({ type: 'text', text: step.text });
         }
       }
-      parts.push({ type: 'text', text });
 
       await this.chatService.saveMessage(
         id,
