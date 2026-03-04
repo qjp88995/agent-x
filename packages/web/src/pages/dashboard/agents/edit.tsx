@@ -493,6 +493,10 @@ export default function EditAgentPage() {
                         className="w-20"
                       />
                     </div>
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      推荐值：代码生成/数学解题 0.0 · 数据抽取/分析 1.0 ·
+                      通用对话 1.3 · 翻译 1.3 · 创意类写作/诗歌创作 1.5
+                    </p>
                   </div>
 
                   {/* Max Tokens */}
