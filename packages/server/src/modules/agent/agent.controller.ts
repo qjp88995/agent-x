@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -94,6 +95,21 @@ export class AgentController {
       id,
       user.id,
       body.mcpServerId,
+      body.enabledTools
+    );
+  }
+
+  @Patch(':id/mcp-servers/:mcpServerId')
+  updateMcpServer(
+    @Param('id') id: string,
+    @Param('mcpServerId') mcpServerId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { enabledTools: string[] }
+  ) {
+    return this.agentService.updateMcpServer(
+      id,
+      user.id,
+      mcpServerId,
       body.enabledTools
     );
   }

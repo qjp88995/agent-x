@@ -40,7 +40,24 @@ export interface AgentResponse {
   status: AgentStatus;
   version: number;
   skills: { id: string; skillId: string; priority: number }[];
-  mcpServers: { id: string; mcpServerId: string; enabledTools: string[] }[];
+  mcpServers: {
+    id: string;
+    mcpServerId: string;
+    enabledTools: string[];
+    mcpServer: {
+      id: string;
+      name: string;
+      description: string | null;
+      transport: string;
+      tools:
+        | {
+            name: string;
+            description?: string;
+            inputSchema?: Record<string, unknown>;
+          }[]
+        | null;
+    };
+  }[];
   createdAt: string;
   updatedAt: string;
 }

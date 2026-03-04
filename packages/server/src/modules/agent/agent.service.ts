@@ -293,6 +293,35 @@ export class AgentService {
     });
   }
 
+  async updateMcpServer(
+    agentId: string,
+    userId: string,
+    mcpServerId: string,
+    enabledTools: string[]
+  ) {
+    const agent = await this.prisma.agent.findFirst({
+      where: { id: agentId, userId },
+    });
+
+    if (!agent) {
+      throw new NotFoundException('Agent not found');
+    }
+
+    const agentMcp = await this.prisma.agentMcp.findFirst({
+      where: { agentId, mcpServerId },
+    });
+
+    if (!agentMcp) {
+      throw new NotFoundException('Agent MCP server association not found');
+    }
+
+    return this.prisma.agentMcp.update({
+      where: { id: agentMcp.id },
+      data: { enabledTools },
+      include: { mcpServer: true },
+    });
+  }
+
   async removeMcpServer(agentId: string, userId: string, mcpServerId: string) {
     const agent = await this.prisma.agent.findFirst({
       where: { id: agentId, userId },

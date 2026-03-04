@@ -23,6 +23,7 @@
     "@ai-sdk/anthropic": "^3.0.53",
     "@ai-sdk/deepseek": "^2.0.22",
     "@ai-sdk/google": "^3.0.36",
+    "@ai-sdk/mcp": "^1.0.23",
     "@ai-sdk/moonshotai": "^2.0.8",
     "@ai-sdk/openai": "^3.0.39",
     "@nestjs/common": "^11",
