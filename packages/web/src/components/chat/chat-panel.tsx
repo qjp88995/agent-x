@@ -42,7 +42,13 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
   const { messages, sendMessage, status, setMessages, stop } = useChat({
     id: conversationId,
     transport,
+    resume: true,
   });
+
+  const statusRef = useRef(status);
+  statusRef.current = status;
+  const currentMessagesRef = useRef(messages);
+  currentMessagesRef.current = messages;
 
   const isLoading = status === 'submitted' || status === 'streaming';
   const { data: savedMessages } = useMessages(conversationId);
@@ -104,17 +110,22 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
           parts,
         };
       });
-      setMessages(history);
+      // If a resumed stream is active, preserve the streaming message(s)
+      const currentStatus = statusRef.current;
+      const currentMessages = currentMessagesRef.current;
+      const isStreaming =
+        currentStatus === 'streaming' || currentStatus === 'submitted';
+
+      if (isStreaming && currentMessages.length > 0) {
+        const savedIds = new Set(savedMessages.map(m => m.id));
+        const streamingMsgs = currentMessages.filter(m => !savedIds.has(m.id));
+        setMessages([...history, ...streamingMsgs]);
+      } else {
+        setMessages(history);
+      }
       historyLoadedRef.current = conversationId;
     }
   }, [savedMessages, conversationId, setMessages]);
-
-  // Reset history loaded ref when conversation changes
-  useEffect(() => {
-    if (historyLoadedRef.current !== conversationId) {
-      historyLoadedRef.current = null;
-    }
-  }, [conversationId]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
