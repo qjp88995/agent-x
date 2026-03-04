@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
+import { VersionList } from '@/components/agents/version-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,15 +24,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { usePublishVersion } from '@/hooks/use-agent-versions';
 import {
   useAgent,
   useArchiveAgent,
-  usePublishAgent,
-  useUnpublishAgent,
+  useUnarchiveAgent,
   useUpdateAgent,
 } from '@/hooks/use-agents';
 import { useProviders } from '@/hooks/use-providers';
@@ -45,11 +54,6 @@ const STATUS_BADGE_CONFIG: Record<
     label: 'Draft',
     className:
       'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  },
-  PUBLISHED: {
-    label: 'Published',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   ARCHIVED: {
     label: 'Archived',
@@ -68,9 +72,9 @@ export default function EditAgentPage() {
   } = useAgent(id);
   const { data: providers, isLoading: isLoadingProviders } = useProviders();
   const updateAgent = useUpdateAgent();
-  const publishAgent = usePublishAgent();
-  const unpublishAgent = useUnpublishAgent();
+  const publishVersion = usePublishVersion();
   const archiveAgent = useArchiveAgent();
+  const unarchiveAgent = useUnarchiveAgent();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -81,6 +85,8 @@ export default function EditAgentPage() {
   const [maxTokens, setMaxTokens] = useState('4096');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [changelog, setChangelog] = useState('');
 
   const activeProviders = useMemo(
     () => providers?.filter(p => p.isActive) ?? [],
@@ -97,7 +103,6 @@ export default function EditAgentPage() {
     [selectedProvider]
   );
 
-  // Pre-fill form when agent data loads
   useEffect(() => {
     if (agent) {
       setName(agent.name);
@@ -122,10 +127,10 @@ export default function EditAgentPage() {
     systemPrompt.trim().length > 0;
 
   const isSaving = updateAgent.isPending;
-  const isPublishing = publishAgent.isPending;
-  const isUnpublishing = unpublishAgent.isPending;
+  const isPublishing = publishVersion.isPending;
   const isArchiving = archiveAgent.isPending;
-  const isBusy = isSaving || isPublishing || isUnpublishing || isArchiving;
+  const isUnarchiving = unarchiveAgent.isPending;
+  const isBusy = isSaving || isPublishing || isArchiving || isUnarchiving;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -169,29 +174,21 @@ export default function EditAgentPage() {
     }
   }
 
-  async function handlePublish() {
+  async function handlePublishVersion() {
     if (!id || isBusy) return;
     setError(null);
     setSuccessMessage(null);
 
     try {
-      await publishAgent.mutateAsync(id);
-      setSuccessMessage('Agent published successfully.');
+      await publishVersion.mutateAsync({
+        agentId: id,
+        dto: { changelog: changelog.trim() || undefined },
+      });
+      setPublishDialogOpen(false);
+      setChangelog('');
+      setSuccessMessage('New version published successfully.');
     } catch {
-      setError('Failed to publish agent. Please try again.');
-    }
-  }
-
-  async function handleUnpublish() {
-    if (!id || isBusy) return;
-    setError(null);
-    setSuccessMessage(null);
-
-    try {
-      await unpublishAgent.mutateAsync(id);
-      setSuccessMessage('Agent unpublished successfully.');
-    } catch {
-      setError('Failed to unpublish agent. Please try again.');
+      setError('Failed to publish version. Please try again.');
     }
   }
 
@@ -205,6 +202,19 @@ export default function EditAgentPage() {
       setSuccessMessage('Agent archived successfully.');
     } catch {
       setError('Failed to archive agent. Please try again.');
+    }
+  }
+
+  async function handleUnarchive() {
+    if (!id || isBusy) return;
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      await unarchiveAgent.mutateAsync(id);
+      setSuccessMessage('Agent unarchived successfully.');
+    } catch {
+      setError('Failed to unarchive agent. Please try again.');
     }
   }
 
@@ -255,9 +265,11 @@ export default function EditAgentPage() {
               >
                 {statusConfig.label}
               </Badge>
-              <span className="text-muted-foreground text-sm">
-                v{agent.version}
-              </span>
+              {agent.latestVersion !== null && (
+                <span className="text-muted-foreground text-sm">
+                  v{agent.latestVersion}
+                </span>
+              )}
             </div>
             <p className="text-muted-foreground text-sm">
               Update your agent configuration.
@@ -267,24 +279,14 @@ export default function EditAgentPage() {
 
         <div className="flex items-center gap-2">
           {agent.status === AgentStatus.DRAFT && (
-            <Button variant="outline" onClick={handlePublish} disabled={isBusy}>
-              {isPublishing && <Loader2 className="mr-2 size-4 animate-spin" />}
-              <Rocket className="mr-2 size-4" />
-              Publish
-            </Button>
-          )}
-          {agent.status === AgentStatus.PUBLISHED && (
             <>
               <Button
                 variant="outline"
-                onClick={handleUnpublish}
+                onClick={() => setPublishDialogOpen(true)}
                 disabled={isBusy}
               >
-                {isUnpublishing && (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                )}
-                <ArchiveRestore className="mr-2 size-4" />
-                Unpublish
+                <Rocket className="mr-2 size-4" />
+                Publish Version
               </Button>
               <Button
                 variant="outline"
@@ -299,8 +301,56 @@ export default function EditAgentPage() {
               </Button>
             </>
           )}
+          {agent.status === AgentStatus.ARCHIVED && (
+            <Button
+              variant="outline"
+              onClick={handleUnarchive}
+              disabled={isBusy}
+            >
+              {isUnarchiving && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              <ArchiveRestore className="mr-2 size-4" />
+              Unarchive
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Publish Version Dialog */}
+      <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Publish New Version</DialogTitle>
+            <DialogDescription>
+              Create a snapshot of the current agent configuration as a new
+              version.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="changelog">Changelog (optional)</Label>
+            <Textarea
+              id="changelog"
+              placeholder="Describe what changed in this version..."
+              value={changelog}
+              onChange={e => setChangelog(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setPublishDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handlePublishVersion} disabled={isPublishing}>
+              {isPublishing && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Publish
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Feedback messages */}
       {error && (
@@ -321,6 +371,7 @@ export default function EditAgentPage() {
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
             <TabsTrigger value="prompt">System Prompt</TabsTrigger>
             <TabsTrigger value="mcp">MCP Servers</TabsTrigger>
+            <TabsTrigger value="versions">Versions</TabsTrigger>
           </TabsList>
 
           {/* Basic Info Tab */}
@@ -483,7 +534,22 @@ export default function EditAgentPage() {
             <AgentMcpTab agentId={id!} currentMcpServers={agent.mcpServers} />
           </TabsContent>
 
-          {/* Save button - visible in both tabs */}
+          {/* Versions Tab */}
+          <TabsContent value="versions">
+            <Card className="max-w-4xl">
+              <CardHeader>
+                <CardTitle>Published Versions</CardTitle>
+                <CardDescription>
+                  Manage published versions and share links.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <VersionList agentId={id!} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Save button */}
           <div className="flex max-w-4xl justify-end gap-3">
             <Button
               type="button"

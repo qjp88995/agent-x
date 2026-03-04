@@ -1,0 +1,260 @@
+import { useState } from 'react';
+
+import { formatDistanceToNow } from 'date-fns';
+import { Check, Copy, Link2, Loader2, XCircle } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  useCreateShareToken,
+  useDeactivateShareToken,
+  useShareTokens,
+} from '@/hooks/use-share-tokens';
+
+interface ShareTokenPanelProps {
+  agentId: string;
+  versionId: string;
+}
+
+export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
+  const { data: tokens, isLoading } = useShareTokens(agentId, versionId);
+  const createToken = useCreateShareToken();
+  const deactivateToken = useDeactivateShareToken();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [tokenName, setTokenName] = useState('');
+  const [expiresIn, setExpiresIn] = useState('');
+  const [maxConversations, setMaxConversations] = useState('');
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  async function handleCreate() {
+    const dto: {
+      name: string;
+      expiresAt?: string;
+      maxConversations?: number;
+    } = {
+      name: tokenName.trim(),
+    };
+    if (expiresIn) {
+      const hours = parseInt(expiresIn, 10);
+      if (!isNaN(hours) && hours > 0) {
+        dto.expiresAt = new Date(Date.now() + hours * 3600000).toISOString();
+      }
+    }
+    if (maxConversations) {
+      const max = parseInt(maxConversations, 10);
+      if (!isNaN(max) && max > 0) {
+        dto.maxConversations = max;
+      }
+    }
+
+    const result = await createToken.mutateAsync({
+      agentId,
+      versionId,
+      dto,
+    });
+    setCreatedToken(result.plainToken);
+  }
+
+  function getShareUrl(token: string) {
+    return `${window.location.origin}/s/${token}`;
+  }
+
+  async function handleCopy(text: string) {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function handleCloseDialog() {
+    setDialogOpen(false);
+    setTokenName('');
+    setExpiresIn('');
+    setMaxConversations('');
+    setCreatedToken(null);
+    setCopied(false);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-muted-foreground py-4 text-center text-sm">
+        Loading tokens...
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium">Share Links</h4>
+        <Dialog
+          open={dialogOpen}
+          onOpenChange={open => {
+            if (!open) handleCloseDialog();
+            else setDialogOpen(true);
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button size="sm" variant="outline">
+              <Link2 className="mr-2 size-3.5" />
+              Create Share Link
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            {createdToken ? (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Share Link Created</DialogTitle>
+                  <DialogDescription>
+                    Copy this link now. It will only be shown once.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={getShareUrl(createdToken)}
+                    readOnly
+                    className="font-mono text-xs"
+                  />
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => handleCopy(getShareUrl(createdToken))}
+                  >
+                    {copied ? (
+                      <Check className="size-4" />
+                    ) : (
+                      <Copy className="size-4" />
+                    )}
+                  </Button>
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleCloseDialog}>Done</Button>
+                </DialogFooter>
+              </>
+            ) : (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Create Share Link</DialogTitle>
+                  <DialogDescription>
+                    Generate a shareable link for this version.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="token-name">Name</Label>
+                    <Input
+                      id="token-name"
+                      placeholder="e.g., Demo link"
+                      value={tokenName}
+                      onChange={e => setTokenName(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="expires-in">
+                      Expires in (hours, optional)
+                    </Label>
+                    <Input
+                      id="expires-in"
+                      type="number"
+                      placeholder="e.g., 24"
+                      value={expiresIn}
+                      onChange={e => setExpiresIn(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="max-conv">
+                      Max conversations (optional)
+                    </Label>
+                    <Input
+                      id="max-conv"
+                      type="number"
+                      placeholder="e.g., 100"
+                      value={maxConversations}
+                      onChange={e => setMaxConversations(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={handleCloseDialog}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleCreate}
+                    disabled={!tokenName.trim() || createToken.isPending}
+                  >
+                    {createToken.isPending && (
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    )}
+                    Create
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {!tokens?.length ? (
+        <p className="text-muted-foreground text-sm">No share links yet.</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {tokens.map(token => (
+            <div
+              key={token.id}
+              className="flex items-center justify-between rounded-md border px-3 py-2"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium">{token.name}</span>
+                <Badge variant={token.isActive ? 'default' : 'secondary'}>
+                  {token.isActive ? 'Active' : 'Inactive'}
+                </Badge>
+                <span className="text-muted-foreground text-xs">
+                  {token.usedConversations}
+                  {token.maxConversations !== null
+                    ? `/${token.maxConversations}`
+                    : ''}{' '}
+                  conversations
+                </span>
+                {token.expiresAt && (
+                  <span className="text-muted-foreground text-xs">
+                    expires{' '}
+                    {formatDistanceToNow(new Date(token.expiresAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                )}
+              </div>
+              {token.isActive && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    deactivateToken.mutate({
+                      agentId,
+                      versionId,
+                      tokenId: token.id,
+                    })
+                  }
+                >
+                  <XCircle className="size-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
