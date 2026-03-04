@@ -13,6 +13,7 @@ import { createZhipu } from 'zhipu-ai-provider';
 import { decrypt } from '../../common/crypto.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { McpClientService } from '../mcp/mcp-client.service';
+import { builtInTools } from './tools';
 
 interface AgentWithRelations {
   readonly systemPrompt: string;
@@ -82,7 +83,10 @@ export class AgentRuntimeService {
       agent.modelId
     );
 
-    const { tools, cleanups } = await this.collectMcpTools(agent.mcpServers);
+    const { tools: mcpTools, cleanups } = await this.collectMcpTools(
+      agent.mcpServers
+    );
+    const tools: McpToolSet = { ...builtInTools, ...mcpTools };
     const hasTools = Object.keys(tools).length > 0;
 
     return streamText({
