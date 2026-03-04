@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { AgentStatus } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -46,16 +42,26 @@ export class AgentService {
       where.status = status;
     }
 
-    return this.prisma.agent.findMany({
+    const agents = await this.prisma.agent.findMany({
       where,
       include: {
         provider: { select: { id: true, name: true, protocol: true } },
         _count: {
           select: { skills: true, mcpServers: true },
         },
+        versions: {
+          orderBy: { version: 'desc' },
+          take: 1,
+          select: { version: true },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    return agents.map(({ versions, ...agent }) => ({
+      ...agent,
+      latestVersion: versions[0]?.version ?? null,
+    }));
   }
 
   async findOne(id: string, userId: string) {
@@ -64,15 +70,16 @@ export class AgentService {
       include: {
         provider: { select: { id: true, name: true, protocol: true } },
         skills: {
-          include: {
-            skill: true,
-          },
+          include: { skill: true },
           orderBy: { priority: 'desc' },
         },
         mcpServers: {
-          include: {
-            mcpServer: true,
-          },
+          include: { mcpServer: true },
+        },
+        versions: {
+          orderBy: { version: 'desc' },
+          take: 1,
+          select: { version: true },
         },
       },
     });
@@ -81,7 +88,11 @@ export class AgentService {
       throw new NotFoundException('Agent not found');
     }
 
-    return agent;
+    const { versions, ...rest } = agent;
+    return {
+      ...rest,
+      latestVersion: versions[0]?.version ?? null,
+    };
   }
 
   async update(id: string, userId: string, dto: UpdateAgentDto) {
@@ -91,15 +102,6 @@ export class AgentService {
 
     if (!agent) {
       throw new NotFoundException('Agent not found');
-    }
-
-    if (
-      agent.status !== AgentStatus.DRAFT &&
-      (dto.providerId !== undefined || dto.modelId !== undefined)
-    ) {
-      throw new BadRequestException(
-        'Provider and model can only be changed for DRAFT agents'
-      );
     }
 
     if (dto.providerId !== undefined) {
@@ -125,36 +127,9 @@ export class AgentService {
     if (dto.maxTokens !== undefined) data.maxTokens = dto.maxTokens;
     if (dto.avatar !== undefined) data.avatar = dto.avatar;
 
-    data.version = agent.version + 1;
-
     return this.prisma.agent.update({
       where: { id },
       data,
-    });
-  }
-
-  async publish(id: string, userId: string) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id, userId },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
-
-    if (!agent.systemPrompt || !agent.providerId || !agent.modelId) {
-      throw new BadRequestException(
-        'Agent must have systemPrompt, providerId, and modelId to publish'
-      );
-    }
-
-    return this.prisma.agent.update({
-      where: { id },
-      data: {
-        status: AgentStatus.PUBLISHED,
-        publishedAt: new Date(),
-        version: agent.version + 1,
-      },
     });
   }
 
@@ -169,14 +144,11 @@ export class AgentService {
 
     return this.prisma.agent.update({
       where: { id },
-      data: {
-        status: AgentStatus.ARCHIVED,
-        version: agent.version + 1,
-      },
+      data: { status: AgentStatus.ARCHIVED },
     });
   }
 
-  async unpublish(id: string, userId: string) {
+  async unarchive(id: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
       where: { id, userId },
     });
@@ -185,17 +157,9 @@ export class AgentService {
       throw new NotFoundException('Agent not found');
     }
 
-    if (agent.status !== AgentStatus.PUBLISHED) {
-      throw new BadRequestException('Only PUBLISHED agents can be unpublished');
-    }
-
     return this.prisma.agent.update({
       where: { id },
-      data: {
-        status: AgentStatus.DRAFT,
-        publishedAt: null,
-        version: agent.version + 1,
-      },
+      data: { status: AgentStatus.DRAFT },
     });
   }
 
@@ -206,10 +170,6 @@ export class AgentService {
 
     if (!agent) {
       throw new NotFoundException('Agent not found');
-    }
-
-    if (agent.status !== AgentStatus.DRAFT) {
-      throw new BadRequestException('Only DRAFT agents can be deleted');
     }
 
     await this.prisma.agent.delete({ where: { id } });
@@ -237,9 +197,7 @@ export class AgentService {
         skillId,
         priority: priority ?? 0,
       },
-      include: {
-        skill: true,
-      },
+      include: { skill: true },
     });
   }
 
@@ -287,9 +245,7 @@ export class AgentService {
         mcpServerId,
         enabledTools: enabledTools ?? [],
       },
-      include: {
-        mcpServer: true,
-      },
+      include: { mcpServer: true },
     });
   }
 
