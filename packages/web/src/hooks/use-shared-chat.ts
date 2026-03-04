@@ -1,4 +1,4 @@
-import type { SharedAgentInfo } from '@agent-x/shared';
+import type { MessageResponse, SharedAgentInfo } from '@agent-x/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -38,7 +38,7 @@ export function useSharedMessages(
   return useQuery({
     queryKey: ['shared-messages', token, conversationId],
     queryFn: async () => {
-      const { data } = await publicApi.get<unknown[]>(
+      const { data } = await publicApi.get<MessageResponse[]>(
         `/shared/${token}/conversations/${conversationId}/messages`
       );
       return data;

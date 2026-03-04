@@ -35,11 +35,14 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
 export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
   const queryClient = useQueryClient();
   const transportRef = useRef<AgentXChatTransport | null>(null);
-  const transport = useMemo(() => {
-    const t = new AgentXChatTransport(conversationId);
-    transportRef.current = t;
-    return t;
-  }, [conversationId]);
+  const transport = useMemo(
+    () => new AgentXChatTransport(conversationId),
+    [conversationId]
+  );
+
+  useEffect(() => {
+    transportRef.current = transport;
+  }, [transport]);
 
   const { messages, sendMessage, status, setMessages, stop } = useChat({
     id: conversationId,

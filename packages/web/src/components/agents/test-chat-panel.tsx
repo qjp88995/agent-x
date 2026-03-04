@@ -26,12 +26,14 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
   const transportRef = useRef<AgentXChatTransport | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const transport = useMemo(() => {
-    if (!conversationId) return null;
-    const t = new AgentXChatTransport(conversationId);
-    transportRef.current = t;
-    return t;
-  }, [conversationId]);
+  const transport = useMemo(
+    () => (conversationId ? new AgentXChatTransport(conversationId) : null),
+    [conversationId]
+  );
+
+  useEffect(() => {
+    transportRef.current = transport;
+  }, [transport]);
 
   const { messages, sendMessage, status, setMessages, stop } = useChat({
     id: conversationId ?? 'test-chat-pending',

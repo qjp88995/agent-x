@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
 
 import type { AgentStatus as AgentStatusType } from '@agent-x/shared';
 import { AgentStatus } from '@agent-x/shared';
@@ -219,6 +219,10 @@ export default function EditAgentPage() {
     } catch {
       setError('Failed to unarchive agent. Please try again.');
     }
+  }
+
+  if (!id) {
+    return <Navigate to="/agents" replace />;
   }
 
   if (isLoadingAgent) {
@@ -545,7 +549,7 @@ export default function EditAgentPage() {
 
             {/* MCP Servers Tab */}
             <TabsContent value="mcp">
-              <AgentMcpTab agentId={id!} currentMcpServers={agent.mcpServers} />
+              <AgentMcpTab agentId={id} currentMcpServers={agent.mcpServers} />
             </TabsContent>
 
             {/* Versions Tab */}
@@ -558,19 +562,19 @@ export default function EditAgentPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <VersionList agentId={id!} />
+                  <VersionList agentId={id} />
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Share Links Tab */}
             <TabsContent value="share-links">
-              <ShareLinksTab agentId={id!} />
+              <ShareLinksTab agentId={id} />
             </TabsContent>
 
             {/* Conversations Tab */}
             <TabsContent value="conversations">
-              <ConversationsTab agentId={id!} />
+              <ConversationsTab agentId={id} />
             </TabsContent>
 
             {/* Save button */}
@@ -594,7 +598,7 @@ export default function EditAgentPage() {
       </div>
 
       {/* Test Chat Panel */}
-      {agent.status === AgentStatus.DRAFT && <TestChatPanel agentId={id!} />}
+      {agent.status === AgentStatus.DRAFT && <TestChatPanel agentId={id} />}
     </div>
   );
 }

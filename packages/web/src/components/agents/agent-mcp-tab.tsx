@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { AgentResponse } from '@agent-x/shared';
 import {
@@ -41,7 +41,10 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
   const addMcp = useAddAgentMcp();
   const removeMcp = useRemoveAgentMcp();
 
-  const boundIds = new Set(currentMcpServers.map(s => s.mcpServerId));
+  const boundIds = useMemo(
+    () => new Set(currentMcpServers.map(s => s.mcpServerId)),
+    [currentMcpServers]
+  );
 
   const allAvailable = [...(customServers ?? []), ...(marketServers ?? [])];
   const availableServers = allAvailable.filter(
@@ -171,6 +174,10 @@ function BoundServerItem({
     entry.enabledTools
   );
   const updateMcp = useUpdateAgentMcp();
+
+  useEffect(() => {
+    setSelectedTools(entry.enabledTools);
+  }, [entry.enabledTools]);
 
   const serverTools = entry.mcpServer.tools ?? [];
   const hasChanges =

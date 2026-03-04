@@ -8,10 +8,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
-const AGENTS_KEY = ['agents'] as const;
+export const AGENTS_KEY = ['agents'] as const;
 
-function agentKey(id: string) {
-  return ['agent', id] as const;
+export function agentKey(id: string) {
+  return ['agents', id] as const;
 }
 
 export function useAgents(status?: AgentStatus) {

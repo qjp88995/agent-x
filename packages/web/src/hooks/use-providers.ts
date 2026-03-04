@@ -57,8 +57,11 @@ export function useUpdateProvider() {
       const { data } = await api.put<ProviderResponse>(`/providers/${id}`, dto);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: PROVIDERS_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: providerKey(variables.id),
+      });
     },
   });
 }
@@ -77,8 +80,8 @@ export function useDeleteProvider() {
 }
 
 interface TestResult {
-  success: boolean;
-  message: string;
+  readonly success: boolean;
+  readonly message: string;
 }
 
 export function useTestProvider() {

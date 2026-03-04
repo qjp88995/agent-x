@@ -1,6 +1,7 @@
 import type { AgentVersionResponse, CreateVersionDto } from '@agent-x/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { agentKey,AGENTS_KEY } from '@/hooks/use-agents';
 import { api } from '@/lib/api';
 
 function versionsKey(agentId: string) {
@@ -41,9 +42,9 @@ export function usePublishVersion() {
       void queryClient.invalidateQueries({
         queryKey: versionsKey(variables.agentId),
       });
-      void queryClient.invalidateQueries({ queryKey: ['agents'] });
+      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
       void queryClient.invalidateQueries({
-        queryKey: ['agent', variables.agentId],
+        queryKey: agentKey(variables.agentId),
       });
     },
   });
