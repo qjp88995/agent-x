@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { createAlibaba } from '@ai-sdk/alibaba';
@@ -7,11 +7,12 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createMoonshotAI } from '@ai-sdk/moonshotai';
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { stepCountIs, streamText, type Tool } from 'ai';
 import { createZhipu } from 'zhipu-ai-provider';
 
 import { decrypt } from '../../common/crypto.util';
 import { PrismaService } from '../../prisma/prisma.service';
+import { McpClientService } from '../mcp/mcp-client.service';
 
 interface AgentWithRelations {
   readonly systemPrompt: string;
@@ -26,16 +27,27 @@ interface AgentWithRelations {
   readonly skills: ReadonlyArray<{
     readonly skill: { readonly content: string };
   }>;
+  readonly mcpServers: ReadonlyArray<{
+    readonly enabledTools: string[];
+    readonly mcpServer: {
+      readonly transport: string;
+      readonly config: unknown;
+    };
+  }>;
 }
+
+type McpToolSet = Record<string, Tool>;
 
 @Injectable()
 export class AgentRuntimeService {
+  private readonly logger = new Logger(AgentRuntimeService.name);
+
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
+    private readonly mcpClient: McpClientService
   ) {}
 
-   
   async createStream(
     agentId: string,
     messages: Array<{ role: string; content: string }>
@@ -70,7 +82,9 @@ export class AgentRuntimeService {
       agent.modelId
     );
 
-     
+    const { tools, cleanups } = await this.collectMcpTools(agent.mcpServers);
+    const hasTools = Object.keys(tools).length > 0;
+
     return streamText({
       model,
       system: systemPrompt,
@@ -78,7 +92,59 @@ export class AgentRuntimeService {
       temperature: agent.temperature,
       maxOutputTokens: agent.maxTokens,
       experimental_telemetry: { isEnabled: true },
+      ...(hasTools ? { tools, stopWhen: stepCountIs(10) } : {}),
+      onFinish: async () => {
+        await this.cleanupMcpSessions(cleanups);
+      },
+      onError: async () => {
+        await this.cleanupMcpSessions(cleanups);
+      },
     });
+  }
+
+  private async collectMcpTools(
+    mcpServers: AgentWithRelations['mcpServers']
+  ): Promise<{ tools: McpToolSet; cleanups: Array<() => Promise<void>> }> {
+    if (mcpServers.length === 0) {
+      return { tools: {}, cleanups: [] };
+    }
+
+    const cleanups: Array<() => Promise<void>> = [];
+    let mergedTools: McpToolSet = {};
+
+    const sessions = await Promise.allSettled(
+      mcpServers.map(entry =>
+        this.mcpClient.createMcpSession(
+          entry.mcpServer.transport,
+          entry.mcpServer.config as Record<string, unknown>,
+          entry.enabledTools
+        )
+      )
+    );
+
+    for (const result of sessions) {
+      if (result.status === 'fulfilled') {
+        mergedTools = { ...mergedTools, ...result.value.tools };
+        cleanups.push(result.value.cleanup);
+      } else {
+        this.logger.warn(`Failed to create MCP session: ${result.reason}`);
+      }
+    }
+
+    return { tools: mergedTools, cleanups };
+  }
+
+  private async cleanupMcpSessions(
+    cleanups: Array<() => Promise<void>>
+  ): Promise<void> {
+    const results = await Promise.allSettled(
+      cleanups.map(cleanup => cleanup())
+    );
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        this.logger.warn(`Failed to cleanup MCP session: ${result.reason}`);
+      }
+    }
   }
 
   private createModel(
@@ -97,7 +163,10 @@ export class AgentRuntimeService {
         return anthropic(modelId);
       }
       case 'GEMINI': {
-        const google = createGoogleGenerativeAI({ baseURL: baseUrl, apiKey });
+        const google = createGoogleGenerativeAI({
+          baseURL: baseUrl,
+          apiKey,
+        });
         return google(modelId);
       }
       case 'DEEPSEEK':

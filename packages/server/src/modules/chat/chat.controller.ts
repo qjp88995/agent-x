@@ -93,23 +93,23 @@ export class ChatController {
           parts.push({ type: 'text', text: step.text });
         }
 
-        // Tool calls
+        // Tool calls (AI SDK v6 uses `input` instead of `args`)
         for (const tc of step.toolCalls ?? []) {
           parts.push({
             type: 'tool-call',
             toolCallId: tc.toolCallId,
             toolName: tc.toolName,
-            args: tc.args,
+            args: tc.input,
           });
         }
 
-        // Tool results
+        // Tool results (AI SDK v6 uses `output` instead of `result`)
         for (const tr of step.toolResults ?? []) {
           parts.push({
             type: 'tool-result',
             toolCallId: tr.toolCallId,
             toolName: tr.toolName,
-            result: tr.result,
+            result: tr.output,
             isError: false,
           });
         }
