@@ -20,7 +20,7 @@ export interface ConversationWithAgent {
 
 const CONVERSATIONS_KEY = ['conversations'] as const;
 
-function messagesKey(conversationId: string) {
+export function messagesKey(conversationId: string) {
   return ['messages', conversationId] as const;
 }
 

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useChat } from '@ai-sdk/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { type UIMessage } from 'ai';
 import { Bot, MessageSquare } from 'lucide-react';
 
-import { useMessages } from '@/hooks/use-chat';
+import { messagesKey, useMessages } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 
 import { ChatInput } from './chat-input';
@@ -32,6 +33,7 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
 }
 
 export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
+  const queryClient = useQueryClient();
   const transportRef = useRef<AgentXChatTransport | null>(null);
   const transport = useMemo(() => {
     const t = new AgentXChatTransport(conversationId);
@@ -50,12 +52,20 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
   const currentMessagesRef = useRef(messages);
   currentMessagesRef.current = messages;
 
-  // Abort active SSE connection when component unmounts (conversation switch)
+  // Abort active SSE connection and clear stale cache on unmount
   useEffect(() => {
     return () => {
       transportRef.current?.destroy();
+      // When streaming is active, the messages cache is stale (missing the user
+      // message that triggered the stream). Remove it so remount fetches fresh data.
+      if (
+        statusRef.current === 'streaming' ||
+        statusRef.current === 'submitted'
+      ) {
+        queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
+      }
     };
-  }, []);
+  }, [conversationId, queryClient]);
 
   const isLoading = status === 'submitted' || status === 'streaming';
   const { data: savedMessages } = useMessages(conversationId);
