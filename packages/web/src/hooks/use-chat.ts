@@ -74,5 +74,6 @@ export function useMessages(conversationId: string | undefined) {
       return data;
     },
     enabled: !!conversationId,
+    staleTime: 0, // Always refetch — cache may be stale after streaming adds messages
   });
 }
