@@ -1,5 +1,5 @@
-import { useCallback,useEffect, useState } from 'react';
-import { Link,useSearchParams } from 'react-router';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router';
 
 import {
   AlertTriangle,
@@ -114,7 +114,7 @@ function Sidebar({
   readonly onNewChat: () => void;
   readonly onSelectAgent: (id: string) => void;
 }) {
-  const publishedAgents = agents.filter(a => a.status === 'PUBLISHED');
+  const publishedAgents = agents.filter(a => a.status === 'DRAFT');
   const selectedAgent = publishedAgents.find(a => a.id === selectedAgentId);
   const filteredConversations = selectedAgentId
     ? conversations.filter(c => c.agentId === selectedAgentId)
@@ -166,7 +166,7 @@ function Sidebar({
             ))}
             {publishedAgents.length === 0 && (
               <div className="text-muted-foreground px-2 py-1.5 text-sm">
-                No published agents
+                No agents available
               </div>
             )}
           </DropdownMenuContent>

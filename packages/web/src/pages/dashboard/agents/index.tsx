@@ -15,7 +15,6 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
-  Rocket,
   Trash2,
 } from 'lucide-react';
 
@@ -50,8 +49,7 @@ import {
   useAgents,
   useArchiveAgent,
   useDeleteAgent,
-  usePublishAgent,
-  useUnpublishAgent,
+  useUnarchiveAgent,
 } from '@/hooks/use-agents';
 import { cn } from '@/lib/utils';
 
@@ -63,11 +61,6 @@ const STATUS_BADGE_CONFIG: Record<
     label: 'Draft',
     className:
       'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  },
-  PUBLISHED: {
-    label: 'Published',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   ARCHIVED: {
     label: 'Archived',
@@ -94,15 +87,13 @@ function getAgentInitial(name: string): string {
 function AgentCard({
   agent,
   onDelete,
-  onPublish,
-  onUnpublish,
   onArchive,
+  onUnarchive,
 }: {
   readonly agent: AgentResponse;
   readonly onDelete: (agent: AgentResponse) => void;
-  readonly onPublish: (agent: AgentResponse) => void;
-  readonly onUnpublish: (agent: AgentResponse) => void;
   readonly onArchive: (agent: AgentResponse) => void;
+  readonly onUnarchive: (agent: AgentResponse) => void;
 }) {
   return (
     <Card className="flex flex-col">
@@ -117,9 +108,11 @@ function AgentCard({
             <CardTitle className="text-base">{agent.name}</CardTitle>
             <div className="flex items-center gap-2">
               <StatusBadge status={agent.status} />
-              <span className="text-muted-foreground text-xs">
-                v{agent.version}
-              </span>
+              {agent.latestVersion !== null && (
+                <span className="text-muted-foreground text-xs">
+                  v{agent.latestVersion}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -138,31 +131,17 @@ function AgentCard({
               </Link>
             </DropdownMenuItem>
             {agent.status === AgentStatus.DRAFT && (
-              <DropdownMenuItem onClick={() => onPublish(agent)}>
-                <Rocket className="mr-2 size-4" />
-                Publish
-              </DropdownMenuItem>
-            )}
-            {agent.status === AgentStatus.PUBLISHED && (
               <>
-                <DropdownMenuItem onClick={() => onUnpublish(agent)}>
-                  <ArchiveRestore className="mr-2 size-4" />
-                  Unpublish
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onArchive(agent)}>
-                  <Archive className="mr-2 size-4" />
-                  Archive
-                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to={`/chat?agent=${agent.id}`}>
                     <MessageSquare className="mr-2 size-4" />
                     Chat
                   </Link>
                 </DropdownMenuItem>
-              </>
-            )}
-            {agent.status === AgentStatus.DRAFT && (
-              <>
+                <DropdownMenuItem onClick={() => onArchive(agent)}>
+                  <Archive className="mr-2 size-4" />
+                  Archive
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => onDelete(agent)}
@@ -172,6 +151,12 @@ function AgentCard({
                   Delete
                 </DropdownMenuItem>
               </>
+            )}
+            {agent.status === AgentStatus.ARCHIVED && (
+              <DropdownMenuItem onClick={() => onUnarchive(agent)}>
+                <ArchiveRestore className="mr-2 size-4" />
+                Unarchive
+              </DropdownMenuItem>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -225,9 +210,8 @@ export default function AgentListPage() {
     activeTab === 'all' ? undefined : (activeTab as AgentStatusType);
   const { data: agents, isLoading, error } = useAgents(statusFilter);
   const deleteAgent = useDeleteAgent();
-  const publishAgent = usePublishAgent();
-  const unpublishAgent = useUnpublishAgent();
   const archiveAgent = useArchiveAgent();
+  const unarchiveAgent = useUnarchiveAgent();
   const [deleteTarget, setDeleteTarget] = useState<AgentResponse | null>(null);
 
   function handleDeleteConfirm() {
@@ -239,16 +223,12 @@ export default function AgentListPage() {
     });
   }
 
-  function handlePublish(agent: AgentResponse) {
-    publishAgent.mutate(agent.id);
-  }
-
-  function handleUnpublish(agent: AgentResponse) {
-    unpublishAgent.mutate(agent.id);
-  }
-
   function handleArchive(agent: AgentResponse) {
     archiveAgent.mutate(agent.id);
+  }
+
+  function handleUnarchive(agent: AgentResponse) {
+    unarchiveAgent.mutate(agent.id);
   }
 
   if (isLoading) {
@@ -297,7 +277,6 @@ export default function AgentListPage() {
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value={AgentStatus.DRAFT}>Draft</TabsTrigger>
-          <TabsTrigger value={AgentStatus.PUBLISHED}>Published</TabsTrigger>
           <TabsTrigger value={AgentStatus.ARCHIVED}>Archived</TabsTrigger>
         </TabsList>
       </Tabs>
@@ -312,9 +291,8 @@ export default function AgentListPage() {
               key={agent.id}
               agent={agent}
               onDelete={setDeleteTarget}
-              onPublish={handlePublish}
-              onUnpublish={handleUnpublish}
               onArchive={handleArchive}
+              onUnarchive={handleUnarchive}
             />
           ))}
         </div>
