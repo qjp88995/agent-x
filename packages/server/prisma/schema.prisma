@@ -49,9 +49,10 @@ model Provider {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  user   User            @relation(fields: [userId], references: [id])
-  models ProviderModel[]
-  agents Agent[]
+  user          User            @relation(fields: [userId], references: [id])
+  models        ProviderModel[]
+  agents        Agent[]
+  agentVersions AgentVersion[]
 }
 
 model ProviderModel {
@@ -68,7 +69,6 @@ model ProviderModel {
 
 enum AgentStatus {
   DRAFT
-  PUBLISHED
   ARCHIVED
 }
 
@@ -84,8 +84,6 @@ model Agent {
   temperature  Float       @default(0.7)
   maxTokens    Int         @default(4096)
   status       AgentStatus @default(DRAFT)
-  publishedAt  DateTime?
-  version      Int         @default(1)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
@@ -95,6 +93,7 @@ model Agent {
   mcpServers    AgentMcp[]
   conversations Conversation[]
   apiKeys       ApiKey[]
+  versions      AgentVersion[]
 }
 
 enum McpType {
@@ -169,16 +168,20 @@ model AgentSkill {
 }
 
 model Conversation {
-  id        String   @id @default(cuid())
-  userId    String
-  agentId   String
-  title     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userId         String?
+  agentId        String
+  agentVersionId String?
+  shareTokenId   String?
+  title          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id])
-  agent    Agent     @relation(fields: [agentId], references: [id])
-  messages Message[]
+  user         User?         @relation(fields: [userId], references: [id])
+  agent        Agent         @relation(fields: [agentId], references: [id])
+  agentVersion AgentVersion? @relation(fields: [agentVersionId], references: [id])
+  shareToken   ShareToken?   @relation(fields: [shareTokenId], references: [id])
+  messages     Message[]
 }
 
 enum MessageRole {
@@ -198,6 +201,44 @@ model Message {
   createdAt      DateTime    @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model AgentVersion {
+  id                 String   @id @default(cuid())
+  agentId            String
+  version            Int
+  providerId         String
+  modelId            String
+  systemPrompt       String
+  temperature        Float
+  maxTokens          Int
+  skillsSnapshot     Json     @default("[]")
+  mcpServersSnapshot Json     @default("[]")
+  changelog          String?
+  publishedAt        DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  agent         Agent          @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  provider      Provider       @relation(fields: [providerId], references: [id])
+  shareTokens   ShareToken[]
+  conversations Conversation[]
+
+  @@unique([agentId, version])
+}
+
+model ShareToken {
+  id                String    @id @default(cuid())
+  agentVersionId    String
+  token             String    @unique
+  name              String
+  expiresAt         DateTime?
+  maxConversations  Int?
+  usedConversations Int       @default(0)
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+
+  agentVersion  AgentVersion   @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
 }
 
 model ApiKey {
