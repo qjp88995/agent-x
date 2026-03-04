@@ -9,6 +9,7 @@ import { AgentStatus } from '@agent-x/shared';
 import {
   AlertTriangle,
   Archive,
+  ArchiveRestore,
   Bot,
   MessageSquare,
   MoreHorizontal,
@@ -50,6 +51,7 @@ import {
   useArchiveAgent,
   useDeleteAgent,
   usePublishAgent,
+  useUnpublishAgent,
 } from '@/hooks/use-agents';
 import { cn } from '@/lib/utils';
 
@@ -93,11 +95,13 @@ function AgentCard({
   agent,
   onDelete,
   onPublish,
+  onUnpublish,
   onArchive,
 }: {
   readonly agent: AgentResponse;
   readonly onDelete: (agent: AgentResponse) => void;
   readonly onPublish: (agent: AgentResponse) => void;
+  readonly onUnpublish: (agent: AgentResponse) => void;
   readonly onArchive: (agent: AgentResponse) => void;
 }) {
   return (
@@ -141,6 +145,10 @@ function AgentCard({
             )}
             {agent.status === AgentStatus.PUBLISHED && (
               <>
+                <DropdownMenuItem onClick={() => onUnpublish(agent)}>
+                  <ArchiveRestore className="mr-2 size-4" />
+                  Unpublish
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onArchive(agent)}>
                   <Archive className="mr-2 size-4" />
                   Archive
@@ -218,6 +226,7 @@ export default function AgentListPage() {
   const { data: agents, isLoading, error } = useAgents(statusFilter);
   const deleteAgent = useDeleteAgent();
   const publishAgent = usePublishAgent();
+  const unpublishAgent = useUnpublishAgent();
   const archiveAgent = useArchiveAgent();
   const [deleteTarget, setDeleteTarget] = useState<AgentResponse | null>(null);
 
@@ -232,6 +241,10 @@ export default function AgentListPage() {
 
   function handlePublish(agent: AgentResponse) {
     publishAgent.mutate(agent.id);
+  }
+
+  function handleUnpublish(agent: AgentResponse) {
+    unpublishAgent.mutate(agent.id);
   }
 
   function handleArchive(agent: AgentResponse) {
@@ -300,6 +313,7 @@ export default function AgentListPage() {
               agent={agent}
               onDelete={setDeleteTarget}
               onPublish={handlePublish}
+              onUnpublish={handleUnpublish}
               onArchive={handleArchive}
             />
           ))}

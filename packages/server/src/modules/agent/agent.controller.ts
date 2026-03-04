@@ -61,6 +61,11 @@ export class AgentController {
     return this.agentService.archive(id, user.id);
   }
 
+  @Post(':id/unpublish')
+  unpublish(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+    return this.agentService.unpublish(id, user.id);
+  }
+
   @Post(':id/skills')
   addSkill(
     @Param('id') id: string,

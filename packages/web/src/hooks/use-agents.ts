@@ -107,3 +107,18 @@ export function useArchiveAgent() {
     },
   });
 }
+
+export function useUnpublishAgent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.post<AgentResponse>(`/agents/${id}/unpublish`);
+      return data;
+    },
+    onSuccess: (_data, id) => {
+      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
+      void queryClient.invalidateQueries({ queryKey: agentKey(id) });
+    },
+  });
+}

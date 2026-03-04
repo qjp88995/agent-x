@@ -176,6 +176,29 @@ export class AgentService {
     });
   }
 
+  async unpublish(id: string, userId: string) {
+    const agent = await this.prisma.agent.findFirst({
+      where: { id, userId },
+    });
+
+    if (!agent) {
+      throw new NotFoundException('Agent not found');
+    }
+
+    if (agent.status !== AgentStatus.PUBLISHED) {
+      throw new BadRequestException('Only PUBLISHED agents can be unpublished');
+    }
+
+    return this.prisma.agent.update({
+      where: { id },
+      data: {
+        status: AgentStatus.DRAFT,
+        publishedAt: null,
+        version: agent.version + 1,
+      },
+    });
+  }
+
   async remove(id: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
       where: { id, userId },

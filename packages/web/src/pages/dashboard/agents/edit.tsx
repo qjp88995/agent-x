@@ -6,6 +6,7 @@ import { AgentStatus } from '@agent-x/shared';
 import {
   AlertTriangle,
   Archive,
+  ArchiveRestore,
   ArrowLeft,
   Loader2,
   Rocket,
@@ -29,6 +30,7 @@ import {
   useAgent,
   useArchiveAgent,
   usePublishAgent,
+  useUnpublishAgent,
   useUpdateAgent,
 } from '@/hooks/use-agents';
 import { useProviders } from '@/hooks/use-providers';
@@ -66,6 +68,7 @@ export default function EditAgentPage() {
   const { data: providers, isLoading: isLoadingProviders } = useProviders();
   const updateAgent = useUpdateAgent();
   const publishAgent = usePublishAgent();
+  const unpublishAgent = useUnpublishAgent();
   const archiveAgent = useArchiveAgent();
 
   const [name, setName] = useState('');
@@ -119,8 +122,9 @@ export default function EditAgentPage() {
 
   const isSaving = updateAgent.isPending;
   const isPublishing = publishAgent.isPending;
+  const isUnpublishing = unpublishAgent.isPending;
   const isArchiving = archiveAgent.isPending;
-  const isBusy = isSaving || isPublishing || isArchiving;
+  const isBusy = isSaving || isPublishing || isUnpublishing || isArchiving;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -174,6 +178,19 @@ export default function EditAgentPage() {
       setSuccessMessage('Agent published successfully.');
     } catch {
       setError('Failed to publish agent. Please try again.');
+    }
+  }
+
+  async function handleUnpublish() {
+    if (!id || isBusy) return;
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      await unpublishAgent.mutateAsync(id);
+      setSuccessMessage('Agent unpublished successfully.');
+    } catch {
+      setError('Failed to unpublish agent. Please try again.');
     }
   }
 
@@ -256,11 +273,30 @@ export default function EditAgentPage() {
             </Button>
           )}
           {agent.status === AgentStatus.PUBLISHED && (
-            <Button variant="outline" onClick={handleArchive} disabled={isBusy}>
-              {isArchiving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              <Archive className="mr-2 size-4" />
-              Archive
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={handleUnpublish}
+                disabled={isBusy}
+              >
+                {isUnpublishing && (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                )}
+                <ArchiveRestore className="mr-2 size-4" />
+                Unpublish
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleArchive}
+                disabled={isBusy}
+              >
+                {isArchiving && (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                )}
+                <Archive className="mr-2 size-4" />
+                Archive
+              </Button>
+            </>
           )}
         </div>
       </div>
