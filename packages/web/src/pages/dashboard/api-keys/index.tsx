@@ -130,9 +130,13 @@ function CreateKeyDialog({
 
   async function handleCopy() {
     if (!createdKey) return;
-    await navigator.clipboard.writeText(createdKey);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(createdKey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API may fail in non-HTTPS contexts
+    }
   }
 
   return (
@@ -316,9 +320,13 @@ function UsageDocs() {
   -d '{"model":"<agent-id>","messages":[{"role":"user","content":"Hello"}]}'`;
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(curlExample);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(curlExample);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API may fail in non-HTTPS contexts
+    }
   }
 
   return (

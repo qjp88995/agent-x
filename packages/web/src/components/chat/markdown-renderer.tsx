@@ -3,19 +3,34 @@ import Markdown from 'react-markdown';
 
 import { Check, Copy } from 'lucide-react';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 
 import { cn } from '@/lib/utils';
 
 import 'highlight.js/styles/github-dark.min.css';
 
+// Allow highlight.js class names through sanitization
+const sanitizeSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    code: [...(defaultSchema.attributes?.code ?? []), 'className'],
+    span: [...(defaultSchema.attributes?.span ?? []), 'className'],
+  },
+};
+
 function CopyButton({ code }: { readonly code: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API may fail in non-HTTPS contexts or when permission denied
+    }
   }, [code]);
 
   return (
@@ -49,7 +64,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
     <div className={cn('markdown-body text-sm leading-relaxed', className)}>
       <Markdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+        rehypePlugins={[rehypeHighlight, [rehypeSanitize, sanitizeSchema]]}
         components={{
           pre({ children, ...props }) {
             // Extract code string from children for copy button

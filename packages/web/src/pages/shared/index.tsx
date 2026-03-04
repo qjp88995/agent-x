@@ -103,7 +103,8 @@ export default function SharedChatPage() {
       {/* Header */}
       <header className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
         <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
-          {agentInfo.agentAvatar ? (
+          {agentInfo.agentAvatar &&
+          /^https?:\/\//.test(agentInfo.agentAvatar) ? (
             <img
               src={agentInfo.agentAvatar}
               alt={agentInfo.agentName}

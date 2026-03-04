@@ -60,12 +60,16 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
       }
     }
 
-    const result = await createToken.mutateAsync({
-      agentId,
-      versionId,
-      dto,
-    });
-    setCreatedToken(result.plainToken);
+    try {
+      const result = await createToken.mutateAsync({
+        agentId,
+        versionId,
+        dto,
+      });
+      setCreatedToken(result.plainToken);
+    } catch {
+      // mutation error handled by React Query
+    }
   }
 
   function getShareUrl(token: string) {
@@ -73,9 +77,13 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
   }
 
   async function handleCopy(text: string) {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API may fail in non-HTTPS contexts
+    }
   }
 
   function handleCloseDialog() {
