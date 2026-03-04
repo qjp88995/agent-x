@@ -121,6 +121,72 @@ export class McpService {
     return { message: 'MCP server deleted successfully' };
   }
 
+  async createOfficial(dto: CreateMcpServerDto) {
+    return this.prisma.mcpServer.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+        transport: dto.transport,
+        config: dto.config as Prisma.InputJsonValue,
+        type: McpType.OFFICIAL,
+        isPublic: true,
+        createdBy: null,
+      },
+    });
+  }
+
+  async updateOfficial(id: string, dto: UpdateMcpServerDto) {
+    const mcpServer = await this.prisma.mcpServer.findUnique({
+      where: { id },
+    });
+
+    if (!mcpServer) {
+      throw new NotFoundException('MCP server not found');
+    }
+
+    if (mcpServer.type !== McpType.OFFICIAL) {
+      throw new ForbiddenException('This server is not an OFFICIAL server');
+    }
+
+    const data: Record<string, unknown> = {};
+
+    if (dto.name !== undefined) {
+      data.name = dto.name;
+    }
+    if (dto.description !== undefined) {
+      data.description = dto.description;
+    }
+    if (dto.transport !== undefined) {
+      data.transport = dto.transport;
+    }
+    if (dto.config !== undefined) {
+      data.config = dto.config;
+    }
+
+    return this.prisma.mcpServer.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async removeOfficial(id: string) {
+    const mcpServer = await this.prisma.mcpServer.findUnique({
+      where: { id },
+    });
+
+    if (!mcpServer) {
+      throw new NotFoundException('MCP server not found');
+    }
+
+    if (mcpServer.type !== McpType.OFFICIAL) {
+      throw new ForbiddenException('This server is not an OFFICIAL server');
+    }
+
+    await this.prisma.mcpServer.delete({ where: { id } });
+
+    return { message: 'Marketplace server deleted successfully' };
+  }
+
   async testConnection(id: string, userId: string) {
     const mcpServer = await this.prisma.mcpServer.findUnique({
       where: { id },

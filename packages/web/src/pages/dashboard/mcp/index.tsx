@@ -41,7 +41,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useIsAdmin } from '@/hooks/use-auth';
 import {
+  useDeleteMarketplaceMcpServer,
   useDeleteMcpServer,
   useMcpMarket,
   useMcpServers,
@@ -114,16 +116,80 @@ function TestResultBanner({
   );
 }
 
-function MarketplaceCard({ server }: { readonly server: McpServerResponse }) {
+function MarketplaceCard({
+  server,
+  isAdmin,
+  onDelete,
+  onTestResult,
+}: {
+  readonly server: McpServerResponse;
+  readonly isAdmin: boolean;
+  readonly onDelete: (server: McpServerResponse) => void;
+  readonly onTestResult: (message: string, success: boolean) => void;
+}) {
+  const testMcpServer = useTestMcpServer();
   const toolCount = server.tools?.length ?? 0;
+
+  function handleTest() {
+    testMcpServer.mutate(server.id, {
+      onSuccess: result => {
+        onTestResult(result.message, result.success);
+      },
+      onError: () => {
+        onTestResult(
+          'Connection test failed. Check your configuration.',
+          false
+        );
+      },
+    });
+  }
 
   return (
     <Card className="flex flex-col">
-      <CardHeader>
+      <CardHeader
+        className={
+          isAdmin
+            ? 'flex flex-row items-start justify-between gap-2 space-y-0'
+            : undefined
+        }
+      >
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{server.name}</CardTitle>
           <TransportBadge transport={server.transport} />
         </div>
+        {isAdmin && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-8">
+                <MoreHorizontal className="size-4" />
+                <span className="sr-only">Actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link to={`/mcp-servers/${server.id}/edit?type=official`}>
+                  <Pencil className="mr-2 size-4" />
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleTest}
+                disabled={testMcpServer.isPending}
+              >
+                <PlugZap className="mr-2 size-4" />
+                {testMcpServer.isPending ? 'Testing...' : 'Test Connection'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onDelete(server)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 size-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
 
       <CardContent className="flex-1">
@@ -236,7 +302,13 @@ function McpServerCard({
   );
 }
 
-function EmptyState({ tab }: { readonly tab: 'marketplace' | 'custom' }) {
+function EmptyState({
+  tab,
+  isAdmin,
+}: {
+  readonly tab: 'marketplace' | 'custom';
+  readonly isAdmin: boolean;
+}) {
   const isMarketplace = tab === 'marketplace';
 
   return (
@@ -250,6 +322,14 @@ function EmptyState({ tab }: { readonly tab: 'marketplace' | 'custom' }) {
           ? 'Marketplace MCP servers will appear here when available.'
           : 'Add your first MCP server to get started.'}
       </p>
+      {isMarketplace && isAdmin && (
+        <Button asChild>
+          <Link to="/mcp-servers/new?type=official">
+            <Plus className="mr-2 size-4" />
+            Add to Marketplace
+          </Link>
+        </Button>
+      )}
       {!isMarketplace && (
         <Button asChild>
           <Link to="/mcp-servers/new">
@@ -263,6 +343,7 @@ function EmptyState({ tab }: { readonly tab: 'marketplace' | 'custom' }) {
 }
 
 export default function McpPage() {
+  const isAdmin = useIsAdmin();
   const {
     data: marketServers,
     isLoading: isLoadingMarket,
@@ -274,8 +355,12 @@ export default function McpPage() {
     error: customError,
   } = useMcpServers();
   const deleteMcpServer = useDeleteMcpServer();
+  const deleteMarketplaceMcpServer = useDeleteMarketplaceMcpServer();
   const [deleteTarget, setDeleteTarget] = useState<McpServerResponse | null>(
     null
+  );
+  const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
+    'custom'
   );
   const [testResult, setTestResult] = useState<{
     message: string;
@@ -284,10 +369,26 @@ export default function McpPage() {
 
   const isLoading = isLoadingMarket || isLoadingCustom;
   const error = marketError ?? customError;
+  const isDeleting =
+    deleteMcpServer.isPending || deleteMarketplaceMcpServer.isPending;
+
+  function handleDeleteCustom(server: McpServerResponse) {
+    setDeleteTarget(server);
+    setDeleteMode('custom');
+  }
+
+  function handleDeleteMarketplace(server: McpServerResponse) {
+    setDeleteTarget(server);
+    setDeleteMode('marketplace');
+  }
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    deleteMcpServer.mutate(deleteTarget.id, {
+    const mutation =
+      deleteMode === 'marketplace'
+        ? deleteMarketplaceMcpServer
+        : deleteMcpServer;
+    mutation.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
       },
@@ -330,12 +431,22 @@ export default function McpPage() {
             Manage Model Context Protocol server connections.
           </p>
         </div>
-        <Button asChild>
-          <Link to="/mcp-servers/new">
-            <Plus className="mr-2 size-4" />
-            Add Server
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <Button variant="outline" asChild>
+              <Link to="/mcp-servers/new?type=official">
+                <Plus className="mr-2 size-4" />
+                Add to Marketplace
+              </Link>
+            </Button>
+          )}
+          <Button asChild>
+            <Link to="/mcp-servers/new">
+              <Plus className="mr-2 size-4" />
+              Add Server
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Test result banner */}
@@ -356,11 +467,17 @@ export default function McpPage() {
 
         <TabsContent value="marketplace">
           {!marketServers || marketServers.length === 0 ? (
-            <EmptyState tab="marketplace" />
+            <EmptyState tab="marketplace" isAdmin={isAdmin} />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {marketServers.map(server => (
-                <MarketplaceCard key={server.id} server={server} />
+                <MarketplaceCard
+                  key={server.id}
+                  server={server}
+                  isAdmin={isAdmin}
+                  onDelete={handleDeleteMarketplace}
+                  onTestResult={handleTestResult}
+                />
               ))}
             </div>
           )}
@@ -368,14 +485,14 @@ export default function McpPage() {
 
         <TabsContent value="custom">
           {!customServers || customServers.length === 0 ? (
-            <EmptyState tab="custom" />
+            <EmptyState tab="custom" isAdmin={isAdmin} />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {customServers.map(server => (
                 <McpServerCard
                   key={server.id}
                   server={server}
-                  onDelete={setDeleteTarget}
+                  onDelete={handleDeleteCustom}
                   onTestResult={handleTestResult}
                 />
               ))}
@@ -393,10 +510,17 @@ export default function McpPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete MCP Server</DialogTitle>
+            <DialogTitle>
+              {deleteMode === 'marketplace'
+                ? 'Delete Marketplace Server'
+                : 'Delete MCP Server'}
+            </DialogTitle>
             <DialogDescription>
               Are you sure you want to delete &ldquo;{deleteTarget?.name}
-              &rdquo;? This action cannot be undone.
+              &rdquo;?{' '}
+              {deleteMode === 'marketplace'
+                ? 'This will remove it from the marketplace for all users.'
+                : 'This action cannot be undone.'}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -406,9 +530,9 @@ export default function McpPage() {
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
-              disabled={deleteMcpServer.isPending}
+              disabled={isDeleting}
             >
-              {deleteMcpServer.isPending ? 'Deleting...' : 'Delete'}
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -100,6 +100,62 @@ export function useDeleteMcpServer() {
   });
 }
 
+export function useCreateMarketplaceMcpServer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (dto: CreateMcpServerDto) => {
+      const { data } = await api.post<McpServerResponse>(
+        '/mcp-servers/market',
+        dto
+      );
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: MCP_MARKET_KEY });
+    },
+  });
+}
+
+export function useUpdateMarketplaceMcpServer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      dto,
+    }: {
+      id: string;
+      dto: UpdateMcpServerDto;
+    }) => {
+      const { data } = await api.put<McpServerResponse>(
+        `/mcp-servers/market/${id}`,
+        dto
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: MCP_MARKET_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: mcpServerKey(variables.id),
+      });
+    },
+  });
+}
+
+export function useDeleteMarketplaceMcpServer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/mcp-servers/market/${id}`);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: MCP_MARKET_KEY });
+    },
+  });
+}
+
 interface McpTestResult {
   success: boolean;
   message: string;

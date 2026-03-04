@@ -1,5 +1,10 @@
 import { type FormEvent, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router';
 
 import type { McpTransport as McpTransportType } from '@agent-x/shared';
 import { McpTransport } from '@agent-x/shared';
@@ -17,9 +22,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useIsAdmin } from '@/hooks/use-auth';
 import {
+  useCreateMarketplaceMcpServer,
   useCreateMcpServer,
   useMcpServer,
+  useUpdateMarketplaceMcpServer,
   useUpdateMcpServer,
 } from '@/hooks/use-mcp';
 import { cn } from '@/lib/utils';
@@ -154,11 +162,16 @@ function HttpConfigFields({
 export default function McpEditorPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const isOfficialMode = searchParams.get('type') === 'official';
+  const isAdmin = useIsAdmin();
   const isEditMode = !!id;
 
   const { data: existingServer, isLoading: isLoadingServer } = useMcpServer(id);
   const createMcpServer = useCreateMcpServer();
   const updateMcpServer = useUpdateMcpServer();
+  const createMarketplace = useCreateMarketplaceMcpServer();
+  const updateMarketplace = useUpdateMarketplaceMcpServer();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -193,6 +206,11 @@ export default function McpEditorPage() {
       }
     }
   }, [existingServer]);
+
+  // Non-admin accessing official mode → redirect
+  if (isOfficialMode && !isAdmin) {
+    return <Navigate to="/mcp-servers" replace />;
+  }
 
   function parseArgs(input: string): string[] {
     return input
@@ -242,7 +260,11 @@ export default function McpEditorPage() {
       transport === McpTransport.STREAMABLE_HTTP) &&
     url.trim().length > 0;
   const isFormValid = name.trim().length > 0 && (isStdioValid || isHttpValid);
-  const isSaving = createMcpServer.isPending || updateMcpServer.isPending;
+  const isSaving =
+    createMcpServer.isPending ||
+    updateMcpServer.isPending ||
+    createMarketplace.isPending ||
+    updateMarketplace.isPending;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -252,24 +274,26 @@ export default function McpEditorPage() {
     const config = buildConfig();
     if (config === null) return;
 
+    const dto = {
+      name: name.trim(),
+      description: description.trim() || undefined,
+      transport,
+      config,
+    };
+
     try {
-      if (isEditMode) {
-        await updateMcpServer.mutateAsync({
-          id,
-          dto: {
-            name: name.trim(),
-            description: description.trim() || undefined,
-            transport,
-            config,
-          },
-        });
+      if (isOfficialMode) {
+        if (isEditMode) {
+          await updateMarketplace.mutateAsync({ id, dto });
+        } else {
+          await createMarketplace.mutateAsync(dto);
+        }
       } else {
-        await createMcpServer.mutateAsync({
-          name: name.trim(),
-          description: description.trim() || undefined,
-          transport,
-          config,
-        });
+        if (isEditMode) {
+          await updateMcpServer.mutateAsync({ id, dto });
+        } else {
+          await createMcpServer.mutateAsync(dto);
+        }
       }
       await navigate('/mcp-servers');
     } catch {
@@ -285,6 +309,22 @@ export default function McpEditorPage() {
     setTransport(newTransport);
     setHeadersError(null);
   }
+
+  const pageTitle = isOfficialMode
+    ? isEditMode
+      ? 'Edit Marketplace Server'
+      : 'Add Marketplace Server'
+    : isEditMode
+      ? 'Edit MCP Server'
+      : 'Add MCP Server';
+
+  const pageDescription = isOfficialMode
+    ? isEditMode
+      ? 'Update this marketplace server configuration.'
+      : 'Add a new server to the marketplace for all users.'
+    : isEditMode
+      ? 'Update your MCP server configuration.'
+      : 'Configure a new MCP server connection.';
 
   if (isEditMode && isLoadingServer) {
     return (
@@ -324,14 +364,8 @@ export default function McpEditorPage() {
           <ArrowLeft className="size-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode ? 'Edit MCP Server' : 'Add MCP Server'}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {isEditMode
-              ? 'Update your MCP server configuration.'
-              : 'Configure a new MCP server connection.'}
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{pageTitle}</h1>
+          <p className="text-muted-foreground text-sm">{pageDescription}</p>
         </div>
       </div>
 

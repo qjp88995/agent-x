@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateMcpServerDto } from './dto/create-mcp-server.dto';
 import { UpdateMcpServerDto } from './dto/update-mcp-server.dto';
 import { McpService } from './mcp.service';
@@ -20,6 +21,24 @@ export class McpController {
   @Get('market')
   findMarket() {
     return this.mcpService.findMarket();
+  }
+
+  @Post('market')
+  @Roles('ADMIN')
+  createOfficial(@Body() dto: CreateMcpServerDto) {
+    return this.mcpService.createOfficial(dto);
+  }
+
+  @Put('market/:id')
+  @Roles('ADMIN')
+  updateOfficial(@Param('id') id: string, @Body() dto: UpdateMcpServerDto) {
+    return this.mcpService.updateOfficial(id, dto);
+  }
+
+  @Delete('market/:id')
+  @Roles('ADMIN')
+  removeOfficial(@Param('id') id: string) {
+    return this.mcpService.removeOfficial(id);
   }
 
   @Get()

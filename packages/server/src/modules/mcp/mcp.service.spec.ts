@@ -1,7 +1,7 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { McpTransport,McpType } from '../../generated/prisma/client';
+import { McpTransport, McpType } from '../../generated/prisma/client';
 import { McpService } from './mcp.service';
 import { McpClientService } from './mcp-client.service';
 
@@ -274,6 +274,104 @@ describe('McpService', () => {
       await expect(
         service.remove('nonexistent-id', MOCK_USER_ID)
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('createOfficial', () => {
+    it('should create OFFICIAL MCP server', async () => {
+      mockPrismaService.mcpServer.create.mockResolvedValue(mockOfficialMcp);
+
+      const dto = {
+        name: 'Official MCP Server',
+        description: 'An official MCP server',
+        transport: McpTransport.SSE,
+        config: { url: 'https://mcp.example.com/sse' },
+      };
+
+      const result = await service.createOfficial(dto);
+
+      expect(mockPrismaService.mcpServer.create).toHaveBeenCalledWith({
+        data: {
+          name: dto.name,
+          description: dto.description,
+          transport: dto.transport,
+          config: dto.config,
+          type: McpType.OFFICIAL,
+          isPublic: true,
+          createdBy: null,
+        },
+      });
+      expect(result).toEqual(mockOfficialMcp);
+    });
+  });
+
+  describe('updateOfficial', () => {
+    it('should update OFFICIAL server', async () => {
+      mockPrismaService.mcpServer.findUnique.mockResolvedValue(mockOfficialMcp);
+      const updatedMcp = { ...mockOfficialMcp, name: 'Updated Official' };
+      mockPrismaService.mcpServer.update.mockResolvedValue(updatedMcp);
+
+      const result = await service.updateOfficial('cuid-mcp-official', {
+        name: 'Updated Official',
+      });
+
+      expect(mockPrismaService.mcpServer.update).toHaveBeenCalledWith({
+        where: { id: 'cuid-mcp-official' },
+        data: { name: 'Updated Official' },
+      });
+      expect(result.name).toBe('Updated Official');
+    });
+
+    it('should throw ForbiddenException for non-OFFICIAL server', async () => {
+      mockPrismaService.mcpServer.findUnique.mockResolvedValue(mockCustomMcp);
+
+      await expect(
+        service.updateOfficial(MOCK_MCP_ID, { name: 'Hacked' })
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(mockPrismaService.mcpServer.update).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when not found', async () => {
+      mockPrismaService.mcpServer.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.updateOfficial('nonexistent-id', { name: 'Test' })
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('removeOfficial', () => {
+    it('should delete OFFICIAL server', async () => {
+      mockPrismaService.mcpServer.findUnique.mockResolvedValue(mockOfficialMcp);
+      mockPrismaService.mcpServer.delete.mockResolvedValue(mockOfficialMcp);
+
+      const result = await service.removeOfficial('cuid-mcp-official');
+
+      expect(mockPrismaService.mcpServer.delete).toHaveBeenCalledWith({
+        where: { id: 'cuid-mcp-official' },
+      });
+      expect(result).toEqual({
+        message: 'Marketplace server deleted successfully',
+      });
+    });
+
+    it('should throw ForbiddenException for non-OFFICIAL server', async () => {
+      mockPrismaService.mcpServer.findUnique.mockResolvedValue(mockCustomMcp);
+
+      await expect(service.removeOfficial(MOCK_MCP_ID)).rejects.toThrow(
+        ForbiddenException
+      );
+
+      expect(mockPrismaService.mcpServer.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when not found', async () => {
+      mockPrismaService.mcpServer.findUnique.mockResolvedValue(null);
+
+      await expect(service.removeOfficial('nonexistent-id')).rejects.toThrow(
+        NotFoundException
+      );
     });
   });
 

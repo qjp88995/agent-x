@@ -14,6 +14,7 @@ export interface AuthUser {
   readonly id: string;
   readonly email: string;
   readonly name: string | null;
+  readonly role: string;
 }
 
 export interface AuthResponse {
@@ -113,6 +114,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
     };
   }
 
@@ -120,8 +122,9 @@ export class AuthService {
     id: string;
     email: string;
     name: string | null;
+    role: string;
   }): AuthResponse {
-    const tokenPayload = { sub: user.id, email: user.email };
+    const tokenPayload = { sub: user.id, email: user.email, role: user.role };
 
     const accessToken = this.jwtService.sign(
       { ...tokenPayload, type: 'access' },
@@ -144,6 +147,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       },
     };
   }
