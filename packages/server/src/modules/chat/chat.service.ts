@@ -1,10 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { AgentStatus, MessageRole } from '../../generated/prisma/client';
+import { MessageRole } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 interface MessageRecord {
@@ -35,16 +31,29 @@ export class ChatService {
       throw new NotFoundException('Agent not found');
     }
 
-    if (agent.status !== AgentStatus.PUBLISHED) {
-      throw new BadRequestException(
-        'Only published agents can be used for conversations'
-      );
-    }
-
     return this.prisma.conversation.create({
       data: {
         userId,
         agentId,
+        title: title ?? 'New Chat',
+      },
+      include: {
+        agent: { select: { id: true, name: true, avatar: true } },
+      },
+    });
+  }
+
+  async createPublicConversation(
+    agentId: string,
+    agentVersionId: string,
+    shareTokenId: string,
+    title?: string
+  ) {
+    return this.prisma.conversation.create({
+      data: {
+        agentId,
+        agentVersionId,
+        shareTokenId,
         title: title ?? 'New Chat',
       },
       include: {
@@ -66,6 +75,13 @@ export class ChatService {
   async getMessages(conversationId: string, userId: string) {
     await this.verifyOwnership(conversationId, userId);
 
+    return this.prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  async getPublicMessages(conversationId: string) {
     return this.prisma.message.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
@@ -145,6 +161,21 @@ export class ChatService {
   async verifyOwnership(conversationId: string, userId: string) {
     const conversation = await this.prisma.conversation.findFirst({
       where: { id: conversationId, userId },
+      include: {
+        agent: { select: { id: true, name: true, avatar: true } },
+      },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    return conversation;
+  }
+
+  async verifyPublicAccess(conversationId: string, shareTokenId: string) {
+    const conversation = await this.prisma.conversation.findFirst({
+      where: { id: conversationId, shareTokenId },
       include: {
         agent: { select: { id: true, name: true, avatar: true } },
       },

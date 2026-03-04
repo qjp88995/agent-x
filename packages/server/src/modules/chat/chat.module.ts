@@ -10,6 +10,6 @@ import { StreamManagerService } from './stream-manager.service';
   imports: [McpModule],
   controllers: [ChatController],
   providers: [ChatService, AgentRuntimeService, StreamManagerService],
-  exports: [ChatService, AgentRuntimeService],
+  exports: [ChatService, AgentRuntimeService, StreamManagerService],
 })
 export class ChatModule {}

@@ -9,6 +9,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { OpenaiCompatModule } from './modules/openai-compat/openai-compat.module';
 import { ProviderModule } from './modules/provider/provider.module';
+import { PublicChatModule } from './modules/public-chat/public-chat.module';
 import { SkillModule } from './modules/skill/skill.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -22,6 +23,7 @@ import { PrismaModule } from './prisma/prisma.module';
     SkillModule,
     McpModule,
     ChatModule,
+    PublicChatModule,
     ApiKeyModule,
     OpenaiCompatModule,
   ],

@@ -108,6 +108,64 @@ export class AgentRuntimeService {
     });
   }
 
+  async createStreamFromVersion(
+    agentVersionId: string,
+    messages: Array<{ role: string; content: string }>,
+    options?: { abortSignal?: AbortSignal }
+  ): Promise<any> {
+    const version = await this.prisma.agentVersion.findUniqueOrThrow({
+      where: { id: agentVersionId },
+      include: { provider: true },
+    });
+
+    const skills = version.skillsSnapshot as Array<{ content: string }>;
+    const skillContents = skills.map(s => s.content).join('\n\n---\n\n');
+    const systemPrompt = skillContents
+      ? `${version.systemPrompt}\n\n## Skills\n\n${skillContents}`
+      : version.systemPrompt;
+
+    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
+    const apiKey = decrypt(version.provider.apiKey, encryptionSecret);
+    const model = this.createModel(
+      version.provider.protocol,
+      version.provider.baseUrl,
+      apiKey,
+      version.modelId
+    );
+
+    const mcpSnapshot = version.mcpServersSnapshot as Array<{
+      transport: string;
+      config: Record<string, unknown>;
+      enabledTools: string[];
+    }>;
+    const { tools: mcpTools, cleanups } = await this.collectMcpTools(
+      mcpSnapshot.map(s => ({
+        enabledTools: s.enabledTools,
+        mcpServer: { transport: s.transport, config: s.config },
+      }))
+    );
+
+    const tools: McpToolSet = { ...builtInTools, ...mcpTools };
+    const hasTools = Object.keys(tools).length > 0;
+
+    return streamText({
+      model,
+      system: systemPrompt,
+      messages: messages as any,
+      temperature: version.temperature,
+      maxOutputTokens: version.maxTokens,
+      experimental_telemetry: { isEnabled: true },
+      ...(hasTools ? { tools, stopWhen: stepCountIs(10) } : {}),
+      ...(options?.abortSignal ? { abortSignal: options.abortSignal } : {}),
+      onFinish: async () => {
+        await this.cleanupMcpSessions(cleanups);
+      },
+      onError: async () => {
+        await this.cleanupMcpSessions(cleanups);
+      },
+    });
+  }
+
   private async collectMcpTools(
     mcpServers: AgentWithRelations['mcpServers']
   ): Promise<{ tools: McpToolSet; cleanups: Array<() => Promise<void>> }> {
