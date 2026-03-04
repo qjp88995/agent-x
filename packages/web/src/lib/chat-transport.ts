@@ -1,29 +1,10 @@
-import {
-  type ChatTransport,
-  DefaultChatTransport,
-  type UIMessage,
-  type UIMessageChunk,
-} from 'ai';
+import { type ChatTransport, type UIMessage, type UIMessageChunk } from 'ai';
+
+import { StreamResponseParser } from './stream-parser';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('accessToken');
   return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-/**
- * Reuses DefaultChatTransport's SSE parsing capability to convert
- * a raw byte stream into UIMessageChunk objects.
- */
-class StreamResponseParser extends DefaultChatTransport {
-  constructor() {
-    super({ api: '' });
-  }
-
-  parseStream(
-    stream: ReadableStream<Uint8Array>
-  ): ReadableStream<UIMessageChunk> {
-    return this.processResponseStream(stream);
-  }
 }
 
 export class AgentXChatTransport implements ChatTransport<UIMessage> {

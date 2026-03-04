@@ -1,21 +1,6 @@
-import {
-  type ChatTransport,
-  DefaultChatTransport,
-  type UIMessage,
-  type UIMessageChunk,
-} from 'ai';
+import { type ChatTransport, type UIMessage, type UIMessageChunk } from 'ai';
 
-class StreamResponseParser extends DefaultChatTransport {
-  constructor() {
-    super({ api: '' });
-  }
-
-  parseStream(
-    stream: ReadableStream<Uint8Array>
-  ): ReadableStream<UIMessageChunk> {
-    return this.processResponseStream(stream);
-  }
-}
+import { StreamResponseParser } from './stream-parser';
 
 export class SharedChatTransport implements ChatTransport<UIMessage> {
   private readonly token: string;

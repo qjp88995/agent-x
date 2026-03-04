@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import type { ReasoningUIPart, UIMessage } from 'ai';
 import { Bot, User } from 'lucide-react';
 
@@ -81,7 +83,11 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
   );
 }
 
-export function MessageItem({ message }: { readonly message: UIMessage }) {
+export const MessageItem = memo(function MessageItem({
+  message,
+}: {
+  readonly message: UIMessage;
+}) {
   const isUser = message.role === 'user';
   const hasContent = message.parts.some(
     p =>
@@ -134,4 +140,4 @@ export function MessageItem({ message }: { readonly message: UIMessage }) {
       </div>
     </div>
   );
-}
+});
