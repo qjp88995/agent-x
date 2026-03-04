@@ -13,6 +13,7 @@ import {
   Save,
 } from 'lucide-react';
 
+import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -319,6 +320,7 @@ export default function EditAgentPage() {
           <TabsList>
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
             <TabsTrigger value="prompt">System Prompt</TabsTrigger>
+            <TabsTrigger value="mcp">MCP Servers</TabsTrigger>
           </TabsList>
 
           {/* Basic Info Tab */}
@@ -474,6 +476,11 @@ export default function EditAgentPage() {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* MCP Servers Tab */}
+          <TabsContent value="mcp">
+            <AgentMcpTab agentId={id!} currentMcpServers={agent.mcpServers} />
           </TabsContent>
 
           {/* Save button - visible in both tabs */}

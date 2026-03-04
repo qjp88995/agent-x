@@ -122,3 +122,81 @@ export function useUnpublishAgent() {
     },
   });
 }
+
+export function useAddAgentMcp() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      agentId,
+      mcpServerId,
+      enabledTools,
+    }: {
+      agentId: string;
+      mcpServerId: string;
+      enabledTools?: string[];
+    }) => {
+      const { data } = await api.post(`/agents/${agentId}/mcp-servers`, {
+        mcpServerId,
+        enabledTools,
+      });
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: agentKey(variables.agentId),
+      });
+    },
+  });
+}
+
+export function useRemoveAgentMcp() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      agentId,
+      mcpServerId,
+    }: {
+      agentId: string;
+      mcpServerId: string;
+    }) => {
+      await api.delete(`/agents/${agentId}/mcp-servers/${mcpServerId}`);
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: agentKey(variables.agentId),
+      });
+    },
+  });
+}
+
+export function useUpdateAgentMcp() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      agentId,
+      mcpServerId,
+      enabledTools,
+    }: {
+      agentId: string;
+      mcpServerId: string;
+      enabledTools: string[];
+    }) => {
+      const { data } = await api.patch(
+        `/agents/${agentId}/mcp-servers/${mcpServerId}`,
+        { enabledTools }
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: agentKey(variables.agentId),
+      });
+    },
+  });
+}
