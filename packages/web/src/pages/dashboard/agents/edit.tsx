@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
+import { TestChatPanel } from '@/components/agents/test-chat-panel';
 import { VersionList } from '@/components/agents/version-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -244,329 +245,338 @@ export default function EditAgentPage() {
   const statusConfig = STATUS_BADGE_CONFIG[agent.status];
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/agents')}
-            aria-label="Back to agents"
-          >
-            <ArrowLeft className="size-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">Edit Agent</h1>
-              <Badge
-                variant="outline"
-                className={cn('border-0', statusConfig.className)}
-              >
-                {statusConfig.label}
-              </Badge>
-              {agent.latestVersion !== null && (
-                <span className="text-muted-foreground text-sm">
-                  v{agent.latestVersion}
-                </span>
-              )}
+    <div className="-m-6 flex" style={{ height: 'calc(100vh - 3.5rem)' }}>
+      <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/agents')}
+              aria-label="Back to agents"
+            >
+              <ArrowLeft className="size-4" />
+            </Button>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold tracking-tight">
+                  Edit Agent
+                </h1>
+                <Badge
+                  variant="outline"
+                  className={cn('border-0', statusConfig.className)}
+                >
+                  {statusConfig.label}
+                </Badge>
+                {agent.latestVersion !== null && (
+                  <span className="text-muted-foreground text-sm">
+                    v{agent.latestVersion}
+                  </span>
+                )}
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Update your agent configuration.
+              </p>
             </div>
-            <p className="text-muted-foreground text-sm">
-              Update your agent configuration.
-            </p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {agent.status === AgentStatus.DRAFT && (
-            <>
+          <div className="flex items-center gap-2">
+            {agent.status === AgentStatus.DRAFT && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setPublishDialogOpen(true)}
+                  disabled={isBusy}
+                >
+                  <Rocket className="mr-2 size-4" />
+                  Publish Version
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleArchive}
+                  disabled={isBusy}
+                >
+                  {isArchiving && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
+                  <Archive className="mr-2 size-4" />
+                  Archive
+                </Button>
+              </>
+            )}
+            {agent.status === AgentStatus.ARCHIVED && (
               <Button
                 variant="outline"
-                onClick={() => setPublishDialogOpen(true)}
+                onClick={handleUnarchive}
                 disabled={isBusy}
               >
-                <Rocket className="mr-2 size-4" />
-                Publish Version
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleArchive}
-                disabled={isBusy}
-              >
-                {isArchiving && (
+                {isUnarchiving && (
                   <Loader2 className="mr-2 size-4 animate-spin" />
                 )}
-                <Archive className="mr-2 size-4" />
-                Archive
+                <ArchiveRestore className="mr-2 size-4" />
+                Unarchive
               </Button>
-            </>
-          )}
-          {agent.status === AgentStatus.ARCHIVED && (
-            <Button
-              variant="outline"
-              onClick={handleUnarchive}
-              disabled={isBusy}
-            >
-              {isUnarchiving && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
-              <ArchiveRestore className="mr-2 size-4" />
-              Unarchive
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Publish Version Dialog */}
-      <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Publish New Version</DialogTitle>
-            <DialogDescription>
-              Create a snapshot of the current agent configuration as a new
-              version.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="changelog">Changelog (optional)</Label>
-            <Textarea
-              id="changelog"
-              placeholder="Describe what changed in this version..."
-              value={changelog}
-              onChange={e => setChangelog(e.target.value)}
-              rows={3}
-            />
+            )}
           </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setPublishDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handlePublishVersion} disabled={isPublishing}>
-              {isPublishing && <Loader2 className="mr-2 size-4 animate-spin" />}
-              Publish
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Feedback messages */}
-      {error && (
-        <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
-          {error}
         </div>
-      )}
-      {successMessage && (
-        <div className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400">
-          {successMessage}
-        </div>
-      )}
 
-      {/* Tabbed form */}
-      <form onSubmit={handleSubmit}>
-        <Tabs defaultValue="basic" className="gap-6">
-          <TabsList>
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="prompt">System Prompt</TabsTrigger>
-            <TabsTrigger value="mcp">MCP Servers</TabsTrigger>
-            <TabsTrigger value="versions">Versions</TabsTrigger>
-          </TabsList>
+        {/* Publish Version Dialog */}
+        <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Publish New Version</DialogTitle>
+              <DialogDescription>
+                Create a snapshot of the current agent configuration as a new
+                version.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="changelog">Changelog (optional)</Label>
+              <Textarea
+                id="changelog"
+                placeholder="Describe what changed in this version..."
+                value={changelog}
+                onChange={e => setChangelog(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setPublishDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handlePublishVersion} disabled={isPublishing}>
+                {isPublishing && (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                )}
+                Publish
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-          {/* Basic Info Tab */}
-          <TabsContent value="basic">
-            <Card className="max-w-2xl">
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-                <CardDescription>
-                  General configuration for this agent.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-6">
-                {/* Name */}
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="e.g., Customer Support Agent"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    disabled={isBusy}
-                    required
-                  />
-                </div>
+        {/* Feedback messages */}
+        {error && (
+          <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
+            {error}
+          </div>
+        )}
+        {successMessage && (
+          <div className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400">
+            {successMessage}
+          </div>
+        )}
 
-                {/* Description */}
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Describe what this agent does..."
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    disabled={isBusy}
-                    rows={3}
-                  />
-                </div>
+        {/* Tabbed form */}
+        <form onSubmit={handleSubmit}>
+          <Tabs defaultValue="basic" className="gap-6">
+            <TabsList>
+              <TabsTrigger value="basic">Basic Info</TabsTrigger>
+              <TabsTrigger value="prompt">System Prompt</TabsTrigger>
+              <TabsTrigger value="mcp">MCP Servers</TabsTrigger>
+              <TabsTrigger value="versions">Versions</TabsTrigger>
+            </TabsList>
 
-                {/* Provider */}
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="provider">Provider</Label>
-                  <select
-                    id="provider"
-                    value={providerId}
-                    onChange={e => handleProviderChange(e.target.value)}
-                    disabled={isBusy || isLoadingProviders}
-                    className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">
-                      {isLoadingProviders
-                        ? 'Loading providers...'
-                        : 'Select a provider'}
-                    </option>
-                    {activeProviders.map(provider => (
-                      <option key={provider.id} value={provider.id}>
-                        {provider.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Model */}
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="model">Model</Label>
-                  <select
-                    id="model"
-                    value={modelId}
-                    onChange={e => setModelId(e.target.value)}
-                    disabled={isBusy || !providerId}
-                    className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">
-                      {!providerId
-                        ? 'Select a provider first'
-                        : 'Select a model'}
-                    </option>
-                    {activeModels.map(model => (
-                      <option key={model.id} value={model.modelId}>
-                        {model.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Temperature */}
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="temperature">
-                    Temperature{' '}
-                    <span className="text-muted-foreground font-normal">
-                      ({temperature})
-                    </span>
-                  </Label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      id="temperature"
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={temperature}
-                      onChange={e => setTemperature(e.target.value)}
-                      disabled={isBusy}
-                      className="flex-1"
-                    />
+            {/* Basic Info Tab */}
+            <TabsContent value="basic">
+              <Card className="max-w-2xl">
+                <CardHeader>
+                  <CardTitle>Basic Information</CardTitle>
+                  <CardDescription>
+                    General configuration for this agent.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-6">
+                  {/* Name */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="name">Name</Label>
                     <Input
-                      type="number"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={temperature}
-                      onChange={e => setTemperature(e.target.value)}
+                      id="name"
+                      placeholder="e.g., Customer Support Agent"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
                       disabled={isBusy}
-                      className="w-20"
+                      required
                     />
                   </div>
-                </div>
 
-                {/* Max Tokens */}
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="maxTokens">Max Tokens</Label>
-                  <Input
-                    id="maxTokens"
-                    type="number"
-                    min="1"
-                    placeholder="4096"
-                    value={maxTokens}
-                    onChange={e => setMaxTokens(e.target.value)}
+                  {/* Description */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Describe what this agent does..."
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      disabled={isBusy}
+                      rows={3}
+                    />
+                  </div>
+
+                  {/* Provider */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="provider">Provider</Label>
+                    <select
+                      id="provider"
+                      value={providerId}
+                      onChange={e => handleProviderChange(e.target.value)}
+                      disabled={isBusy || isLoadingProviders}
+                      className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">
+                        {isLoadingProviders
+                          ? 'Loading providers...'
+                          : 'Select a provider'}
+                      </option>
+                      {activeProviders.map(provider => (
+                        <option key={provider.id} value={provider.id}>
+                          {provider.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Model */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="model">Model</Label>
+                    <select
+                      id="model"
+                      value={modelId}
+                      onChange={e => setModelId(e.target.value)}
+                      disabled={isBusy || !providerId}
+                      className="border-input bg-background ring-offset-background focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">
+                        {!providerId
+                          ? 'Select a provider first'
+                          : 'Select a model'}
+                      </option>
+                      {activeModels.map(model => (
+                        <option key={model.id} value={model.modelId}>
+                          {model.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Temperature */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="temperature">
+                      Temperature{' '}
+                      <span className="text-muted-foreground font-normal">
+                        ({temperature})
+                      </span>
+                    </Label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        id="temperature"
+                        type="range"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        value={temperature}
+                        onChange={e => setTemperature(e.target.value)}
+                        disabled={isBusy}
+                        className="flex-1"
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        value={temperature}
+                        onChange={e => setTemperature(e.target.value)}
+                        disabled={isBusy}
+                        className="w-20"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Max Tokens */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="maxTokens">Max Tokens</Label>
+                    <Input
+                      id="maxTokens"
+                      type="number"
+                      min="1"
+                      placeholder="4096"
+                      value={maxTokens}
+                      onChange={e => setMaxTokens(e.target.value)}
+                      disabled={isBusy}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* System Prompt Tab */}
+            <TabsContent value="prompt">
+              <Card className="max-w-4xl">
+                <CardHeader>
+                  <CardTitle>System Prompt</CardTitle>
+                  <CardDescription>
+                    Define the behavior and personality of your agent.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    placeholder="You are a helpful assistant..."
+                    value={systemPrompt}
+                    onChange={e => setSystemPrompt(e.target.value)}
                     disabled={isBusy}
+                    required
+                    rows={20}
+                    className="font-mono text-sm"
                   />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          {/* System Prompt Tab */}
-          <TabsContent value="prompt">
-            <Card className="max-w-4xl">
-              <CardHeader>
-                <CardTitle>System Prompt</CardTitle>
-                <CardDescription>
-                  Define the behavior and personality of your agent.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  placeholder="You are a helpful assistant..."
-                  value={systemPrompt}
-                  onChange={e => setSystemPrompt(e.target.value)}
-                  disabled={isBusy}
-                  required
-                  rows={20}
-                  className="font-mono text-sm"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {/* MCP Servers Tab */}
+            <TabsContent value="mcp">
+              <AgentMcpTab agentId={id!} currentMcpServers={agent.mcpServers} />
+            </TabsContent>
 
-          {/* MCP Servers Tab */}
-          <TabsContent value="mcp">
-            <AgentMcpTab agentId={id!} currentMcpServers={agent.mcpServers} />
-          </TabsContent>
+            {/* Versions Tab */}
+            <TabsContent value="versions">
+              <Card className="max-w-4xl">
+                <CardHeader>
+                  <CardTitle>Published Versions</CardTitle>
+                  <CardDescription>
+                    Manage published versions and share links.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <VersionList agentId={id!} />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          {/* Versions Tab */}
-          <TabsContent value="versions">
-            <Card className="max-w-4xl">
-              <CardHeader>
-                <CardTitle>Published Versions</CardTitle>
-                <CardDescription>
-                  Manage published versions and share links.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <VersionList agentId={id!} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {/* Save button */}
+            <div className="flex max-w-4xl justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/agents')}
+                disabled={isBusy}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!isFormValid || isBusy}>
+                {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                <Save className="mr-2 size-4" />
+                Save Changes
+              </Button>
+            </div>
+          </Tabs>
+        </form>
+      </div>
 
-          {/* Save button */}
-          <div className="flex max-w-4xl justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/agents')}
-              disabled={isBusy}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={!isFormValid || isBusy}>
-              {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              <Save className="mr-2 size-4" />
-              Save Changes
-            </Button>
-          </div>
-        </Tabs>
-      </form>
+      {/* Test Chat Panel */}
+      {agent.status === AgentStatus.DRAFT && <TestChatPanel agentId={id!} />}
     </div>
   );
 }
