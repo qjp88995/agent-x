@@ -78,21 +78,6 @@ export function useDeleteAgent() {
   });
 }
 
-export function usePublishAgent() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { data } = await api.post<AgentResponse>(`/agents/${id}/publish`);
-      return data;
-    },
-    onSuccess: (_data, id) => {
-      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
-      void queryClient.invalidateQueries({ queryKey: agentKey(id) });
-    },
-  });
-}
-
 export function useArchiveAgent() {
   const queryClient = useQueryClient();
 
@@ -108,12 +93,12 @@ export function useArchiveAgent() {
   });
 }
 
-export function useUnpublishAgent() {
+export function useUnarchiveAgent() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.post<AgentResponse>(`/agents/${id}/unpublish`);
+      const { data } = await api.post<AgentResponse>(`/agents/${id}/unarchive`);
       return data;
     },
     onSuccess: (_data, id) => {
