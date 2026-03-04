@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
+import { ConversationsTab } from '@/components/agents/conversations-tab';
+import { ShareLinksTab } from '@/components/agents/share-links-tab';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
 import { VersionList } from '@/components/agents/version-list';
 import { Badge } from '@/components/ui/badge';
@@ -378,6 +380,8 @@ export default function EditAgentPage() {
               <TabsTrigger value="prompt">System Prompt</TabsTrigger>
               <TabsTrigger value="mcp">MCP Servers</TabsTrigger>
               <TabsTrigger value="versions">Versions</TabsTrigger>
+              <TabsTrigger value="share-links">Share Links</TabsTrigger>
+              <TabsTrigger value="conversations">Conversations</TabsTrigger>
             </TabsList>
 
             {/* Basic Info Tab */}
@@ -550,13 +554,23 @@ export default function EditAgentPage() {
                 <CardHeader>
                   <CardTitle>Published Versions</CardTitle>
                   <CardDescription>
-                    Manage published versions and share links.
+                    View published version history.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <VersionList agentId={id!} />
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Share Links Tab */}
+            <TabsContent value="share-links">
+              <ShareLinksTab agentId={id!} />
+            </TabsContent>
+
+            {/* Conversations Tab */}
+            <TabsContent value="conversations">
+              <ConversationsTab agentId={id!} />
             </TabsContent>
 
             {/* Save button */}

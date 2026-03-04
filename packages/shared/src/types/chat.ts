@@ -37,6 +37,19 @@ export type MessagePart =
     }
   | { type: 'file'; mediaType: string; url: string };
 
+export interface SharedConversationResponse {
+  id: string;
+  agentId: string;
+  agentVersionId: string | null;
+  shareTokenId: string | null;
+  title: string | null;
+  createdAt: string;
+  updatedAt: string;
+  agentVersion: { version: number } | null;
+  shareToken: { name: string } | null;
+  _count: { messages: number };
+}
+
 export interface MessageResponse {
   id: string;
   role: MessageRole;
