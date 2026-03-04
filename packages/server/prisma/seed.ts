@@ -18,7 +18,7 @@ async function main() {
     process.exit(1);
   }
 
-  const adapter = new PrismaPg(databaseUrl);
+  const adapter = new PrismaPg({ connectionString: databaseUrl });
   const prisma = new PrismaClient({ adapter });
 
   try {
