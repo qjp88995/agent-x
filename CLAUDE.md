@@ -75,7 +75,6 @@ cd packages/server
 npx prisma migrate dev --name <name>  # create migration
 npx prisma generate                    # regenerate client
 npx prisma studio                      # visual editor
-npx prisma db push                     # push schema without migration
 ```
 
 ### Monorepo Scripts (root)
@@ -193,6 +192,7 @@ Docker setup:
 - Tests: Jest for backend, TDD approach
 - TypeScript strict mode in all packages
 - Immutable data patterns (create new objects, don't mutate)
+- **NEVER use `npx prisma db push`** to modify the database directly. Always use `npx prisma migrate dev --name <name>` to create proper migrations.
 
 # currentDate
 
