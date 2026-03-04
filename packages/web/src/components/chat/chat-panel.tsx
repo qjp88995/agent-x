@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport, type UIMessage } from 'ai';
 import { Bot, MessageSquare } from 'lucide-react';
 
 import { useMessages } from '@/hooks/use-chat';
-import { type ChatMessage, useChatStream } from '@/hooks/use-chat-stream';
 
 import { ChatInput } from './chat-input';
 import { MessageItem } from './message-item';
@@ -30,8 +31,23 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
 }
 
 export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
-  const { messages, isLoading, sendMessage, stop, loadHistory } =
-    useChatStream(conversationId);
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: `/api/conversations/${conversationId}/chat`,
+        headers: () => ({
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        }),
+      }),
+    [conversationId]
+  );
+
+  const { messages, sendMessage, status, setMessages, stop } = useChat({
+    id: conversationId,
+    transport,
+  });
+
+  const isLoading = status === 'submitted' || status === 'streaming';
   const { data: savedMessages } = useMessages(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const historyLoadedRef = useRef<string | null>(null);
@@ -43,26 +59,30 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
       savedMessages.length > 0 &&
       historyLoadedRef.current !== conversationId
     ) {
-      const history: ChatMessage[] = savedMessages.map(msg => {
-        const parts = msg.parts as Array<{ type: string; text?: string }>;
-        const textContent = parts
-          .filter(p => p.type === 'text')
-          .map(p => p.text ?? '')
-          .join('');
-
-        return {
-          id: msg.id,
-          role:
-            msg.role.toLowerCase() === 'user'
-              ? ('user' as const)
-              : ('assistant' as const),
-          content: textContent,
-        };
-      });
-      loadHistory(history);
+      const history: UIMessage[] = savedMessages.map(msg => ({
+        id: msg.id,
+        role:
+          msg.role.toLowerCase() === 'user'
+            ? ('user' as const)
+            : ('assistant' as const),
+        parts: (msg.parts as Array<{ type: string; text?: string }>).map(p => {
+          if (p.type === 'reasoning') {
+            return {
+              type: 'reasoning' as const,
+              text: p.text ?? '',
+              state: 'done' as const,
+            };
+          }
+          return {
+            type: 'text' as const,
+            text: p.text ?? '',
+          };
+        }),
+      }));
+      setMessages(history);
       historyLoadedRef.current = conversationId;
     }
-  }, [savedMessages, conversationId, loadHistory]);
+  }, [savedMessages, conversationId, setMessages]);
 
   // Reset history loaded ref when conversation changes
   useEffect(() => {
@@ -75,6 +95,10 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handleSend = (content: string) => {
+    void sendMessage({ text: content });
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -99,7 +123,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
       </div>
 
       {/* Input */}
-      <ChatInput onSend={sendMessage} onStop={stop} isLoading={isLoading} />
+      <ChatInput onSend={handleSend} onStop={stop} isLoading={isLoading} />
     </div>
   );
 }

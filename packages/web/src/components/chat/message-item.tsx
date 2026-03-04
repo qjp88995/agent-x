@@ -1,7 +1,10 @@
+import type { ReasoningUIPart,UIMessage } from 'ai';
 import { Bot, User } from 'lucide-react';
 
-import type { ChatMessage } from '@/hooks/use-chat-stream';
 import { cn } from '@/lib/utils';
+
+import { MarkdownRenderer } from './markdown-renderer';
+import { ThinkingBlock } from './thinking-block';
 
 function TypingIndicator() {
   return (
@@ -13,31 +16,40 @@ function TypingIndicator() {
   );
 }
 
-function MessageContent({ content }: { readonly content: string }) {
-  const paragraphs = content.split('\n\n');
-
+function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
   return (
-    <div className="space-y-2">
-      {paragraphs.map((paragraph, idx) => {
-        const lines = paragraph.split('\n');
-        return (
-          <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">
-            {lines.map((line, lineIdx) => (
-              <span key={lineIdx}>
-                {lineIdx > 0 && <br />}
-                {line}
-              </span>
-            ))}
-          </p>
-        );
+    <div>
+      {parts.map((part, i) => {
+        if (part.type === 'reasoning') {
+          const rp = part as ReasoningUIPart;
+          return (
+            <ThinkingBlock
+              key={`reasoning-${i}`}
+              content={rp.text}
+              done={rp.state === 'done'}
+            />
+          );
+        }
+        if (part.type === 'text') {
+          const text = (part as { type: 'text'; text: string }).text;
+          if (!text) return null;
+          return <MarkdownRenderer key={`text-${i}`} content={text} />;
+        }
+        return null;
       })}
     </div>
   );
 }
 
-export function MessageItem({ message }: { readonly message: ChatMessage }) {
+export function MessageItem({ message }: { readonly message: UIMessage }) {
   const isUser = message.role === 'user';
-  const showTyping = message.isStreaming && !message.content;
+  const hasContent = message.parts.some(
+    p =>
+      (p.type === 'text' &&
+        (p as { type: 'text'; text: string }).text.length > 0) ||
+      p.type === 'reasoning'
+  );
+  const showTyping = !isUser && !hasContent;
 
   return (
     <div
@@ -66,8 +78,17 @@ export function MessageItem({ message }: { readonly message: ChatMessage }) {
       >
         {showTyping ? (
           <TypingIndicator />
+        ) : isUser ? (
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+            {message.parts
+              .filter(
+                (p): p is { type: 'text'; text: string } => p.type === 'text'
+              )
+              .map(p => p.text)
+              .join('')}
+          </p>
         ) : (
-          <MessageContent content={message.content} />
+          <AssistantContent parts={message.parts} />
         )}
       </div>
     </div>

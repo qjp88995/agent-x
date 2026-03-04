@@ -8,6 +8,7 @@ import {
   Res,
 } from '@nestjs/common';
 
+import { pipeUIMessageStreamToResponse, type UIMessage } from 'ai';
 import { Response } from 'express';
 
 import { MessageRole } from '../../generated/prisma/client';
@@ -48,13 +49,20 @@ export class ChatController {
   async chat(
     @Param('id') id: string,
     @CurrentUser() user: { id: string },
-    @Body() body: { content: string },
+    @Body() body: { messages: UIMessage[] },
     @Res() res: Response
   ) {
     const conversation = await this.chatService.verifyOwnership(id, user.id);
 
+    // Extract text from the last user message sent by useChat
+    const lastMsg = body.messages[body.messages.length - 1];
+    const content = lastMsg.parts
+      .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+      .map(p => p.text)
+      .join('');
+
     await this.chatService.saveMessage(id, MessageRole.USER, [
-      { type: 'text', text: body.content },
+      { type: 'text', text: content },
     ]);
 
     const history = await this.chatService.getMessagesForAI(id);
@@ -64,19 +72,35 @@ export class ChatController {
       history
     );
 
-    // Save assistant message after streaming completes
+    // Save assistant message asynchronously after stream completes
     void result.text.then(async (text: string) => {
+      const reasoning = await result.reasoning;
       const usage = await result.usage;
+      const parts: Array<{ type: string; text: string }> = [];
+
+      if (reasoning) {
+        const reasoningText = Array.isArray(reasoning)
+          ? reasoning.map(r => r.text).join('')
+          : String(reasoning);
+        if (reasoningText) {
+          parts.push({ type: 'reasoning', text: reasoningText });
+        }
+      }
+      parts.push({ type: 'text', text });
+
       await this.chatService.saveMessage(
         id,
         MessageRole.ASSISTANT,
-        [{ type: 'text', text }],
+        parts,
         usage
       );
     });
 
-    // Pipe the text stream directly to the response
-    result.pipeTextStreamToResponse(res);
+    // Stream using AI SDK UI Message Stream protocol
+    pipeUIMessageStreamToResponse({
+      response: res,
+      stream: result.toUIMessageStream({ sendReasoning: true }),
+    });
   }
 
   @Delete(':id')
