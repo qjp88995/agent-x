@@ -1,6 +1,5 @@
 export const AgentStatus = {
   DRAFT: 'DRAFT',
-  PUBLISHED: 'PUBLISHED',
   ARCHIVED: 'ARCHIVED',
 } as const;
 
@@ -38,7 +37,7 @@ export interface AgentResponse {
   temperature: number;
   maxTokens: number;
   status: AgentStatus;
-  version: number;
+  latestVersion: number | null;
   skills: { id: string; skillId: string; priority: number }[];
   mcpServers: {
     id: string;

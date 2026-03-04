@@ -5,3 +5,5 @@ export * from './types/mcp';
 export * from './types/skill';
 export * from './types/chat';
 export * from './types/api-key';
+export * from './types/agent-version';
+export * from './types/share-token';

@@ -10,6 +10,8 @@ export interface SendMessageDto {
 export interface ConversationResponse {
   id: string;
   agentId: string;
+  agentVersionId: string | null;
+  shareTokenId: string | null;
   title: string | null;
   createdAt: string;
   updatedAt: string;
