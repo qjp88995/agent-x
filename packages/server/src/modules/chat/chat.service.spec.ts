@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AgentStatus, MessageRole } from '../../generated/prisma/client';
@@ -7,7 +7,6 @@ import { ChatService } from './chat.service';
 jest.mock('../../generated/prisma/client', () => ({
   AgentStatus: {
     DRAFT: 'DRAFT',
-    PUBLISHED: 'PUBLISHED',
     ARCHIVED: 'ARCHIVED',
   },
   MessageRole: {
@@ -33,7 +32,7 @@ const mockAgent = {
   id: MOCK_AGENT_ID,
   userId: MOCK_USER_ID,
   name: 'Test Agent',
-  status: AgentStatus.PUBLISHED,
+  status: AgentStatus.DRAFT,
   avatar: null,
 };
 
@@ -91,7 +90,7 @@ describe('ChatService', () => {
   });
 
   describe('createConversation', () => {
-    it('should create conversation for published agent', async () => {
+    it('should create conversation for agent', async () => {
       mockPrismaService.agent.findFirst.mockResolvedValue(mockAgent);
       mockPrismaService.conversation.create.mockResolvedValue(mockConversation);
 
@@ -151,17 +150,6 @@ describe('ChatService', () => {
       await expect(
         service.createConversation(MOCK_USER_ID, 'nonexistent-id')
       ).rejects.toThrow(NotFoundException);
-
-      expect(mockPrismaService.conversation.create).not.toHaveBeenCalled();
-    });
-
-    it('should throw BadRequestException for non-published agent', async () => {
-      const draftAgent = { ...mockAgent, status: AgentStatus.DRAFT };
-      mockPrismaService.agent.findFirst.mockResolvedValue(draftAgent);
-
-      await expect(
-        service.createConversation(MOCK_USER_ID, MOCK_AGENT_ID)
-      ).rejects.toThrow(BadRequestException);
 
       expect(mockPrismaService.conversation.create).not.toHaveBeenCalled();
     });

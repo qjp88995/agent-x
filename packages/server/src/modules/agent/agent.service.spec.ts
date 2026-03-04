@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AgentStatus } from '../../generated/prisma/client';
@@ -7,7 +7,6 @@ import { AgentService } from './agent.service';
 jest.mock('../../generated/prisma/client', () => ({
   AgentStatus: {
     DRAFT: 'DRAFT',
-    PUBLISHED: 'PUBLISHED',
     ARCHIVED: 'ARCHIVED',
   },
 }));
@@ -37,8 +36,6 @@ const mockAgent = {
   temperature: 0.7,
   maxTokens: 4096,
   status: AgentStatus.DRAFT,
-  publishedAt: null,
-  version: 1,
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
 };
@@ -147,7 +144,7 @@ describe('AgentService', () => {
   });
 
   describe('findAll', () => {
-    it('should return agents for user', async () => {
+    it('should return agents for user with latestVersion', async () => {
       const agents = [
         {
           ...mockAgent,
@@ -157,6 +154,7 @@ describe('AgentService', () => {
             protocol: 'OPENAI',
           },
           _count: { skills: 2, mcpServers: 1 },
+          versions: [{ version: 3 }],
         },
       ];
       mockPrismaService.agent.findMany.mockResolvedValue(agents);
@@ -170,48 +168,61 @@ describe('AgentService', () => {
           _count: {
             select: { skills: true, mcpServers: true },
           },
+          versions: {
+            orderBy: { version: 'desc' },
+            take: 1,
+            select: { version: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
       });
       expect(result).toHaveLength(1);
       expect(result[0]._count.skills).toBe(2);
       expect(result[0]._count.mcpServers).toBe(1);
+      expect(result[0].latestVersion).toBe(3);
     });
 
     it('with status filter should only return matching agents', async () => {
       const agents = [
         {
           ...mockAgent,
-          status: AgentStatus.PUBLISHED,
+          status: AgentStatus.ARCHIVED,
           provider: {
             id: MOCK_PROVIDER_ID,
             name: 'OpenAI',
             protocol: 'OPENAI',
           },
           _count: { skills: 0, mcpServers: 0 },
+          versions: [],
         },
       ];
       mockPrismaService.agent.findMany.mockResolvedValue(agents);
 
-      const result = await service.findAll(MOCK_USER_ID, AgentStatus.PUBLISHED);
+      const result = await service.findAll(MOCK_USER_ID, AgentStatus.ARCHIVED);
 
       expect(mockPrismaService.agent.findMany).toHaveBeenCalledWith({
-        where: { userId: MOCK_USER_ID, status: AgentStatus.PUBLISHED },
+        where: { userId: MOCK_USER_ID, status: AgentStatus.ARCHIVED },
         include: {
           provider: { select: { id: true, name: true, protocol: true } },
           _count: {
             select: { skills: true, mcpServers: true },
           },
+          versions: {
+            orderBy: { version: 'desc' },
+            take: 1,
+            select: { version: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
       });
       expect(result).toHaveLength(1);
-      expect(result[0].status).toBe(AgentStatus.PUBLISHED);
+      expect(result[0].status).toBe(AgentStatus.ARCHIVED);
+      expect(result[0].latestVersion).toBeNull();
     });
   });
 
   describe('findOne', () => {
-    it('should return agent with relations', async () => {
+    it('should return agent with relations and latestVersion', async () => {
       const agentWithRelations = {
         ...mockAgent,
         provider: { id: MOCK_PROVIDER_ID, name: 'OpenAI', protocol: 'OPENAI' },
@@ -233,6 +244,7 @@ describe('AgentService', () => {
             mcpServer: { id: MOCK_MCP_SERVER_ID, name: 'Browser MCP' },
           },
         ],
+        versions: [{ version: 2 }],
       };
       mockPrismaService.agent.findFirst.mockResolvedValue(agentWithRelations);
 
@@ -249,10 +261,16 @@ describe('AgentService', () => {
           mcpServers: {
             include: { mcpServer: true },
           },
+          versions: {
+            orderBy: { version: 'desc' },
+            take: 1,
+            select: { version: true },
+          },
         },
       });
       expect(result.skills).toHaveLength(1);
       expect(result.mcpServers).toHaveLength(1);
+      expect(result.latestVersion).toBe(2);
     });
 
     it('should throw NotFoundException when agent not found', async () => {
@@ -265,12 +283,11 @@ describe('AgentService', () => {
   });
 
   describe('update', () => {
-    it('should update agent fields and increment version', async () => {
+    it('should update agent fields', async () => {
       mockPrismaService.agent.findFirst.mockResolvedValue(mockAgent);
       const updatedAgent = {
         ...mockAgent,
         name: 'Updated Agent',
-        version: 2,
       };
       mockPrismaService.agent.update.mockResolvedValue(updatedAgent);
 
@@ -280,10 +297,9 @@ describe('AgentService', () => {
 
       expect(mockPrismaService.agent.update).toHaveBeenCalledWith({
         where: { id: MOCK_AGENT_ID },
-        data: { name: 'Updated Agent', version: 2 },
+        data: { name: 'Updated Agent' },
       });
       expect(result.name).toBe('Updated Agent');
-      expect(result.version).toBe(2);
     });
 
     it('should throw NotFoundException when agent not found', async () => {
@@ -294,35 +310,7 @@ describe('AgentService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw BadRequestException when changing provider on non-DRAFT agent', async () => {
-      const publishedAgent = {
-        ...mockAgent,
-        status: AgentStatus.PUBLISHED,
-      };
-      mockPrismaService.agent.findFirst.mockResolvedValue(publishedAgent);
-
-      await expect(
-        service.update(MOCK_AGENT_ID, MOCK_USER_ID, {
-          providerId: 'new-provider',
-        })
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw BadRequestException when changing model on non-DRAFT agent', async () => {
-      const archivedAgent = {
-        ...mockAgent,
-        status: AgentStatus.ARCHIVED,
-      };
-      mockPrismaService.agent.findFirst.mockResolvedValue(archivedAgent);
-
-      await expect(
-        service.update(MOCK_AGENT_ID, MOCK_USER_ID, {
-          modelId: 'new-model',
-        })
-      ).rejects.toThrow(BadRequestException);
-    });
-
-    it('should validate provider ownership when changing provider on DRAFT agent', async () => {
+    it('should validate provider ownership when changing provider', async () => {
       mockPrismaService.agent.findFirst.mockResolvedValue(mockAgent);
       mockPrismaService.provider.findFirst.mockResolvedValue(null);
 
@@ -334,59 +322,12 @@ describe('AgentService', () => {
     });
   });
 
-  describe('publish', () => {
-    it('should set status to PUBLISHED and publishedAt', async () => {
-      mockPrismaService.agent.findFirst.mockResolvedValue(mockAgent);
-      const publishedAgent = {
-        ...mockAgent,
-        status: AgentStatus.PUBLISHED,
-        publishedAt: new Date(),
-        version: 2,
-      };
-      mockPrismaService.agent.update.mockResolvedValue(publishedAgent);
-
-      const result = await service.publish(MOCK_AGENT_ID, MOCK_USER_ID);
-
-      expect(mockPrismaService.agent.update).toHaveBeenCalledWith({
-        where: { id: MOCK_AGENT_ID },
-        data: {
-          status: AgentStatus.PUBLISHED,
-          publishedAt: expect.any(Date),
-          version: 2,
-        },
-      });
-      expect(result.status).toBe(AgentStatus.PUBLISHED);
-      expect(result.publishedAt).toBeDefined();
-    });
-
-    it('should throw NotFoundException when agent not found', async () => {
-      mockPrismaService.agent.findFirst.mockResolvedValue(null);
-
-      await expect(
-        service.publish('nonexistent-id', MOCK_USER_ID)
-      ).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw BadRequestException if agent missing required fields', async () => {
-      const incompleteAgent = {
-        ...mockAgent,
-        systemPrompt: '',
-      };
-      mockPrismaService.agent.findFirst.mockResolvedValue(incompleteAgent);
-
-      await expect(
-        service.publish(MOCK_AGENT_ID, MOCK_USER_ID)
-      ).rejects.toThrow(BadRequestException);
-    });
-  });
-
   describe('archive', () => {
     it('should set status to ARCHIVED', async () => {
       mockPrismaService.agent.findFirst.mockResolvedValue(mockAgent);
       const archivedAgent = {
         ...mockAgent,
         status: AgentStatus.ARCHIVED,
-        version: 2,
       };
       mockPrismaService.agent.update.mockResolvedValue(archivedAgent);
 
@@ -396,7 +337,6 @@ describe('AgentService', () => {
         where: { id: MOCK_AGENT_ID },
         data: {
           status: AgentStatus.ARCHIVED,
-          version: 2,
         },
       });
       expect(result.status).toBe(AgentStatus.ARCHIVED);
@@ -412,7 +352,7 @@ describe('AgentService', () => {
   });
 
   describe('remove', () => {
-    it('should delete DRAFT agent', async () => {
+    it('should delete agent', async () => {
       mockPrismaService.agent.findFirst.mockResolvedValue(mockAgent);
       mockPrismaService.agent.delete.mockResolvedValue(mockAgent);
 
@@ -422,20 +362,6 @@ describe('AgentService', () => {
         where: { id: MOCK_AGENT_ID },
       });
       expect(result).toEqual({ message: 'Agent deleted successfully' });
-    });
-
-    it('should throw BadRequestException for non-DRAFT agent', async () => {
-      const publishedAgent = {
-        ...mockAgent,
-        status: AgentStatus.PUBLISHED,
-      };
-      mockPrismaService.agent.findFirst.mockResolvedValue(publishedAgent);
-
-      await expect(service.remove(MOCK_AGENT_ID, MOCK_USER_ID)).rejects.toThrow(
-        BadRequestException
-      );
-
-      expect(mockPrismaService.agent.delete).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when agent not found', async () => {

@@ -1,5 +1,5 @@
 export class CreateShareTokenDto {
-  name: string;
+  name!: string;
   expiresAt?: string;
   maxConversations?: number;
 }
