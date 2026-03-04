@@ -28,7 +28,10 @@ interface ToolUIPart {
 }
 
 function isToolPart(part: { type: string }): part is ToolUIPart {
-  return part.type.startsWith('tool-') && 'toolCallId' in part;
+  return (
+    (part.type.startsWith('tool-') || part.type === 'dynamic-tool') &&
+    'toolCallId' in part
+  );
 }
 
 function getToolName(part: ToolUIPart): string {
