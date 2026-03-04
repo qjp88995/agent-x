@@ -30,9 +30,19 @@ export class AgentXChatTransport implements ChatTransport<UIMessage> {
   private readonly conversationId: string;
   private readonly parser = new StreamResponseParser();
   private lastMessageId: string | null = null;
+  private activeStreamController: AbortController | null = null;
 
   constructor(conversationId: string) {
     this.conversationId = conversationId;
+  }
+
+  /**
+   * Abort the active SSE connection and clean up.
+   * Call this when the owning component unmounts.
+   */
+  destroy(): void {
+    this.activeStreamController?.abort();
+    this.activeStreamController = null;
   }
 
   async sendMessages(
@@ -106,11 +116,29 @@ export class AgentXChatTransport implements ChatTransport<UIMessage> {
     messageId: string,
     abortSignal?: AbortSignal
   ): Promise<ReadableStream<UIMessageChunk>> {
+    // Abort any previous SSE connection before opening a new one
+    this.activeStreamController?.abort();
+
+    const controller = new AbortController();
+    this.activeStreamController = controller;
+
+    // If the caller provides an abort signal (e.g. useChat's internal one),
+    // forward its abort to our internal controller so both paths clean up.
+    if (abortSignal) {
+      if (abortSignal.aborted) {
+        controller.abort();
+      } else {
+        abortSignal.addEventListener('abort', () => controller.abort(), {
+          once: true,
+        });
+      }
+    }
+
     const streamRes = await fetch(
       `/api/conversations/${this.conversationId}/messages/${messageId}/stream`,
       {
         headers: getAuthHeaders(),
-        signal: abortSignal,
+        signal: controller.signal,
       }
     );
 

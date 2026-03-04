@@ -50,6 +50,13 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
   const currentMessagesRef = useRef(messages);
   currentMessagesRef.current = messages;
 
+  // Abort active SSE connection when component unmounts (conversation switch)
+  useEffect(() => {
+    return () => {
+      transportRef.current?.destroy();
+    };
+  }, []);
+
   const isLoading = status === 'submitted' || status === 'streaming';
   const { data: savedMessages } = useMessages(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
