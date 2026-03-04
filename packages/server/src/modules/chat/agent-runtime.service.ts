@@ -51,7 +51,8 @@ export class AgentRuntimeService {
 
   async createStream(
     agentId: string,
-    messages: Array<{ role: string; content: string }>
+    messages: Array<{ role: string; content: string }>,
+    options?: { abortSignal?: AbortSignal }
   ): Promise<any> {
     const agent: AgentWithRelations = await this.prisma.agent.findUniqueOrThrow(
       {
@@ -97,6 +98,7 @@ export class AgentRuntimeService {
       maxOutputTokens: agent.maxTokens,
       experimental_telemetry: { isEnabled: true },
       ...(hasTools ? { tools, stopWhen: stepCountIs(10) } : {}),
+      ...(options?.abortSignal ? { abortSignal: options.abortSignal } : {}),
       onFinish: async () => {
         await this.cleanupMcpSessions(cleanups);
       },

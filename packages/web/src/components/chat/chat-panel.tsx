@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport, type UIMessage } from 'ai';
+import { type UIMessage } from 'ai';
 import { Bot, MessageSquare } from 'lucide-react';
 
 import { useMessages } from '@/hooks/use-chat';
+import { AgentXChatTransport } from '@/lib/chat-transport';
 
 import { ChatInput } from './chat-input';
 import { MessageItem } from './message-item';
@@ -31,16 +32,12 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
 }
 
 export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
-  const transport = useMemo(
-    () =>
-      new DefaultChatTransport({
-        api: `/api/conversations/${conversationId}/chat`,
-        headers: () => ({
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        }),
-      }),
-    [conversationId]
-  );
+  const transportRef = useRef<AgentXChatTransport | null>(null);
+  const transport = useMemo(() => {
+    const t = new AgentXChatTransport(conversationId);
+    transportRef.current = t;
+    return t;
+  }, [conversationId]);
 
   const { messages, sendMessage, status, setMessages, stop } = useChat({
     id: conversationId,
@@ -128,6 +125,11 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
     void sendMessage({ text: content });
   };
 
+  const handleStop = useCallback(() => {
+    stop();
+    void transportRef.current?.stopStream();
+  }, [stop]);
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -151,7 +153,11 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
       </div>
 
       {/* Input */}
-      <ChatInput onSend={handleSend} onStop={stop} isLoading={isLoading} />
+      <ChatInput
+        onSend={handleSend}
+        onStop={handleStop}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

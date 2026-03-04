@@ -95,6 +95,31 @@ export class ChatService {
     return message;
   }
 
+  async saveMessageWithId(
+    id: string,
+    conversationId: string,
+    role: MessageRole,
+    parts: unknown,
+    tokenUsage?: unknown
+  ) {
+    const message = await this.prisma.message.create({
+      data: {
+        id,
+        conversationId,
+        role,
+        parts: parts as never,
+        tokenUsage: tokenUsage as never,
+      },
+    });
+
+    await this.prisma.conversation.update({
+      where: { id: conversationId },
+      data: { updatedAt: new Date() },
+    });
+
+    return message;
+  }
+
   async getMessagesForAI(
     conversationId: string
   ): Promise<Array<{ role: string; content: string }>> {

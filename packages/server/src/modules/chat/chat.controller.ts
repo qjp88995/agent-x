@@ -3,24 +3,33 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Res,
 } from '@nestjs/common';
 
-import { pipeUIMessageStreamToResponse, type UIMessage } from 'ai';
+import {
+  pipeUIMessageStreamToResponse,
+  type UIMessage,
+  type UIMessageChunk,
+} from 'ai';
+import { randomUUID } from 'crypto';
 import { Response } from 'express';
 
 import { MessageRole } from '../../generated/prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AgentRuntimeService } from './agent-runtime.service';
 import { ChatService } from './chat.service';
+import { StreamManagerService } from './stream-manager.service';
+import { extractPartsFromSteps } from './stream-parts-extractor';
 
 @Controller('conversations')
 export class ChatController {
   constructor(
     private readonly chatService: ChatService,
-    private readonly runtime: AgentRuntimeService
+    private readonly runtime: AgentRuntimeService,
+    private readonly streamManager: StreamManagerService
   ) {}
 
   @Post()
@@ -46,15 +55,14 @@ export class ChatController {
   }
 
   @Post(':id/chat')
+  @HttpCode(202)
   async chat(
     @Param('id') id: string,
     @CurrentUser() user: { id: string },
-    @Body() body: { messages: UIMessage[] },
-    @Res() res: Response
+    @Body() body: { messages: UIMessage[] }
   ) {
     const conversation = await this.chatService.verifyOwnership(id, user.id);
 
-    // Extract text from the last user message sent by useChat
     const lastMsg = body.messages[body.messages.length - 1];
     const content = lastMsg.parts
       .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
@@ -66,73 +74,134 @@ export class ChatController {
     ]);
 
     const history = await this.chatService.getMessagesForAI(id);
+    const messageId = randomUUID();
+    const abortController = new AbortController();
 
     const result = await this.runtime.createStream(
       conversation.agentId,
-      history
+      history,
+      { abortSignal: abortController.signal }
     );
 
-    // Save assistant message asynchronously after stream completes
-    void result.steps.then(async (steps: Array<Record<string, any>>) => {
-      const usage = await result.usage;
-      const parts: Array<Record<string, unknown>> = [];
+    const uiStream = result.toUIMessageStream({ sendReasoning: true });
 
-      for (const step of steps) {
-        // Reasoning
-        if (step.reasoning) {
-          const reasoningText = Array.isArray(step.reasoning)
-            ? step.reasoning.map((r: { text: string }) => r.text).join('')
-            : String(step.reasoning);
-          if (reasoningText) {
-            parts.push({ type: 'reasoning', text: reasoningText });
+    this.streamManager.startStream({
+      messageId,
+      conversationId: id,
+      stream: uiStream,
+      abortController,
+      onComplete: async () => {
+        try {
+          const steps = await result.steps;
+          const usage = await result.usage;
+          const parts = extractPartsFromSteps(steps);
+
+          await this.chatService.saveMessageWithId(
+            messageId,
+            id,
+            MessageRole.ASSISTANT,
+            parts,
+            usage
+          );
+        } catch {
+          // If steps fail (e.g. aborted), save what we have from buffer
+          const session = this.streamManager.getSession(messageId);
+          const hasContent = session && session.buffer.length > 0;
+          if (hasContent) {
+            await this.chatService.saveMessageWithId(
+              messageId,
+              id,
+              MessageRole.ASSISTANT,
+              [{ type: 'text', text: '[Stream interrupted]' }]
+            );
           }
         }
-
-        // Text before tool calls
-        if (step.text && step.toolCalls?.length > 0) {
-          parts.push({ type: 'text', text: step.text });
-        }
-
-        // Tool calls (AI SDK v6 uses `input` instead of `args`)
-        for (const tc of step.toolCalls ?? []) {
-          parts.push({
-            type: 'tool-call',
-            toolCallId: tc.toolCallId,
-            toolName: tc.toolName,
-            args: tc.input,
-          });
-        }
-
-        // Tool results (AI SDK v6 uses `output` instead of `result`)
-        for (const tr of step.toolResults ?? []) {
-          parts.push({
-            type: 'tool-result',
-            toolCallId: tr.toolCallId,
-            toolName: tr.toolName,
-            result: tr.output,
-            isError: false,
-          });
-        }
-
-        // Final text (no tool calls in this step)
-        if (step.text && !step.toolCalls?.length) {
-          parts.push({ type: 'text', text: step.text });
-        }
-      }
-
-      await this.chatService.saveMessage(
-        id,
-        MessageRole.ASSISTANT,
-        parts,
-        usage
-      );
+      },
     });
 
-    // Stream using AI SDK UI Message Stream protocol
-    pipeUIMessageStreamToResponse({
-      response: res,
-      stream: result.toUIMessageStream({ sendReasoning: true }),
+    return { messageId };
+  }
+
+  @Get(':id/messages/:messageId/stream')
+  async streamMessage(
+    @Param('id') id: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: { id: string },
+    @Res() res: Response
+  ) {
+    await this.chatService.verifyOwnership(id, user.id);
+
+    const session = this.streamManager.getSession(messageId);
+    if (!session || session.conversationId !== id) {
+      res.status(404).json({ error: 'Stream not found' });
+      return;
+    }
+
+    let onChunk: ((c: UIMessageChunk) => void) | undefined;
+    let onEnd: (() => void) | undefined;
+
+    const stream = new ReadableStream<UIMessageChunk>({
+      start(controller) {
+        for (const chunk of session.buffer) {
+          controller.enqueue(chunk);
+        }
+        if (session.status !== 'streaming') {
+          controller.close();
+          return;
+        }
+        onChunk = (c: UIMessageChunk) => {
+          try {
+            controller.enqueue(c);
+          } catch {
+            // Controller already closed
+          }
+        };
+        onEnd = () => {
+          try {
+            controller.close();
+          } catch {
+            // Controller already closed
+          }
+        };
+        session.emitter.on('chunk', onChunk);
+        session.emitter.once('end', onEnd);
+      },
+      cancel() {
+        if (onChunk) session.emitter.off('chunk', onChunk);
+        if (onEnd) session.emitter.off('end', onEnd);
+      },
     });
+
+    res.on('close', () => {
+      if (onChunk) session.emitter.off('chunk', onChunk);
+      if (onEnd) session.emitter.off('end', onEnd);
+    });
+
+    pipeUIMessageStreamToResponse({ response: res, stream });
+  }
+
+  @Get(':id/active-stream')
+  async getActiveStream(
+    @Param('id') id: string,
+    @CurrentUser() user: { id: string }
+  ) {
+    await this.chatService.verifyOwnership(id, user.id);
+
+    const session = this.streamManager.getActiveSessionForConversation(id);
+    return { messageId: session?.messageId ?? null };
+  }
+
+  @Post(':id/messages/:messageId/stop')
+  @HttpCode(200)
+  async stopStream(
+    @Param('id') id: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: { id: string }
+  ) {
+    await this.chatService.verifyOwnership(id, user.id);
+
+    const stopped = this.streamManager.abortStream(messageId);
+    return { stopped };
   }
 
   @Delete(':id')

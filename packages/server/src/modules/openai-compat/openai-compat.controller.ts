@@ -62,33 +62,49 @@ export class OpenaiCompatController {
       return;
     }
 
+    const abortController = new AbortController();
+    req.on('close', () => {
+      abortController.abort();
+    });
+
     try {
-      const result = await this.runtime.createStream(agentId, body.messages);
+      const result = await this.runtime.createStream(agentId, body.messages, {
+        abortSignal: abortController.signal,
+      });
 
       if (body.stream !== false) {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
 
-        for await (const chunk of result.textStream) {
-          const data = {
-            id: `chatcmpl-${Date.now()}`,
-            object: 'chat.completion.chunk',
-            created: Math.floor(Date.now() / 1000),
-            model: agentId,
-            choices: [
-              {
-                index: 0,
-                delta: { content: chunk },
-                finish_reason: null,
-              },
-            ],
-          };
-          res.write(`data: ${JSON.stringify(data)}\n\n`);
+        try {
+          for await (const chunk of result.textStream) {
+            if (abortController.signal.aborted) break;
+            const data = {
+              id: `chatcmpl-${Date.now()}`,
+              object: 'chat.completion.chunk',
+              created: Math.floor(Date.now() / 1000),
+              model: agentId,
+              choices: [
+                {
+                  index: 0,
+                  delta: { content: chunk },
+                  finish_reason: null,
+                },
+              ],
+            };
+            res.write(`data: ${JSON.stringify(data)}\n\n`);
+          }
+        } catch (err: unknown) {
+          if (!abortController.signal.aborted) {
+            throw err;
+          }
         }
 
-        res.write('data: [DONE]\n\n');
-        res.end();
+        if (!res.writableEnded) {
+          res.write('data: [DONE]\n\n');
+          res.end();
+        }
       } else {
         const text = await result.text;
         const usage = await result.usage;
@@ -113,11 +129,19 @@ export class OpenaiCompatController {
         });
       }
     } catch (error: unknown) {
+      if (abortController.signal.aborted) {
+        if (!res.writableEnded) {
+          res.end();
+        }
+        return;
+      }
       const message =
         error instanceof Error ? error.message : 'Internal server error';
-      res.status(500).json({
-        error: { message, type: 'server_error' },
-      });
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: { message, type: 'server_error' },
+        });
+      }
     }
   }
 }
