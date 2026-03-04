@@ -21,6 +21,7 @@ const McpPage = lazy(() => import('@/pages/dashboard/mcp/index'));
 const McpEditorPage = lazy(() => import('@/pages/dashboard/mcp/editor'));
 const ApiKeysPage = lazy(() => import('@/pages/dashboard/api-keys/index'));
 const ChatPage = lazy(() => import('@/pages/chat/index'));
+const SharedChatPage = lazy(() => import('@/pages/shared/index'));
 
 function PageLoader() {
   return (
@@ -36,6 +37,7 @@ export function AppRoutes() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/s/:token" element={<SharedChatPage />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route index element={<Navigate to="/providers" replace />} />
