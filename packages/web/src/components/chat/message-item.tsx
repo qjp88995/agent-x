@@ -20,7 +20,7 @@ function TypingIndicator() {
 interface ToolUIPart {
   readonly type: string;
   readonly toolCallId: string;
-  readonly toolName: string;
+  readonly toolName?: string;
   readonly state: string;
   readonly input?: unknown;
   readonly output?: unknown;
@@ -28,7 +28,11 @@ interface ToolUIPart {
 }
 
 function isToolPart(part: { type: string }): part is ToolUIPart {
-  return 'toolName' in part;
+  return part.type.startsWith('tool-') && 'toolCallId' in part;
+}
+
+function getToolName(part: ToolUIPart): string {
+  return part.toolName ?? part.type.slice(5);
 }
 
 function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
@@ -54,7 +58,7 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
           return (
             <ToolCallBlock
               key={part.toolCallId ?? `tool-${i}`}
-              toolName={part.toolName}
+              toolName={getToolName(part)}
               state={
                 part.state as
                   | 'input-streaming'
