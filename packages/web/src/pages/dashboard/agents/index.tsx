@@ -57,10 +57,10 @@ const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,
   { label: string; className: string }
 > = {
-  DRAFT: {
-    label: 'Draft',
+  ACTIVE: {
+    label: 'Active',
     className:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   ARCHIVED: {
     label: 'Archived',
@@ -130,7 +130,7 @@ function AgentCard({
                 Edit
               </Link>
             </DropdownMenuItem>
-            {agent.status === AgentStatus.DRAFT && (
+            {agent.status === AgentStatus.ACTIVE && (
               <>
                 <DropdownMenuItem asChild>
                   <Link to={`/chat?agent=${agent.id}`}>
@@ -276,7 +276,7 @@ export default function AgentListPage() {
       >
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value={AgentStatus.DRAFT}>Draft</TabsTrigger>
+          <TabsTrigger value={AgentStatus.ACTIVE}>Active</TabsTrigger>
           <TabsTrigger value={AgentStatus.ARCHIVED}>Archived</TabsTrigger>
         </TabsList>
       </Tabs>

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { MessageRole } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -29,6 +33,12 @@ export class ChatService {
 
     if (!agent) {
       throw new NotFoundException('Agent not found');
+    }
+
+    if (agent.status === 'ARCHIVED') {
+      throw new BadRequestException(
+        'Cannot create conversation with an archived agent'
+      );
     }
 
     return this.prisma.conversation.create({

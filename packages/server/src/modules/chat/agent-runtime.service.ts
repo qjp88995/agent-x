@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { createAlibaba } from '@ai-sdk/alibaba';
@@ -16,6 +16,7 @@ import { McpClientService } from '../mcp/mcp-client.service';
 import { builtInTools } from './tools';
 
 interface AgentWithRelations {
+  readonly status: string;
   readonly systemPrompt: string;
   readonly temperature: number;
   readonly maxTokens: number;
@@ -67,6 +68,10 @@ export class AgentRuntimeService {
         },
       }
     );
+
+    if (agent.status === 'ARCHIVED') {
+      throw new BadRequestException('Cannot chat with an archived agent');
+    }
 
     const skillContents = agent.skills
       .map(entry => entry.skill.content)

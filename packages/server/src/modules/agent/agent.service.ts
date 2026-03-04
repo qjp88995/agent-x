@@ -30,7 +30,7 @@ export class AgentService {
         systemPrompt: dto.systemPrompt,
         temperature: dto.temperature,
         maxTokens: dto.maxTokens,
-        status: AgentStatus.DRAFT,
+        status: AgentStatus.ACTIVE,
       },
     });
   }
@@ -159,7 +159,7 @@ export class AgentService {
 
     return this.prisma.agent.update({
       where: { id },
-      data: { status: AgentStatus.DRAFT },
+      data: { status: AgentStatus.ACTIVE },
     });
   }
 

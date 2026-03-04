@@ -6,7 +6,7 @@ import { AgentService } from './agent.service';
 
 jest.mock('../../generated/prisma/client', () => ({
   AgentStatus: {
-    DRAFT: 'DRAFT',
+    ACTIVE: 'ACTIVE',
     ARCHIVED: 'ARCHIVED',
   },
 }));
@@ -35,7 +35,7 @@ const mockAgent = {
   systemPrompt: 'You are a helpful assistant.',
   temperature: 0.7,
   maxTokens: 4096,
-  status: AgentStatus.DRAFT,
+  status: AgentStatus.ACTIVE,
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
 };
@@ -92,7 +92,7 @@ describe('AgentService', () => {
   });
 
   describe('create', () => {
-    it('should create agent with DRAFT status', async () => {
+    it('should create agent with ACTIVE status', async () => {
       mockPrismaService.provider.findFirst.mockResolvedValue(mockProvider);
       mockPrismaService.agent.create.mockResolvedValue(mockAgent);
 
@@ -119,7 +119,7 @@ describe('AgentService', () => {
           systemPrompt: dto.systemPrompt,
           temperature: undefined,
           maxTokens: undefined,
-          status: AgentStatus.DRAFT,
+          status: AgentStatus.ACTIVE,
         },
       });
       expect(result).toEqual(mockAgent);

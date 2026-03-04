@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 
 import { Request, Response } from 'express';
 
@@ -132,6 +139,17 @@ export class OpenaiCompatController {
       if (abortController.signal.aborted) {
         if (!res.writableEnded) {
           res.end();
+        }
+        return;
+      }
+      if (error instanceof BadRequestException) {
+        if (!res.headersSent) {
+          res.status(403).json({
+            error: {
+              message: error.message,
+              type: 'invalid_request_error',
+            },
+          });
         }
         return;
       }

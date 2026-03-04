@@ -68,7 +68,7 @@ model ProviderModel {
 }
 
 enum AgentStatus {
-  DRAFT
+  ACTIVE
   ARCHIVED
 }
 
@@ -83,7 +83,7 @@ model Agent {
   systemPrompt String
   temperature  Float       @default(0.7)
   maxTokens    Int         @default(4096)
-  status       AgentStatus @default(DRAFT)
+  status       AgentStatus @default(ACTIVE)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 

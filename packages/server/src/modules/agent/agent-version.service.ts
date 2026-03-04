@@ -29,6 +29,12 @@ export class AgentVersionService {
       throw new NotFoundException('Agent not found');
     }
 
+    if (agent.status === 'ARCHIVED') {
+      throw new BadRequestException(
+        'Cannot publish a version for an archived agent'
+      );
+    }
+
     if (!agent.systemPrompt || !agent.providerId || !agent.modelId) {
       throw new BadRequestException(
         'Agent must have systemPrompt, providerId, and modelId to publish a version'

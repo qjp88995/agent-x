@@ -114,7 +114,7 @@ function Sidebar({
   readonly onNewChat: () => void;
   readonly onSelectAgent: (id: string) => void;
 }) {
-  const publishedAgents = agents.filter(a => a.status === 'DRAFT');
+  const publishedAgents = agents.filter(a => a.status === 'ACTIVE');
   const selectedAgent = publishedAgents.find(a => a.id === selectedAgentId);
   const filteredConversations = selectedAgentId
     ? conversations.filter(c => c.agentId === selectedAgentId)

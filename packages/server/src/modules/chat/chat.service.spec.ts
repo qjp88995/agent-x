@@ -6,7 +6,7 @@ import { ChatService } from './chat.service';
 
 jest.mock('../../generated/prisma/client', () => ({
   AgentStatus: {
-    DRAFT: 'DRAFT',
+    ACTIVE: 'ACTIVE',
     ARCHIVED: 'ARCHIVED',
   },
   MessageRole: {
@@ -32,7 +32,7 @@ const mockAgent = {
   id: MOCK_AGENT_ID,
   userId: MOCK_USER_ID,
   name: 'Test Agent',
-  status: AgentStatus.DRAFT,
+  status: AgentStatus.ACTIVE,
   avatar: null,
 };
 

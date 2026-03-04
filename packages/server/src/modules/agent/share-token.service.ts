@@ -84,7 +84,13 @@ export class ShareTokenService {
         agentVersion: {
           include: {
             agent: {
-              select: { id: true, name: true, description: true, avatar: true },
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                avatar: true,
+                status: true,
+              },
             },
             provider: true,
           },
@@ -99,6 +105,10 @@ export class ShareTokenService {
       token.maxConversations !== null &&
       token.usedConversations >= token.maxConversations
     ) {
+      return null;
+    }
+
+    if (token.agentVersion.agent.status === 'ARCHIVED') {
       return null;
     }
 

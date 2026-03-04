@@ -53,10 +53,10 @@ const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,
   { label: string; className: string }
 > = {
-  DRAFT: {
-    label: 'Draft',
+  ACTIVE: {
+    label: 'Active',
     className:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   ARCHIVED: {
     label: 'Archived',
@@ -288,7 +288,7 @@ export default function EditAgentPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {agent.status === AgentStatus.DRAFT && (
+            {agent.status === AgentStatus.ACTIVE && (
               <>
                 <Button
                   variant="outline"
@@ -598,7 +598,7 @@ export default function EditAgentPage() {
       </div>
 
       {/* Test Chat Panel */}
-      {agent.status === AgentStatus.DRAFT && <TestChatPanel agentId={id} />}
+      {agent.status === AgentStatus.ACTIVE && <TestChatPanel agentId={id} />}
     </div>
   );
 }

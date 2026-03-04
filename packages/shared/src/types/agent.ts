@@ -1,5 +1,5 @@
 export const AgentStatus = {
-  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
   ARCHIVED: 'ARCHIVED',
 } as const;
 
