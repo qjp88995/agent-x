@@ -395,7 +395,7 @@ export default function EditAgentPage() {
 
             {/* Basic Info Tab */}
             <TabsContent value="basic">
-              <Card className="max-w-2xl">
+              <Card className="max-w-4xl">
                 <CardHeader>
                   <CardTitle>Basic Information</CardTitle>
                   <CardDescription>
