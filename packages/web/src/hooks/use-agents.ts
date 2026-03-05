@@ -4,7 +4,12 @@ import type {
   CreateAgentDto,
   UpdateAgentDto,
 } from '@agent-x/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
@@ -22,6 +27,7 @@ export function useAgents(status?: AgentStatus) {
       const { data } = await api.get<AgentResponse[]>('/agents', { params });
       return data;
     },
+    placeholderData: keepPreviousData,
   });
 }
 
