@@ -251,7 +251,7 @@ export default function EditAgentPage() {
   const statusConfig = STATUS_BADGE_CONFIG[agent.status];
 
   return (
-    <div className="-m-6 flex" style={{ height: 'calc(100vh - 3.5rem)' }}>
+    <div className="-m-6 flex min-h-0 flex-1">
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between">
