@@ -142,7 +142,7 @@ function Sidebar({
       <Separator />
 
       {/* Agent selector */}
-      <div className="p-3">
+      <div className="px-3 pt-3 pb-1">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -226,16 +226,14 @@ function Sidebar({
 
 function NoChatSelected() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
-      <div className="bg-muted flex size-16 items-center justify-center rounded-full">
-        <MessageSquare className="text-muted-foreground size-8" />
+    <div className="flex flex-1 flex-col items-center justify-center">
+      <div className="gradient-bg glow-primary mb-4 flex size-16 items-center justify-center rounded-full">
+        <MessageSquare className="size-8 text-white" />
       </div>
-      <div className="text-center">
-        <h3 className="text-lg font-semibold">Select a conversation</h3>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Choose an existing conversation or start a new one.
-        </p>
-      </div>
+      <h3 className="mb-1 text-lg font-semibold">Select a conversation</h3>
+      <p className="text-muted-foreground text-sm">
+        Choose an existing conversation or start a new one.
+      </p>
     </div>
   );
 }

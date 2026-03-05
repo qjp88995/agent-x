@@ -101,7 +101,7 @@ export default function SharedChatPage() {
   return (
     <div className="flex h-screen flex-col">
       {/* Header */}
-      <header className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
+      <header className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
         <div className="gradient-bg flex size-10 items-center justify-center rounded-full glow-sm">
           {agentInfo.agentAvatar &&
           /^https?:\/\//.test(agentInfo.agentAvatar) ? (
@@ -127,16 +127,16 @@ export default function SharedChatPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
         {messages.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 px-4">
-            <div className="bg-muted flex size-16 items-center justify-center rounded-full">
-              <Bot className="text-muted-foreground size-8" />
+          <div className="flex h-full flex-col items-center justify-center px-4">
+            <div className="gradient-bg glow-primary mb-4 flex size-16 items-center justify-center rounded-full">
+              <Bot className="size-8 text-white" />
             </div>
-            <div className="text-center">
-              <h3 className="text-lg font-semibold">{agentInfo.agentName}</h3>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Start a conversation by sending a message below.
-              </p>
-            </div>
+            <h3 className="mb-1 text-lg font-semibold">
+              {agentInfo.agentName}
+            </h3>
+            <p className="text-muted-foreground text-sm">
+              Start a conversation by sending a message below.
+            </p>
           </div>
         ) : (
           <div className="mx-auto max-w-3xl py-4">

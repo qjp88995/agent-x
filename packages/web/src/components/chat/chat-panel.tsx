@@ -18,16 +18,14 @@ interface ChatPanelProps {
 
 function EmptyChat({ agentName }: { readonly agentName: string }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4">
-      <div className="gradient-bg glow-primary flex size-16 items-center justify-center rounded-full">
-        <Bot className="text-white size-8" />
+    <div className="flex flex-1 flex-col items-center justify-center px-4">
+      <div className="gradient-bg glow-primary mb-4 flex size-16 items-center justify-center rounded-full">
+        <Bot className="size-8 text-white" />
       </div>
-      <div className="text-center">
-        <h3 className="text-lg font-semibold">{agentName}</h3>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Start a conversation by sending a message below.
-        </p>
-      </div>
+      <h3 className="mb-1 text-lg font-semibold">{agentName}</h3>
+      <p className="text-muted-foreground text-sm">
+        Start a conversation by sending a message below.
+      </p>
     </div>
   );
 }
