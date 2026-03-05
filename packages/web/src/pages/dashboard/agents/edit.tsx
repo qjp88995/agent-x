@@ -527,6 +527,26 @@ export default function EditAgentPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              <div className="flex max-w-4xl justify-end gap-3 border-t pt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/agents')}
+                  disabled={isBusy}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!isFormValid || isBusy}
+                  className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+                >
+                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  <Save className="mr-2 size-4" />
+                  Save Changes
+                </Button>
+              </div>
             </TabsContent>
 
             {/* System Prompt Tab */}
@@ -550,6 +570,26 @@ export default function EditAgentPage() {
                   />
                 </CardContent>
               </Card>
+
+              <div className="flex max-w-4xl justify-end gap-3 border-t pt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/agents')}
+                  disabled={isBusy}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!isFormValid || isBusy}
+                  className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+                >
+                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  <Save className="mr-2 size-4" />
+                  Save Changes
+                </Button>
+              </div>
             </TabsContent>
 
             {/* MCP Servers Tab */}
@@ -581,27 +621,6 @@ export default function EditAgentPage() {
             <TabsContent value="conversations">
               <ConversationsTab agentId={id} />
             </TabsContent>
-
-            {/* Save button */}
-            <div className="flex max-w-4xl justify-end gap-3 border-t pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/agents')}
-                disabled={isBusy}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!isFormValid || isBusy}
-                className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-              >
-                {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-                <Save className="mr-2 size-4" />
-                Save Changes
-              </Button>
-            </div>
           </Tabs>
         </form>
       </div>
