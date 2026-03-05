@@ -220,7 +220,7 @@ export default function DashboardLayout() {
 
         {/* Main content area */}
         <main className="flex-1 overflow-auto">
-          <div className="mx-auto max-w-6xl p-6">
+          <div className="p-6">
             <Outlet />
           </div>
         </main>
