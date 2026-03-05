@@ -108,7 +108,7 @@ export const MessageItem = memo(function MessageItem({
           'flex size-8 shrink-0 items-center justify-center rounded-full',
           isUser
             ? 'bg-primary text-primary-foreground'
-            : 'bg-muted text-muted-foreground'
+            : 'gradient-bg text-white'
         )}
       >
         {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
@@ -120,7 +120,7 @@ export const MessageItem = memo(function MessageItem({
           'max-w-[75%] rounded-2xl px-4 py-2.5',
           isUser
             ? 'bg-primary text-primary-foreground'
-            : 'bg-muted text-foreground'
+            : 'bg-card border border-border/50 text-foreground'
         )}
       >
         {showTyping ? (

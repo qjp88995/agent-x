@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
 
-import { Brain,ChevronDown, ChevronRight } from 'lucide-react';
+import { Brain, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface ThinkingBlockProps {
   readonly content: string;
@@ -23,7 +23,7 @@ export function ThinkingBlock({ content, done }: ThinkingBlockProps) {
           setUserToggled(true);
           setManualOpen(v => !v);
         }}
-        className="bg-muted/20 hover:bg-muted/40 text-muted-foreground flex w-full items-center gap-2 px-3 py-2 transition-colors"
+        className="bg-muted/20 hover:bg-primary/10 text-muted-foreground flex w-full items-center gap-2 px-3 py-2 transition-colors"
       >
         {open ? (
           <ChevronDown aria-hidden="true" className="size-3 shrink-0" />

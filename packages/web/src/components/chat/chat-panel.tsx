@@ -19,8 +19,8 @@ interface ChatPanelProps {
 function EmptyChat({ agentName }: { readonly agentName: string }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4">
-      <div className="bg-muted flex size-16 items-center justify-center rounded-full">
-        <Bot className="text-muted-foreground size-8" />
+      <div className="gradient-bg glow-primary flex size-16 items-center justify-center rounded-full">
+        <Bot className="text-white size-8" />
       </div>
       <div className="text-center">
         <h3 className="text-lg font-semibold">{agentName}</h3>
@@ -165,7 +165,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
-        <MessageSquare className="text-muted-foreground size-5" />
+        <MessageSquare className="text-primary size-5" />
         <h2 className="truncate font-semibold">{agentName}</h2>
       </div>
 

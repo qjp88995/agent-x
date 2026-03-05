@@ -1,4 +1,4 @@
-import { useCallback,useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { Send, Square } from 'lucide-react';
 
@@ -53,7 +53,7 @@ export function ChatInput({
       <div className="mx-auto flex max-w-3xl items-end gap-2">
         <textarea
           ref={textareaRef}
-          className="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[44px] max-h-[200px] w-full resize-none rounded-xl border bg-transparent px-4 py-3 text-sm shadow-sm outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+          className="border-border/50 placeholder:text-muted-foreground focus-visible:ring-primary/30 focus-visible:border-primary/50 flex min-h-[44px] max-h-[200px] w-full resize-none rounded-xl border bg-transparent px-4 py-3 text-sm shadow-sm outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
           placeholder="Type a message..."
           rows={1}
           disabled={disabled || isLoading}
@@ -73,7 +73,7 @@ export function ChatInput({
         ) : (
           <Button
             size="icon"
-            className="size-11 shrink-0 rounded-xl"
+            className="gradient-bg text-white hover:opacity-90 size-11 shrink-0 rounded-xl"
             onClick={handleSubmit}
             disabled={disabled}
           >
