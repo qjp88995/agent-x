@@ -56,6 +56,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
   const [maxConversations, setMaxConversations] = useState('');
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
 
   async function handleCreate() {
     if (!effectiveVersionId) return;
@@ -96,11 +97,16 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
     return `${window.location.origin}/s/${token}`;
   }
 
-  async function handleCopy(text: string) {
+  async function handleCopy(text: string, tokenId?: string) {
     try {
       await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (tokenId) {
+        setCopiedTokenId(tokenId);
+        setTimeout(() => setCopiedTokenId(null), 2000);
+      } else {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
     } catch {
       // Clipboard API may fail in non-HTTPS contexts
     }
@@ -181,7 +187,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                   <DialogHeader>
                     <DialogTitle>Share Link Created</DialogTitle>
                     <DialogDescription>
-                      Copy this link now. It will only be shown once.
+                      Copy this link to share with others.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex items-center gap-2">
@@ -302,34 +308,57 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
             {tokens.map(token => (
               <div
                 key={token.id}
-                className="flex items-center justify-between rounded-md border px-3 py-2"
+                className="flex items-center justify-between rounded-md border px-3 py-3"
               >
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-sm font-medium">{token.name}</span>
-                  <Badge variant={token.isActive ? 'default' : 'secondary'}>
-                    {token.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                  <span className="text-muted-foreground text-xs">
-                    {token.usedConversations}
-                    {token.maxConversations !== null
-                      ? `/${token.maxConversations}`
-                      : ''}{' '}
-                    conversations
-                  </span>
-                  {token.expiresAt && (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-sm font-medium">{token.name}</span>
+                    <Badge variant={token.isActive ? 'default' : 'secondary'}>
+                      {token.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
                     <span className="text-muted-foreground text-xs">
-                      expires{' '}
-                      {formatDistanceToNow(new Date(token.expiresAt), {
+                      {token.usedConversations}
+                      {token.maxConversations !== null
+                        ? `/${token.maxConversations}`
+                        : ''}{' '}
+                      conversations
+                    </span>
+                    {token.expiresAt && (
+                      <span className="text-muted-foreground text-xs">
+                        expires{' '}
+                        {formatDistanceToNow(new Date(token.expiresAt), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    )}
+                    <span className="text-muted-foreground text-xs">
+                      created{' '}
+                      {formatDistanceToNow(new Date(token.createdAt), {
                         addSuffix: true,
                       })}
                     </span>
+                  </div>
+                  {token.tokenSlug && (
+                    <div className="flex items-center gap-1.5">
+                      <code className="text-muted-foreground truncate text-xs">
+                        {getShareUrl(token.tokenSlug)}
+                      </code>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-6 cursor-pointer"
+                        onClick={() =>
+                          handleCopy(getShareUrl(token.tokenSlug), token.id)
+                        }
+                      >
+                        {copiedTokenId === token.id ? (
+                          <Check className="size-3" />
+                        ) : (
+                          <Copy className="size-3" />
+                        )}
+                      </Button>
+                    </div>
                   )}
-                  <span className="text-muted-foreground text-xs">
-                    created{' '}
-                    {formatDistanceToNow(new Date(token.createdAt), {
-                      addSuffix: true,
-                    })}
-                  </span>
                 </div>
                 {token.isActive && (
                   <Button

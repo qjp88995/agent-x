@@ -8,6 +8,7 @@ export interface ShareTokenResponse {
   id: string;
   agentVersionId: string;
   name: string;
+  tokenSlug: string | null;
   expiresAt: string | null;
   maxConversations: number | null;
   usedConversations: number;

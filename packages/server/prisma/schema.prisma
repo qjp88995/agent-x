@@ -230,6 +230,7 @@ model ShareToken {
   id                String    @id @default(cuid())
   agentVersionId    String
   token             String    @unique
+  tokenSlug         String?
   name              String
   expiresAt         DateTime?
   maxConversations  Int?

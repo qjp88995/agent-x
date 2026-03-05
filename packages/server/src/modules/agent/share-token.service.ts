@@ -32,6 +32,7 @@ export class ShareTokenService {
       data: {
         agentVersionId,
         token: hashedToken,
+        tokenSlug: rawToken,
         name: dto.name,
         expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
         maxConversations: dto.maxConversations ?? null,
