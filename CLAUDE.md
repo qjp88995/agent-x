@@ -125,6 +125,7 @@ pnpm format:check # prettier --check
 
 ### Frontend Patterns
 
+- **Design standards (colors, spacing, layout widths, component conventions) are in `packages/web/DESIGN.md`**
 - React Router v7 for routing
 - All dashboard pages lazy-loaded via `React.lazy()`
 - React Query v5 hooks in `src/hooks/` for all API calls
