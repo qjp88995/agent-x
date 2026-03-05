@@ -372,7 +372,7 @@ export default function McpEditorPage() {
 
       {/* Form */}
       <Card className="max-w-2xl">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <CardHeader>
             <CardTitle>Server Details</CardTitle>
             <CardDescription>

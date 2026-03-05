@@ -236,7 +236,7 @@ export default function CreateProviderPage() {
 
       {/* Form */}
       <Card className="max-w-2xl border-border/50">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <CardHeader>
             <CardTitle>Provider Details</CardTitle>
             <CardDescription>
