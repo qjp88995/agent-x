@@ -145,7 +145,7 @@ function MarketplaceCard({
   }
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
       <CardHeader
         className={
           isAdmin
@@ -240,7 +240,7 @@ function McpServerCard({
   }
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{server.name}</CardTitle>
@@ -313,7 +313,9 @@ function EmptyState({
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <Server className="text-muted-foreground mb-4 size-12" />
+      <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
+        <Server className="size-8" />
+      </div>
       <h3 className="mb-1 text-lg font-semibold">
         {isMarketplace ? 'No marketplace servers' : 'No custom servers yet'}
       </h3>
@@ -323,7 +325,10 @@ function EmptyState({
           : 'Add your first MCP server to get started.'}
       </p>
       {isMarketplace && isAdmin && (
-        <Button asChild>
+        <Button
+          asChild
+          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+        >
           <Link to="/mcp-servers/new?type=official">
             <Plus className="mr-2 size-4" />
             Add to Marketplace
@@ -331,7 +336,10 @@ function EmptyState({
         </Button>
       )}
       {!isMarketplace && (
-        <Button asChild>
+        <Button
+          asChild
+          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+        >
           <Link to="/mcp-servers/new">
             <Plus className="mr-2 size-4" />
             Add Server
@@ -440,7 +448,10 @@ export default function McpPage() {
               </Link>
             </Button>
           )}
-          <Button asChild>
+          <Button
+            asChild
+            className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+          >
             <Link to="/mcp-servers/new">
               <Plus className="mr-2 size-4" />
               Add Server

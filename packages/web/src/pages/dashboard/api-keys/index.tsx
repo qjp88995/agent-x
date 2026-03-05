@@ -298,12 +298,17 @@ function DeleteConfirmDialog({
 function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <Key className="text-muted-foreground mb-4 size-12" />
+      <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
+        <Key className="size-8" />
+      </div>
       <h3 className="mb-1 text-lg font-semibold">No API keys yet</h3>
       <p className="text-muted-foreground mb-6 text-sm">
         Create your first API key to use the OpenAI-compatible API.
       </p>
-      <Button onClick={onCreateClick}>
+      <Button
+        onClick={onCreateClick}
+        className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+      >
         <Plus className="mr-2 size-4" />
         Create API Key
       </Button>
@@ -394,7 +399,10 @@ export default function ApiKeysPage() {
             Manage API keys for the OpenAI-compatible endpoint.
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+        >
           <Plus className="mr-2 size-4" />
           Create Key
         </Button>

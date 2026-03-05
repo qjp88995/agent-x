@@ -83,7 +83,7 @@ function SkillCard({
   const isCustom = skill.type === SkillType.CUSTOM;
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{skill.name}</CardTitle>
@@ -157,7 +157,9 @@ function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <Sparkles className="text-muted-foreground mb-4 size-12" />
+      <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
+        <Sparkles className="size-8" />
+      </div>
       <h3 className="mb-1 text-lg font-semibold">
         {isSystem ? 'No system skills' : 'No custom skills yet'}
       </h3>
@@ -167,7 +169,10 @@ function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
           : 'Create your first custom skill to get started.'}
       </p>
       {!isSystem && (
-        <Button asChild>
+        <Button
+          asChild
+          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+        >
           <Link to="/skills/new">
             <Plus className="mr-2 size-4" />
             Create Skill
@@ -235,7 +240,10 @@ export default function SkillsPage() {
             Manage skill templates for your agents.
           </p>
         </div>
-        <Button asChild>
+        <Button
+          asChild
+          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+        >
           <Link to="/skills/new">
             <Plus className="mr-2 size-4" />
             Create Skill
