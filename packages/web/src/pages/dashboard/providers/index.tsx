@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Trash2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -297,6 +298,7 @@ export default function ProviderListPage() {
     deleteProvider.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
+        toast.success('Provider deleted');
       },
     });
   }

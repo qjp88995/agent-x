@@ -12,6 +12,7 @@ import {
   Rocket,
   Save,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
 import { ConversationsTab } from '@/components/agents/conversations-tab';
@@ -87,7 +88,6 @@ export default function EditAgentPage() {
   const [temperature, setTemperature] = useState('0.7');
   const [maxTokens, setMaxTokens] = useState('4096');
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [changelog, setChangelog] = useState('');
 
@@ -139,7 +139,6 @@ export default function EditAgentPage() {
     e.preventDefault();
     if (!isFormValid || isBusy || !id) return;
     setError(null);
-    setSuccessMessage(null);
 
     const parsedTemperature = parseFloat(temperature);
     const parsedMaxTokens = parseInt(maxTokens, 10);
@@ -171,16 +170,15 @@ export default function EditAgentPage() {
           maxTokens: parsedMaxTokens,
         },
       });
-      setSuccessMessage('Agent updated successfully.');
+      toast.success('Agent updated successfully');
     } catch {
-      setError('Failed to update agent. Please try again.');
+      toast.error('Failed to update agent. Please try again.');
     }
   }
 
   async function handlePublishVersion() {
     if (!id || isBusy) return;
     setError(null);
-    setSuccessMessage(null);
 
     try {
       await publishVersion.mutateAsync({
@@ -189,35 +187,33 @@ export default function EditAgentPage() {
       });
       setPublishDialogOpen(false);
       setChangelog('');
-      setSuccessMessage('New version published successfully.');
+      toast.success('New version published successfully');
     } catch {
-      setError('Failed to publish version. Please try again.');
+      toast.error('Failed to publish version. Please try again.');
     }
   }
 
   async function handleArchive() {
     if (!id || isBusy) return;
     setError(null);
-    setSuccessMessage(null);
 
     try {
       await archiveAgent.mutateAsync(id);
-      setSuccessMessage('Agent archived successfully.');
+      toast.success('Agent archived successfully');
     } catch {
-      setError('Failed to archive agent. Please try again.');
+      toast.error('Failed to archive agent. Please try again.');
     }
   }
 
   async function handleUnarchive() {
     if (!id || isBusy) return;
     setError(null);
-    setSuccessMessage(null);
 
     try {
       await unarchiveAgent.mutateAsync(id);
-      setSuccessMessage('Agent unarchived successfully.');
+      toast.success('Agent unarchived successfully');
     } catch {
-      setError('Failed to unarchive agent. Please try again.');
+      toast.error('Failed to unarchive agent. Please try again.');
     }
   }
 
@@ -373,11 +369,6 @@ export default function EditAgentPage() {
         {error && (
           <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
             {error}
-          </div>
-        )}
-        {successMessage && (
-          <div className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400">
-            {successMessage}
           </div>
         )}
 

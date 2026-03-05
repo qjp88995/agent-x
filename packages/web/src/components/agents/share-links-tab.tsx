@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { formatDistanceToNow } from 'date-fns';
 import { Ban, Check, Copy, Link2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   AlertDialog,
@@ -99,6 +100,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
         dto,
       });
       setCreatedToken(result.plainToken);
+      toast.success('Share link created');
     } catch {
       // mutation error handled by React Query
     }
@@ -395,11 +397,18 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                         <AlertDialogAction
                           variant="destructive"
                           onClick={() =>
-                            deactivateToken.mutate({
-                              agentId,
-                              versionId: effectiveVersionId,
-                              tokenId: token.id,
-                            })
+                            deactivateToken.mutate(
+                              {
+                                agentId,
+                                versionId: effectiveVersionId,
+                                tokenId: token.id,
+                              },
+                              {
+                                onSuccess: () => {
+                                  toast.success('Share link deactivated');
+                                },
+                              }
+                            )
                           }
                         >
                           Deactivate

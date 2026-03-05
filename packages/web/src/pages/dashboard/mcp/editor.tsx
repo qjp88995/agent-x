@@ -9,6 +9,7 @@ import {
 import type { McpTransport as McpTransportType } from '@agent-x/shared';
 import { McpTransport } from '@agent-x/shared';
 import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -183,7 +184,6 @@ export default function McpEditorPage() {
   const [url, setUrl] = useState('');
   const [headersInput, setHeadersInput] = useState('');
   const [headersError, setHeadersError] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -269,7 +269,6 @@ export default function McpEditorPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!isFormValid || isSaving) return;
-    setError(null);
 
     const config = buildConfig();
     if (config === null) return;
@@ -295,9 +294,14 @@ export default function McpEditorPage() {
           await createMcpServer.mutateAsync(dto);
         }
       }
+      toast.success(
+        isEditMode
+          ? 'MCP server updated successfully'
+          : 'MCP server created successfully'
+      );
       await navigate('/mcp-servers');
     } catch {
-      setError(
+      toast.error(
         isEditMode
           ? 'Failed to update MCP server. Please try again.'
           : 'Failed to create MCP server. Please try again.'
@@ -381,12 +385,6 @@ export default function McpEditorPage() {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6">
-            {error && (
-              <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
-                {error}
-              </div>
-            )}
-
             {/* Name */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>

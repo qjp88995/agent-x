@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -30,7 +31,6 @@ export default function SkillEditorPage() {
   const [description, setDescription] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [content, setContent] = useState('');
-  const [error, setError] = useState<string | null>(null);
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -55,7 +55,6 @@ export default function SkillEditorPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!isFormValid || isSaving) return;
-    setError(null);
 
     const tags = parseTags(tagsInput);
 
@@ -70,6 +69,7 @@ export default function SkillEditorPage() {
             tags,
           },
         });
+        toast.success('Skill updated successfully');
       } else {
         await createSkill.mutateAsync({
           name: name.trim(),
@@ -77,10 +77,11 @@ export default function SkillEditorPage() {
           content: content.trim(),
           tags,
         });
+        toast.success('Skill created successfully');
       }
       await navigate('/skills');
     } catch {
-      setError(
+      toast.error(
         isEditMode
           ? 'Failed to update skill. Please try again.'
           : 'Failed to create skill. Please try again.'
@@ -147,12 +148,6 @@ export default function SkillEditorPage() {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6">
-            {error && (
-              <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
-                {error}
-              </div>
-            )}
-
             {/* Name */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>

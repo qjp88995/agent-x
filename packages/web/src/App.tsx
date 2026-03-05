@@ -3,6 +3,8 @@ import { BrowserRouter } from 'react-router';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+import { Toaster } from '@/components/ui/sonner';
+
 import { AppRoutes } from './routes';
 
 const queryClient = new QueryClient({
@@ -56,6 +58,7 @@ export default function App() {
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
+        <Toaster />
       </QueryClientProvider>
     </ErrorBoundary>
   );

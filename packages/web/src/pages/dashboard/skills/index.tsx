@@ -15,6 +15,7 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -206,6 +207,7 @@ export default function SkillsPage() {
     deleteSkill.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
+        toast.success('Skill deleted');
       },
     });
   }

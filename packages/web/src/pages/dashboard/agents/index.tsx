@@ -17,6 +17,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -224,16 +225,25 @@ export default function AgentListPage() {
     deleteAgent.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
+        toast.success('Agent deleted');
       },
     });
   }
 
   function handleArchive(agent: AgentResponse) {
-    archiveAgent.mutate(agent.id);
+    archiveAgent.mutate(agent.id, {
+      onSuccess: () => {
+        toast.success('Agent archived');
+      },
+    });
   }
 
   function handleUnarchive(agent: AgentResponse) {
-    unarchiveAgent.mutate(agent.id);
+    unarchiveAgent.mutate(agent.id, {
+      onSuccess: () => {
+        toast.success('Agent unarchived');
+      },
+    });
   }
 
   if (isLoading) {

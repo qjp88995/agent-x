@@ -2,6 +2,7 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -96,9 +97,10 @@ export default function CreateAgentPage() {
         temperature: parsedTemperature,
         maxTokens: parsedMaxTokens,
       });
+      toast.success('Agent created successfully');
       await navigate('/agents');
     } catch {
-      setError('Failed to create agent. Please try again.');
+      toast.error('Failed to create agent. Please try again.');
     }
   }
 

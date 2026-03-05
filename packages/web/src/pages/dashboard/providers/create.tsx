@@ -10,6 +10,7 @@ import {
   Loader2,
   XCircle,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -106,7 +107,6 @@ export default function CreateProviderPage() {
   const [apiKey, setApiKey] = useState('');
   const [hasChangedUrl, setHasChangedUrl] = useState(false);
   const [testResult, setTestResult] = useState<TestResultState | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -156,7 +156,6 @@ export default function CreateProviderPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!isFormValid || isSaving) return;
-    setError(null);
 
     try {
       if (isEditMode) {
@@ -168,6 +167,7 @@ export default function CreateProviderPage() {
             ...(apiKey.trim().length > 0 ? { apiKey: apiKey.trim() } : {}),
           },
         });
+        toast.success('Provider updated successfully');
       } else {
         await createProvider.mutateAsync({
           name: name.trim(),
@@ -175,10 +175,11 @@ export default function CreateProviderPage() {
           baseUrl: baseUrl.trim(),
           apiKey: apiKey.trim(),
         });
+        toast.success('Provider created successfully');
       }
       await navigate('/providers');
     } catch {
-      setError(
+      toast.error(
         isEditMode
           ? 'Failed to update provider. Please try again.'
           : 'Failed to create provider. Please try again.'
@@ -245,12 +246,6 @@ export default function CreateProviderPage() {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6">
-            {error && (
-              <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
-                {error}
-              </div>
-            )}
-
             {/* Name */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="name">Name</Label>

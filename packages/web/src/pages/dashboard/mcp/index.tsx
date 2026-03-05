@@ -14,6 +14,7 @@ import {
   Server,
   Trash2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -399,6 +400,7 @@ export default function McpPage() {
     mutation.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
+        toast.success('MCP server deleted');
       },
     });
   }

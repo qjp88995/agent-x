@@ -9,6 +9,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -53,11 +54,25 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
   );
 
   function handleAdd(mcpServerId: string) {
-    addMcp.mutate({ agentId, mcpServerId });
+    addMcp.mutate(
+      { agentId, mcpServerId },
+      {
+        onSuccess: () => {
+          toast.success('MCP server added');
+        },
+      }
+    );
   }
 
   function handleRemove(mcpServerId: string) {
-    removeMcp.mutate({ agentId, mcpServerId });
+    removeMcp.mutate(
+      { agentId, mcpServerId },
+      {
+        onSuccess: () => {
+          toast.success('MCP server removed');
+        },
+      }
+    );
   }
 
   return (
@@ -201,11 +216,18 @@ function BoundServerItem({
   }
 
   function handleSave() {
-    updateMcp.mutate({
-      agentId,
-      mcpServerId: entry.mcpServerId,
-      enabledTools: selectedTools,
-    });
+    updateMcp.mutate(
+      {
+        agentId,
+        mcpServerId: entry.mcpServerId,
+        enabledTools: selectedTools,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Tools configuration saved');
+        },
+      }
+    );
   }
 
   return (

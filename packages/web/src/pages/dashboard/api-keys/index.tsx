@@ -8,6 +8,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -259,6 +260,7 @@ function DeleteConfirmDialog({
     deleteApiKey.mutate(target.id, {
       onSuccess: () => {
         onOpenChange(false);
+        toast.success('API key revoked');
       },
     });
   }
