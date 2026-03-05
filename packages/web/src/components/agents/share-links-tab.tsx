@@ -1,8 +1,19 @@
 import { useState } from 'react';
 
 import { formatDistanceToNow } from 'date-fns';
-import { Check, Copy, Link2, Loader2, XCircle } from 'lucide-react';
+import { Ban, Check, Copy, Link2, Loader2 } from 'lucide-react';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -361,19 +372,41 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                   )}
                 </div>
                 {token.isActive && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() =>
-                      deactivateToken.mutate({
-                        agentId,
-                        versionId: effectiveVersionId,
-                        tokenId: token.id,
-                      })
-                    }
-                  >
-                    <XCircle className="size-4" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="ghost">
+                        <Ban className="size-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Deactivate Share Link
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently disable this share link. Anyone
+                          with this link will no longer be able to start new
+                          conversations. Existing conversations will not be
+                          affected.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          variant="destructive"
+                          onClick={() =>
+                            deactivateToken.mutate({
+                              agentId,
+                              versionId: effectiveVersionId,
+                              tokenId: token.id,
+                            })
+                          }
+                        >
+                          Deactivate
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
               </div>
             ))}
