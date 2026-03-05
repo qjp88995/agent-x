@@ -14,7 +14,6 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
@@ -56,6 +55,19 @@ function getInitials(
   return 'U';
 }
 
+function BrandLogo() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="gradient-bg flex size-8 items-center justify-center rounded-lg">
+        <Bot className="size-4.5 text-white" />
+      </div>
+      <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
+        Agent-X
+      </span>
+    </div>
+  );
+}
+
 function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
   const location = useLocation();
 
@@ -73,13 +85,18 @@ function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
             to={item.href}
             onClick={onNavigate}
             className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 cursor-pointer',
               isActive
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                ? 'bg-sidebar-primary/15 text-sidebar-primary-foreground shadow-sm'
+                : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
             )}
           >
-            <Icon className="size-4 shrink-0" />
+            <Icon
+              className={cn(
+                'size-4 shrink-0',
+                isActive && 'text-sidebar-primary'
+              )}
+            />
             {item.label}
           </Link>
         );
@@ -100,10 +117,10 @@ function UserSection() {
 
   return (
     <div className="px-3 pb-4">
-      <Separator className="mb-4" />
+      <div className="border-sidebar-border/50 mb-4 border-t" />
       <div className="flex items-center gap-3">
         <Avatar className="size-8">
-          <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs">
+          <AvatarFallback className="gradient-bg text-xs font-semibold text-white">
             {initials}
           </AvatarFallback>
         </Avatar>
@@ -116,7 +133,7 @@ function UserSection() {
           variant="ghost"
           size="icon"
           onClick={logout}
-          className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8"
+          className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
           aria-label="Sign out"
         >
           <LogOut className="size-4" />
@@ -129,15 +146,12 @@ function UserSection() {
 function DesktopSidebar() {
   return (
     <aside className="bg-sidebar text-sidebar-foreground border-sidebar-border hidden w-64 shrink-0 border-r md:flex md:flex-col">
-      <div className="flex h-14 items-center px-6">
-        <Link
-          to="/"
-          className="text-lg font-bold tracking-tight text-sidebar-foreground"
-        >
-          Agent-X
+      <div className="flex h-14 items-center px-5">
+        <Link to="/">
+          <BrandLogo />
         </Link>
       </div>
-      <Separator />
+      <div className="border-sidebar-border/50 mx-3 border-t" />
       <ScrollArea className="flex-1 py-4">
         <NavLinks />
       </ScrollArea>
@@ -159,12 +173,12 @@ function MobileSidebar({
         side="left"
         className="bg-sidebar text-sidebar-foreground w-64 p-0"
       >
-        <SheetHeader className="h-14 justify-center px-6">
-          <SheetTitle className="text-lg font-bold tracking-tight text-sidebar-foreground">
-            Agent-X
+        <SheetHeader className="h-14 justify-center px-5">
+          <SheetTitle>
+            <BrandLogo />
           </SheetTitle>
         </SheetHeader>
-        <Separator />
+        <div className="border-sidebar-border/50 mx-3 border-t" />
         <ScrollArea className="flex-1 py-4">
           <NavLinks onNavigate={() => onOpenChange(false)} />
         </ScrollArea>
@@ -184,17 +198,23 @@ export default function DashboardLayout() {
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile top bar */}
-        <header className="bg-background border-b md:hidden">
+        <header className="bg-background/80 border-b backdrop-blur-sm md:hidden">
           <div className="flex h-14 items-center gap-4 px-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
+              className="cursor-pointer"
             >
               <Menu className="size-5" />
             </Button>
-            <span className="text-lg font-bold tracking-tight">Agent-X</span>
+            <div className="flex items-center gap-2">
+              <div className="gradient-bg flex size-6 items-center justify-center rounded-md">
+                <Bot className="size-3.5 text-white" />
+              </div>
+              <span className="text-lg font-bold tracking-tight">Agent-X</span>
+            </div>
           </div>
         </header>
 
