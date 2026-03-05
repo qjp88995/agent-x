@@ -102,7 +102,7 @@ export default function SharedChatPage() {
     <div className="flex h-screen flex-col">
       {/* Header */}
       <header className="flex shrink-0 items-center gap-3 border-b px-4 py-3">
-        <div className="bg-primary/10 flex size-10 items-center justify-center rounded-full">
+        <div className="gradient-bg flex size-10 items-center justify-center rounded-full glow-sm">
           {agentInfo.agentAvatar &&
           /^https?:\/\//.test(agentInfo.agentAvatar) ? (
             <img
@@ -111,7 +111,7 @@ export default function SharedChatPage() {
               className="size-10 rounded-full object-cover"
             />
           ) : (
-            <Bot className="text-primary size-5" />
+            <Bot className="text-white size-5" />
           )}
         </div>
         <div className="flex-1">
@@ -156,8 +156,9 @@ export default function SharedChatPage() {
       />
 
       {/* Footer */}
-      <div className="text-muted-foreground border-t py-2 text-center text-xs">
-        Powered by Agent-X
+      <div className="border-t py-2 text-center text-xs">
+        <span className="text-muted-foreground">Powered by </span>
+        <span className="gradient-text font-semibold">Agent-X</span>
       </div>
     </div>
   );

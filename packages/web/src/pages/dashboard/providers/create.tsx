@@ -218,6 +218,7 @@ export default function CreateProviderPage() {
           size="icon"
           onClick={() => navigate('/providers')}
           aria-label="Back to providers"
+          className="cursor-pointer"
         >
           <ArrowLeft className="size-4" />
         </Button>
@@ -234,7 +235,7 @@ export default function CreateProviderPage() {
       </div>
 
       {/* Form */}
-      <Card className="max-w-2xl">
+      <Card className="max-w-2xl border-border/50">
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle>Provider Details</CardTitle>
@@ -384,7 +385,11 @@ export default function CreateProviderPage() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!isFormValid || isSaving}>
+            <Button
+              type="submit"
+              disabled={!isFormValid || isSaving}
+              className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+            >
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
               {isEditMode ? 'Save Changes' : 'Create Provider'}
             </Button>

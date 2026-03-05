@@ -124,13 +124,20 @@ function Sidebar({
     <div className="flex h-full w-72 flex-col border-r bg-background">
       {/* Back to dashboard + title */}
       <div className="flex h-14 items-center gap-2 px-4">
-        <Button variant="ghost" size="icon" className="size-8" asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 cursor-pointer"
+          asChild
+        >
           <Link to="/agents">
             <ArrowLeft className="size-4" />
             <span className="sr-only">Back to dashboard</span>
           </Link>
         </Button>
-        <span className="text-lg font-bold tracking-tight">Chat</span>
+        <span className="gradient-text text-lg font-bold tracking-tight">
+          Chat
+        </span>
       </div>
       <Separator />
 
@@ -160,6 +167,7 @@ function Sidebar({
               <DropdownMenuItem
                 key={agent.id}
                 onClick={() => onSelectAgent(agent.id)}
+                className="cursor-pointer"
               >
                 {agent.name}
               </DropdownMenuItem>
@@ -176,7 +184,7 @@ function Sidebar({
       {/* New chat button */}
       <div className="px-3 pb-2">
         <Button
-          className="w-full"
+          className="w-full gradient-bg text-white hover:opacity-90 cursor-pointer"
           size="sm"
           onClick={onNewChat}
           disabled={!selectedAgentId}

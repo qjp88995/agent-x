@@ -261,6 +261,7 @@ export default function EditAgentPage() {
               size="icon"
               onClick={() => navigate('/agents')}
               aria-label="Back to agents"
+              className="cursor-pointer"
             >
               <ArrowLeft className="size-4" />
             </Button>
@@ -354,7 +355,11 @@ export default function EditAgentPage() {
               >
                 Cancel
               </Button>
-              <Button onClick={handlePublishVersion} disabled={isPublishing}>
+              <Button
+                onClick={handlePublishVersion}
+                disabled={isPublishing}
+                className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+              >
                 {isPublishing && (
                   <Loader2 className="mr-2 size-4 animate-spin" />
                 )}
@@ -587,7 +592,11 @@ export default function EditAgentPage() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={!isFormValid || isBusy}>
+              <Button
+                type="submit"
+                disabled={!isFormValid || isBusy}
+                className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+              >
                 {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
                 <Save className="mr-2 size-4" />
                 Save Changes

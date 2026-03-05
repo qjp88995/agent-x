@@ -120,6 +120,7 @@ export default function SkillEditorPage() {
           size="icon"
           onClick={() => navigate('/skills')}
           aria-label="Back to skills"
+          className="cursor-pointer"
         >
           <ArrowLeft className="size-4" />
         </Button>
@@ -227,7 +228,11 @@ export default function SkillEditorPage() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!isFormValid || isSaving}>
+            <Button
+              type="submit"
+              disabled={!isFormValid || isSaving}
+              className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+            >
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
               {isEditMode ? 'Save Changes' : 'Create Skill'}
             </Button>
