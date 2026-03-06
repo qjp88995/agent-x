@@ -1,5 +1,4 @@
-import { useEffect, useMemo } from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
@@ -114,17 +113,23 @@ export default function EditAgentPage() {
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [changelog, setChangelog] = useState('');
 
+  const formValues = useMemo<AgentFormValues>(
+    () => ({
+      name: agent?.name ?? '',
+      description: agent?.description ?? '',
+      providerId: agent?.providerId ?? '',
+      modelId: agent?.modelId ?? '',
+      systemPrompt: agent?.systemPrompt ?? '',
+      temperature: agent?.temperature ?? 0.7,
+      maxTokens: agent?.maxTokens ?? 4096,
+    }),
+    [agent]
+  );
+
   const form = useForm<AgentFormValues>({
     resolver: zodResolver(agentSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      providerId: '',
-      modelId: '',
-      systemPrompt: '',
-      temperature: 0.7,
-      maxTokens: 4096,
-    },
+    values: formValues,
+    resetOptions: { keepDirtyValues: true },
     mode: 'onChange',
   });
 
@@ -144,20 +149,6 @@ export default function EditAgentPage() {
     () => selectedProvider?.models.filter(m => m.isActive) ?? [],
     [selectedProvider]
   );
-
-  useEffect(() => {
-    if (agent) {
-      form.reset({
-        name: agent.name,
-        description: agent.description ?? '',
-        providerId: agent.providerId,
-        modelId: agent.modelId,
-        systemPrompt: agent.systemPrompt,
-        temperature: agent.temperature,
-        maxTokens: agent.maxTokens,
-      });
-    }
-  }, [agent, form]);
 
   const isSaving = updateAgent.isPending;
   const isPublishing = publishVersion.isPending;
