@@ -6,6 +6,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronRight, MessageSquare, Share2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import { cn } from '@/lib/utils';
@@ -130,15 +135,18 @@ export function VersionList({ agentId }: VersionListProps) {
         const isExpanded = expandedId === version.id;
 
         return (
-          <div key={version.id} className="overflow-hidden rounded-lg border">
-            <button
-              type="button"
+          <Collapsible
+            key={version.id}
+            open={isExpanded}
+            onOpenChange={open => setExpandedId(open ? version.id : null)}
+            className="overflow-hidden rounded-lg border"
+          >
+            <CollapsibleTrigger
               className={cn(
                 'flex w-full items-center justify-between p-4 text-left transition-colors',
                 'hover:bg-muted/30 cursor-pointer',
                 isExpanded && 'bg-muted/20'
               )}
-              onClick={() => setExpandedId(isExpanded ? null : version.id)}
             >
               <div className="flex items-center gap-3">
                 {isExpanded ? (
@@ -169,10 +177,11 @@ export function VersionList({ agentId }: VersionListProps) {
                   {version._count?.conversations ?? 0}
                 </span>
               </div>
-            </button>
-
-            {isExpanded && <VersionDetail version={version} />}
-          </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <VersionDetail version={version} />
+            </CollapsibleContent>
+          </Collapsible>
         );
       })}
     </div>

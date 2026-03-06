@@ -22,6 +22,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
 import {
   Tooltip,
@@ -188,7 +193,7 @@ function BoundServerItem({
   isRemoving: boolean;
 }) {
   const { t } = useTranslation();
-  const [expanded, setExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
   const [selectedTools, setSelectedTools] = useState<string[]>(
     entry.enabledTools
   );
@@ -235,14 +240,14 @@ function BoundServerItem({
   }
 
   return (
-    <div className="rounded-md border">
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="rounded-md border"
+    >
       <div className="flex items-center justify-between px-4 py-3">
-        <button
-          type="button"
-          className="flex items-center gap-2 text-left"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? (
+        <CollapsibleTrigger className="flex items-center gap-2 text-left">
+          {open ? (
             <ChevronDown className="text-muted-foreground size-4" />
           ) : (
             <ChevronRight className="text-muted-foreground size-4" />
@@ -258,7 +263,7 @@ function BoundServerItem({
                 ? `${serverTools.length} ${t('agentMcp.tools')}`
                 : t('mcp.noTools')}
           </span>
-        </button>
+        </CollapsibleTrigger>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -279,88 +284,88 @@ function BoundServerItem({
         </Tooltip>
       </div>
 
-      {expanded && serverTools.length > 0 && (
-        <>
-          <Separator />
-          <div className="px-4 py-3">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-muted-foreground text-xs">
-                {t('agentMcp.toolsDesc')}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 text-xs"
-                  onClick={handleSelectAll}
-                >
-                  {t('agentMcp.selectAll')}
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 text-xs"
-                  onClick={handleSelectNone}
-                >
-                  {t('agentMcp.clear')}
-                </Button>
+      <CollapsibleContent>
+        {serverTools.length > 0 ? (
+          <>
+            <Separator />
+            <div className="px-4 py-3">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-muted-foreground text-xs">
+                  {t('agentMcp.toolsDesc')}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs"
+                    onClick={handleSelectAll}
+                  >
+                    {t('agentMcp.selectAll')}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs"
+                    onClick={handleSelectNone}
+                  >
+                    {t('agentMcp.clear')}
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              {serverTools.map(tool => (
-                <label
-                  key={tool.name}
-                  className="flex items-start gap-3 rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-pointer"
-                >
-                  <Checkbox
-                    checked={selectedTools.includes(tool.name)}
-                    onCheckedChange={() => handleToggleTool(tool.name)}
-                    className="mt-0.5"
-                  />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-medium">{tool.name}</span>
-                    {tool.description && (
-                      <span className="text-muted-foreground text-xs">
-                        {tool.description}
-                      </span>
+              <div className="flex flex-col gap-2">
+                {serverTools.map(tool => (
+                  <label
+                    key={tool.name}
+                    className="flex items-start gap-3 rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={selectedTools.includes(tool.name)}
+                      onCheckedChange={() => handleToggleTool(tool.name)}
+                      className="mt-0.5"
+                    />
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-medium">{tool.name}</span>
+                      {tool.description && (
+                        <span className="text-muted-foreground text-xs">
+                          {tool.description}
+                        </span>
+                      )}
+                    </div>
+                  </label>
+                ))}
+              </div>
+              {hasChanges && (
+                <div className="mt-3 flex justify-end">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={updateMcp.isPending}
+                  >
+                    {updateMcp.isPending ? (
+                      <Loader2 className="mr-1 size-3 animate-spin" />
+                    ) : (
+                      <Check className="mr-1 size-3" />
                     )}
-                  </div>
-                </label>
-              ))}
+                    {t('agentMcp.saveTools')}
+                  </Button>
+                </div>
+              )}
             </div>
-            {hasChanges && (
-              <div className="mt-3 flex justify-end">
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={updateMcp.isPending}
-                >
-                  {updateMcp.isPending ? (
-                    <Loader2 className="mr-1 size-3 animate-spin" />
-                  ) : (
-                    <Check className="mr-1 size-3" />
-                  )}
-                  {t('agentMcp.saveTools')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {expanded && serverTools.length === 0 && (
-        <>
-          <Separator />
-          <div className="px-4 py-3">
-            <p className="text-muted-foreground text-xs">
-              {t('agentMcp.noTools')}
-            </p>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        ) : (
+          <>
+            <Separator />
+            <div className="px-4 py-3">
+              <p className="text-muted-foreground text-xs">
+                {t('agentMcp.noTools')}
+              </p>
+            </div>
+          </>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

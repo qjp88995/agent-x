@@ -10,6 +10,11 @@ import {
   Wrench,
 } from 'lucide-react';
 
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
 type ToolState =
@@ -84,20 +89,19 @@ export function ToolCallBlock({
   const open = userToggled ? manualOpen : !isDone;
 
   return (
-    <div
+    <Collapsible
+      open={open}
+      onOpenChange={v => {
+        setUserToggled(true);
+        setManualOpen(v);
+      }}
       className={cn(
         'mb-3 overflow-hidden rounded-lg border font-mono text-xs',
         state === 'output-error' ? 'border-red-300/40' : 'border-border/40'
       )}
     >
-      <button
-        type="button"
-        aria-expanded={open}
+      <CollapsibleTrigger
         aria-controls={regionId}
-        onClick={() => {
-          setUserToggled(true);
-          setManualOpen(v => !v);
-        }}
         className="bg-muted/20 hover:bg-muted/40 text-muted-foreground flex w-full items-center gap-2 px-3 py-2 transition-colors"
       >
         {open ? (
@@ -111,8 +115,8 @@ export function ToolCallBlock({
           {t(statusLabelKeys[state])}
         </span>
         <StatusIndicator state={state} />
-      </button>
-      {open && (
+      </CollapsibleTrigger>
+      <CollapsibleContent>
         <div
           id={regionId}
           role="region"
@@ -139,7 +143,7 @@ export function ToolCallBlock({
             <div className="text-red-400">{errorText}</div>
           )}
         </div>
-      )}
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
