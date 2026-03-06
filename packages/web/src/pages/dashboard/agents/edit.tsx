@@ -1,18 +1,13 @@
-import { type FormEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 
 import type { AgentStatus as AgentStatusType } from '@agent-x/shared';
 import { AgentStatus } from '@agent-x/shared';
-import {
-  AlertTriangle,
-  Archive,
-  ArchiveRestore,
-  ArrowLeft,
-  Loader2,
-  Rocket,
-  Save,
-} from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Archive, ArchiveRestore, Loader2, Rocket, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
@@ -20,6 +15,12 @@ import { ConversationsTab } from '@/components/agents/conversations-tab';
 import { ShareLinksTab } from '@/components/agents/share-links-tab';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
 import { VersionList } from '@/components/agents/version-list';
+import {
+  FormFooter,
+  LoadingState,
+  NotFoundState,
+  PageHeader,
+} from '@/components/shared';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +48,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -58,11 +68,6 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { usePublishVersion } from '@/hooks/use-agent-versions';
 import {
   useAgent,
@@ -71,6 +76,7 @@ import {
   useUpdateAgent,
 } from '@/hooks/use-agents';
 import { useProviders } from '@/hooks/use-providers';
+import { type AgentFormValues, agentSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 const STATUS_BADGE_CONFIG: Record<
@@ -104,26 +110,34 @@ export default function EditAgentPage() {
   const archiveAgent = useArchiveAgent();
   const unarchiveAgent = useUnarchiveAgent();
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [providerId, setProviderId] = useState('');
-  const [modelId, setModelId] = useState('');
-  const [systemPrompt, setSystemPrompt] = useState('');
-  const [temperature, setTemperature] = useState('0.7');
-  const [maxTokens, setMaxTokens] = useState('4096');
-  const [error, setError] = useState<string | null>(null);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [changelog, setChangelog] = useState('');
+
+  const form = useForm<AgentFormValues>({
+    resolver: zodResolver(agentSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      providerId: '',
+      modelId: '',
+      systemPrompt: '',
+      temperature: 0.7,
+      maxTokens: 4096,
+    },
+    mode: 'onChange',
+  });
 
   const activeProviders = useMemo(
     () => providers?.filter(p => p.isActive) ?? [],
     [providers]
   );
 
+  const watchedProviderId = form.watch('providerId');
+
   const selectedProvider = useMemo(
-    () => activeProviders.find(p => p.id === providerId),
-    [activeProviders, providerId]
+    () => activeProviders.find(p => p.id === watchedProviderId),
+    [activeProviders, watchedProviderId]
   );
 
   const activeModels = useMemo(
@@ -133,26 +147,17 @@ export default function EditAgentPage() {
 
   useEffect(() => {
     if (agent) {
-      setName(agent.name);
-      setDescription(agent.description ?? '');
-      setProviderId(agent.providerId);
-      setModelId(agent.modelId);
-      setSystemPrompt(agent.systemPrompt);
-      setTemperature(String(agent.temperature));
-      setMaxTokens(String(agent.maxTokens));
+      form.reset({
+        name: agent.name,
+        description: agent.description ?? '',
+        providerId: agent.providerId,
+        modelId: agent.modelId,
+        systemPrompt: agent.systemPrompt,
+        temperature: agent.temperature,
+        maxTokens: agent.maxTokens,
+      });
     }
-  }, [agent]);
-
-  function handleProviderChange(newProviderId: string) {
-    setProviderId(newProviderId);
-    setModelId('');
-  }
-
-  const isFormValid =
-    name.trim().length > 0 &&
-    providerId.length > 0 &&
-    modelId.length > 0 &&
-    systemPrompt.trim().length > 0;
+  }, [agent, form]);
 
   const isSaving = updateAgent.isPending;
   const isPublishing = publishVersion.isPending;
@@ -160,39 +165,20 @@ export default function EditAgentPage() {
   const isUnarchiving = unarchiveAgent.isPending;
   const isBusy = isSaving || isPublishing || isArchiving || isUnarchiving;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!isFormValid || isBusy || !id) return;
-    setError(null);
-
-    const parsedTemperature = parseFloat(temperature);
-    const parsedMaxTokens = parseInt(maxTokens, 10);
-
-    if (
-      isNaN(parsedTemperature) ||
-      parsedTemperature < 0 ||
-      parsedTemperature > 2
-    ) {
-      setError(t('agents.tempError'));
-      return;
-    }
-
-    if (isNaN(parsedMaxTokens) || parsedMaxTokens < 1) {
-      setError(t('agents.maxTokensError'));
-      return;
-    }
+  async function onSubmit(values: AgentFormValues) {
+    if (isBusy || !id) return;
 
     try {
       await updateAgent.mutateAsync({
         id,
         dto: {
-          name: name.trim(),
-          description: description.trim() || undefined,
-          providerId,
-          modelId,
-          systemPrompt: systemPrompt.trim(),
-          temperature: parsedTemperature,
-          maxTokens: parsedMaxTokens,
+          name: values.name.trim(),
+          description: values.description?.trim() || undefined,
+          providerId: values.providerId,
+          modelId: values.modelId,
+          systemPrompt: values.systemPrompt.trim(),
+          temperature: values.temperature,
+          maxTokens: values.maxTokens,
         },
       });
       toast.success(t('agents.updated'));
@@ -203,7 +189,6 @@ export default function EditAgentPage() {
 
   async function handlePublishVersion() {
     if (!id || isBusy) return;
-    setError(null);
 
     try {
       await publishVersion.mutateAsync({
@@ -220,7 +205,6 @@ export default function EditAgentPage() {
 
   async function handleArchiveConfirm() {
     if (!id || isBusy) return;
-    setError(null);
 
     try {
       await archiveAgent.mutateAsync(id);
@@ -233,7 +217,6 @@ export default function EditAgentPage() {
 
   async function handleUnarchive() {
     if (!id || isBusy) return;
-    setError(null);
 
     try {
       await unarchiveAgent.mutateAsync(id);
@@ -248,27 +231,17 @@ export default function EditAgentPage() {
   }
 
   if (isLoadingAgent) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('agents.loadingAgent')}
-        </div>
-      </div>
-    );
+    return <LoadingState message={t('agents.loadingAgent')} />;
   }
 
   if (agentError || !agent) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">{t('agents.notFound')}</h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          {t('agents.notFoundDesc')}
-        </p>
-        <Button variant="outline" onClick={() => navigate('/agents')}>
-          {t('agents.backToAgents')}
-        </Button>
-      </div>
+      <NotFoundState
+        title={t('agents.notFound')}
+        description={t('agents.notFoundDesc')}
+        backLabel={t('agents.backToAgents')}
+        backTo="/agents"
+      />
     );
   }
 
@@ -278,45 +251,27 @@ export default function EditAgentPage() {
     <div className="-m-6 flex min-h-0 flex-1">
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/agents')}
-                  aria-label="Back to agents"
-                  className="cursor-pointer"
-                >
-                  <ArrowLeft className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('agents.backToAgents')}</TooltipContent>
-            </Tooltip>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight">
-                  {t('agents.editAgent')}
-                </h1>
-                <Badge
-                  variant="outline"
-                  className={cn('border-0', statusConfig.className)}
-                >
-                  {t(statusConfig.labelKey)}
-                </Badge>
-                {agent.latestVersion !== null && (
-                  <span className="text-muted-foreground text-sm">
-                    v{agent.latestVersion}
-                  </span>
-                )}
-              </div>
-              <p className="text-muted-foreground text-sm">
-                {t('agents.editAgentDesc')}
-              </p>
-            </div>
-          </div>
-
+        <PageHeader
+          backTo="/agents"
+          backLabel={t('agents.backToAgents')}
+          title={t('agents.editAgent')}
+          description={t('agents.editAgentDesc')}
+          titleExtra={
+            <>
+              <Badge
+                variant="outline"
+                className={cn('border-0', statusConfig.className)}
+              >
+                {t(statusConfig.labelKey)}
+              </Badge>
+              {agent.latestVersion !== null && (
+                <span className="text-muted-foreground text-sm">
+                  v{agent.latestVersion}
+                </span>
+              )}
+            </>
+          }
+        >
           <div className="flex items-center gap-2">
             {agent.status === AgentStatus.ACTIVE && (
               <>
@@ -334,7 +289,7 @@ export default function EditAgentPage() {
                 <Button
                   onClick={() => setPublishDialogOpen(true)}
                   disabled={isBusy}
-                  className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+                  className="gradient-bg cursor-pointer text-white hover:opacity-90"
                 >
                   <Rocket className="mr-2 size-4" />
                   {t('agents.publishVersion')}
@@ -355,7 +310,7 @@ export default function EditAgentPage() {
               </Button>
             )}
           </div>
-        </div>
+        </PageHeader>
 
         {/* Publish Version Dialog */}
         <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
@@ -384,7 +339,7 @@ export default function EditAgentPage() {
               <Button
                 onClick={handlePublishVersion}
                 disabled={isPublishing}
-                className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+                className="gradient-bg cursor-pointer text-white hover:opacity-90"
               >
                 {isPublishing && (
                   <Loader2 className="mr-2 size-4 animate-spin" />
@@ -395,268 +350,323 @@ export default function EditAgentPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Feedback messages */}
-        {error && (
-          <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
-            {error}
-          </div>
-        )}
-
         {/* Tabbed form */}
-        <form onSubmit={handleSubmit}>
-          <Tabs defaultValue="basic">
-            <TabsList>
-              <TabsTrigger value="basic">{t('agents.basicInfo')}</TabsTrigger>
-              <TabsTrigger value="prompt">
-                {t('agents.systemPrompt')}
-              </TabsTrigger>
-              <TabsTrigger value="mcp">{t('agents.mcpServers')}</TabsTrigger>
-              <TabsTrigger value="versions">{t('agents.versions')}</TabsTrigger>
-              <TabsTrigger value="share-links">
-                {t('agents.shareLinks')}
-              </TabsTrigger>
-              <TabsTrigger value="conversations">
-                {t('agents.conversations')}
-              </TabsTrigger>
-            </TabsList>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <Tabs defaultValue="basic">
+              <TabsList>
+                <TabsTrigger value="basic">{t('agents.basicInfo')}</TabsTrigger>
+                <TabsTrigger value="prompt">
+                  {t('agents.systemPrompt')}
+                </TabsTrigger>
+                <TabsTrigger value="mcp">{t('agents.mcpServers')}</TabsTrigger>
+                <TabsTrigger value="versions">
+                  {t('agents.versions')}
+                </TabsTrigger>
+                <TabsTrigger value="share-links">
+                  {t('agents.shareLinks')}
+                </TabsTrigger>
+                <TabsTrigger value="conversations">
+                  {t('agents.conversations')}
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Basic Info Tab */}
-            <TabsContent value="basic">
-              <Card className="max-w-4xl">
-                <CardHeader>
-                  <CardTitle>{t('agents.basicInfoTitle')}</CardTitle>
-                  <CardDescription>{t('agents.basicInfoDesc')}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-6">
-                  {/* Name */}
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="name">{t('common.name')}</Label>
-                    <Input
-                      id="name"
-                      placeholder={t('agents.namePlaceholder')}
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      disabled={isBusy}
-                      required
+              {/* Basic Info Tab */}
+              <TabsContent value="basic">
+                <Card className="max-w-4xl">
+                  <CardHeader>
+                    <CardTitle>{t('agents.basicInfoTitle')}</CardTitle>
+                    <CardDescription>
+                      {t('agents.basicInfoDesc')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-6">
+                    {/* Name */}
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('common.name')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={t('agents.namePlaceholder')}
+                              disabled={isBusy}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  {/* Description */}
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="description">
-                      {t('common.description')}
-                    </Label>
-                    <Textarea
-                      id="description"
-                      placeholder={t('agents.descPlaceholder')}
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      disabled={isBusy}
-                      rows={3}
+                    {/* Description */}
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('common.description')}</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder={t('agents.descPlaceholder')}
+                              disabled={isBusy}
+                              rows={3}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  {/* Provider */}
-                  <div className="flex flex-col gap-2">
-                    <Label>{t('agents.provider')}</Label>
-                    <Select
-                      value={providerId || undefined}
-                      onValueChange={handleProviderChange}
-                      disabled={isBusy || isLoadingProviders}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={
-                            isLoadingProviders
-                              ? t('agents.loadingProviders')
-                              : t('agents.selectProvider')
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {activeProviders.map(provider => (
-                          <SelectItem key={provider.id} value={provider.id}>
-                            {provider.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Model */}
-                  <div className="flex flex-col gap-2">
-                    <Label>{t('agents.model')}</Label>
-                    <Select
-                      value={modelId || undefined}
-                      onValueChange={setModelId}
-                      disabled={isBusy || !providerId}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={
-                            !providerId
-                              ? t('agents.selectProviderFirst')
-                              : t('agents.selectModel')
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {activeModels.map(model => (
-                          <SelectItem key={model.id} value={model.modelId}>
-                            {model.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Temperature */}
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="temperature">
-                      {t('agents.temperature')}{' '}
-                      <span className="text-muted-foreground font-normal">
-                        ({temperature})
-                      </span>
-                    </Label>
-                    <div className="flex items-center gap-4">
-                      <input
-                        id="temperature"
-                        type="range"
-                        min="0"
-                        max="2"
-                        step="0.1"
-                        value={temperature}
-                        onChange={e => setTemperature(e.target.value)}
-                        disabled={isBusy}
-                        className="flex-1"
-                      />
-                      <Input
-                        type="number"
-                        min="0"
-                        max="2"
-                        step="0.1"
-                        value={temperature}
-                        onChange={e => setTemperature(e.target.value)}
-                        disabled={isBusy}
-                        className="w-20"
-                      />
-                    </div>
-                    <p className="text-muted-foreground text-xs leading-relaxed">
-                      {t('agents.temperatureHint')}
-                    </p>
-                  </div>
-
-                  {/* Max Tokens */}
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="maxTokens">{t('agents.maxTokens')}</Label>
-                    <Input
-                      id="maxTokens"
-                      type="number"
-                      min="1"
-                      placeholder={t('agents.maxTokensPlaceholder')}
-                      value={maxTokens}
-                      onChange={e => setMaxTokens(e.target.value)}
-                      disabled={isBusy}
+                    {/* Provider */}
+                    <FormField
+                      control={form.control}
+                      name="providerId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('agents.provider')}</FormLabel>
+                          <Select
+                            value={field.value || undefined}
+                            onValueChange={v => {
+                              field.onChange(v);
+                              form.setValue('modelId', '');
+                            }}
+                            disabled={isBusy || isLoadingProviders}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue
+                                  placeholder={
+                                    isLoadingProviders
+                                      ? t('agents.loadingProviders')
+                                      : t('agents.selectProvider')
+                                  }
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {activeProviders.map(provider => (
+                                <SelectItem
+                                  key={provider.id}
+                                  value={provider.id}
+                                >
+                                  {provider.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                </CardContent>
-              </Card>
 
-              <div className="flex max-w-4xl justify-end gap-3 border-t pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/agents')}
-                  disabled={isBusy}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!isFormValid || isBusy}
-                  className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-                >
-                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-                  <Save className="mr-2 size-4" />
-                  {t('common.save')}
-                </Button>
-              </div>
-            </TabsContent>
+                    {/* Model */}
+                    <FormField
+                      control={form.control}
+                      name="modelId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('agents.model')}</FormLabel>
+                          <Select
+                            value={field.value || undefined}
+                            onValueChange={field.onChange}
+                            disabled={isBusy || !watchedProviderId}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue
+                                  placeholder={
+                                    !watchedProviderId
+                                      ? t('agents.selectProviderFirst')
+                                      : t('agents.selectModel')
+                                  }
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {activeModels.map(model => (
+                                <SelectItem
+                                  key={model.id}
+                                  value={model.modelId}
+                                >
+                                  {model.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            {/* System Prompt Tab */}
-            <TabsContent value="prompt">
-              <Card className="max-w-4xl">
-                <CardHeader>
-                  <CardTitle>{t('agents.systemPrompt')}</CardTitle>
-                  <CardDescription>
-                    {t('agents.systemPromptDesc')}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Textarea
-                    placeholder={t('agents.systemPromptPlaceholder')}
-                    value={systemPrompt}
-                    onChange={e => setSystemPrompt(e.target.value)}
-                    disabled={isBusy}
-                    required
-                    rows={20}
-                    className="font-mono text-sm"
-                  />
-                </CardContent>
-              </Card>
+                    {/* Temperature */}
+                    <FormField
+                      control={form.control}
+                      name="temperature"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {t('agents.temperature')}{' '}
+                            <span className="text-muted-foreground font-normal">
+                              ({field.value})
+                            </span>
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-4">
+                              <input
+                                type="range"
+                                min="0"
+                                max="2"
+                                step="0.1"
+                                value={field.value}
+                                onChange={e =>
+                                  field.onChange(parseFloat(e.target.value))
+                                }
+                                disabled={isBusy}
+                                className="flex-1"
+                              />
+                              <Input
+                                type="number"
+                                min="0"
+                                max="2"
+                                step="0.1"
+                                value={field.value}
+                                onChange={e =>
+                                  field.onChange(
+                                    parseFloat(e.target.value) || 0
+                                  )
+                                }
+                                disabled={isBusy}
+                                className="w-20"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            {t('agents.temperatureHint')}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <div className="flex max-w-4xl justify-end gap-3 border-t pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/agents')}
-                  disabled={isBusy}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!isFormValid || isBusy}
-                  className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-                >
-                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-                  <Save className="mr-2 size-4" />
-                  {t('common.save')}
-                </Button>
-              </div>
-            </TabsContent>
+                    {/* Max Tokens */}
+                    <FormField
+                      control={form.control}
+                      name="maxTokens"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('agents.maxTokens')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              placeholder={t('agents.maxTokensPlaceholder')}
+                              value={field.value}
+                              onChange={e =>
+                                field.onChange(
+                                  parseInt(e.target.value, 10) || 0
+                                )
+                              }
+                              disabled={isBusy}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
 
-            {/* MCP Servers Tab */}
-            <TabsContent value="mcp">
-              <AgentMcpTab agentId={id} currentMcpServers={agent.mcpServers} />
-            </TabsContent>
+                <FormFooter
+                  onCancel={() => navigate('/agents')}
+                  isSaving={isSaving}
+                  disabled={!form.formState.isValid}
+                  submitLabel={t('common.save')}
+                  cancelLabel={t('common.cancel')}
+                  maxWidth="max-w-4xl"
+                  icon={<Save className="mr-2 size-4" />}
+                />
+              </TabsContent>
 
-            {/* Versions Tab */}
-            <TabsContent value="versions">
-              <Card className="max-w-4xl">
-                <CardHeader>
-                  <CardTitle>{t('agents.publishedVersions')}</CardTitle>
-                  <CardDescription>
-                    {t('agents.publishedVersionsDesc')}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <VersionList agentId={id} />
-                </CardContent>
-              </Card>
-            </TabsContent>
+              {/* System Prompt Tab */}
+              <TabsContent value="prompt">
+                <Card className="max-w-4xl">
+                  <CardHeader>
+                    <CardTitle>{t('agents.systemPrompt')}</CardTitle>
+                    <CardDescription>
+                      {t('agents.systemPromptDesc')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <FormField
+                      control={form.control}
+                      name="systemPrompt"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea
+                              placeholder={t('agents.systemPromptPlaceholder')}
+                              disabled={isBusy}
+                              rows={20}
+                              className="font-mono text-sm"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
 
-            {/* Share Links Tab */}
-            <TabsContent value="share-links">
-              <ShareLinksTab agentId={id} />
-            </TabsContent>
+                <FormFooter
+                  onCancel={() => navigate('/agents')}
+                  isSaving={isSaving}
+                  disabled={!form.formState.isValid}
+                  submitLabel={t('common.save')}
+                  cancelLabel={t('common.cancel')}
+                  maxWidth="max-w-4xl"
+                  icon={<Save className="mr-2 size-4" />}
+                />
+              </TabsContent>
 
-            {/* Conversations Tab */}
-            <TabsContent value="conversations">
-              <ConversationsTab agentId={id} />
-            </TabsContent>
-          </Tabs>
-        </form>
+              {/* MCP Servers Tab */}
+              <TabsContent value="mcp">
+                <AgentMcpTab
+                  agentId={id}
+                  currentMcpServers={agent.mcpServers}
+                />
+              </TabsContent>
+
+              {/* Versions Tab */}
+              <TabsContent value="versions">
+                <Card className="max-w-4xl">
+                  <CardHeader>
+                    <CardTitle>{t('agents.publishedVersions')}</CardTitle>
+                    <CardDescription>
+                      {t('agents.publishedVersionsDesc')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <VersionList agentId={id} />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Share Links Tab */}
+              <TabsContent value="share-links">
+                <ShareLinksTab agentId={id} />
+              </TabsContent>
+
+              {/* Conversations Tab */}
+              <TabsContent value="conversations">
+                <ConversationsTab agentId={id} />
+              </TabsContent>
+            </Tabs>
+          </form>
+        </Form>
       </div>
 
       {/* Test Chat Panel */}

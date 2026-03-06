@@ -15,6 +15,7 @@ interface PageHeaderProps {
   readonly backLabel: string;
   readonly title: string;
   readonly description: string;
+  readonly titleExtra?: ReactNode;
   readonly children?: ReactNode;
 }
 
@@ -23,6 +24,7 @@ export function PageHeader({
   backLabel,
   title,
   description,
+  titleExtra,
   children,
 }: PageHeaderProps) {
   const navigate = useNavigate();
@@ -45,7 +47,10 @@ export function PageHeader({
           <TooltipContent>{backLabel}</TooltipContent>
         </Tooltip>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+            {titleExtra}
+          </div>
           <p className="text-muted-foreground text-sm">{description}</p>
         </div>
       </div>
