@@ -16,6 +16,13 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
@@ -200,25 +207,29 @@ export default function CreateAgentPage() {
 
             {/* Provider */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="provider">{t('agents.provider')}</Label>
-              <select
-                id="provider"
-                value={providerId}
-                onChange={e => handleProviderChange(e.target.value)}
+              <Label>{t('agents.provider')}</Label>
+              <Select
+                value={providerId || undefined}
+                onValueChange={handleProviderChange}
                 disabled={isSaving || isLoadingProviders}
-                className="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-0.75 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <option value="">
-                  {isLoadingProviders
-                    ? t('agents.loadingProviders')
-                    : t('agents.selectProvider')}
-                </option>
-                {activeProviders.map(provider => (
-                  <option key={provider.id} value={provider.id}>
-                    {provider.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      isLoadingProviders
+                        ? t('agents.loadingProviders')
+                        : t('agents.selectProvider')
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {activeProviders.map(provider => (
+                    <SelectItem key={provider.id} value={provider.id}>
+                      {provider.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-muted-foreground text-xs">
                 {t('agents.providerHint')}
               </p>
@@ -226,25 +237,29 @@ export default function CreateAgentPage() {
 
             {/* Model */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="model">{t('agents.model')}</Label>
-              <select
-                id="model"
-                value={modelId}
-                onChange={e => setModelId(e.target.value)}
+              <Label>{t('agents.model')}</Label>
+              <Select
+                value={modelId || undefined}
+                onValueChange={setModelId}
                 disabled={isSaving || !providerId}
-                className="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-0.75 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <option value="">
-                  {!providerId
-                    ? t('agents.selectProviderFirst')
-                    : t('agents.selectModel')}
-                </option>
-                {activeModels.map(model => (
-                  <option key={model.id} value={model.modelId}>
-                    {model.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      !providerId
+                        ? t('agents.selectProviderFirst')
+                        : t('agents.selectModel')
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {activeModels.map(model => (
+                    <SelectItem key={model.id} value={model.modelId}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-muted-foreground text-xs">
                 {t('agents.modelHint')}
               </p>

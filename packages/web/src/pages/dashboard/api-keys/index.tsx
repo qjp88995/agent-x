@@ -38,6 +38,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Table,
   TableBody,
   TableCell,
@@ -219,20 +226,25 @@ function CreateKeyDialog({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="key-agent">{t('apiKeys.agentOptional')}</Label>
-              <select
-                id="key-agent"
-                className="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-0.75 disabled:cursor-not-allowed disabled:opacity-50"
-                value={agentId}
-                onChange={e => setAgentId(e.target.value)}
+              <Label>{t('apiKeys.agentOptional')}</Label>
+              <Select
+                value={agentId || '__any__'}
+                onValueChange={v => setAgentId(v === '__any__' ? '' : v)}
               >
-                <option value="">{t('apiKeys.anyAgent')}</option>
-                {agents?.map(agent => (
-                  <option key={agent.id} value={agent.id}>
-                    {agent.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t('apiKeys.anyAgent')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__any__">
+                    {t('apiKeys.anyAgent')}
+                  </SelectItem>
+                  {agents?.map(agent => (
+                    <SelectItem key={agent.id} value={agent.id}>
+                      {agent.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-muted-foreground text-xs">
                 {t('apiKeys.agentHint')}
               </p>
