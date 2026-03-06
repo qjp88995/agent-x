@@ -94,7 +94,7 @@ function AlertDialogContent({
         >
           <div
             className={cn(
-              'alert-bar-animate h-[3px] w-full bg-gradient-to-r',
+              'alert-bar-animate h-0.75 w-full bg-linear-to-r',
               config.bar
             )}
           />
