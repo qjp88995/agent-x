@@ -257,6 +257,7 @@ function CreateKeyDialog({
                 onChange={setExpiresAt}
                 placeholder={t('apiKeys.selectExpiration')}
                 fromDate={new Date()}
+                clearable
               />
             </div>
 
@@ -267,6 +268,7 @@ function CreateKeyDialog({
               <Button
                 onClick={handleCreate}
                 disabled={!name.trim() || createApiKey.isPending}
+                className="gradient-bg text-white hover:opacity-90 cursor-pointer"
               >
                 {createApiKey.isPending
                   ? t('apiKeys.creating')
