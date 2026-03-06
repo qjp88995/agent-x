@@ -191,7 +191,9 @@ function EmptyState({ filter }: { readonly filter: FilterTab }) {
   const message =
     filter === 'all'
       ? t('agents.noAgentsDesc')
-      : t('agents.noFilteredAgents', { filter: filter.toLowerCase() });
+      : t('agents.noFilteredAgents', {
+          filter: t(STATUS_BADGE_CONFIG[filter as AgentStatusType].labelKey),
+        });
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
