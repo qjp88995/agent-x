@@ -11,6 +11,16 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -269,24 +279,22 @@ function DeleteConfirmDialog({
   }
 
   return (
-    <Dialog
+    <AlertDialog
       open={target !== null}
       onOpenChange={open => {
         if (!open) onOpenChange(false);
       }}
     >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('apiKeys.revokeTitle')}</DialogTitle>
-          <DialogDescription>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('apiKeys.revokeTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>
             {t('apiKeys.revokeConfirm', { name: target?.name })}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">{t('common.cancel')}</Button>
-          </DialogClose>
-          <Button
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogAction
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteApiKey.isPending}
@@ -294,10 +302,10 @@ function DeleteConfirmDialog({
             {deleteApiKey.isPending
               ? t('apiKeys.revoking')
               : t('apiKeys.revokeKey')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
