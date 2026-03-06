@@ -238,7 +238,7 @@ export default function AgentListPage() {
   function handleArchive(agent: AgentResponse) {
     archiveAgent.mutate(agent.id, {
       onSuccess: () => {
-        toast.success(t('agents.archived'));
+        toast.success(t('agents.archiveSuccess'));
       },
     });
   }
@@ -246,7 +246,7 @@ export default function AgentListPage() {
   function handleUnarchive(agent: AgentResponse) {
     unarchiveAgent.mutate(agent.id, {
       onSuccess: () => {
-        toast.success(t('agents.unarchived'));
+        toast.success(t('agents.unarchiveSuccess'));
       },
     });
   }

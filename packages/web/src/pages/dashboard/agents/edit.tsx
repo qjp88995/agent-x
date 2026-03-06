@@ -201,7 +201,7 @@ export default function EditAgentPage() {
 
     try {
       await archiveAgent.mutateAsync(id);
-      toast.success(t('agents.archived'));
+      toast.success(t('agents.archiveSuccess'));
     } catch {
       toast.error(t('agents.archiveFailed'));
     }
@@ -213,7 +213,7 @@ export default function EditAgentPage() {
 
     try {
       await unarchiveAgent.mutateAsync(id);
-      toast.success(t('agents.unarchived'));
+      toast.success(t('agents.unarchiveSuccess'));
     } catch {
       toast.error(t('agents.unarchiveFailed'));
     }
