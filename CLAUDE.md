@@ -32,7 +32,7 @@ packages/
 │       ├── hooks/          # React Query hooks (use-agents, use-chat, use-chat-stream, etc.)
 │       ├── pages/          # Route pages (login, register, dashboard/*, chat/)
 │       ├── stores/         # Zustand v5 stores (auth-store)
-│       └── lib/            # Utilities (api.ts with auth interceptor, utils.ts)
+│       └── lib/            # Utilities (api.ts with auth interceptor, utils.ts, message-utils.ts)
 └── shared/          # Shared TypeScript types (DTOs, responses, enums)
     └── src/types/   # auth, provider, agent, skill, mcp, chat, api-key
 ```
@@ -109,6 +109,8 @@ pnpm format:check # prettier --check
 - Skills content is concatenated into the system prompt
 - Chat streaming uses `pipeTextStreamToResponse()` server-side
 - Client-side streaming via native `fetch` + `ReadableStream` in `useChatStream` hook
+- Chat history rendering unified via `MessageList` component (`components/chat/message-list.tsx`)
+- Backend `MessageResponse[]` → AI SDK `UIMessage[]` conversion via `toUIMessages()` (`lib/message-utils.ts`)
 
 ### Auth
 
