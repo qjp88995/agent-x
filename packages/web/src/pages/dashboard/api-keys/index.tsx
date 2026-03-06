@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { Locale } from 'date-fns';
 import { format } from 'date-fns';
 import {
@@ -65,6 +67,7 @@ import {
   useDeleteApiKey,
 } from '@/hooks/use-api-keys';
 import { useDateLocale } from '@/hooks/use-date-locale';
+import { type CreateApiKeyFormValues, createApiKeySchema } from '@/lib/schemas';
 
 function formatDate(dateStr: string | null, locale: Locale): string {
   if (!dateStr) return '-';
@@ -120,32 +123,35 @@ function CreateKeyDialog({
   readonly onOpenChange: (open: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const [name, setName] = useState('');
-  const [agentId, setAgentId] = useState('');
-  const [expiresAt, setExpiresAt] = useState<Date | undefined>();
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const createApiKey = useCreateApiKey();
   const { data: agents } = useAgents();
 
+  const form = useForm<CreateApiKeyFormValues>({
+    resolver: zodResolver(createApiKeySchema),
+    defaultValues: { name: '', agentId: '', expiresAt: undefined },
+    mode: 'onChange',
+  });
+
   function handleClose(nextOpen: boolean) {
     if (!nextOpen) {
-      setName('');
-      setAgentId('');
-      setExpiresAt(undefined);
+      form.reset();
       setCreatedKey(null);
       setCopied(false);
     }
     onOpenChange(nextOpen);
   }
 
-  function handleCreate() {
+  function handleCreate(values: CreateApiKeyFormValues) {
     createApiKey.mutate(
       {
-        name,
-        agentId: agentId || undefined,
-        expiresAt: expiresAt ? expiresAt.toISOString() : undefined,
+        name: values.name,
+        agentId: values.agentId || undefined,
+        expiresAt: values.expiresAt
+          ? values.expiresAt.toISOString()
+          : undefined,
       },
       {
         onSuccess: data => {
@@ -214,37 +220,47 @@ function CreateKeyDialog({
             </DialogFooter>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(handleCreate)}
+            className="flex flex-col gap-4"
+          >
             <div className="flex flex-col gap-2">
               <Label htmlFor="key-name">{t('common.name')}</Label>
               <Input
                 id="key-name"
                 placeholder={t('apiKeys.namePlaceholder')}
-                value={name}
-                onChange={e => setName(e.target.value)}
+                {...form.register('name')}
               />
             </div>
 
             <div className="flex flex-col gap-2">
               <Label>{t('apiKeys.agentOptional')}</Label>
-              <Select
-                value={agentId || '__any__'}
-                onValueChange={v => setAgentId(v === '__any__' ? '' : v)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('apiKeys.anyAgent')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__any__">
-                    {t('apiKeys.anyAgent')}
-                  </SelectItem>
-                  {agents?.map(agent => (
-                    <SelectItem key={agent.id} value={agent.id}>
-                      {agent.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                control={form.control}
+                name="agentId"
+                render={({ field }) => (
+                  <Select
+                    value={field.value || '__any__'}
+                    onValueChange={v =>
+                      field.onChange(v === '__any__' ? '' : v)
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('apiKeys.anyAgent')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__any__">
+                        {t('apiKeys.anyAgent')}
+                      </SelectItem>
+                      {agents?.map(agent => (
+                        <SelectItem key={agent.id} value={agent.id}>
+                          {agent.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <p className="text-muted-foreground text-xs">
                 {t('apiKeys.agentHint')}
               </p>
@@ -252,30 +268,38 @@ function CreateKeyDialog({
 
             <div className="flex flex-col gap-2">
               <Label>{t('apiKeys.expiration')}</Label>
-              <DatePicker
-                value={expiresAt}
-                onChange={setExpiresAt}
-                placeholder={t('apiKeys.selectExpiration')}
-                fromDate={new Date()}
-                clearable
+              <Controller
+                control={form.control}
+                name="expiresAt"
+                render={({ field }) => (
+                  <DatePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder={t('apiKeys.selectExpiration')}
+                    fromDate={new Date()}
+                    clearable
+                  />
+                )}
               />
             </div>
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">{t('common.cancel')}</Button>
+                <Button type="button" variant="outline">
+                  {t('common.cancel')}
+                </Button>
               </DialogClose>
               <Button
-                onClick={handleCreate}
-                disabled={!name.trim() || createApiKey.isPending}
-                className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+                type="submit"
+                disabled={!form.formState.isValid || createApiKey.isPending}
+                className="gradient-bg cursor-pointer text-white hover:opacity-90"
               >
                 {createApiKey.isPending
                   ? t('apiKeys.creating')
                   : t('apiKeys.createKey')}
               </Button>
             </DialogFooter>
-          </div>
+          </form>
         )}
       </DialogContent>
     </Dialog>
