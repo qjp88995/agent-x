@@ -394,7 +394,7 @@ export default function SkillsPage() {
           {!marketSkills || marketSkills.length === 0 ? (
             <EmptyState tab="marketplace" isAdmin={isAdmin} />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {marketSkills.map(skill => (
                 <MarketplaceCard
                   key={skill.id}
@@ -412,7 +412,7 @@ export default function SkillsPage() {
           {!customSkills || customSkills.length === 0 ? (
             <EmptyState tab="custom" isAdmin={isAdmin} />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {customSkills.map(skill => (
                 <SkillCard
                   key={skill.id}

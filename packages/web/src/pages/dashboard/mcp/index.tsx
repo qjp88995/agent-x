@@ -443,7 +443,7 @@ export default function McpPage() {
           {!marketServers || marketServers.length === 0 ? (
             <EmptyState tab="marketplace" isAdmin={isAdmin} />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {marketServers.map(server => (
                 <MarketplaceCard
                   key={server.id}
@@ -460,7 +460,7 @@ export default function McpPage() {
           {!customServers || customServers.length === 0 ? (
             <EmptyState tab="custom" isAdmin={isAdmin} />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {customServers.map(server => (
                 <McpServerCard
                   key={server.id}
