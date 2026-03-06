@@ -107,9 +107,9 @@ function MarketplaceCard({
     testMcpServer.mutate(server.id, {
       onSuccess: result => {
         if (result.success) {
-          toast.success(result.message);
+          toast.success(t('mcp.testSuccess'));
         } else {
-          toast.error(result.message);
+          toast.error(t('mcp.testFailed'));
         }
       },
       onError: () => {
@@ -204,9 +204,9 @@ function McpServerCard({
     testMcpServer.mutate(server.id, {
       onSuccess: result => {
         if (result.success) {
-          toast.success(result.message);
+          toast.success(t('mcp.testSuccess'));
         } else {
-          toast.error(result.message);
+          toast.error(t('mcp.testFailed'));
         }
       },
       onError: () => {

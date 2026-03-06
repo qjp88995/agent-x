@@ -133,9 +133,9 @@ export default function CreateProviderPage() {
     testProvider.mutate(id, {
       onSuccess: result => {
         if (result.success) {
-          toast.success(result.message);
+          toast.success(t('providers.testSuccess'));
         } else {
-          toast.error(result.message);
+          toast.error(t('providers.testFailed'));
         }
       },
       onError: () => {
