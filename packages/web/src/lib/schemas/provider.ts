@@ -6,13 +6,13 @@ const protocolValues = Object.values(ProviderProtocol) as [string, ...string[]];
 export const createProviderSchema = z.object({
   name: z.string().min(1),
   protocol: z.enum(protocolValues),
-  baseUrl: z.string().url(),
+  baseUrl: z.url(),
   apiKey: z.string().min(1),
 });
 
 export const updateProviderSchema = z.object({
   name: z.string().min(1),
-  baseUrl: z.string().url(),
+  baseUrl: z.url(),
   apiKey: z.string().optional(),
 });
 

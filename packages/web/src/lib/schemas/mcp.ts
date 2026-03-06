@@ -17,7 +17,7 @@ export const mcpSchema = z
     if (data.transport === McpTransport.STDIO) {
       if (!data.command?.trim()) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'Command is required for STDIO transport',
           path: ['command'],
         });
@@ -25,7 +25,7 @@ export const mcpSchema = z
     } else {
       if (!data.url?.trim()) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'URL is required for HTTP/SSE transport',
           path: ['url'],
         });
@@ -37,14 +37,14 @@ export const mcpSchema = z
         const parsed = JSON.parse(data.headers);
         if (typeof parsed !== 'object' || Array.isArray(parsed)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: 'Headers must be a JSON object',
             path: ['headers'],
           });
         }
       } catch {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'Headers must be valid JSON',
           path: ['headers'],
         });
