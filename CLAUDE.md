@@ -19,16 +19,17 @@ packages/
 │       └── modules/
 │           ├── auth/       # JWT auth, guards, decorators (@Public, @CurrentUser)
 │           ├── provider/   # Model provider CRUD + encryption + model sync
-│           ├── agent/      # Agent lifecycle (DRAFT→PUBLISHED→ARCHIVED), skill/mcp binding, versions, share tokens
+│           ├── agent/      # Agent lifecycle (ACTIVE→ARCHIVED), skill/mcp binding, versions, share tokens
 │           ├── skill/      # Skill marketplace (admin) + custom skills management
 │           ├── mcp/        # MCP server marketplace + custom servers + client
-│           ├── chat/       # Streaming chat (Vercel AI SDK) + AgentRuntimeService
+│           ├── chat/       # Streaming chat (Vercel AI SDK) + AgentRuntimeService + StreamManager
+│           ├── public-chat/ # Public shared chat via share tokens (@Public endpoints)
 │           ├── api-key/    # API key management (sk-agx-... prefix)
 │           └── openai-compat/  # /v1/chat/completions (OpenAI wire format)
 ├── web/             # React 19 frontend (Vite 6, Tailwind CSS v4, shadcn/ui)
 │   └── src/
 │       ├── components/     # UI components (chat/, agents/, auth/, ui/)
-│       ├── hooks/          # React Query hooks (use-agents, use-chat, use-chat-stream, etc.)
+│       ├── hooks/          # React Query hooks (use-agents, use-chat, use-shared-chat, etc.)
 │       ├── i18n.ts         # i18next config (browser language detection + localStorage)
 │       ├── locales/        # Translation files (en.json, zh.json)
 │       ├── pages/          # Route pages (login, register, dashboard/*, chat/, shared/)
@@ -100,7 +101,7 @@ pnpm format:check # prettier --check
 
 - Config file: `packages/server/prisma.config.ts` (NOT inside prisma/)
 - Schema: `packages/server/prisma/schema.prisma`
-- Generated client: `packages/server/src/generated/prisma/client` (import from here)
+- Generated client: `packages/server/src/generated/prisma` (import `client` from here, e.g. `from '../../generated/prisma/client'`)
 - Uses `PrismaPg` adapter (NOT url-based connection)
 - Datasource URL is in prisma.config.ts, NOT in schema.prisma
 
@@ -109,8 +110,8 @@ pnpm format:check # prettier --check
 - `AgentRuntimeService` (`chat/agent-runtime.service.ts`) uses Vercel AI SDK `streamText`
 - Supports 7 provider protocols: OpenAI, Anthropic, Gemini, DeepSeek, Qwen (Alibaba), Zhipu, Moonshot
 - Skills content is concatenated into the system prompt
-- Chat streaming uses `pipeTextStreamToResponse()` server-side
-- Client-side streaming via native `fetch` + `ReadableStream` in `useChatStream` hook
+- Chat streaming uses `pipeUIMessageStreamToResponse()` server-side with `StreamManagerService` for buffered replay
+- Client-side streaming via native `fetch` + `ReadableStream` in `use-chat` and `use-shared-chat` hooks
 - Chat history rendering unified via `MessageList` component (`components/chat/message-list.tsx`)
 - Backend `MessageResponse[]` → AI SDK `UIMessage[]` conversion via `toUIMessages()` (`lib/message-utils.ts`)
 
