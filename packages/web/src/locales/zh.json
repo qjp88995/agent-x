@@ -154,6 +154,8 @@
     "deleteAgent": "删除智能体",
     "deleteConfirm": "确定要删除“{{name}}”吗？此操作无法撤销。",
     "deleted": "智能体已删除",
+    "archiveAgent": "归档智能体",
+    "archiveConfirm": "确定要归档“{{name}}”吗？归档后的智能体将无法用于对话或 API 调用。",
     "archiveSuccess": "智能体已归档",
     "unarchiveSuccess": "智能体已取消归档",
     "created": "智能体创建成功",

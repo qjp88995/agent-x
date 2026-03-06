@@ -154,6 +154,8 @@
     "deleteAgent": "Delete Agent",
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "deleted": "Agent deleted",
+    "archiveAgent": "Archive Agent",
+    "archiveConfirm": "Are you sure you want to archive \"{{name}}\"? Archived agents cannot be used for chat or API calls.",
     "archiveSuccess": "Agent archived",
     "unarchiveSuccess": "Agent unarchived",
     "created": "Agent created successfully",

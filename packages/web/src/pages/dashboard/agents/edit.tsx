@@ -20,6 +20,16 @@ import { ConversationsTab } from '@/components/agents/conversations-tab';
 import { ShareLinksTab } from '@/components/agents/share-links-tab';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
 import { VersionList } from '@/components/agents/version-list';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -91,6 +101,7 @@ export default function EditAgentPage() {
   const [maxTokens, setMaxTokens] = useState('4096');
   const [error, setError] = useState<string | null>(null);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [changelog, setChangelog] = useState('');
 
   const activeProviders = useMemo(
@@ -195,12 +206,13 @@ export default function EditAgentPage() {
     }
   }
 
-  async function handleArchive() {
+  async function handleArchiveConfirm() {
     if (!id || isBusy) return;
     setError(null);
 
     try {
       await archiveAgent.mutateAsync(id);
+      setArchiveDialogOpen(false);
       toast.success(t('agents.archiveSuccess'));
     } catch {
       toast.error(t('agents.archiveFailed'));
@@ -301,7 +313,7 @@ export default function EditAgentPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={handleArchive}
+                  onClick={() => setArchiveDialogOpen(true)}
                   disabled={isBusy}
                 >
                   {isArchiving && (
@@ -624,6 +636,27 @@ export default function EditAgentPage() {
 
       {/* Test Chat Panel */}
       {agent.status === AgentStatus.ACTIVE && <TestChatPanel agentId={id} />}
+
+      {/* Archive confirmation dialog */}
+      <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('agents.archiveAgent')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('agents.archiveConfirm', { name: agent.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleArchiveConfirm}
+              disabled={archiveAgent.isPending}
+            >
+              {t('agents.archive')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

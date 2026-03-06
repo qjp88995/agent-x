@@ -225,6 +225,9 @@ export default function AgentListPage() {
   const archiveAgent = useArchiveAgent();
   const unarchiveAgent = useUnarchiveAgent();
   const [deleteTarget, setDeleteTarget] = useState<AgentResponse | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<AgentResponse | null>(
+    null
+  );
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
@@ -236,9 +239,11 @@ export default function AgentListPage() {
     });
   }
 
-  function handleArchive(agent: AgentResponse) {
-    archiveAgent.mutate(agent.id, {
+  function handleArchiveConfirm() {
+    if (!archiveTarget) return;
+    archiveAgent.mutate(archiveTarget.id, {
       onSuccess: () => {
+        setArchiveTarget(null);
         toast.success(t('agents.archiveSuccess'));
       },
     });
@@ -327,7 +332,7 @@ export default function AgentListPage() {
               key={agent.id}
               agent={agent}
               onDelete={setDeleteTarget}
-              onArchive={handleArchive}
+              onArchive={setArchiveTarget}
               onUnarchive={handleUnarchive}
             />
           ))}
@@ -358,6 +363,32 @@ export default function AgentListPage() {
               {deleteAgent.isPending
                 ? t('common.deleting')
                 : t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Archive confirmation dialog */}
+      <AlertDialog
+        open={archiveTarget !== null}
+        onOpenChange={open => {
+          if (!open) setArchiveTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('agents.archiveAgent')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('agents.archiveConfirm', { name: archiveTarget?.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleArchiveConfirm}
+              disabled={archiveAgent.isPending}
+            >
+              {t('agents.archive')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
