@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { SkillService } from './skill.service';
@@ -16,6 +17,29 @@ import { SkillService } from './skill.service';
 @Controller('skills')
 export class SkillController {
   constructor(private readonly skillService: SkillService) {}
+
+  @Get('market')
+  findMarket() {
+    return this.skillService.findMarket();
+  }
+
+  @Post('market')
+  @Roles('ADMIN')
+  createSystem(@Body() dto: CreateSkillDto) {
+    return this.skillService.createSystem(dto);
+  }
+
+  @Put('market/:id')
+  @Roles('ADMIN')
+  updateSystem(@Param('id') id: string, @Body() dto: UpdateSkillDto) {
+    return this.skillService.updateSystem(id, dto);
+  }
+
+  @Delete('market/:id')
+  @Roles('ADMIN')
+  removeSystem(@Param('id') id: string) {
+    return this.skillService.removeSystem(id);
+  }
 
   @Get()
   findAll(@CurrentUser() user: { id: string }) {

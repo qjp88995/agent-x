@@ -1,12 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type {
-  SkillResponse,
-  SkillType as SkillTypeValue,
-} from '@agent-x/shared';
-import { SkillType } from '@agent-x/shared';
+import type { SkillResponse } from '@agent-x/shared';
 import {
   AlertTriangle,
   Eye,
@@ -55,28 +51,99 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDeleteSkill, useSkills } from '@/hooks/use-skills';
-import { cn } from '@/lib/utils';
+import { useIsAdmin } from '@/hooks/use-auth';
+import {
+  useDeleteMarketplaceSkill,
+  useDeleteSkill,
+  useSkillMarket,
+  useSkills,
+} from '@/hooks/use-skills';
 
-const TYPE_BADGE_CONFIG: Record<SkillTypeValue, { className: string }> = {
-  SYSTEM: {
-    className:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  },
-  CUSTOM: {
-    className:
-      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  },
-};
-
-function TypeBadge({ type }: { readonly type: SkillTypeValue }) {
+function MarketplaceCard({
+  skill,
+  isAdmin,
+  onDelete,
+  onPreview,
+}: {
+  readonly skill: SkillResponse;
+  readonly isAdmin: boolean;
+  readonly onDelete: (skill: SkillResponse) => void;
+  readonly onPreview: (skill: SkillResponse) => void;
+}) {
   const { t } = useTranslation();
-  const config = TYPE_BADGE_CONFIG[type];
-  const label = type === 'SYSTEM' ? t('skills.system') : t('skills.custom');
+
   return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {label}
-    </Badge>
+    <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
+      <CardHeader
+        className={
+          isAdmin
+            ? 'flex flex-row items-start justify-between gap-2 space-y-0'
+            : undefined
+        }
+      >
+        <div className="flex flex-col gap-1.5">
+          <CardTitle className="text-base">{skill.name}</CardTitle>
+        </div>
+        {isAdmin && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-8">
+                <MoreHorizontal className="size-4" />
+                <span className="sr-only">{t('common.actions')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onPreview(skill)}>
+                <Eye className="mr-2 size-4" />
+                {t('skills.viewContent')}
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/skills/${skill.id}/edit?type=system`}>
+                  <Pencil className="mr-2 size-4" />
+                  {t('common.edit')}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onDelete(skill)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 size-4" />
+                {t('common.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </CardHeader>
+
+      <CardContent className="flex-1">
+        {skill.description ? (
+          <p className="text-muted-foreground line-clamp-2 text-sm">
+            {skill.description}
+          </p>
+        ) : (
+          <p className="text-muted-foreground/50 text-sm italic">
+            {t('common.noDescription')}
+          </p>
+        )}
+      </CardContent>
+
+      <CardFooter className="border-t pt-4">
+        <div className="flex flex-wrap gap-1.5">
+          {skill.tags.length > 0 ? (
+            skill.tags.map(tag => (
+              <Badge key={tag} variant="secondary" className="text-xs">
+                {tag}
+              </Badge>
+            ))
+          ) : (
+            <span className="text-muted-foreground text-xs">
+              {t('skills.noTags')}
+            </span>
+          )}
+        </div>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -90,14 +157,12 @@ function SkillCard({
   readonly onPreview: (skill: SkillResponse) => void;
 }) {
   const { t } = useTranslation();
-  const isCustom = skill.type === SkillType.CUSTOM;
 
   return (
     <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{skill.name}</CardTitle>
-          <TypeBadge type={skill.type} />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -111,24 +176,20 @@ function SkillCard({
               <Eye className="mr-2 size-4" />
               {t('skills.viewContent')}
             </DropdownMenuItem>
-            {isCustom && (
-              <>
-                <DropdownMenuItem asChild>
-                  <Link to={`/skills/${skill.id}/edit`}>
-                    <Pencil className="mr-2 size-4" />
-                    {t('common.edit')}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => onDelete(skill)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="mr-2 size-4" />
-                  {t('common.delete')}
-                </DropdownMenuItem>
-              </>
-            )}
+            <DropdownMenuItem asChild>
+              <Link to={`/skills/${skill.id}/edit`}>
+                <Pencil className="mr-2 size-4" />
+                {t('common.edit')}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onDelete(skill)}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 size-4" />
+              {t('common.delete')}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -164,9 +225,15 @@ function SkillCard({
   );
 }
 
-function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
+function EmptyState({
+  tab,
+  isAdmin,
+}: {
+  readonly tab: 'marketplace' | 'custom';
+  readonly isAdmin: boolean;
+}) {
   const { t } = useTranslation();
-  const isSystem = tab === 'system';
+  const isMarketplace = tab === 'marketplace';
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
@@ -174,14 +241,27 @@ function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
         <Sparkles className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">
-        {isSystem ? t('skills.noSystemSkills') : t('skills.noCustomSkills')}
+        {isMarketplace
+          ? t('skills.noSystemSkills')
+          : t('skills.noCustomSkills')}
       </h3>
       <p className="text-muted-foreground mb-6 text-sm">
-        {isSystem
+        {isMarketplace
           ? t('skills.noSystemSkillsDesc')
           : t('skills.noCustomSkillsDesc')}
       </p>
-      {!isSystem && (
+      {isMarketplace && isAdmin && (
+        <Button
+          asChild
+          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+        >
+          <Link to="/skills/new?type=system">
+            <Plus className="mr-2 size-4" />
+            {t('skills.addToMarketplace')}
+          </Link>
+        </Button>
+      )}
+      {!isMarketplace && (
         <Button
           asChild
           className="gradient-bg text-white hover:opacity-90 cursor-pointer"
@@ -198,26 +278,45 @@ function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
 
 export default function SkillsPage() {
   const { t } = useTranslation();
-  const { data: skills, isLoading, error } = useSkills();
+  const isAdmin = useIsAdmin();
+  const {
+    data: marketSkills,
+    isLoading: isLoadingMarket,
+    error: marketError,
+  } = useSkillMarket();
+  const {
+    data: customSkills,
+    isLoading: isLoadingCustom,
+    error: customError,
+  } = useSkills();
   const deleteSkill = useDeleteSkill();
+  const deleteMarketplaceSkill = useDeleteMarketplaceSkill();
   const [deleteTarget, setDeleteTarget] = useState<SkillResponse | null>(null);
+  const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
+    'custom'
+  );
   const [previewTarget, setPreviewTarget] = useState<SkillResponse | null>(
     null
   );
+  const isLoading = isLoadingMarket || isLoadingCustom;
+  const error = marketError ?? customError;
+  const isDeleting = deleteSkill.isPending || deleteMarketplaceSkill.isPending;
 
-  const systemSkills = useMemo(
-    () => skills?.filter(s => s.type === SkillType.SYSTEM) ?? [],
-    [skills]
-  );
+  function handleDeleteCustom(skill: SkillResponse) {
+    setDeleteTarget(skill);
+    setDeleteMode('custom');
+  }
 
-  const customSkills = useMemo(
-    () => skills?.filter(s => s.type === SkillType.CUSTOM) ?? [],
-    [skills]
-  );
+  function handleDeleteMarketplace(skill: SkillResponse) {
+    setDeleteTarget(skill);
+    setDeleteMode('marketplace');
+  }
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    deleteSkill.mutate(deleteTarget.id, {
+    const mutation =
+      deleteMode === 'marketplace' ? deleteMarketplaceSkill : deleteSkill;
+    mutation.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
         toast.success(t('skills.deleted'));
@@ -261,34 +360,47 @@ export default function SkillsPage() {
             {t('skills.subtitle')}
           </p>
         </div>
-        <Button
-          asChild
-          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-        >
-          <Link to="/skills/new">
-            <Plus className="mr-2 size-4" />
-            {t('skills.createSkill')}
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {isAdmin && (
+            <Button variant="outline" asChild>
+              <Link to="/skills/new?type=system">
+                <Plus className="mr-2 size-4" />
+                {t('skills.addToMarketplace')}
+              </Link>
+            </Button>
+          )}
+          <Button
+            asChild
+            className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+          >
+            <Link to="/skills/new">
+              <Plus className="mr-2 size-4" />
+              {t('skills.createSkill')}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="system">
+      <Tabs defaultValue="marketplace">
         <TabsList>
-          <TabsTrigger value="system">{t('skills.systemSkills')}</TabsTrigger>
+          <TabsTrigger value="marketplace">
+            {t('skills.systemSkills')}
+          </TabsTrigger>
           <TabsTrigger value="custom">{t('skills.mySkills')}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="system">
-          {systemSkills.length === 0 ? (
-            <EmptyState tab="system" />
+        <TabsContent value="marketplace">
+          {!marketSkills || marketSkills.length === 0 ? (
+            <EmptyState tab="marketplace" isAdmin={isAdmin} />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {systemSkills.map(skill => (
-                <SkillCard
+              {marketSkills.map(skill => (
+                <MarketplaceCard
                   key={skill.id}
                   skill={skill}
-                  onDelete={setDeleteTarget}
+                  isAdmin={isAdmin}
+                  onDelete={handleDeleteMarketplace}
                   onPreview={setPreviewTarget}
                 />
               ))}
@@ -297,15 +409,15 @@ export default function SkillsPage() {
         </TabsContent>
 
         <TabsContent value="custom">
-          {customSkills.length === 0 ? (
-            <EmptyState tab="custom" />
+          {!customSkills || customSkills.length === 0 ? (
+            <EmptyState tab="custom" isAdmin={isAdmin} />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {customSkills.map(skill => (
                 <SkillCard
                   key={skill.id}
                   skill={skill}
-                  onDelete={setDeleteTarget}
+                  onDelete={handleDeleteCustom}
                   onPreview={setPreviewTarget}
                 />
               ))}
@@ -350,20 +462,26 @@ export default function SkillsPage() {
       >
         <AlertDialogContent variant="destructive">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('skills.deleteSkill')}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {deleteMode === 'marketplace'
+                ? t('skills.deleteSystemSkill')
+                : t('skills.deleteSkill')}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {t('skills.deleteConfirm', { name: deleteTarget?.name })}
+              {deleteMode === 'marketplace'
+                ? t('skills.deleteSystemConfirm', {
+                    name: deleteTarget?.name,
+                  })
+                : t('skills.deleteConfirm', { name: deleteTarget?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              disabled={deleteSkill.isPending}
+              disabled={isDeleting}
             >
-              {deleteSkill.isPending
-                ? t('common.deleting')
-                : t('common.delete')}
+              {isDeleting ? t('common.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,6 +1,11 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router';
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router';
 
 import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -17,17 +22,29 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useCreateSkill, useSkill, useUpdateSkill } from '@/hooks/use-skills';
+import { useIsAdmin } from '@/hooks/use-auth';
+import {
+  useCreateMarketplaceSkill,
+  useCreateSkill,
+  useSkill,
+  useUpdateMarketplaceSkill,
+  useUpdateSkill,
+} from '@/hooks/use-skills';
 
 export default function SkillEditorPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const isSystemMode = searchParams.get('type') === 'system';
+  const isAdmin = useIsAdmin();
   const isEditMode = !!id;
 
   const { data: existingSkill, isLoading: isLoadingSkill } = useSkill(id);
   const createSkill = useCreateSkill();
   const updateSkill = useUpdateSkill();
+  const createMarketplace = useCreateMarketplaceSkill();
+  const updateMarketplace = useUpdateMarketplaceSkill();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -44,6 +61,11 @@ export default function SkillEditorPage() {
     }
   }, [existingSkill]);
 
+  // Non-admin accessing system mode → redirect
+  if (isSystemMode && !isAdmin) {
+    return <Navigate to="/skills" replace />;
+  }
+
   function parseTags(input: string): string[] {
     return input
       .split(',')
@@ -52,35 +74,39 @@ export default function SkillEditorPage() {
   }
 
   const isFormValid = name.trim().length > 0 && content.trim().length > 0;
-  const isSaving = createSkill.isPending || updateSkill.isPending;
+  const isSaving =
+    createSkill.isPending ||
+    updateSkill.isPending ||
+    createMarketplace.isPending ||
+    updateMarketplace.isPending;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!isFormValid || isSaving) return;
 
     const tags = parseTags(tagsInput);
+    const dto = {
+      name: name.trim(),
+      description: description.trim() || undefined,
+      content: content.trim(),
+      tags,
+    };
 
     try {
-      if (isEditMode) {
-        await updateSkill.mutateAsync({
-          id,
-          dto: {
-            name: name.trim(),
-            description: description.trim() || undefined,
-            content: content.trim(),
-            tags,
-          },
-        });
-        toast.success(t('skills.updated'));
+      if (isSystemMode) {
+        if (isEditMode) {
+          await updateMarketplace.mutateAsync({ id, dto });
+        } else {
+          await createMarketplace.mutateAsync(dto);
+        }
       } else {
-        await createSkill.mutateAsync({
-          name: name.trim(),
-          description: description.trim() || undefined,
-          content: content.trim(),
-          tags,
-        });
-        toast.success(t('skills.created'));
+        if (isEditMode) {
+          await updateSkill.mutateAsync({ id, dto });
+        } else {
+          await createSkill.mutateAsync(dto);
+        }
       }
+      toast.success(isEditMode ? t('skills.updated') : t('skills.created'));
       await navigate('/skills');
     } catch {
       toast.error(
@@ -88,6 +114,22 @@ export default function SkillEditorPage() {
       );
     }
   }
+
+  const pageTitle = isSystemMode
+    ? isEditMode
+      ? t('skills.editSystemSkill')
+      : t('skills.addSystemSkillTitle')
+    : isEditMode
+      ? t('skills.editSkill')
+      : t('skills.createSkill');
+
+  const pageDescription = isSystemMode
+    ? isEditMode
+      ? t('skills.editSystemSkillDesc')
+      : t('skills.addSystemSkillDesc')
+    : isEditMode
+      ? t('skills.editSkillDesc')
+      : t('skills.createSkillDesc');
 
   if (isEditMode && isLoadingSkill) {
     return (
@@ -128,14 +170,8 @@ export default function SkillEditorPage() {
           <ArrowLeft className="size-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode ? t('skills.editSkill') : t('skills.createSkill')}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {isEditMode
-              ? t('skills.editSkillDesc')
-              : t('skills.createSkillDesc')}
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{pageTitle}</h1>
+          <p className="text-muted-foreground text-sm">{pageDescription}</p>
         </div>
       </div>
 

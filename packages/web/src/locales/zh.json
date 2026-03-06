@@ -306,7 +306,14 @@
     "tagsHint": "用逗号分隔的标签列表，用于分类。",
     "content": "内容",
     "contentPlaceholder": "输入技能内容...",
-    "contentHint": "将提供给智能体的完整技能内容。"
+    "contentHint": "将提供给智能体的完整技能内容。",
+    "addToMarketplace": "添加系统技能",
+    "deleteSystemSkill": "删除系统技能",
+    "deleteSystemConfirm": "确定要删除系统技能「{{name}}」吗？这将影响所有用户，且此操作无法撤销。",
+    "editSystemSkill": "编辑系统技能",
+    "editSystemSkillDesc": "更新系统技能配置。",
+    "addSystemSkillTitle": "添加系统技能",
+    "addSystemSkillDesc": "创建一个对所有用户可用的系统技能。"
   },
   "mcp": {
     "title": "MCP 服务",

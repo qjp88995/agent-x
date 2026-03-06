@@ -306,7 +306,14 @@
     "tagsHint": "Comma-separated list of tags for categorization.",
     "content": "Content",
     "contentPlaceholder": "Enter the skill content...",
-    "contentHint": "The full skill content that will be provided to agents."
+    "contentHint": "The full skill content that will be provided to agents.",
+    "addToMarketplace": "Add System Skill",
+    "deleteSystemSkill": "Delete System Skill",
+    "deleteSystemConfirm": "Are you sure you want to delete system skill \"{{name}}\"? This will affect all users. This action cannot be undone.",
+    "editSystemSkill": "Edit System Skill",
+    "editSystemSkillDesc": "Update the system skill configuration.",
+    "addSystemSkillTitle": "Add System Skill",
+    "addSystemSkillDesc": "Create a new system skill available to all users."
   },
   "mcp": {
     "title": "MCP Servers",

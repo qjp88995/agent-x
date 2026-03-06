@@ -26,14 +26,20 @@ export class SkillService {
     });
   }
 
+  async findMarket() {
+    return this.prisma.skill.findMany({
+      where: {
+        OR: [{ type: SkillType.SYSTEM }, { isPublic: true }],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findAll(userId: string) {
     return this.prisma.skill.findMany({
       where: {
-        OR: [
-          { createdBy: userId },
-          { type: SkillType.SYSTEM },
-          { isPublic: true },
-        ],
+        createdBy: userId,
+        type: SkillType.CUSTOM,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -109,5 +115,71 @@ export class SkillService {
     await this.prisma.skill.delete({ where: { id } });
 
     return { message: 'Skill deleted successfully' };
+  }
+
+  async createSystem(dto: CreateSkillDto) {
+    return this.prisma.skill.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+        content: dto.content,
+        tags: dto.tags ?? [],
+        type: SkillType.SYSTEM,
+        isPublic: true,
+        createdBy: null,
+      },
+    });
+  }
+
+  async updateSystem(id: string, dto: UpdateSkillDto) {
+    const skill = await this.prisma.skill.findUnique({
+      where: { id },
+    });
+
+    if (!skill) {
+      throw new NotFoundException('Skill not found');
+    }
+
+    if (skill.type !== SkillType.SYSTEM) {
+      throw new ForbiddenException('This skill is not a SYSTEM skill');
+    }
+
+    const data: Record<string, unknown> = {};
+
+    if (dto.name !== undefined) {
+      data.name = dto.name;
+    }
+    if (dto.description !== undefined) {
+      data.description = dto.description;
+    }
+    if (dto.content !== undefined) {
+      data.content = dto.content;
+    }
+    if (dto.tags !== undefined) {
+      data.tags = dto.tags;
+    }
+
+    return this.prisma.skill.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async removeSystem(id: string) {
+    const skill = await this.prisma.skill.findUnique({
+      where: { id },
+    });
+
+    if (!skill) {
+      throw new NotFoundException('Skill not found');
+    }
+
+    if (skill.type !== SkillType.SYSTEM) {
+      throw new ForbiddenException('This skill is not a SYSTEM skill');
+    }
+
+    await this.prisma.skill.delete({ where: { id } });
+
+    return { message: 'System skill deleted successfully' };
   }
 }
