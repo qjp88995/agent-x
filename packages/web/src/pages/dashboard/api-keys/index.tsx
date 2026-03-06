@@ -443,9 +443,7 @@ export default function ApiKeysPage() {
                 <TableHead>{t('apiKeys.lastUsed')}</TableHead>
                 <TableHead>{t('apiKeys.expires')}</TableHead>
                 <TableHead>{t('common.status')}</TableHead>
-                <TableHead className="w-[80px]">
-                  {t('common.actions')}
-                </TableHead>
+                <TableHead className="w-20">{t('common.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

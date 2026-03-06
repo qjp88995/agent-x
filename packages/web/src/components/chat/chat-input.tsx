@@ -46,7 +46,7 @@ export function ChatInput({
     editorProps: {
       attributes: {
         class:
-          'chat-input-editor outline-none text-sm leading-relaxed min-h-[44px] max-h-[200px] overflow-y-auto px-4 py-3',
+          'chat-input-editor outline-none text-sm leading-relaxed min-h-11 max-h-50 overflow-y-auto px-4 py-3',
       },
       handleKeyDown: (_view, event) => {
         if (event.key === 'Enter' && !event.shiftKey) {

@@ -154,7 +154,7 @@ export function VersionList({ agentId }: VersionListProps) {
                   })}
                 </span>
                 {version.changelog && (
-                  <span className="max-w-[300px] truncate text-sm">
+                  <span className="max-w-75 truncate text-sm">
                     {version.changelog}
                   </span>
                 )}
