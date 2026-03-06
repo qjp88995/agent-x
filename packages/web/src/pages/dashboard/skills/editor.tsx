@@ -1,4 +1,5 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   Navigate,
@@ -7,20 +8,27 @@ import {
   useSearchParams,
 } from 'react-router';
 
-import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  FormCard,
+  LoadingState,
+  NotFoundState,
+  PageHeader,
+} from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
@@ -30,6 +38,7 @@ import {
   useUpdateMarketplaceSkill,
   useUpdateSkill,
 } from '@/hooks/use-skills';
+import { type SkillFormValues, skillSchema } from '@/lib/schemas';
 
 export default function SkillEditorPage() {
   const { t } = useTranslation();
@@ -46,22 +55,23 @@ export default function SkillEditorPage() {
   const createMarketplace = useCreateMarketplaceSkill();
   const updateMarketplace = useUpdateMarketplaceSkill();
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [tagsInput, setTagsInput] = useState('');
-  const [content, setContent] = useState('');
+  const form = useForm<SkillFormValues>({
+    resolver: zodResolver(skillSchema),
+    defaultValues: { name: '', description: '', tags: '', content: '' },
+    mode: 'onChange',
+  });
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (existingSkill) {
-      setName(existingSkill.name);
-      setDescription(existingSkill.description ?? '');
-      setTagsInput(existingSkill.tags.join(', '));
-      setContent(existingSkill.content);
+      form.reset({
+        name: existingSkill.name,
+        description: existingSkill.description ?? '',
+        tags: existingSkill.tags.join(', '),
+        content: existingSkill.content,
+      });
     }
-  }, [existingSkill]);
+  }, [existingSkill, form]);
 
-  // Non-admin accessing system mode → redirect
   if (isSystemMode && !isAdmin) {
     return <Navigate to="/skills" replace />;
   }
@@ -73,23 +83,20 @@ export default function SkillEditorPage() {
       .filter(tag => tag.length > 0);
   }
 
-  const isFormValid = name.trim().length > 0 && content.trim().length > 0;
   const isSaving =
     createSkill.isPending ||
     updateSkill.isPending ||
     createMarketplace.isPending ||
     updateMarketplace.isPending;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!isFormValid || isSaving) return;
+  async function onSubmit(values: SkillFormValues) {
+    if (isSaving) return;
 
-    const tags = parseTags(tagsInput);
     const dto = {
-      name: name.trim(),
-      description: description.trim() || undefined,
-      content: content.trim(),
-      tags,
+      name: values.name.trim(),
+      description: values.description?.trim() || undefined,
+      content: values.content.trim(),
+      tags: parseTags(values.tags ?? ''),
     };
 
     try {
@@ -132,144 +139,139 @@ export default function SkillEditorPage() {
       : t('skills.createSkillDesc');
 
   if (isEditMode && isLoadingSkill) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('skills.loadingSkill')}
-        </div>
-      </div>
-    );
+    return <LoadingState message={t('skills.loadingSkill')} />;
   }
 
   if (isEditMode && !isLoadingSkill && !existingSkill) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">{t('skills.notFound')}</h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          {t('skills.notFoundDesc')}
-        </p>
-        <Button variant="outline" onClick={() => navigate('/skills')}>
-          {t('skills.backToSkills')}
-        </Button>
-      </div>
+      <NotFoundState
+        title={t('skills.notFound')}
+        description={t('skills.notFoundDesc')}
+        backLabel={t('skills.backToSkills')}
+        backTo="/skills"
+      />
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/skills')}
-          aria-label="Back to skills"
-          className="cursor-pointer"
+      <PageHeader
+        backTo="/skills"
+        backLabel={t('skills.backToSkills')}
+        title={pageTitle}
+        description={pageDescription}
+      />
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-6"
         >
-          <ArrowLeft className="size-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{pageTitle}</h1>
-          <p className="text-muted-foreground text-sm">{pageDescription}</p>
-        </div>
-      </div>
+          <FormCard
+            title={t('skills.skillDetails')}
+            description={t('skills.skillDetailsDesc')}
+            footer={
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/skills')}
+                  disabled={isSaving}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!form.formState.isValid || isSaving}
+                  className="gradient-bg cursor-pointer text-white hover:opacity-90"
+                >
+                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {isEditMode ? t('common.save') : t('skills.createSkill')}
+                </Button>
+              </>
+            }
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('skills.namePlaceholder')}
+                      disabled={isSaving}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('skills.nameHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-      {/* Form */}
-      <Card className="max-w-2xl">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <CardHeader>
-            <CardTitle>{t('skills.skillDetails')}</CardTitle>
-            <CardDescription>{t('skills.skillDetailsDesc')}</CardDescription>
-          </CardHeader>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.description')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t('skills.descPlaceholder')}
+                      disabled={isSaving}
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('skills.descHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <CardContent className="flex flex-col gap-6">
-            {/* Name */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">{t('common.name')}</Label>
-              <Input
-                id="name"
-                placeholder={t('skills.namePlaceholder')}
-                value={name}
-                onChange={e => setName(e.target.value)}
-                disabled={isSaving}
-                required
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('skills.nameHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('skills.tags')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('skills.tagsPlaceholder')}
+                      disabled={isSaving}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('skills.tagsHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            {/* Description */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="description">{t('common.description')}</Label>
-              <Textarea
-                id="description"
-                placeholder={t('skills.descPlaceholder')}
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                disabled={isSaving}
-                rows={3}
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('skills.descHint')}
-              </p>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="tags">{t('skills.tags')}</Label>
-              <Input
-                id="tags"
-                placeholder={t('skills.tagsPlaceholder')}
-                value={tagsInput}
-                onChange={e => setTagsInput(e.target.value)}
-                disabled={isSaving}
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('skills.tagsHint')}
-              </p>
-            </div>
-
-            {/* Content */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="content">{t('skills.content')}</Label>
-              <Textarea
-                id="content"
-                placeholder={t('skills.contentPlaceholder')}
-                value={content}
-                onChange={e => setContent(e.target.value)}
-                disabled={isSaving}
-                required
-                rows={16}
-                className="font-mono text-sm"
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('skills.contentHint')}
-              </p>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex justify-end gap-3 border-t pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/skills')}
-              disabled={isSaving}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isFormValid || isSaving}
-              className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-            >
-              {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? t('common.save') : t('skills.createSkill')}
-            </Button>
-          </CardFooter>
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('skills.content')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t('skills.contentPlaceholder')}
+                      disabled={isSaving}
+                      rows={16}
+                      className="font-mono text-sm"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('skills.contentHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </FormCard>
         </form>
-      </Card>
+      </Form>
     </div>
   );
 }

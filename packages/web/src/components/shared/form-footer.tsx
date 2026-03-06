@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 interface FormFooterProps {
@@ -12,7 +11,6 @@ interface FormFooterProps {
   readonly submitLabel: string;
   readonly cancelLabel: string;
   readonly disabled?: boolean;
-  readonly variant?: 'card' | 'standalone';
   readonly maxWidth?: string;
   readonly icon?: ReactNode;
 }
@@ -23,12 +21,11 @@ export function FormFooter({
   submitLabel,
   cancelLabel,
   disabled = false,
-  variant = 'card',
   maxWidth,
   icon,
 }: FormFooterProps) {
-  const content = (
-    <>
+  return (
+    <div className={cn('flex justify-end gap-3 border-t pt-6', maxWidth)}>
       <Button
         type="button"
         variant="outline"
@@ -46,20 +43,6 @@ export function FormFooter({
         {icon}
         {submitLabel}
       </Button>
-    </>
-  );
-
-  if (variant === 'card') {
-    return (
-      <CardFooter className="flex justify-end gap-3 border-t pt-6">
-        {content}
-      </CardFooter>
-    );
-  }
-
-  return (
-    <div className={cn('flex justify-end gap-3 border-t pt-6', maxWidth)}>
-      {content}
     </div>
   );
 }
