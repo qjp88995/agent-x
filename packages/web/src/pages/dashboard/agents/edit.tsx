@@ -3,7 +3,11 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 
-import type { AgentStatus as AgentStatusType } from '@agent-x/shared';
+import type {
+  AgentResponse,
+  AgentStatus as AgentStatusType,
+  ProviderResponse,
+} from '@agent-x/shared';
 import { AgentStatus } from '@agent-x/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Archive, ArchiveRestore, Loader2, Rocket, Save } from 'lucide-react';
@@ -94,9 +98,9 @@ const STATUS_BADGE_CONFIG: Record<
   },
 };
 
+/** Outer shell: fetch data, show loading / not-found, then render the form. */
 export default function EditAgentPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const {
     data: agent,
@@ -104,6 +108,43 @@ export default function EditAgentPage() {
     error: agentError,
   } = useAgent(id);
   const { data: providers, isLoading: isLoadingProviders } = useProviders();
+
+  if (!id) {
+    return <Navigate to="/agents" replace />;
+  }
+
+  if (isLoadingAgent || isLoadingProviders) {
+    return <LoadingState message={t('agents.loadingAgent')} />;
+  }
+
+  if (agentError || !agent) {
+    return (
+      <NotFoundState
+        title={t('agents.notFound')}
+        description={t('agents.notFoundDesc')}
+        backLabel={t('agents.backToAgents')}
+        backTo="/agents"
+      />
+    );
+  }
+
+  return (
+    <AgentEditForm agentId={id} agent={agent} providers={providers ?? []} />
+  );
+}
+
+/** Inner form: mounts only when agent + providers are ready. */
+function AgentEditForm({
+  agentId,
+  agent,
+  providers,
+}: {
+  agentId: string;
+  agent: AgentResponse;
+  providers: ProviderResponse[];
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const updateAgent = useUpdateAgent();
   const publishVersion = usePublishVersion();
   const archiveAgent = useArchiveAgent();
@@ -113,28 +154,22 @@ export default function EditAgentPage() {
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [changelog, setChangelog] = useState('');
 
-  const formValues = useMemo<AgentFormValues>(
-    () => ({
-      name: agent?.name ?? '',
-      description: agent?.description ?? '',
-      providerId: agent?.providerId ?? '',
-      modelId: agent?.modelId ?? '',
-      systemPrompt: agent?.systemPrompt ?? '',
-      temperature: agent?.temperature ?? 0.7,
-      maxTokens: agent?.maxTokens ?? 4096,
-    }),
-    [agent]
-  );
-
   const form = useForm<AgentFormValues>({
     resolver: zodResolver(agentSchema),
-    values: formValues,
-    resetOptions: { keepDirtyValues: true },
+    defaultValues: {
+      name: agent.name,
+      description: agent.description ?? '',
+      providerId: agent.providerId,
+      modelId: agent.modelId,
+      systemPrompt: agent.systemPrompt,
+      temperature: agent.temperature,
+      maxTokens: agent.maxTokens,
+    },
     mode: 'onChange',
   });
 
   const activeProviders = useMemo(
-    () => providers?.filter(p => p.isActive) ?? [],
+    () => providers.filter(p => p.isActive),
     [providers]
   );
 
@@ -157,11 +192,11 @@ export default function EditAgentPage() {
   const isBusy = isSaving || isPublishing || isArchiving || isUnarchiving;
 
   async function onSubmit(values: AgentFormValues) {
-    if (isBusy || !id) return;
+    if (isBusy) return;
 
     try {
       await updateAgent.mutateAsync({
-        id,
+        id: agentId,
         dto: {
           name: values.name.trim(),
           description: values.description?.trim() || undefined,
@@ -179,11 +214,11 @@ export default function EditAgentPage() {
   }
 
   async function handlePublishVersion() {
-    if (!id || isBusy) return;
+    if (isBusy) return;
 
     try {
       await publishVersion.mutateAsync({
-        agentId: id,
+        agentId,
         dto: { changelog: changelog.trim() || undefined },
       });
       setPublishDialogOpen(false);
@@ -195,10 +230,10 @@ export default function EditAgentPage() {
   }
 
   async function handleArchiveConfirm() {
-    if (!id || isBusy) return;
+    if (isBusy) return;
 
     try {
-      await archiveAgent.mutateAsync(id);
+      await archiveAgent.mutateAsync(agentId);
       setArchiveDialogOpen(false);
       toast.success(t('agents.archiveSuccess'));
     } catch {
@@ -207,33 +242,14 @@ export default function EditAgentPage() {
   }
 
   async function handleUnarchive() {
-    if (!id || isBusy) return;
+    if (isBusy) return;
 
     try {
-      await unarchiveAgent.mutateAsync(id);
+      await unarchiveAgent.mutateAsync(agentId);
       toast.success(t('agents.unarchiveSuccess'));
     } catch {
       toast.error(t('agents.unarchiveFailed'));
     }
-  }
-
-  if (!id) {
-    return <Navigate to="/agents" replace />;
-  }
-
-  if (isLoadingAgent) {
-    return <LoadingState message={t('agents.loadingAgent')} />;
-  }
-
-  if (agentError || !agent) {
-    return (
-      <NotFoundState
-        title={t('agents.notFound')}
-        description={t('agents.notFoundDesc')}
-        backLabel={t('agents.backToAgents')}
-        backTo="/agents"
-      />
-    );
   }
 
   const statusConfig = STATUS_BADGE_CONFIG[agent.status];
@@ -419,21 +435,17 @@ export default function EditAgentPage() {
                         <FormItem>
                           <FormLabel>{t('agents.provider')}</FormLabel>
                           <Select
-                            value={field.value || undefined}
+                            value={field.value}
                             onValueChange={v => {
                               field.onChange(v);
                               form.setValue('modelId', '');
                             }}
-                            disabled={isBusy || isLoadingProviders}
+                            disabled={isBusy}
                           >
                             <FormControl>
                               <SelectTrigger className="w-full">
                                 <SelectValue
-                                  placeholder={
-                                    isLoadingProviders
-                                      ? t('agents.loadingProviders')
-                                      : t('agents.selectProvider')
-                                  }
+                                  placeholder={t('agents.selectProvider')}
                                 />
                               </SelectTrigger>
                             </FormControl>
@@ -461,7 +473,7 @@ export default function EditAgentPage() {
                         <FormItem>
                           <FormLabel>{t('agents.model')}</FormLabel>
                           <Select
-                            value={field.value || undefined}
+                            value={field.value}
                             onValueChange={field.onChange}
                             disabled={isBusy || !watchedProviderId}
                           >
@@ -626,7 +638,7 @@ export default function EditAgentPage() {
               {/* MCP Servers Tab */}
               <TabsContent value="mcp">
                 <AgentMcpTab
-                  agentId={id}
+                  agentId={agentId}
                   currentMcpServers={agent.mcpServers}
                 />
               </TabsContent>
@@ -641,19 +653,19 @@ export default function EditAgentPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <VersionList agentId={id} />
+                    <VersionList agentId={agentId} />
                   </CardContent>
                 </Card>
               </TabsContent>
 
               {/* Share Links Tab */}
               <TabsContent value="share-links">
-                <ShareLinksTab agentId={id} />
+                <ShareLinksTab agentId={agentId} />
               </TabsContent>
 
               {/* Conversations Tab */}
               <TabsContent value="conversations">
-                <ConversationsTab agentId={id} />
+                <ConversationsTab agentId={agentId} />
               </TabsContent>
             </Tabs>
           </form>
@@ -661,7 +673,9 @@ export default function EditAgentPage() {
       </div>
 
       {/* Test Chat Panel */}
-      {agent.status === AgentStatus.ACTIVE && <TestChatPanel agentId={id} />}
+      {agent.status === AgentStatus.ACTIVE && (
+        <TestChatPanel agentId={agentId} />
+      )}
 
       {/* Archive confirmation dialog */}
       <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>

@@ -197,7 +197,7 @@ export default function CreateAgentPage() {
                 <FormItem>
                   <FormLabel>{t('agents.provider')}</FormLabel>
                   <Select
-                    value={field.value || undefined}
+                    value={field.value}
                     onValueChange={field.onChange}
                     disabled={isSaving || isLoadingProviders}
                   >
@@ -234,7 +234,7 @@ export default function CreateAgentPage() {
                 <FormItem>
                   <FormLabel>{t('agents.model')}</FormLabel>
                   <Select
-                    value={field.value || undefined}
+                    value={field.value}
                     onValueChange={field.onChange}
                     disabled={isSaving || !watchedProviderId}
                   >

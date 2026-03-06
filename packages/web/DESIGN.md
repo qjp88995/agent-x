@@ -124,3 +124,54 @@ Consistent structure across all list pages:
 ### Card Hover (List Pages)
 
 All list page cards: `hover:shadow-md hover:border-primary/20 transition-all duration-200`
+
+### Form Patterns (react-hook-form + zod)
+
+#### Select 受控模式
+
+Radix Select 的 `value` 只接受 `string`。传 `undefined` 会使其进入非受控模式，后续值更新可能被忽略。
+
+```tsx
+// CORRECT - 始终传字符串，空字符串时自动显示 placeholder
+<Select value={field.value} onValueChange={field.onChange}>
+
+// WRONG - undefined 导致非受控/受控模式切换，值更新不可靠
+<Select value={field.value || undefined} onValueChange={field.onChange}>
+```
+
+#### 编辑表单异步数据初始化
+
+编辑页面需要异步加载数据再填充表单。由于 React hooks 不能条件调用，`useForm` 必须在组件顶部执行，此时数据可能未就绪。
+
+**规则：编辑表单拆分为 loader 外壳 + form 子组件。** 外壳负责数据加载和 loading/error 状态，子组件在 mount 时数据已就绪，`defaultValues` 从第一帧就是正确的。
+
+```tsx
+// CORRECT - 分层：外壳加载数据，子组件初始化表单
+function EditPage() {
+  const { data, isLoading } = useData(id);
+  if (isLoading) return <LoadingState />;
+  return <EditForm data={data} />;
+}
+
+function EditForm({ data }) {
+  const form = useForm({ defaultValues: { name: data.name } }); // 第一帧就正确
+}
+
+// WRONG - useForm 在数据加载前就初始化，依赖 useEffect 异步填充
+function EditPage() {
+  const { data, isLoading } = useData(id);
+  const form = useForm({ defaultValues: { name: '' } });
+  useEffect(() => {
+    if (data) form.reset(data);
+  }, [data]);
+  // 第一帧渲染空值，Select 等组件可能无法正确更新
+}
+```
+
+#### Zod Schema 验证消息
+
+Schema 中的 `message` 使用 i18n key，由 `FormMessage` 组件自动翻译：
+
+```tsx
+z.string().min(1, 'validation.required'); // 对应 locales/{en,zh}.json 中的 validation.required
+```
