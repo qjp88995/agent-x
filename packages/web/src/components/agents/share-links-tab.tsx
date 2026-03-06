@@ -37,6 +37,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
+import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useCreateShareToken,
   useDeactivateShareToken,
@@ -49,6 +50,7 @@ interface ShareLinksTabProps {
 
 export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
   const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const { data: versions, isLoading: isLoadingVersions } =
     useAgentVersions(agentId);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
@@ -348,6 +350,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                         {t('shareLinks.expires')}{' '}
                         {formatDistanceToNow(new Date(token.expiresAt), {
                           addSuffix: true,
+                          locale: dateLocale,
                         })}
                       </span>
                     )}
@@ -355,6 +358,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                       {t('shareLinks.created')}{' '}
                       {formatDistanceToNow(new Date(token.createdAt), {
                         addSuffix: true,
+                        locale: dateLocale,
                       })}
                     </span>
                   </div>

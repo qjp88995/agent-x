@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useCreateShareToken,
   useDeactivateShareToken,
@@ -30,6 +31,7 @@ interface ShareTokenPanelProps {
 
 export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
   const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const { data: tokens, isLoading } = useShareTokens(agentId, versionId);
   const createToken = useCreateShareToken();
   const deactivateToken = useDeactivateShareToken();
@@ -246,6 +248,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
                     {t('shareLinks.expires')}{' '}
                     {formatDistanceToNow(new Date(token.expiresAt), {
                       addSuffix: true,
+                      locale: dateLocale,
                     })}
                   </span>
                 )}

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 
+import type { Locale } from 'date-fns';
+import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -29,20 +31,19 @@ import {
   useCreateConversation,
   useDeleteConversation,
 } from '@/hooks/use-chat';
+import { useDateLocale } from '@/hooks/use-date-locale';
 import { cn } from '@/lib/utils';
 
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, locale: Locale): string {
   const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (isToday(date)) {
+    return format(date, 'HH:mm', { locale });
   }
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  if (isYesterday(date)) {
+    return formatDistanceToNow(date, { addSuffix: true, locale });
+  }
+  return format(date, 'MMM d', { locale });
 }
 
 function ConversationItem({
@@ -57,6 +58,7 @@ function ConversationItem({
   readonly onDelete: () => void;
 }) {
   const { t } = useTranslation();
+  const dateLocale = useDateLocale();
 
   return (
     <button
@@ -76,7 +78,7 @@ function ConversationItem({
         </p>
         <p className="text-muted-foreground mt-0.5 truncate text-xs">
           {conversation.agent.name} &middot;{' '}
-          {formatDate(conversation.updatedAt)}
+          {formatDate(conversation.updatedAt, dateLocale)}
         </p>
       </div>
       <button

@@ -7,6 +7,7 @@ import { ChevronDown, ChevronRight, MessageSquare, Share2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
+import { useDateLocale } from '@/hooks/use-date-locale';
 import { cn } from '@/lib/utils';
 
 interface VersionListProps {
@@ -98,6 +99,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
 
 export function VersionList({ agentId }: VersionListProps) {
   const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const { data: versions, isLoading } = useAgentVersions(agentId);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -148,6 +150,7 @@ export function VersionList({ agentId }: VersionListProps) {
                 <span className="text-muted-foreground text-sm">
                   {formatDistanceToNow(new Date(version.publishedAt), {
                     addSuffix: true,
+                    locale: dateLocale,
                   })}
                 </span>
                 {version.changelog && (

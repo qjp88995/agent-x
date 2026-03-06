@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useSharedConversationMessages,
   useSharedConversations,
@@ -34,6 +35,7 @@ function ConversationDetail({
   onBack: () => void;
 }) {
   const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const { data: messages, isLoading } = useSharedConversationMessages(
     agentId,
     conversation.id
@@ -63,6 +65,7 @@ function ConversationDetail({
             )}
             {formatDistanceToNow(new Date(conversation.updatedAt), {
               addSuffix: true,
+              locale: dateLocale,
             })}
           </p>
         </div>
@@ -85,6 +88,7 @@ function ConversationDetail({
 
 export function ConversationsTab({ agentId }: ConversationsTabProps) {
   const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const { data: conversations, isLoading } = useSharedConversations(agentId);
   const [selectedConversation, setSelectedConversation] =
     useState<SharedConversationResponse | null>(null);
@@ -144,6 +148,7 @@ export function ConversationsTab({ agentId }: ConversationsTabProps) {
                     <span>
                       {formatDistanceToNow(new Date(conv.updatedAt), {
                         addSuffix: true,
+                        locale: dateLocale,
                       })}
                     </span>
                   </div>

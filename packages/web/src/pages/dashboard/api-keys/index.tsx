@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import type { Locale } from 'date-fns';
+import { format } from 'date-fns';
 import {
   AlertTriangle,
   Check,
@@ -49,14 +51,11 @@ import {
   useCreateApiKey,
   useDeleteApiKey,
 } from '@/hooks/use-api-keys';
+import { useDateLocale } from '@/hooks/use-date-locale';
 
-function formatDate(dateStr: string | null): string {
+function formatDate(dateStr: string | null, locale: Locale): string {
   if (!dateStr) return '-';
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  return format(new Date(dateStr), 'PPP', { locale });
 }
 
 function StatusBadge({
@@ -380,6 +379,7 @@ function UsageDocs() {
 
 export default function ApiKeysPage() {
   const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const { data: apiKeys, isLoading, error } = useApiKeys();
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ApiKeyResponse | null>(null);
@@ -466,8 +466,12 @@ export default function ApiKeysPage() {
                       </span>
                     )}
                   </TableCell>
-                  <TableCell>{formatDate(apiKey.lastUsedAt)}</TableCell>
-                  <TableCell>{formatDate(apiKey.expiresAt)}</TableCell>
+                  <TableCell>
+                    {formatDate(apiKey.lastUsedAt, dateLocale)}
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(apiKey.expiresAt, dateLocale)}
+                  </TableCell>
                   <TableCell>
                     <StatusBadge
                       isActive={apiKey.isActive}
