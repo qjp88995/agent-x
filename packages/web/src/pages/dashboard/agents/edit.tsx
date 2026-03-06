@@ -305,14 +305,6 @@ export default function EditAgentPage() {
               <>
                 <Button
                   variant="outline"
-                  onClick={() => setPublishDialogOpen(true)}
-                  disabled={isBusy}
-                >
-                  <Rocket className="mr-2 size-4" />
-                  {t('agents.publishVersion')}
-                </Button>
-                <Button
-                  variant="outline"
                   onClick={() => setArchiveDialogOpen(true)}
                   disabled={isBusy}
                 >
@@ -321,6 +313,14 @@ export default function EditAgentPage() {
                   )}
                   <Archive className="mr-2 size-4" />
                   {t('agents.archive')}
+                </Button>
+                <Button
+                  onClick={() => setPublishDialogOpen(true)}
+                  disabled={isBusy}
+                  className="gradient-bg text-white hover:opacity-90 cursor-pointer"
+                >
+                  <Rocket className="mr-2 size-4" />
+                  {t('agents.publishVersion')}
                 </Button>
               </>
             )}
