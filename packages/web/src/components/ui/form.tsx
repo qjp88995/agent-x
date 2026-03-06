@@ -93,12 +93,12 @@ function FormLabel({
   className,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Root>) {
-  const { error, formItemId } = useFormField();
+  const { error, isTouched, formItemId } = useFormField();
 
   return (
     <Label
       data-slot="form-label"
-      data-error={!!error}
+      data-error={!!error && isTouched}
       className={cn('data-[error=true]:text-destructive', className)}
       htmlFor={formItemId}
       {...props}
@@ -139,9 +139,10 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
 }
 
 function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
-  const { error, formMessageId } = useFormField();
+  const { error, isTouched, formMessageId } = useFormField();
   const { t, i18n } = useTranslation();
-  const raw = error ? String(error?.message ?? '') : props.children;
+  const raw =
+    error && isTouched ? String(error?.message ?? '') : props.children;
 
   if (!raw) {
     return null;
