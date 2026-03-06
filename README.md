@@ -7,7 +7,7 @@ Self-hosted intelligent agent publishing platform. Create, configure, and publis
 - **Multi-Provider Support** - Connect OpenAI, Anthropic, Gemini, DeepSeek, Qwen, Zhipu, Moonshot with unified management
 - **Agent Lifecycle** - Create, configure, publish, and archive agents with version control
 - **MCP Integration** - Browse marketplace and add custom MCP servers (STDIO/SSE/Streamable HTTP)
-- **Custom Skills** - Define reusable system prompts and instructions for agents
+- **Skills Marketplace** - Admin-curated system skills + user custom skills for agents
 - **Streaming Chat UI** - Real-time conversation interface with multi-part message rendering
 - **OpenAI-Compatible API** - Expose agents via `/v1/chat/completions` endpoint with API key auth
 - **Secure by Default** - JWT auth, AES-256-GCM encrypted provider keys, API key management
@@ -99,16 +99,16 @@ agent-x/
 
 All backend routes are prefixed with `/api` except the OpenAI-compatible endpoint.
 
-| Module        | Endpoints                                                                                                                             |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Auth          | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`, `GET /api/auth/me`                                       |
-| Providers     | `GET/POST /api/providers`, `GET/PUT/DELETE /api/providers/:id`, `POST /api/providers/:id/test`, `POST /api/providers/:id/sync-models` |
-| Agents        | `GET/POST /api/agents`, `GET/PUT/DELETE /api/agents/:id`, `POST /api/agents/:id/publish`, `POST /api/agents/:id/archive`              |
-| Skills        | `GET/POST /api/skills`, `GET/PUT/DELETE /api/skills/:id`                                                                              |
-| MCP Servers   | `GET /api/mcp-servers/market`, `GET/POST /api/mcp-servers`, `GET/PUT/DELETE /api/mcp-servers/:id`                                     |
-| Chat          | `POST/GET /api/conversations`, `GET /api/conversations/:id/messages`, `POST /api/conversations/:id/chat`                              |
-| API Keys      | `GET/POST /api/api-keys`, `DELETE /api/api-keys/:id`                                                                                  |
-| OpenAI Compat | `POST /v1/chat/completions`                                                                                                           |
+| Module        | Endpoints                                                                                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth          | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`, `GET /api/auth/me`                                                            |
+| Providers     | `GET/POST /api/providers`, `GET/PUT/DELETE /api/providers/:id`, `POST /api/providers/:id/test`, `POST /api/providers/:id/sync-models`                      |
+| Agents        | `GET/POST /api/agents`, `GET/PUT/DELETE /api/agents/:id`, `POST /api/agents/:id/publish`, `POST /api/agents/:id/archive`                                   |
+| Skills        | `GET /api/skills/market`, `POST/PUT/DELETE /api/skills/market(/:id)` (admin), `GET/POST /api/skills`, `GET/PUT/DELETE /api/skills/:id`                     |
+| MCP Servers   | `GET /api/mcp-servers/market`, `POST/PUT/DELETE /api/mcp-servers/market(/:id)` (admin), `GET/POST /api/mcp-servers`, `GET/PUT/DELETE /api/mcp-servers/:id` |
+| Chat          | `POST/GET /api/conversations`, `GET /api/conversations/:id/messages`, `POST /api/conversations/:id/chat`                                                   |
+| API Keys      | `GET/POST /api/api-keys`, `DELETE /api/api-keys/:id`                                                                                                       |
+| OpenAI Compat | `POST /v1/chat/completions`                                                                                                                                |
 
 ## OpenAI-Compatible API
 

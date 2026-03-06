@@ -20,7 +20,7 @@ packages/
 │           ├── auth/       # JWT auth, guards, decorators (@Public, @CurrentUser)
 │           ├── provider/   # Model provider CRUD + encryption + model sync
 │           ├── agent/      # Agent lifecycle (DRAFT→PUBLISHED→ARCHIVED), skill/mcp binding, versions, share tokens
-│           ├── skill/      # System/custom skills management
+│           ├── skill/      # Skill marketplace (admin) + custom skills management
 │           ├── mcp/        # MCP server marketplace + custom servers + client
 │           ├── chat/       # Streaming chat (Vercel AI SDK) + AgentRuntimeService
 │           ├── api-key/    # API key management (sk-agx-... prefix)
@@ -119,6 +119,7 @@ pnpm format:check # prettier --check
 - Global AuthGuard (JWT) applied via APP_GUARD
 - Use `@Public()` decorator to bypass auth on specific endpoints
 - Use `@CurrentUser()` decorator to get `{ id, email }` from request
+- Use `@Roles('ADMIN')` decorator for admin-only endpoints (skill/mcp marketplace management)
 - API keys (sk-agx-...) use separate ApiKeyGuard for /v1/ endpoints
 - Tokens stored in localStorage, auto-refresh on 401 via Axios interceptor
 
