@@ -387,7 +387,7 @@ export default function EditAgentPage() {
 
         {/* Tabbed form */}
         <form onSubmit={handleSubmit}>
-          <Tabs defaultValue="basic" className="gap-6">
+          <Tabs defaultValue="basic">
             <TabsList>
               <TabsTrigger value="basic">{t('agents.basicInfo')}</TabsTrigger>
               <TabsTrigger value="prompt">
