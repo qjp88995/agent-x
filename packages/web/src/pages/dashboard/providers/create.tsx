@@ -4,13 +4,7 @@ import { useNavigate, useParams } from 'react-router';
 
 import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
 import { ProviderProtocol } from '@agent-x/shared';
-import {
-  AlertTriangle,
-  ArrowLeft,
-  CheckCircle2,
-  Loader2,
-  XCircle,
-} from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -84,11 +78,6 @@ const PROTOCOL_OPTIONS: readonly {
   },
 ] as const;
 
-interface TestResultState {
-  success: boolean;
-  message: string;
-}
-
 export default function CreateProviderPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -108,7 +97,6 @@ export default function CreateProviderPage() {
   const [baseUrl, setBaseUrl] = useState(DEFAULT_BASE_URLS.OPENAI);
   const [apiKey, setApiKey] = useState('');
   const [hasChangedUrl, setHasChangedUrl] = useState(false);
-  const [testResult, setTestResult] = useState<TestResultState | null>(null);
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -126,13 +114,11 @@ export default function CreateProviderPage() {
     if (!hasChangedUrl) {
       setBaseUrl(DEFAULT_BASE_URLS[newProtocol]);
     }
-    setTestResult(null);
   }
 
   function handleBaseUrlChange(value: string) {
     setBaseUrl(value);
     setHasChangedUrl(true);
-    setTestResult(null);
   }
 
   const isFormValid =
@@ -144,14 +130,17 @@ export default function CreateProviderPage() {
 
   function handleTest() {
     if (!isEditMode) return;
-    setTestResult(null);
     testProvider.mutate(id, {
-      onSuccess: result => setTestResult(result),
-      onError: () =>
-        setTestResult({
-          success: false,
-          message: t('providers.testFailed'),
-        }),
+      onSuccess: result => {
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
+      },
+      onError: () => {
+        toast.error(t('providers.testFailed'));
+      },
     });
   }
 
@@ -358,21 +347,6 @@ export default function CreateProviderPage() {
                     )}
                     {t('providers.testConnection')}
                   </Button>
-                  {testResult && (
-                    <div
-                      className={cn(
-                        'flex items-center gap-1.5 text-sm',
-                        testResult.success ? 'text-green-600' : 'text-red-600'
-                      )}
-                    >
-                      {testResult.success ? (
-                        <CheckCircle2 className="size-4" />
-                      ) : (
-                        <XCircle className="size-4" />
-                      )}
-                      <span>{testResult.message}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             )}

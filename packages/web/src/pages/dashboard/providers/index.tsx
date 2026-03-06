@@ -126,11 +126,9 @@ function truncateUrl(url: string, maxLength = 40): string {
 function ProviderCard({
   provider,
   onDelete,
-  onTestResult,
 }: {
   readonly provider: ProviderResponse;
   readonly onDelete: (provider: ProviderResponse) => void;
-  readonly onTestResult: (message: string, success: boolean) => void;
 }) {
   const { t } = useTranslation();
   const testProvider = useTestProvider();
@@ -139,10 +137,14 @@ function ProviderCard({
   function handleTest() {
     testProvider.mutate(provider.id, {
       onSuccess: result => {
-        onTestResult(result.message, result.success);
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
       },
       onError: () => {
-        onTestResult(t('providers.testFailed'), false);
+        toast.error(t('providers.testFailed'));
       },
     });
   }
@@ -150,13 +152,10 @@ function ProviderCard({
   function handleSync() {
     syncModels.mutate(provider.id, {
       onSuccess: models => {
-        onTestResult(
-          t('providers.syncSuccess', { count: models.length }),
-          true
-        );
+        toast.success(t('providers.syncSuccess', { count: models.length }));
       },
       onError: () => {
-        onTestResult(t('providers.syncFailed'), false);
+        toast.error(t('providers.syncFailed'));
       },
     });
   }
@@ -262,38 +261,6 @@ function EmptyState() {
   );
 }
 
-function TestResultBanner({
-  message,
-  success,
-  onDismiss,
-}: {
-  readonly message: string;
-  readonly success: boolean;
-  readonly onDismiss: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      className={cn(
-        'flex items-center justify-between rounded-md px-4 py-3 text-sm',
-        success
-          ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-      )}
-    >
-      <span>{message}</span>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onDismiss}
-        className="h-auto px-2 py-1 text-xs"
-      >
-        {t('common.dismiss')}
-      </Button>
-    </div>
-  );
-}
-
 export default function ProviderListPage() {
   const { t } = useTranslation();
   const { data: providers, isLoading, error } = useProviders();
@@ -301,10 +268,6 @@ export default function ProviderListPage() {
   const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(
     null
   );
-  const [testResult, setTestResult] = useState<{
-    message: string;
-    success: boolean;
-  } | null>(null);
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
@@ -314,10 +277,6 @@ export default function ProviderListPage() {
         toast.success(t('providers.deleted'));
       },
     });
-  }
-
-  function handleTestResult(message: string, success: boolean) {
-    setTestResult({ message, success });
   }
 
   if (isLoading) {
@@ -369,15 +328,6 @@ export default function ProviderListPage() {
         </Button>
       </div>
 
-      {/* Test result banner */}
-      {testResult && (
-        <TestResultBanner
-          message={testResult.message}
-          success={testResult.success}
-          onDismiss={() => setTestResult(null)}
-        />
-      )}
-
       {/* Provider grid or empty state */}
       {!providers || providers.length === 0 ? (
         <EmptyState />
@@ -388,7 +338,6 @@ export default function ProviderListPage() {
               key={provider.id}
               provider={provider}
               onDelete={setDeleteTarget}
-              onTestResult={handleTestResult}
             />
           ))}
         </div>

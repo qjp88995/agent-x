@@ -90,48 +90,14 @@ function TransportBadge({
   );
 }
 
-function TestResultBanner({
-  message,
-  success,
-  onDismiss,
-}: {
-  readonly message: string;
-  readonly success: boolean;
-  readonly onDismiss: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      className={cn(
-        'flex items-center justify-between rounded-md px-4 py-3 text-sm',
-        success
-          ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-          : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-      )}
-    >
-      <span>{message}</span>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onDismiss}
-        className="h-auto px-2 py-1 text-xs"
-      >
-        {t('common.dismiss')}
-      </Button>
-    </div>
-  );
-}
-
 function MarketplaceCard({
   server,
   isAdmin,
   onDelete,
-  onTestResult,
 }: {
   readonly server: McpServerResponse;
   readonly isAdmin: boolean;
   readonly onDelete: (server: McpServerResponse) => void;
-  readonly onTestResult: (message: string, success: boolean) => void;
 }) {
   const { t } = useTranslation();
   const testMcpServer = useTestMcpServer();
@@ -140,10 +106,14 @@ function MarketplaceCard({
   function handleTest() {
     testMcpServer.mutate(server.id, {
       onSuccess: result => {
-        onTestResult(result.message, result.success);
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
       },
       onError: () => {
-        onTestResult(t('mcp.testFailed'), false);
+        toast.error(t('mcp.testFailed'));
       },
     });
   }
@@ -222,11 +192,9 @@ function MarketplaceCard({
 function McpServerCard({
   server,
   onDelete,
-  onTestResult,
 }: {
   readonly server: McpServerResponse;
   readonly onDelete: (server: McpServerResponse) => void;
-  readonly onTestResult: (message: string, success: boolean) => void;
 }) {
   const { t } = useTranslation();
   const testMcpServer = useTestMcpServer();
@@ -235,10 +203,14 @@ function McpServerCard({
   function handleTest() {
     testMcpServer.mutate(server.id, {
       onSuccess: result => {
-        onTestResult(result.message, result.success);
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
       },
       onError: () => {
-        onTestResult(t('mcp.testFailed'), false);
+        toast.error(t('mcp.testFailed'));
       },
     });
   }
@@ -376,11 +348,6 @@ export default function McpPage() {
   const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
     'custom'
   );
-  const [testResult, setTestResult] = useState<{
-    message: string;
-    success: boolean;
-  } | null>(null);
-
   const isLoading = isLoadingMarket || isLoadingCustom;
   const error = marketError ?? customError;
   const isDeleting =
@@ -408,10 +375,6 @@ export default function McpPage() {
         toast.success(t('mcp.deleted'));
       },
     });
-  }
-
-  function handleTestResult(message: string, success: boolean) {
-    setTestResult({ message, success });
   }
 
   if (isLoading) {
@@ -469,15 +432,6 @@ export default function McpPage() {
         </div>
       </div>
 
-      {/* Test result banner */}
-      {testResult && (
-        <TestResultBanner
-          message={testResult.message}
-          success={testResult.success}
-          onDismiss={() => setTestResult(null)}
-        />
-      )}
-
       {/* Tabs */}
       <Tabs defaultValue="marketplace">
         <TabsList>
@@ -496,7 +450,6 @@ export default function McpPage() {
                   server={server}
                   isAdmin={isAdmin}
                   onDelete={handleDeleteMarketplace}
-                  onTestResult={handleTestResult}
                 />
               ))}
             </div>
@@ -513,7 +466,6 @@ export default function McpPage() {
                   key={server.id}
                   server={server}
                   onDelete={handleDeleteCustom}
-                  onTestResult={handleTestResult}
                 />
               ))}
             </div>
