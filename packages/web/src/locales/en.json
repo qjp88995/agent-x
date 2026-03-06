@@ -56,7 +56,24 @@
     "mcpServers": "MCP Servers",
     "skills": "Skills",
     "apiKeys": "API Keys",
+    "settings": "Settings",
     "openMenu": "Open menu"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your preferences.",
+    "theme": "Theme",
+    "themeDesc": "Select your preferred color scheme.",
+    "system": "System",
+    "systemDesc": "Follow your browser setting",
+    "light": "Light",
+    "lightDesc": "Light color scheme",
+    "dark": "Dark",
+    "darkDesc": "Dark color scheme",
+    "language": "Language",
+    "languageDesc": "Select your preferred language.",
+    "zhCN": "Chinese (Simplified)",
+    "en": "English"
   },
   "theme": {
     "system": "System theme",

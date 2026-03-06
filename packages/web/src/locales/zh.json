@@ -56,7 +56,24 @@
     "mcpServers": "MCP 服务",
     "skills": "技能",
     "apiKeys": "API 密钥",
+    "settings": "设置",
     "openMenu": "打开菜单"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "管理你的偏好设置。",
+    "theme": "主题",
+    "themeDesc": "选择你偏好的配色方案。",
+    "system": "跟随系统",
+    "systemDesc": "跟随浏览器设置",
+    "light": "浅色",
+    "lightDesc": "浅色配色方案",
+    "dark": "深色",
+    "darkDesc": "深色配色方案",
+    "language": "语言",
+    "languageDesc": "选择你偏好的语言。",
+    "zhCN": "中文（简体）",
+    "en": "English"
   },
   "theme": {
     "system": "跟随系统",

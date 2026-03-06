@@ -20,6 +20,7 @@ const SkillEditorPage = lazy(() => import('@/pages/dashboard/skills/editor'));
 const McpPage = lazy(() => import('@/pages/dashboard/mcp/index'));
 const McpEditorPage = lazy(() => import('@/pages/dashboard/mcp/editor'));
 const ApiKeysPage = lazy(() => import('@/pages/dashboard/api-keys/index'));
+const SettingsPage = lazy(() => import('@/pages/dashboard/settings'));
 const ChatPage = lazy(() => import('@/pages/chat/index'));
 const SharedChatPage = lazy(() => import('@/pages/shared/index'));
 
@@ -57,6 +58,7 @@ export function AppRoutes() {
             <Route path="/mcp-servers/new" element={<McpEditorPage />} />
             <Route path="/mcp-servers/:id/edit" element={<McpEditorPage />} />
             <Route path="/api-keys" element={<ApiKeysPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
           <Route path="/chat" element={<ChatPage />} />
         </Route>
