@@ -413,6 +413,7 @@
     "anyAgent": "任意智能体（在请求中指定）",
     "agentHint": "将此密钥绑定到特定智能体，或留空以在每次请求中通过 model 字段指定。",
     "expiration": "过期时间（可选）",
+    "selectExpiration": "选择过期日期",
     "noKeys": "暂无 API 密钥",
     "noKeysDesc": "创建你的第一个 API 密钥以使用 OpenAI 兼容 API。",
     "key": "密钥",

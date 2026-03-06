@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
   Dialog,
   DialogClose,
@@ -114,7 +115,7 @@ function CreateKeyDialog({
   const { t } = useTranslation();
   const [name, setName] = useState('');
   const [agentId, setAgentId] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
+  const [expiresAt, setExpiresAt] = useState<Date | undefined>();
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -125,7 +126,7 @@ function CreateKeyDialog({
     if (!nextOpen) {
       setName('');
       setAgentId('');
-      setExpiresAt('');
+      setExpiresAt(undefined);
       setCreatedKey(null);
       setCopied(false);
     }
@@ -137,7 +138,7 @@ function CreateKeyDialog({
       {
         name,
         agentId: agentId || undefined,
-        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+        expiresAt: expiresAt ? expiresAt.toISOString() : undefined,
       },
       {
         onSuccess: data => {
@@ -238,12 +239,12 @@ function CreateKeyDialog({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="key-expires">{t('apiKeys.expiration')}</Label>
-              <Input
-                id="key-expires"
-                type="date"
+              <Label>{t('apiKeys.expiration')}</Label>
+              <DatePicker
                 value={expiresAt}
-                onChange={e => setExpiresAt(e.target.value)}
+                onChange={setExpiresAt}
+                placeholder={t('apiKeys.selectExpiration')}
+                fromDate={new Date()}
               />
             </div>
 

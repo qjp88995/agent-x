@@ -413,6 +413,7 @@
     "anyAgent": "Any agent (specify in request)",
     "agentHint": "Bind this key to a specific agent, or leave blank to specify the agent in each request via the model field.",
     "expiration": "Expiration (optional)",
+    "selectExpiration": "Select expiration date",
     "noKeys": "No API keys yet",
     "noKeysDesc": "Create your first API key to use the OpenAI-compatible API.",
     "key": "Key",
