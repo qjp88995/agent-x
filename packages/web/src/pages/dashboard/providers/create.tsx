@@ -1,34 +1,43 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 
 import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
 import { ProviderProtocol } from '@agent-x/shared';
-import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  FormCard,
+  LoadingState,
+  NotFoundState,
+  PageHeader,
+} from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
   useCreateProvider,
   useProvider,
   useTestProvider,
   useUpdateProvider,
 } from '@/hooks/use-providers';
+import {
+  type CreateProviderFormValues,
+  createProviderSchema,
+  type UpdateProviderFormValues,
+  updateProviderSchema,
+} from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 const DEFAULT_BASE_URLS: Record<ProviderProtocolType, string> = {
@@ -95,41 +104,38 @@ export default function CreateProviderPage() {
   const updateProvider = useUpdateProvider();
   const testProvider = useTestProvider();
 
-  const [name, setName] = useState('');
-  const [protocol, setProtocol] = useState<ProviderProtocolType>(
-    ProviderProtocol.OPENAI
-  );
-  const [baseUrl, setBaseUrl] = useState(DEFAULT_BASE_URLS.OPENAI);
-  const [apiKey, setApiKey] = useState('');
-  const [hasChangedUrl, setHasChangedUrl] = useState(false);
+  const form = useForm<CreateProviderFormValues | UpdateProviderFormValues>({
+    resolver: zodResolver(
+      isEditMode ? updateProviderSchema : createProviderSchema
+    ),
+    defaultValues: {
+      name: '',
+      ...(isEditMode ? {} : { protocol: ProviderProtocol.OPENAI as string }),
+      baseUrl: DEFAULT_BASE_URLS.OPENAI,
+      apiKey: '',
+    },
+    mode: 'onChange',
+  });
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (existingProvider) {
-      setName(existingProvider.name);
-      setProtocol(existingProvider.protocol);
-      setBaseUrl(existingProvider.baseUrl);
-      setHasChangedUrl(true);
+      form.reset({
+        name: existingProvider.name,
+        baseUrl: existingProvider.baseUrl,
+        apiKey: '',
+      });
     }
-  }, [existingProvider]);
+  }, [existingProvider, form]);
 
-  // Auto-fill base URL when protocol changes (unless user has manually changed it)
-  function handleProtocolChange(newProtocol: ProviderProtocolType) {
-    setProtocol(newProtocol);
-    if (!hasChangedUrl) {
-      setBaseUrl(DEFAULT_BASE_URLS[newProtocol]);
+  const watchedProtocol = form.watch('protocol' as never) as unknown as
+    | ProviderProtocolType
+    | undefined;
+
+  useEffect(() => {
+    if (!isEditMode && watchedProtocol && !form.formState.dirtyFields.baseUrl) {
+      form.setValue('baseUrl', DEFAULT_BASE_URLS[watchedProtocol]);
     }
-  }
-
-  function handleBaseUrlChange(value: string) {
-    setBaseUrl(value);
-    setHasChangedUrl(true);
-  }
-
-  const isFormValid =
-    name.trim().length > 0 &&
-    baseUrl.trim().length > 0 &&
-    (isEditMode || apiKey.trim().length > 0);
+  }, [watchedProtocol, isEditMode, form]);
 
   const isSaving = createProvider.isPending || updateProvider.isPending;
 
@@ -149,27 +155,32 @@ export default function CreateProviderPage() {
     });
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!isFormValid || isSaving) return;
+  async function onSubmit(
+    values: CreateProviderFormValues | UpdateProviderFormValues
+  ) {
+    if (isSaving) return;
 
     try {
       if (isEditMode) {
+        const updateValues = values as UpdateProviderFormValues;
         await updateProvider.mutateAsync({
           id,
           dto: {
-            name: name.trim(),
-            baseUrl: baseUrl.trim(),
-            ...(apiKey.trim().length > 0 ? { apiKey: apiKey.trim() } : {}),
+            name: updateValues.name.trim(),
+            baseUrl: updateValues.baseUrl.trim(),
+            ...(updateValues.apiKey?.trim()
+              ? { apiKey: updateValues.apiKey.trim() }
+              : {}),
           },
         });
         toast.success(t('providers.updated'));
       } else {
+        const createValues = values as CreateProviderFormValues;
         await createProvider.mutateAsync({
-          name: name.trim(),
-          protocol,
-          baseUrl: baseUrl.trim(),
-          apiKey: apiKey.trim(),
+          name: createValues.name.trim(),
+          protocol: createValues.protocol as ProviderProtocolType,
+          baseUrl: createValues.baseUrl.trim(),
+          apiKey: createValues.apiKey.trim(),
         });
         toast.success(t('providers.created'));
       }
@@ -182,206 +193,225 @@ export default function CreateProviderPage() {
   }
 
   if (isEditMode && isLoadingProvider) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('providers.loadingProvider')}
-        </div>
-      </div>
-    );
+    return <LoadingState message={t('providers.loadingProvider')} />;
   }
 
   if (isEditMode && !isLoadingProvider && !existingProvider) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">{t('providers.notFound')}</h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          {t('providers.notFoundDesc')}
-        </p>
-        <Button variant="outline" onClick={() => navigate('/providers')}>
-          {t('providers.backToProviders')}
-        </Button>
-      </div>
+      <NotFoundState
+        title={t('providers.notFound')}
+        description={t('providers.notFoundDesc')}
+        backLabel={t('providers.backToProviders')}
+        backTo="/providers"
+      />
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/providers')}
-              aria-label="Back to providers"
-              className="cursor-pointer"
-            >
-              <ArrowLeft className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('providers.backToProviders')}</TooltipContent>
-        </Tooltip>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode
-              ? t('providers.editProvider')
-              : t('providers.addProvider')}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {isEditMode
-              ? t('providers.editProviderDesc')
-              : t('providers.addProviderDesc')}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        backTo="/providers"
+        backLabel={t('providers.backToProviders')}
+        title={
+          isEditMode ? t('providers.editProvider') : t('providers.addProvider')
+        }
+        description={
+          isEditMode
+            ? t('providers.editProviderDesc')
+            : t('providers.addProviderDesc')
+        }
+      />
 
-      {/* Form */}
-      <Card className="max-w-2xl border-border/50">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <CardHeader>
-            <CardTitle>{t('providers.providerDetails')}</CardTitle>
-            <CardDescription>
-              {t('providers.providerDetailsDesc')}
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="flex flex-col gap-6">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-6"
+        >
+          <FormCard
+            title={t('providers.providerDetails')}
+            description={t('providers.providerDetailsDesc')}
+            footer={
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/providers')}
+                  disabled={isSaving}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!form.formState.isValid || isSaving}
+                  className="gradient-bg cursor-pointer text-white hover:opacity-90"
+                >
+                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {isEditMode
+                    ? t('common.save')
+                    : t('providers.createProvider')}
+                </Button>
+              </>
+            }
+          >
             {/* Name */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">{t('common.name')}</Label>
-              <Input
-                id="name"
-                placeholder={t('providers.namePlaceholder')}
-                value={name}
-                onChange={e => setName(e.target.value)}
-                disabled={isSaving}
-                required
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('providers.nameHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('providers.namePlaceholder')}
+                      disabled={isSaving}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('providers.nameHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Protocol */}
-            <div className="flex flex-col gap-2">
-              <Label>{t('providers.protocol')}</Label>
-              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-                {PROTOCOL_OPTIONS.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    disabled={isEditMode || isSaving}
-                    onClick={() => handleProtocolChange(option.value)}
-                    className={cn(
-                      'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
-                      protocol === option.value
-                        ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
-                        : 'hover:bg-accent',
-                      (isEditMode || isSaving) &&
-                        'cursor-not-allowed opacity-60'
-                    )}
-                  >
-                    <span className="text-sm font-medium">
-                      {t(option.labelKey)}
-                    </span>
-                    <span className="text-muted-foreground text-xs">
-                      {t(option.descKey)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              {isEditMode && (
+            {!isEditMode && (
+              <FormField
+                control={form.control}
+                name={'protocol' as never}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('providers.protocol')}</FormLabel>
+                    <FormControl>
+                      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                        {PROTOCOL_OPTIONS.map(option => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            disabled={isSaving}
+                            onClick={() => field.onChange(option.value)}
+                            className={cn(
+                              'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
+                              field.value === option.value
+                                ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
+                                : 'hover:bg-accent',
+                              isSaving && 'cursor-not-allowed opacity-60'
+                            )}
+                          >
+                            <span className="text-sm font-medium">
+                              {t(option.labelKey)}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                              {t(option.descKey)}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {isEditMode && existingProvider && (
+              <div className="flex flex-col gap-2">
+                <FormLabel>{t('providers.protocol')}</FormLabel>
+                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                  {PROTOCOL_OPTIONS.filter(
+                    o => o.value === existingProvider.protocol
+                  ).map(option => (
+                    <div
+                      key={option.value}
+                      className="border-primary bg-primary/5 ring-primary/20 flex flex-col items-start rounded-md border p-3 text-left ring-2"
+                    >
+                      <span className="text-sm font-medium">
+                        {t(option.labelKey)}
+                      </span>
+                      <span className="text-muted-foreground text-xs">
+                        {t(option.descKey)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
                 <p className="text-muted-foreground text-xs">
                   {t('providers.protocolLocked')}
                 </p>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Base URL */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="baseUrl">{t('providers.baseUrl')}</Label>
-              <Input
-                id="baseUrl"
-                type="url"
-                placeholder={t('providers.baseUrlPlaceholder')}
-                value={baseUrl}
-                onChange={e => handleBaseUrlChange(e.target.value)}
-                disabled={isSaving}
-                required
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('providers.baseUrlHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="baseUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('providers.baseUrl')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder={t('providers.baseUrlPlaceholder')}
+                      disabled={isSaving}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t('providers.baseUrlHint')}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* API Key */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="apiKey">{t('providers.apiKey')}</Label>
-              <Input
-                id="apiKey"
-                type="password"
-                placeholder={
-                  isEditMode
-                    ? t('providers.apiKeyKeep')
-                    : t('providers.apiKeyPlaceholder')
-                }
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                disabled={isSaving}
-                required={!isEditMode}
-                autoComplete="off"
-              />
-              <p className="text-muted-foreground text-xs">
-                {isEditMode
-                  ? t('providers.apiKeyKeepHint')
-                  : t('providers.apiKeyHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="apiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('providers.apiKey')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder={
+                        isEditMode
+                          ? t('providers.apiKeyKeep')
+                          : t('providers.apiKeyPlaceholder')
+                      }
+                      disabled={isSaving}
+                      autoComplete="off"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {isEditMode
+                      ? t('providers.apiKeyKeepHint')
+                      : t('providers.apiKeyHint')}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Test Connection (only in edit mode) */}
             {isEditMode && (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleTest}
-                    disabled={testProvider.isPending}
-                  >
-                    {testProvider.isPending && (
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                    )}
-                    {t('providers.testConnection')}
-                  </Button>
-                </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTest}
+                  disabled={testProvider.isPending}
+                >
+                  {testProvider.isPending && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
+                  {t('providers.testConnection')}
+                </Button>
               </div>
             )}
-          </CardContent>
-
-          <CardFooter className="flex justify-end gap-3 border-t pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/providers')}
-              disabled={isSaving}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isFormValid || isSaving}
-              className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-            >
-              {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? t('common.save') : t('providers.createProvider')}
-            </Button>
-          </CardFooter>
+          </FormCard>
         </form>
-      </Card>
+      </Form>
     </div>
   );
 }
