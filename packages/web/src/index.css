@@ -166,3 +166,15 @@
     box-shadow: 0 0 10px oklch(0.541 0.25 293 / 0.1);
   }
 }
+
+/* Tiptap chat input */
+.chat-input-editor p {
+  margin: 0;
+}
+.chat-input-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}

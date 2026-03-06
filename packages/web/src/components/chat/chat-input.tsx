@@ -1,5 +1,8 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
+import Placeholder from '@tiptap/extension-placeholder';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 import { Send, Square } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -17,49 +20,65 @@ export function ChatInput({
   isLoading,
   disabled = false,
 }: ChatInputProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const onSendRef = useRef(onSend);
+  onSendRef.current = onSend;
+  const isLoadingRef = useRef(isLoading);
+  isLoadingRef.current = isLoading;
 
-  const handleSubmit = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const content = textarea.value.trim();
-    if (!content || isLoading) return;
-
-    onSend(content);
-    textarea.value = '';
-    textarea.style.height = 'auto';
-  }, [onSend, isLoading]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSubmit();
-      }
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        // Disable features we don't need for chat input
+        heading: false,
+        blockquote: false,
+        codeBlock: false,
+        horizontalRule: false,
+        listItem: false,
+        bulletList: false,
+        orderedList: false,
+      }),
+      Placeholder.configure({
+        placeholder: 'Type a message...',
+      }),
+    ],
+    editorProps: {
+      attributes: {
+        class:
+          'chat-input-editor outline-none text-sm leading-relaxed min-h-[44px] max-h-[200px] overflow-y-auto px-4 py-3',
+      },
+      handleKeyDown: (_view, event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          handleSubmitFromEditor();
+          return true;
+        }
+        return false;
+      },
     },
-    [handleSubmit]
-  );
+    editable: !disabled && !isLoading,
+  });
 
-  const handleInput = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
-  }, []);
+  const handleSubmitFromEditor = useCallback(() => {
+    if (!editor || isLoadingRef.current) return;
+    const text = editor.getText().trim();
+    if (!text) return;
+    onSendRef.current(text);
+    editor.commands.clearContent();
+  }, [editor]);
+
+  // Sync editable state
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!disabled && !isLoading);
+    }
+  }, [editor, disabled, isLoading]);
 
   return (
     <div className="border-t bg-background p-4">
       <div className="mx-auto flex max-w-3xl items-end gap-2">
-        <textarea
-          ref={textareaRef}
-          className="border-border/50 placeholder:text-muted-foreground focus-visible:ring-primary/30 focus-visible:border-primary/50 flex min-h-[44px] max-h-[200px] w-full resize-none rounded-xl border bg-transparent px-4 py-3 text-sm shadow-sm outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="Type a message..."
-          rows={1}
-          disabled={disabled || isLoading}
-          onKeyDown={handleKeyDown}
-          onInput={handleInput}
-        />
+        <div className="border-border/50 focus-within:ring-primary/30 focus-within:border-primary/50 w-full rounded-xl border shadow-sm focus-within:ring-1">
+          <EditorContent editor={editor} />
+        </div>
         {isLoading ? (
           <Button
             size="icon"
@@ -74,7 +93,7 @@ export function ChatInput({
           <Button
             size="icon"
             className="gradient-bg text-white hover:opacity-90 size-11 shrink-0 rounded-xl"
-            onClick={handleSubmit}
+            onClick={handleSubmitFromEditor}
             disabled={disabled}
           >
             <Send className="size-4" />
