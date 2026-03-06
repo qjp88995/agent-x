@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const createApiKeySchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, 'validation.required'),
   agentId: z.string().optional(),
   expiresAt: z.date().optional(),
 });

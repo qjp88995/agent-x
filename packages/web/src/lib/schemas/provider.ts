@@ -4,15 +4,15 @@ import { z } from 'zod';
 const protocolValues = Object.values(ProviderProtocol) as [string, ...string[]];
 
 export const createProviderSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, 'validation.required'),
   protocol: z.enum(protocolValues),
-  baseUrl: z.url(),
-  apiKey: z.string().min(1),
+  baseUrl: z.url('validation.invalidUrl'),
+  apiKey: z.string().min(1, 'validation.required'),
 });
 
 export const updateProviderSchema = z.object({
-  name: z.string().min(1),
-  baseUrl: z.url(),
+  name: z.string().min(1, 'validation.required'),
+  baseUrl: z.url('validation.invalidUrl'),
   apiKey: z.string().optional(),
 });
 

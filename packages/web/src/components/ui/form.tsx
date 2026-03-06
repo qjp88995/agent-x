@@ -10,6 +10,7 @@ import {
   useFormContext,
   useFormState,
 } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import type { Label as LabelPrimitive } from 'radix-ui';
 import { Slot } from 'radix-ui';
@@ -139,11 +140,14 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
 
 function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? '') : props.children;
+  const { t, i18n } = useTranslation();
+  const raw = error ? String(error?.message ?? '') : props.children;
 
-  if (!body) {
+  if (!raw) {
     return null;
   }
+
+  const body = typeof raw === 'string' && i18n.exists(raw) ? t(raw) : raw;
 
   return (
     <p

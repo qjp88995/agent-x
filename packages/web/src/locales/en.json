@@ -467,5 +467,15 @@
     "expired": "Link Expired or Invalid",
     "expiredDesc": "This share link has expired, reached its usage limit, or is no longer valid.",
     "goHome": "Go to Homepage"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidUrl": "Please enter a valid URL",
+    "commandRequired": "Command is required for STDIO transport",
+    "urlRequired": "URL is required for HTTP/SSE transport",
+    "headersMustBeObject": "Headers must be a JSON object",
+    "headersMustBeJson": "Headers must be valid JSON",
+    "temperatureRange": "Temperature must be between 0 and 2",
+    "maxTokensMin": "Max tokens must be at least 1"
   }
 }

@@ -467,5 +467,15 @@
     "expired": "链接已过期或无效",
     "expiredDesc": "此分享链接已过期、已达使用上限或不再有效。",
     "goHome": "返回首页"
+  },
+  "validation": {
+    "required": "此字段为必填项",
+    "invalidUrl": "请输入有效的 URL",
+    "commandRequired": "STDIO 传输方式需要填写命令",
+    "urlRequired": "HTTP/SSE 传输方式需要填写 URL",
+    "headersMustBeObject": "Headers 必须是 JSON 对象",
+    "headersMustBeJson": "Headers 必须是有效的 JSON",
+    "temperatureRange": "温度值必须在 0 到 2 之间",
+    "maxTokensMin": "最大 Token 数至少为 1"
   }
 }

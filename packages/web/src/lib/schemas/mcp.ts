@@ -5,7 +5,7 @@ const transportValues = Object.values(McpTransport) as [string, ...string[]];
 
 export const mcpSchema = z
   .object({
-    name: z.string().min(1),
+    name: z.string().min(1, 'validation.required'),
     description: z.string().optional(),
     transport: z.enum(transportValues),
     command: z.string().optional(),
@@ -18,7 +18,7 @@ export const mcpSchema = z
       if (!data.command?.trim()) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Command is required for STDIO transport',
+          message: 'validation.commandRequired',
           path: ['command'],
         });
       }
@@ -26,7 +26,7 @@ export const mcpSchema = z
       if (!data.url?.trim()) {
         ctx.addIssue({
           code: 'custom',
-          message: 'URL is required for HTTP/SSE transport',
+          message: 'validation.urlRequired',
           path: ['url'],
         });
       }
@@ -38,14 +38,14 @@ export const mcpSchema = z
         if (typeof parsed !== 'object' || Array.isArray(parsed)) {
           ctx.addIssue({
             code: 'custom',
-            message: 'Headers must be a JSON object',
+            message: 'validation.headersMustBeObject',
             path: ['headers'],
           });
         }
       } catch {
         ctx.addIssue({
           code: 'custom',
-          message: 'Headers must be valid JSON',
+          message: 'validation.headersMustBeJson',
           path: ['headers'],
         });
       }
