@@ -9,7 +9,6 @@ pnpm monorepo with Turborepo:
 ```
 packages/
 ├── server/          # NestJS 11 backend (TypeScript, Prisma v7, PostgreSQL)
-│   ├── docker/      # Dockerfile.server, Dockerfile.web, nginx.conf
 │   ├── prisma/      # Schema and migrations
 │   ├── prisma.config.ts  # Prisma v7 CLI config (datasource URL, PrismaPg adapter)
 │   └── src/
@@ -20,7 +19,7 @@ packages/
 │       └── modules/
 │           ├── auth/       # JWT auth, guards, decorators (@Public, @CurrentUser)
 │           ├── provider/   # Model provider CRUD + encryption + model sync
-│           ├── agent/      # Agent lifecycle (DRAFT→PUBLISHED→ARCHIVED), skill/mcp binding
+│           ├── agent/      # Agent lifecycle (DRAFT→PUBLISHED→ARCHIVED), skill/mcp binding, versions, share tokens
 │           ├── skill/      # System/custom skills management
 │           ├── mcp/        # MCP server marketplace + custom servers + client
 │           ├── chat/       # Streaming chat (Vercel AI SDK) + AgentRuntimeService
@@ -28,13 +27,16 @@ packages/
 │           └── openai-compat/  # /v1/chat/completions (OpenAI wire format)
 ├── web/             # React 19 frontend (Vite 6, Tailwind CSS v4, shadcn/ui)
 │   └── src/
-│       ├── components/     # UI components (chat/, auth/, ui/)
+│       ├── components/     # UI components (chat/, agents/, auth/, ui/)
 │       ├── hooks/          # React Query hooks (use-agents, use-chat, use-chat-stream, etc.)
-│       ├── pages/          # Route pages (login, register, dashboard/*, chat/)
-│       ├── stores/         # Zustand v5 stores (auth-store)
+│       ├── i18n.ts         # i18next config (browser language detection + localStorage)
+│       ├── locales/        # Translation files (en.json, zh.json)
+│       ├── pages/          # Route pages (login, register, dashboard/*, chat/, shared/)
+│       ├── stores/         # Zustand v5 stores (auth-store, theme-store)
 │       └── lib/            # Utilities (api.ts with auth interceptor, utils.ts, message-utils.ts)
-└── shared/          # Shared TypeScript types (DTOs, responses, enums)
-    └── src/types/   # auth, provider, agent, skill, mcp, chat, api-key
+├── shared/          # Shared TypeScript types (DTOs, responses, enums)
+│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token
+└── docker/          # Dockerfile.server, Dockerfile.web, nginx.conf
 ```
 
 ## Development
@@ -131,7 +133,9 @@ pnpm format:check # prettier --check
 - React Router v7 for routing
 - All dashboard pages lazy-loaded via `React.lazy()`
 - React Query v5 hooks in `src/hooks/` for all API calls
-- Zustand v5 for auth state (`auth-store.ts`)
+- Zustand v5 stores: `auth-store.ts` (auth state), `theme-store.ts` (system/light/dark theme with persist)
+- i18n via `react-i18next` + `i18next-browser-languagedetector`: auto-detects browser language, falls back to English, persists preference in localStorage. Translation files in `src/locales/{en,zh}.json`. All UI strings use `t()` calls.
+- Toast notifications via `sonner` (`@/components/ui/sonner`). Use `toast.success()` / `toast.error()` for mutation feedback.
 - shadcn/ui components (Radix UI) in `src/components/ui/`
 - Axios client at `src/lib/api.ts` with auth interceptors + token refresh
 - Dashboard routes inside `DashboardLayout`, chat is full-screen outside
@@ -151,7 +155,9 @@ pnpm format:check # prettier --check
 - `/skills` - skills list, `/skills/new`, `/skills/:id/edit`
 - `/mcp-servers` - MCP server list, `/mcp-servers/new`, `/mcp-servers/:id/edit`
 - `/api-keys` - API key management
+- `/settings` - theme and language preferences
 - `/chat` - full-screen chat UI (outside dashboard layout)
+- `/s/:token` - shared chat page (public, no auth required)
 
 ## Docker Deployment
 
@@ -196,7 +202,3 @@ Docker setup:
 - TypeScript strict mode in all packages
 - Immutable data patterns (create new objects, don't mutate)
 - **NEVER use `npx prisma db push`** to modify the database directly. Always use `npx prisma migrate dev --name <name>` to create proper migrations.
-
-# currentDate
-
-Today's date is 2026-03-04.
