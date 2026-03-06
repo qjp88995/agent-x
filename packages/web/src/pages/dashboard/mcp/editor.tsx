@@ -1,4 +1,5 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   Navigate,
@@ -9,20 +10,27 @@ import {
 
 import type { McpTransport as McpTransportType } from '@agent-x/shared';
 import { McpTransport } from '@agent-x/shared';
-import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  FormCard,
+  LoadingState,
+  NotFoundState,
+  PageHeader,
+} from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
@@ -32,6 +40,7 @@ import {
   useUpdateMarketplaceMcpServer,
   useUpdateMcpServer,
 } from '@/hooks/use-mcp';
+import { type McpFormValues, mcpSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 const TRANSPORT_OPTIONS: readonly {
@@ -56,105 +65,126 @@ const TRANSPORT_OPTIONS: readonly {
   },
 ] as const;
 
-function StdioConfigFields({
-  command,
-  onCommandChange,
-  argsInput,
-  onArgsChange,
-  disabled,
-}: {
-  readonly command: string;
-  readonly onCommandChange: (value: string) => void;
-  readonly argsInput: string;
-  readonly onArgsChange: (value: string) => void;
-  readonly disabled: boolean;
-}) {
+function StdioConfigFields({ disabled }: { readonly disabled: boolean }) {
   const { t } = useTranslation();
+  const { control } = useFormContext<McpFormValues>();
+
   return (
     <>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="command">{t('mcp.command')}</Label>
-        <Input
-          id="command"
-          placeholder={t('mcp.commandPlaceholder')}
-          value={command}
-          onChange={e => onCommandChange(e.target.value)}
-          disabled={disabled}
-          required
-        />
-        <p className="text-muted-foreground text-xs">{t('mcp.commandHint')}</p>
-      </div>
+      <FormField
+        control={control}
+        name="command"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('mcp.command')}</FormLabel>
+            <FormControl>
+              <Input
+                placeholder={t('mcp.commandPlaceholder')}
+                disabled={disabled}
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>{t('mcp.commandHint')}</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="args">{t('mcp.arguments')}</Label>
-        <Input
-          id="args"
-          placeholder={t('mcp.argsPlaceholder')}
-          value={argsInput}
-          onChange={e => onArgsChange(e.target.value)}
-          disabled={disabled}
-        />
-        <p className="text-muted-foreground text-xs">{t('mcp.argsHint')}</p>
-      </div>
+      <FormField
+        control={control}
+        name="args"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('mcp.arguments')}</FormLabel>
+            <FormControl>
+              <Input
+                placeholder={t('mcp.argsPlaceholder')}
+                disabled={disabled}
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>{t('mcp.argsHint')}</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 }
 
-function HttpConfigFields({
-  url,
-  onUrlChange,
-  headersInput,
-  onHeadersChange,
-  headersError,
-  disabled,
-}: {
-  readonly url: string;
-  readonly onUrlChange: (value: string) => void;
-  readonly headersInput: string;
-  readonly onHeadersChange: (value: string) => void;
-  readonly headersError: string | null;
-  readonly disabled: boolean;
-}) {
+function HttpConfigFields({ disabled }: { readonly disabled: boolean }) {
   const { t } = useTranslation();
+  const { control } = useFormContext<McpFormValues>();
+
   return (
     <>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="url">{t('mcp.url')}</Label>
-        <Input
-          id="url"
-          type="url"
-          placeholder={t('mcp.urlPlaceholder')}
-          value={url}
-          onChange={e => onUrlChange(e.target.value)}
-          disabled={disabled}
-          required
-        />
-        <p className="text-muted-foreground text-xs">{t('mcp.urlHint')}</p>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="headers">
-          {t('mcp.headers')}{' '}
-          <span className="text-muted-foreground font-normal">
-            {t('common.optional')}
-          </span>
-        </Label>
-        <Textarea
-          id="headers"
-          placeholder={t('mcp.headersPlaceholder')}
-          value={headersInput}
-          onChange={e => onHeadersChange(e.target.value)}
-          disabled={disabled}
-          rows={4}
-          className="font-mono text-sm"
-        />
-        {headersError && (
-          <p className="text-destructive text-xs">{headersError}</p>
+      <FormField
+        control={control}
+        name="url"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t('mcp.url')}</FormLabel>
+            <FormControl>
+              <Input
+                type="url"
+                placeholder={t('mcp.urlPlaceholder')}
+                disabled={disabled}
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>{t('mcp.urlHint')}</FormDescription>
+            <FormMessage />
+          </FormItem>
         )}
-        <p className="text-muted-foreground text-xs">{t('mcp.headersHint')}</p>
-      </div>
+      />
+
+      <FormField
+        control={control}
+        name="headers"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              {t('mcp.headers')}{' '}
+              <span className="text-muted-foreground font-normal">
+                {t('common.optional')}
+              </span>
+            </FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder={t('mcp.headersPlaceholder')}
+                disabled={disabled}
+                rows={4}
+                className="font-mono text-sm"
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>{t('mcp.headersHint')}</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
+}
+
+function parseArgs(input: string): string[] {
+  return input
+    .split(',')
+    .map(arg => arg.trim())
+    .filter(arg => arg.length > 0);
+}
+
+function parseHeaders(input: string): Record<string, string> | null {
+  if (input.trim().length === 0) return {};
+  try {
+    const parsed = JSON.parse(input) as Record<string, string>;
+    if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 export default function McpEditorPage() {
@@ -172,109 +202,85 @@ export default function McpEditorPage() {
   const createMarketplace = useCreateMarketplaceMcpServer();
   const updateMarketplace = useUpdateMarketplaceMcpServer();
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [transport, setTransport] = useState<McpTransportType>(
-    McpTransport.STDIO
-  );
-  const [command, setCommand] = useState('');
-  const [argsInput, setArgsInput] = useState('');
-  const [url, setUrl] = useState('');
-  const [headersInput, setHeadersInput] = useState('');
-  const [headersError, setHeadersError] = useState<string | null>(null);
+  const form = useForm<McpFormValues>({
+    resolver: zodResolver(mcpSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      transport: McpTransport.STDIO as string,
+      command: '',
+      args: '',
+      url: '',
+      headers: '',
+    },
+    mode: 'onChange',
+  });
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (existingServer) {
-      setName(existingServer.name);
-      setDescription(existingServer.description ?? '');
-      setTransport(existingServer.transport);
-
       const config = existingServer.config;
-      if (existingServer.transport === McpTransport.STDIO) {
-        setCommand((config.command as string) ?? '');
-        const args = config.args as string[] | undefined;
-        setArgsInput(args?.join(', ') ?? '');
-      } else {
-        setUrl((config.url as string) ?? '');
-        const headers = config.headers as Record<string, string> | undefined;
-        if (headers && Object.keys(headers).length > 0) {
-          setHeadersInput(JSON.stringify(headers, null, 2));
-        }
-      }
-    }
-  }, [existingServer]);
+      const isStdio = existingServer.transport === McpTransport.STDIO;
 
-  // Non-admin accessing official mode → redirect
+      form.reset({
+        name: existingServer.name,
+        description: existingServer.description ?? '',
+        transport: existingServer.transport,
+        command: isStdio ? ((config.command as string) ?? '') : '',
+        args: isStdio
+          ? ((config.args as string[] | undefined)?.join(', ') ?? '')
+          : '',
+        url: !isStdio ? ((config.url as string) ?? '') : '',
+        headers: !isStdio
+          ? (() => {
+              const headers = config.headers as
+                | Record<string, string>
+                | undefined;
+              return headers && Object.keys(headers).length > 0
+                ? JSON.stringify(headers, null, 2)
+                : '';
+            })()
+          : '',
+      });
+    }
+  }, [existingServer, form]);
+
   if (isOfficialMode && !isAdmin) {
     return <Navigate to="/mcp-servers" replace />;
   }
 
-  function parseArgs(input: string): string[] {
-    return input
-      .split(',')
-      .map(arg => arg.trim())
-      .filter(arg => arg.length > 0);
-  }
+  const watchedTransport = form.watch('transport') as McpTransportType;
 
-  function parseHeaders(input: string): Record<string, string> | null {
-    if (input.trim().length === 0) return {};
-    try {
-      const parsed = JSON.parse(input) as Record<string, string>;
-      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
-        return null;
-      }
-      return parsed;
-    } catch {
-      return null;
-    }
-  }
-
-  function buildConfig(): Record<string, unknown> | null {
-    if (transport === McpTransport.STDIO) {
-      return {
-        command: command.trim(),
-        args: parseArgs(argsInput),
-      };
-    }
-
-    const headers = parseHeaders(headersInput);
-    if (headers === null) {
-      setHeadersError(t('mcp.headersError'));
-      return null;
-    }
-    setHeadersError(null);
-
-    return {
-      url: url.trim(),
-      ...(Object.keys(headers).length > 0 ? { headers } : {}),
-    };
-  }
-
-  const isStdioValid =
-    transport === McpTransport.STDIO && command.trim().length > 0;
-  const isHttpValid =
-    (transport === McpTransport.SSE ||
-      transport === McpTransport.STREAMABLE_HTTP) &&
-    url.trim().length > 0;
-  const isFormValid = name.trim().length > 0 && (isStdioValid || isHttpValid);
   const isSaving =
     createMcpServer.isPending ||
     updateMcpServer.isPending ||
     createMarketplace.isPending ||
     updateMarketplace.isPending;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!isFormValid || isSaving) return;
+  async function onSubmit(values: McpFormValues) {
+    if (isSaving) return;
 
-    const config = buildConfig();
-    if (config === null) return;
+    let config: Record<string, unknown>;
+    if (values.transport === McpTransport.STDIO) {
+      config = {
+        command: values.command?.trim(),
+        args: parseArgs(values.args ?? ''),
+      };
+    } else {
+      const headers = parseHeaders(values.headers ?? '');
+      if (headers === null) {
+        form.setError('headers', { message: t('mcp.headersError') });
+        return;
+      }
+      config = {
+        url: values.url?.trim(),
+        ...(Object.keys(headers).length > 0 ? { headers } : {}),
+      };
+    }
 
     const dto = {
-      name: name.trim(),
-      description: description.trim() || undefined,
-      transport,
+      name: values.name.trim(),
+      description: values.description?.trim() || undefined,
+      transport: values.transport as McpTransportType,
       config,
     };
 
@@ -299,11 +305,6 @@ export default function McpEditorPage() {
     }
   }
 
-  function handleTransportChange(newTransport: McpTransportType) {
-    setTransport(newTransport);
-    setHeadersError(null);
-  }
-
   const pageTitle = isOfficialMode
     ? isEditMode
       ? t('mcp.editMarketplace')
@@ -321,160 +322,146 @@ export default function McpEditorPage() {
       : t('mcp.addServerDesc');
 
   if (isEditMode && isLoadingServer) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('mcp.loadingServer')}
-        </div>
-      </div>
-    );
+    return <LoadingState message={t('mcp.loadingServer')} />;
   }
 
   if (isEditMode && !isLoadingServer && !existingServer) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">{t('mcp.notFound')}</h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          {t('mcp.notFoundDesc')}
-        </p>
-        <Button variant="outline" onClick={() => navigate('/mcp-servers')}>
-          {t('mcp.backToServers')}
-        </Button>
-      </div>
+      <NotFoundState
+        title={t('mcp.notFound')}
+        description={t('mcp.notFoundDesc')}
+        backLabel={t('mcp.backToServers')}
+        backTo="/mcp-servers"
+      />
     );
   }
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/mcp-servers')}
-          aria-label="Back to MCP servers"
-          className="cursor-pointer"
+      <PageHeader
+        backTo="/mcp-servers"
+        backLabel={t('mcp.backToServers')}
+        title={pageTitle}
+        description={pageDescription}
+      />
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-6"
         >
-          <ArrowLeft className="size-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{pageTitle}</h1>
-          <p className="text-muted-foreground text-sm">{pageDescription}</p>
-        </div>
-      </div>
-
-      {/* Form */}
-      <Card className="max-w-2xl">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <CardHeader>
-            <CardTitle>{t('mcp.serverDetails')}</CardTitle>
-            <CardDescription>{t('mcp.serverDetailsDesc')}</CardDescription>
-          </CardHeader>
-
-          <CardContent className="flex flex-col gap-6">
+          <FormCard
+            title={t('mcp.serverDetails')}
+            description={t('mcp.serverDetailsDesc')}
+            footer={
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/mcp-servers')}
+                  disabled={isSaving}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!form.formState.isValid || isSaving}
+                  className="gradient-bg cursor-pointer text-white hover:opacity-90"
+                >
+                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {isEditMode ? t('common.save') : t('mcp.createServer')}
+                </Button>
+              </>
+            }
+          >
             {/* Name */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">{t('common.name')}</Label>
-              <Input
-                id="name"
-                placeholder={t('mcp.namePlaceholder')}
-                value={name}
-                onChange={e => setName(e.target.value)}
-                disabled={isSaving}
-                required
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('mcp.nameHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('mcp.namePlaceholder')}
+                      disabled={isSaving}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('mcp.nameHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Description */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="description">{t('common.description')}</Label>
-              <Textarea
-                id="description"
-                placeholder={t('mcp.descPlaceholder')}
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                disabled={isSaving}
-                rows={3}
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('mcp.descHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.description')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t('mcp.descPlaceholder')}
+                      disabled={isSaving}
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('mcp.descHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Transport */}
-            <div className="flex flex-col gap-2">
-              <Label>{t('mcp.transport')}</Label>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {TRANSPORT_OPTIONS.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    disabled={isSaving}
-                    onClick={() => handleTransportChange(option.value)}
-                    className={cn(
-                      'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
-                      transport === option.value
-                        ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
-                        : 'hover:bg-accent',
-                      isSaving && 'cursor-not-allowed opacity-60'
-                    )}
-                  >
-                    <span className="text-sm font-medium">
-                      {t(option.labelKey)}
-                    </span>
-                    <span className="text-muted-foreground text-xs">
-                      {t(option.descKey)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="transport"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('mcp.transport')}</FormLabel>
+                  <FormControl>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {TRANSPORT_OPTIONS.map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          disabled={isSaving}
+                          onClick={() => field.onChange(option.value)}
+                          className={cn(
+                            'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
+                            field.value === option.value
+                              ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
+                              : 'hover:bg-accent',
+                            isSaving && 'cursor-not-allowed opacity-60'
+                          )}
+                        >
+                          <span className="text-sm font-medium">
+                            {t(option.labelKey)}
+                          </span>
+                          <span className="text-muted-foreground text-xs">
+                            {t(option.descKey)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Dynamic config fields */}
-            {transport === McpTransport.STDIO ? (
-              <StdioConfigFields
-                command={command}
-                onCommandChange={setCommand}
-                argsInput={argsInput}
-                onArgsChange={setArgsInput}
-                disabled={isSaving}
-              />
+            {watchedTransport === McpTransport.STDIO ? (
+              <StdioConfigFields disabled={isSaving} />
             ) : (
-              <HttpConfigFields
-                url={url}
-                onUrlChange={setUrl}
-                headersInput={headersInput}
-                onHeadersChange={setHeadersInput}
-                headersError={headersError}
-                disabled={isSaving}
-              />
+              <HttpConfigFields disabled={isSaving} />
             )}
-          </CardContent>
-
-          <CardFooter className="flex justify-end gap-3 border-t pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/mcp-servers')}
-              disabled={isSaving}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isFormValid || isSaving}
-              className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-            >
-              {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? t('common.save') : t('mcp.createServer')}
-            </Button>
-          </CardFooter>
+          </FormCard>
         </form>
-      </Card>
+      </Form>
     </div>
   );
 }
