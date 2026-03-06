@@ -1,21 +1,24 @@
-import { type FormEvent, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
-import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { FormCard, PageHeader } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -24,13 +27,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useCreateAgent } from '@/hooks/use-agents';
 import { useProviders } from '@/hooks/use-providers';
+import { type AgentFormValues, agentSchema } from '@/lib/schemas';
 
 export default function CreateAgentPage() {
   const { t } = useTranslation();
@@ -42,23 +41,30 @@ export default function CreateAgentPage() {
     error: providersError,
   } = useProviders();
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [providerId, setProviderId] = useState('');
-  const [modelId, setModelId] = useState('');
-  const [systemPrompt, setSystemPrompt] = useState('');
-  const [temperature, setTemperature] = useState('0.7');
-  const [maxTokens, setMaxTokens] = useState('4096');
-  const [error, setError] = useState<string | null>(null);
+  const form = useForm<AgentFormValues>({
+    resolver: zodResolver(agentSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      providerId: '',
+      modelId: '',
+      systemPrompt: '',
+      temperature: 0.7,
+      maxTokens: 4096,
+    },
+    mode: 'onChange',
+  });
 
   const activeProviders = useMemo(
     () => providers?.filter(p => p.isActive) ?? [],
     [providers]
   );
 
+  const watchedProviderId = form.watch('providerId');
+
   const selectedProvider = useMemo(
-    () => activeProviders.find(p => p.id === providerId),
-    [activeProviders, providerId]
+    () => activeProviders.find(p => p.id === watchedProviderId),
+    [activeProviders, watchedProviderId]
   );
 
   const activeModels = useMemo(
@@ -66,50 +72,24 @@ export default function CreateAgentPage() {
     [selectedProvider]
   );
 
-  function handleProviderChange(newProviderId: string) {
-    setProviderId(newProviderId);
-    setModelId('');
-  }
-
-  const isFormValid =
-    name.trim().length > 0 &&
-    providerId.length > 0 &&
-    modelId.length > 0 &&
-    systemPrompt.trim().length > 0;
+  useEffect(() => {
+    form.setValue('modelId', '');
+  }, [watchedProviderId, form]);
 
   const isSaving = createAgent.isPending;
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!isFormValid || isSaving) return;
-    setError(null);
-
-    const parsedTemperature = parseFloat(temperature);
-    const parsedMaxTokens = parseInt(maxTokens, 10);
-
-    if (
-      isNaN(parsedTemperature) ||
-      parsedTemperature < 0 ||
-      parsedTemperature > 2
-    ) {
-      setError(t('agents.tempError'));
-      return;
-    }
-
-    if (isNaN(parsedMaxTokens) || parsedMaxTokens < 1) {
-      setError(t('agents.maxTokensError'));
-      return;
-    }
+  async function onSubmit(values: AgentFormValues) {
+    if (isSaving) return;
 
     try {
       await createAgent.mutateAsync({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        providerId,
-        modelId,
-        systemPrompt: systemPrompt.trim(),
-        temperature: parsedTemperature,
-        maxTokens: parsedMaxTokens,
+        name: values.name.trim(),
+        description: values.description?.trim() || undefined,
+        providerId: values.providerId,
+        modelId: values.modelId,
+        systemPrompt: values.systemPrompt.trim(),
+        temperature: values.temperature,
+        maxTokens: values.maxTokens,
       });
       toast.success(t('agents.created'));
       await navigate('/agents');
@@ -132,231 +112,256 @@ export default function CreateAgentPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/agents')}
-              aria-label="Back to agents"
-              className="cursor-pointer"
-            >
-              <ArrowLeft className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('agents.backToAgents')}</TooltipContent>
-        </Tooltip>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('agents.createAgent')}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {t('agents.createAgentDesc')}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        backTo="/agents"
+        backLabel={t('agents.backToAgents')}
+        title={t('agents.createAgent')}
+        description={t('agents.createAgentDesc')}
+      />
 
-      {/* Form */}
-      <Card className="max-w-2xl">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <CardHeader>
-            <CardTitle>{t('agents.agentConfig')}</CardTitle>
-            <CardDescription>{t('agents.agentConfigDesc')}</CardDescription>
-          </CardHeader>
-
-          <CardContent className="flex flex-col gap-6">
-            {error && (
-              <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
-                {error}
-              </div>
-            )}
-
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-6"
+        >
+          <FormCard
+            title={t('agents.agentConfig')}
+            description={t('agents.agentConfigDesc')}
+            footer={
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/agents')}
+                  disabled={isSaving}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!form.formState.isValid || isSaving}
+                  className="gradient-bg cursor-pointer text-white hover:opacity-90"
+                >
+                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {t('agents.createAgent')}
+                </Button>
+              </>
+            }
+          >
             {/* Name */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">{t('common.name')}</Label>
-              <Input
-                id="name"
-                placeholder={t('agents.namePlaceholder')}
-                value={name}
-                onChange={e => setName(e.target.value)}
-                disabled={isSaving}
-                required
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('agents.nameHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('agents.namePlaceholder')}
+                      disabled={isSaving}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('agents.nameHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Description */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="description">{t('common.description')}</Label>
-              <Textarea
-                id="description"
-                placeholder={t('agents.descPlaceholder')}
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                disabled={isSaving}
-                rows={3}
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('agents.descHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.description')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t('agents.descPlaceholder')}
+                      disabled={isSaving}
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('agents.descHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Provider */}
-            <div className="flex flex-col gap-2">
-              <Label>{t('agents.provider')}</Label>
-              <Select
-                value={providerId || undefined}
-                onValueChange={handleProviderChange}
-                disabled={isSaving || isLoadingProviders}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={
-                      isLoadingProviders
-                        ? t('agents.loadingProviders')
-                        : t('agents.selectProvider')
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {activeProviders.map(provider => (
-                    <SelectItem key={provider.id} value={provider.id}>
-                      {provider.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-muted-foreground text-xs">
-                {t('agents.providerHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="providerId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('agents.provider')}</FormLabel>
+                  <Select
+                    value={field.value || undefined}
+                    onValueChange={field.onChange}
+                    disabled={isSaving || isLoadingProviders}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={
+                            isLoadingProviders
+                              ? t('agents.loadingProviders')
+                              : t('agents.selectProvider')
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {activeProviders.map(provider => (
+                        <SelectItem key={provider.id} value={provider.id}>
+                          {provider.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>{t('agents.providerHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Model */}
-            <div className="flex flex-col gap-2">
-              <Label>{t('agents.model')}</Label>
-              <Select
-                value={modelId || undefined}
-                onValueChange={setModelId}
-                disabled={isSaving || !providerId}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={
-                      !providerId
-                        ? t('agents.selectProviderFirst')
-                        : t('agents.selectModel')
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {activeModels.map(model => (
-                    <SelectItem key={model.id} value={model.modelId}>
-                      {model.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-muted-foreground text-xs">
-                {t('agents.modelHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="modelId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('agents.model')}</FormLabel>
+                  <Select
+                    value={field.value || undefined}
+                    onValueChange={field.onChange}
+                    disabled={isSaving || !watchedProviderId}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={
+                            !watchedProviderId
+                              ? t('agents.selectProviderFirst')
+                              : t('agents.selectModel')
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {activeModels.map(model => (
+                        <SelectItem key={model.id} value={model.modelId}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>{t('agents.modelHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* System Prompt */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="systemPrompt">{t('agents.systemPrompt')}</Label>
-              <Textarea
-                id="systemPrompt"
-                placeholder={t('agents.systemPromptPlaceholder')}
-                value={systemPrompt}
-                onChange={e => setSystemPrompt(e.target.value)}
-                disabled={isSaving}
-                required
-                rows={10}
-                className="font-mono text-sm"
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('agents.systemPromptHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="systemPrompt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('agents.systemPrompt')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t('agents.systemPromptPlaceholder')}
+                      disabled={isSaving}
+                      rows={10}
+                      className="font-mono text-sm"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t('agents.systemPromptHint')}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Temperature */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="temperature">
-                {t('agents.temperature')}{' '}
-                <span className="text-muted-foreground font-normal">
-                  ({temperature})
-                </span>
-              </Label>
-              <div className="flex items-center gap-4">
-                <input
-                  id="temperature"
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  value={temperature}
-                  onChange={e => setTemperature(e.target.value)}
-                  disabled={isSaving}
-                  className="flex-1"
-                />
-                <Input
-                  type="number"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  value={temperature}
-                  onChange={e => setTemperature(e.target.value)}
-                  disabled={isSaving}
-                  className="w-20"
-                />
-              </div>
-              <p className="text-muted-foreground text-xs leading-relaxed">
-                {t('agents.temperatureHint')}
-              </p>
-            </div>
+            <FormField
+              control={form.control}
+              name="temperature"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t('agents.temperature')}{' '}
+                    <span className="text-muted-foreground font-normal">
+                      ({field.value})
+                    </span>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="range"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        value={field.value}
+                        onChange={e =>
+                          field.onChange(parseFloat(e.target.value))
+                        }
+                        disabled={isSaving}
+                        className="flex-1"
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        value={field.value}
+                        onChange={e =>
+                          field.onChange(parseFloat(e.target.value) || 0)
+                        }
+                        disabled={isSaving}
+                        className="w-20"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    {t('agents.temperatureHint')}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Max Tokens */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="maxTokens">{t('agents.maxTokens')}</Label>
-              <Input
-                id="maxTokens"
-                type="number"
-                min="1"
-                placeholder={t('agents.maxTokensPlaceholder')}
-                value={maxTokens}
-                onChange={e => setMaxTokens(e.target.value)}
-                disabled={isSaving}
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('agents.maxTokensHint')}
-              </p>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex justify-end gap-3 border-t pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/agents')}
-              disabled={isSaving}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isFormValid || isSaving}
-              className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-            >
-              {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {t('agents.createAgent')}
-            </Button>
-          </CardFooter>
+            <FormField
+              control={form.control}
+              name="maxTokens"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('agents.maxTokens')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="1"
+                      placeholder={t('agents.maxTokensPlaceholder')}
+                      value={field.value}
+                      onChange={e =>
+                        field.onChange(parseInt(e.target.value, 10) || 0)
+                      }
+                      disabled={isSaving}
+                    />
+                  </FormControl>
+                  <FormDescription>{t('agents.maxTokensHint')}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </FormCard>
         </form>
-      </Card>
+      </Form>
     </div>
   );
 }
