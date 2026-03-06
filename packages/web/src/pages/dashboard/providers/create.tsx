@@ -19,6 +19,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   useCreateProvider,
   useProvider,
   useTestProvider,
@@ -205,15 +210,20 @@ export default function CreateProviderPage() {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/providers')}
-          aria-label="Back to providers"
-          className="cursor-pointer"
-        >
-          <ArrowLeft className="size-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/providers')}
+              aria-label="Back to providers"
+              className="cursor-pointer"
+            >
+              <ArrowLeft className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('providers.backToProviders')}</TooltipContent>
+        </Tooltip>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
             {isEditMode

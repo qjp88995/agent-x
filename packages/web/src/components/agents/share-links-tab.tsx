@@ -36,6 +36,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import {
@@ -209,17 +214,22 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                       readOnly
                       className="font-mono text-xs"
                     />
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => handleCopy(getShareUrl(createdToken))}
-                    >
-                      {copied ? (
-                        <Check className="size-4" />
-                      ) : (
-                        <Copy className="size-4" />
-                      )}
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleCopy(getShareUrl(createdToken))}
+                        >
+                          {copied ? (
+                            <Check className="size-4" />
+                          ) : (
+                            <Copy className="size-4" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t('common.copy')}</TooltipContent>
+                    </Tooltip>
                   </div>
                   <DialogFooter>
                     <Button onClick={handleCloseDialog}>
@@ -367,30 +377,45 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                       <code className="text-muted-foreground truncate text-xs">
                         {getShareUrl(token.tokenSlug)}
                       </code>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-6 cursor-pointer"
-                        onClick={() =>
-                          handleCopy(getShareUrl(token.tokenSlug!), token.id)
-                        }
-                      >
-                        {copiedTokenId === token.id ? (
-                          <Check className="size-3" />
-                        ) : (
-                          <Copy className="size-3" />
-                        )}
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="size-6 cursor-pointer"
+                            onClick={() =>
+                              handleCopy(
+                                getShareUrl(token.tokenSlug!),
+                                token.id
+                              )
+                            }
+                          >
+                            {copiedTokenId === token.id ? (
+                              <Check className="size-3" />
+                            ) : (
+                              <Copy className="size-3" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t('common.copy')}</TooltipContent>
+                      </Tooltip>
                     </div>
                   )}
                 </div>
                 {token.isActive && (
                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="ghost">
-                        <Ban className="size-4" />
-                      </Button>
-                    </AlertDialogTrigger>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="ghost">
+                            <Ban className="size-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {t('shareLinks.deactivate')}
+                      </TooltipContent>
+                    </Tooltip>
                     <AlertDialogContent variant="destructive">
                       <AlertDialogHeader>
                         <AlertDialogTitle>

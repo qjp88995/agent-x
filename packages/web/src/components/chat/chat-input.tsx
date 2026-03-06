@@ -7,6 +7,11 @@ import StarterKit from '@tiptap/starter-kit';
 import { Send, Square } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface ChatInputProps {
   readonly onSend: (content: string) => void;
@@ -82,25 +87,33 @@ export function ChatInput({
           <EditorContent editor={editor} />
         </div>
         {isLoading ? (
-          <Button
-            size="icon"
-            variant="destructive"
-            className="size-11 shrink-0 rounded-xl"
-            onClick={onStop}
-          >
-            <Square className="size-4" />
-            <span className="sr-only">{t('common.stop')}</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="destructive"
+                className="size-11 shrink-0 rounded-xl"
+                onClick={onStop}
+              >
+                <Square className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('common.stop')}</TooltipContent>
+          </Tooltip>
         ) : (
-          <Button
-            size="icon"
-            className="gradient-bg text-white hover:opacity-90 size-11 shrink-0 rounded-xl"
-            onClick={handleSubmitFromEditor}
-            disabled={disabled}
-          >
-            <Send className="size-4" />
-            <span className="sr-only">{t('common.send')}</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                className="gradient-bg text-white hover:opacity-90 size-11 shrink-0 rounded-xl"
+                onClick={handleSubmitFromEditor}
+                disabled={disabled}
+              >
+                <Send className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('common.send')}</TooltipContent>
+          </Tooltip>
         )}
       </div>
     </div>

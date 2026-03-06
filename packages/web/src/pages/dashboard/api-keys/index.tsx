@@ -44,6 +44,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useAgents } from '@/hooks/use-agents';
 import type { ApiKeyResponse } from '@/hooks/use-api-keys';
 import {
@@ -175,18 +180,23 @@ function CreateKeyDialog({
                 <code className="flex-1 break-all rounded bg-yellow-100 px-2 py-1 font-mono text-xs dark:bg-yellow-900">
                   {createdKey}
                 </code>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0"
-                  onClick={handleCopy}
-                >
-                  {copied ? (
-                    <Check className="size-4 text-green-600" />
-                  ) : (
-                    <ClipboardCopy className="size-4" />
-                  )}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={handleCopy}
+                    >
+                      {copied ? (
+                        <Check className="size-4 text-green-600" />
+                      ) : (
+                        <ClipboardCopy className="size-4" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t('common.copy')}</TooltipContent>
+                </Tooltip>
               </div>
             </div>
             <DialogFooter>
@@ -360,18 +370,23 @@ function UsageDocs() {
         <pre className="bg-muted overflow-x-auto rounded-md p-4 font-mono text-sm">
           {curlExample}
         </pre>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-2 top-2 size-8"
-          onClick={handleCopy}
-        >
-          {copied ? (
-            <Check className="size-4 text-green-600" />
-          ) : (
-            <ClipboardCopy className="size-4" />
-          )}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-2 size-8"
+              onClick={handleCopy}
+            >
+              {copied ? (
+                <Check className="size-4 text-green-600" />
+              ) : (
+                <ClipboardCopy className="size-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('common.copy')}</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
@@ -478,15 +493,19 @@ export default function ApiKeysPage() {
                   </TableCell>
                   <TableCell>
                     {apiKey.isActive && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-destructive hover:text-destructive"
-                        onClick={() => setDeleteTarget(apiKey)}
-                      >
-                        <Trash2 className="size-4" />
-                        <span className="sr-only">{t('apiKeys.revoke')}</span>
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-destructive hover:text-destructive"
+                            onClick={() => setDeleteTarget(apiKey)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t('apiKeys.revoke')}</TooltipContent>
+                      </Tooltip>
                     )}
                   </TableCell>
                 </TableRow>

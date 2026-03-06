@@ -22,6 +22,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -134,15 +139,20 @@ function UserSection() {
             {displayName}
           </p>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={logout}
-          className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
-          aria-label={t('auth.signOut')}
-        >
-          <LogOut className="size-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={logout}
+              className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
+              aria-label={t('auth.signOut')}
+            >
+              <LogOut className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('auth.signOut')}</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );

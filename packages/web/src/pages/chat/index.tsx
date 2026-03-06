@@ -24,6 +24,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useAgents } from '@/hooks/use-agents';
 import {
   type ConversationWithAgent,
@@ -130,17 +135,21 @@ function Sidebar({
     <div className="flex h-full w-72 flex-col border-r bg-background">
       {/* Back to dashboard + title */}
       <div className="flex h-14 items-center gap-2 px-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8 cursor-pointer"
-          asChild
-        >
-          <Link to="/agents">
-            <ArrowLeft className="size-4" />
-            <span className="sr-only">{t('chat.backToDashboard')}</span>
-          </Link>
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 cursor-pointer"
+              asChild
+            >
+              <Link to="/agents">
+                <ArrowLeft className="size-4" />
+              </Link>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('chat.backToDashboard')}</TooltipContent>
+        </Tooltip>
         <span className="gradient-text text-lg font-bold tracking-tight">
           {t('chat.title')}
         </span>

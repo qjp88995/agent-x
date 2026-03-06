@@ -12,6 +12,11 @@ import {
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useCreateConversation } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 
@@ -104,14 +109,18 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
   if (collapsed) {
     return (
       <div className="flex flex-col items-center border-l pt-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(false)}
-          title={t('chat.openTestChat')}
-        >
-          <PanelRightOpen className="size-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCollapsed(false)}
+            >
+              <PanelRightOpen className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('chat.openTestChat')}</TooltipContent>
+        </Tooltip>
       </div>
     );
   }
@@ -122,22 +131,26 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
       <div className="flex h-14 shrink-0 items-center justify-between border-b px-3">
         <span className="text-sm font-medium">{t('chat.testChat')}</span>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNewChat}
-            title={t('chat.newChat')}
-          >
-            <MessageSquarePlus className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed(true)}
-            title={t('chat.collapse')}
-          >
-            <PanelRightClose className="size-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={handleNewChat}>
+                <MessageSquarePlus className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('chat.newChat')}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCollapsed(true)}
+              >
+                <PanelRightClose className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('chat.collapse')}</TooltipContent>
+          </Tooltip>
         </div>
       </div>
 

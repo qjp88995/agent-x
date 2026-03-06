@@ -14,6 +14,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useSharedConversationMessages,
@@ -49,9 +54,14 @@ function ConversationDetail({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="size-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" onClick={onBack}>
+              <ArrowLeft className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('common.back')}</TooltipContent>
+        </Tooltip>
         <div>
           <h3 className="text-sm font-medium">
             {conversation.title ?? t('conversations.untitled')}
