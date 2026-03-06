@@ -334,7 +334,8 @@ function UsageDocs() {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
-  const curlExample = `curl https://your-domain/v1/chat/completions \\
+  const domain = window.location.origin;
+  const curlExample = `curl ${domain}/v1/chat/completions \\
   -H "Authorization: Bearer sk-agx-..." \\
   -H "Content-Type: application/json" \\
   -d '{"model":"<agent-id>","messages":[{"role":"user","content":"Hello"}]}'`;
