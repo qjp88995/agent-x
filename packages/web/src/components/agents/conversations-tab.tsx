@@ -1,12 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import type {
-  MessageResponse,
-  SharedConversationResponse,
-} from '@agent-x/shared';
+import type { SharedConversationResponse } from '@agent-x/shared';
 import { formatDistanceToNow } from 'date-fns';
-import { ArrowLeft, Bot, MessageSquare, User } from 'lucide-react';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 
+import { MessageList } from '@/components/chat/message-list';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,42 +17,10 @@ import {
   useSharedConversationMessages,
   useSharedConversations,
 } from '@/hooks/use-shared-conversations';
-import { cn } from '@/lib/utils';
+import { toUIMessages } from '@/lib/message-utils';
 
 interface ConversationsTabProps {
   agentId: string;
-}
-
-function MessageBubble({ message }: { message: MessageResponse }) {
-  const isUser = message.role === 'user';
-
-  const textContent = message.parts
-    .filter(p => p.type === 'text')
-    .map(p => (p as { type: 'text'; text: string }).text)
-    .join('\n');
-
-  return (
-    <div className={cn('flex gap-3', isUser && 'flex-row-reverse')}>
-      <div
-        className={cn(
-          'flex size-7 shrink-0 items-center justify-center rounded-full',
-          isUser
-            ? 'bg-primary text-primary-foreground'
-            : 'bg-muted text-muted-foreground'
-        )}
-      >
-        {isUser ? <User className="size-3.5" /> : <Bot className="size-3.5" />}
-      </div>
-      <div
-        className={cn(
-          'max-w-[80%] rounded-lg px-3 py-2 text-sm',
-          isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
-        )}
-      >
-        <p className="whitespace-pre-wrap">{textContent}</p>
-      </div>
-    </div>
-  );
 }
 
 function ConversationDetail({
@@ -69,6 +35,11 @@ function ConversationDetail({
   const { data: messages, isLoading } = useSharedConversationMessages(
     agentId,
     conversation.id
+  );
+
+  const uiMessages = useMemo(
+    () => (messages ? toUIMessages(messages) : []),
+    [messages]
   );
 
   return (
@@ -99,16 +70,12 @@ function ConversationDetail({
         <div className="text-muted-foreground py-8 text-center text-sm">
           Loading messages...
         </div>
-      ) : !messages?.length ? (
+      ) : !uiMessages.length ? (
         <div className="text-muted-foreground py-8 text-center text-sm">
           No messages in this conversation.
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {messages.map(msg => (
-            <MessageBubble key={msg.id} message={msg} />
-          ))}
-        </div>
+        <MessageList messages={uiMessages} />
       )}
     </div>
   );

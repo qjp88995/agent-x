@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useChat } from '@ai-sdk/react';
-import { type UIMessage } from 'ai';
 import {
   Bot,
   MessageSquarePlus,
@@ -10,7 +9,7 @@ import {
 } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
-import { MessageItem } from '@/components/chat/message-item';
+import { MessageList } from '@/components/chat/message-list';
 import { Button } from '@/components/ui/button';
 import { useCreateConversation } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
@@ -152,12 +151,7 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
             </p>
           </div>
         ) : (
-          <div className="py-4">
-            {messages.map((message: UIMessage) => (
-              <MessageItem key={message.id} message={message} />
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
+          <MessageList ref={messagesEndRef} messages={messages} />
         )}
       </div>
 

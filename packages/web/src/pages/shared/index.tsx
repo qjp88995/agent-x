@@ -2,11 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
-import { type UIMessage } from 'ai';
 import { Bot } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
-import { MessageItem } from '@/components/chat/message-item';
+import { MessageList } from '@/components/chat/message-list';
 import {
   useCreateSharedConversation,
   useSharedAgentInfo,
@@ -139,12 +138,11 @@ export default function SharedChatPage() {
             </p>
           </div>
         ) : (
-          <div className="mx-auto max-w-3xl py-4">
-            {messages.map((message: UIMessage) => (
-              <MessageItem key={message.id} message={message} />
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
+          <MessageList
+            ref={messagesEndRef}
+            messages={messages}
+            className="mx-auto max-w-3xl"
+          />
         )}
       </div>
 

@@ -361,7 +361,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                         variant="ghost"
                         className="size-6 cursor-pointer"
                         onClick={() =>
-                          handleCopy(getShareUrl(token.tokenSlug), token.id)
+                          handleCopy(getShareUrl(token.tokenSlug!), token.id)
                         }
                       >
                         {copiedTokenId === token.id ? (

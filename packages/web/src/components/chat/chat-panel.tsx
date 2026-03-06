@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { type UIMessage } from 'ai';
 import { Bot, MessageSquare } from 'lucide-react';
 
 import { messagesKey, useMessages } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
+import { toUIMessages } from '@/lib/message-utils';
 
 import { ChatInput } from './chat-input';
-import { MessageItem } from './message-item';
+import { MessageList } from './message-list';
 
 interface ChatPanelProps {
   readonly conversationId: string;
@@ -80,54 +80,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
       savedMessages.length > 0 &&
       historyLoadedRef.current !== conversationId
     ) {
-      const history: UIMessage[] = savedMessages.map(msg => {
-        const rawParts = msg.parts as Array<Record<string, any>>;
-
-        // Index tool-result by toolCallId for pairing
-        const resultMap = new Map<string, Record<string, any>>();
-        for (const p of rawParts) {
-          if (p.type === 'tool-result') {
-            resultMap.set(p.toolCallId, p);
-          }
-        }
-
-        const parts: UIMessage['parts'] = [];
-        for (const p of rawParts) {
-          if (p.type === 'reasoning') {
-            parts.push({
-              type: 'reasoning' as const,
-              text: p.text ?? '',
-              state: 'done' as const,
-            });
-          } else if (p.type === 'tool-call') {
-            const result = resultMap.get(p.toolCallId);
-            parts.push({
-              type: `tool-${p.toolName}`,
-              toolCallId: p.toolCallId,
-              toolName: p.toolName,
-              state: result ? 'output-available' : 'input-available',
-              input: p.args,
-              ...(result ? { output: result.result } : {}),
-            } as any);
-          } else if (p.type === 'tool-result') {
-            // Skip - already merged into tool-call above
-          } else {
-            parts.push({
-              type: 'text' as const,
-              text: p.text ?? '',
-            });
-          }
-        }
-
-        return {
-          id: msg.id,
-          role:
-            msg.role.toLowerCase() === 'user'
-              ? ('user' as const)
-              : ('assistant' as const),
-          parts,
-        };
-      });
+      const history = toUIMessages(savedMessages as any);
       // If a resumed stream is active, preserve the streaming message(s)
       const currentStatus = statusRef.current;
       const currentMessages = currentMessagesRef.current;
@@ -172,12 +125,11 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
         {messages.length === 0 ? (
           <EmptyChat agentName={agentName} />
         ) : (
-          <div className="mx-auto max-w-3xl py-4">
-            {messages.map(message => (
-              <MessageItem key={message.id} message={message} />
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
+          <MessageList
+            ref={messagesEndRef}
+            messages={messages}
+            className="mx-auto max-w-3xl"
+          />
         )}
       </div>
 
