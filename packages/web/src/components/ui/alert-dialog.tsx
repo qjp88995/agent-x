@@ -1,9 +1,15 @@
 import * as React from 'react';
 
+import { AlertTriangle, Info } from 'lucide-react';
 import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+type AlertDialogVariant = 'default' | 'destructive';
+
+const AlertDialogVariantContext =
+  React.createContext<AlertDialogVariant>('default');
 
 function AlertDialog({
   ...props
@@ -43,26 +49,71 @@ function AlertDialogOverlay({
   );
 }
 
+const variantConfig = {
+  default: {
+    bar: 'from-[oklch(0.541_0.25_293)] to-[oklch(0.715_0.143_215)]',
+    iconBg: 'bg-primary/10',
+    iconColor: 'text-primary',
+    icon: Info,
+  },
+  destructive: {
+    bar: 'from-[oklch(0.577_0.245_27)] to-[oklch(0.65_0.2_40)]',
+    iconBg: 'bg-destructive/10',
+    iconColor: 'text-destructive',
+    icon: AlertTriangle,
+  },
+};
+
 function AlertDialogContent({
   className,
   size = 'default',
+  variant = 'default',
+  icon: IconOverride,
+  children,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
   size?: 'default' | 'sm';
+  variant?: AlertDialogVariant;
+  icon?: React.ComponentType<{ className?: string }>;
 }) {
+  const config = variantConfig[variant];
+  const IconComponent = IconOverride ?? config.icon;
+
   return (
-    <AlertDialogPortal>
-      <AlertDialogOverlay />
-      <AlertDialogPrimitive.Content
-        data-slot="alert-dialog-content"
-        data-size={size}
-        className={cn(
-          'group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[size=sm]:max-w-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[size=default]:sm:max-w-lg',
-          className
-        )}
-        {...props}
-      />
-    </AlertDialogPortal>
+    <AlertDialogVariantContext.Provider value={variant}>
+      <AlertDialogPortal>
+        <AlertDialogOverlay />
+        <AlertDialogPrimitive.Content
+          data-slot="alert-dialog-content"
+          data-size={size}
+          className={cn(
+            'group/alert-dialog-content fixed top-[40%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-lg border bg-background shadow-lg duration-200 data-[size=sm]:max-w-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[size=default]:sm:max-w-lg',
+            className
+          )}
+          {...props}
+        >
+          <div
+            className={cn(
+              'alert-bar-animate h-[3px] w-full bg-gradient-to-r',
+              config.bar
+            )}
+          />
+          <div className="grid gap-4 p-6">
+            <div className="flex gap-4">
+              <div
+                className={cn(
+                  'alert-icon-animate flex size-10 shrink-0 items-center justify-center rounded-full',
+                  config.iconBg
+                )}
+              >
+                <IconComponent className={cn('size-5', config.iconColor)} />
+              </div>
+              <div className="grid flex-1 gap-4">{children}</div>
+            </div>
+          </div>
+        </AlertDialogPrimitive.Content>
+      </AlertDialogPortal>
+    </AlertDialogVariantContext.Provider>
   );
 }
 
@@ -73,10 +124,7 @@ function AlertDialogHeader({
   return (
     <div
       data-slot="alert-dialog-header"
-      className={cn(
-        'grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]',
-        className
-      )}
+      className={cn('grid gap-1.5', className)}
       {...props}
     />
   );
@@ -105,10 +153,7 @@ function AlertDialogTitle({
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
-      className={cn(
-        'text-lg font-semibold sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2',
-        className
-      )}
+      className={cn('text-lg font-semibold', className)}
       {...props}
     />
   );
@@ -145,13 +190,17 @@ function AlertDialogMedia({
 
 function AlertDialogAction({
   className,
-  variant = 'default',
+  variant,
   size = 'default',
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action> &
   Pick<React.ComponentProps<typeof Button>, 'variant' | 'size'>) {
+  const contextVariant = React.useContext(AlertDialogVariantContext);
+  const buttonVariant =
+    variant ?? (contextVariant === 'destructive' ? 'destructive' : 'default');
+
   return (
-    <Button variant={variant} size={size} asChild>
+    <Button variant={buttonVariant} size={size} asChild>
       <AlertDialogPrimitive.Action
         data-slot="alert-dialog-action"
         className={cn(className)}

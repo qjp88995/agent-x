@@ -284,7 +284,7 @@ function DeleteConfirmDialog({
         if (!open) onOpenChange(false);
       }}
     >
-      <AlertDialogContent>
+      <AlertDialogContent variant="destructive">
         <AlertDialogHeader>
           <AlertDialogTitle>{t('apiKeys.revokeTitle')}</AlertDialogTitle>
           <AlertDialogDescription>
@@ -294,7 +294,6 @@ function DeleteConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
           <AlertDialogAction
-            variant="destructive"
             onClick={handleDelete}
             disabled={deleteApiKey.isPending}
           >

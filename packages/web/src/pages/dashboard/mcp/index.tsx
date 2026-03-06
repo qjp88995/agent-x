@@ -528,7 +528,7 @@ export default function McpPage() {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent variant="destructive">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {deleteMode === 'marketplace'
@@ -546,7 +546,6 @@ export default function McpPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
             >

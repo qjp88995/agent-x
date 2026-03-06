@@ -391,7 +391,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                         <Ban className="size-4" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent variant="destructive">
                       <AlertDialogHeader>
                         <AlertDialogTitle>
                           {t('shareLinks.deactivate')}
@@ -405,7 +405,6 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                           {t('common.cancel')}
                         </AlertDialogCancel>
                         <AlertDialogAction
-                          variant="destructive"
                           onClick={() =>
                             deactivateToken.mutate(
                               {

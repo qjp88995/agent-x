@@ -346,7 +346,7 @@ export default function AgentListPage() {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent variant="destructive">
           <AlertDialogHeader>
             <AlertDialogTitle>{t('agents.deleteAgent')}</AlertDialogTitle>
             <AlertDialogDescription>
@@ -356,7 +356,6 @@ export default function AgentListPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deleteAgent.isPending}
             >

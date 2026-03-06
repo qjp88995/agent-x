@@ -401,7 +401,7 @@ export default function ProviderListPage() {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent variant="destructive">
           <AlertDialogHeader>
             <AlertDialogTitle>{t('providers.deleteProvider')}</AlertDialogTitle>
             <AlertDialogDescription>
@@ -411,7 +411,6 @@ export default function ProviderListPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deleteProvider.isPending}
             >

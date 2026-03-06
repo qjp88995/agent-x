@@ -348,7 +348,7 @@ export default function SkillsPage() {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent variant="destructive">
           <AlertDialogHeader>
             <AlertDialogTitle>{t('skills.deleteSkill')}</AlertDialogTitle>
             <AlertDialogDescription>
@@ -358,7 +358,6 @@ export default function SkillsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deleteSkill.isPending}
             >
