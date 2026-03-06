@@ -151,8 +151,8 @@ function ProviderCard({
 
   function handleSync() {
     syncModels.mutate(provider.id, {
-      onSuccess: models => {
-        toast.success(t('providers.syncSuccess', { count: models.length }));
+      onSuccess: result => {
+        toast.success(t('providers.syncSuccess', { count: result.synced }));
       },
       onError: () => {
         toast.error(t('providers.syncFailed'));

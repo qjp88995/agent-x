@@ -98,9 +98,10 @@ export function useSyncModels() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.post<ProviderModelResponse[]>(
-        `/providers/${id}/sync-models`
-      );
+      const { data } = await api.post<{
+        synced: number;
+        models: ProviderModelResponse[];
+      }>(`/providers/${id}/sync-models`);
       return data;
     },
     onSuccess: () => {
