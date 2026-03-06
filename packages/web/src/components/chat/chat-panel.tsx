@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,6 +18,7 @@ interface ChatPanelProps {
 }
 
 function EmptyChat({ agentName }: { readonly agentName: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4">
       <div className="gradient-bg glow-primary mb-4 flex size-16 items-center justify-center rounded-full">
@@ -24,7 +26,7 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
       </div>
       <h3 className="mb-1 text-lg font-semibold">{agentName}</h3>
       <p className="text-muted-foreground text-sm">
-        Start a conversation by sending a message below.
+        {t('chat.startConversation')}
       </p>
     </div>
   );

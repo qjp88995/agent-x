@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { AgentVersionResponse } from '@agent-x/shared';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,13 +14,14 @@ interface VersionListProps {
 }
 
 function VersionDetail({ version }: { version: AgentVersionResponse }) {
+  const { t } = useTranslation();
   return (
     <div className="border-t px-4 pb-4 pt-3">
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Model */}
         <div className="flex flex-col gap-1">
           <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-            Model
+            {t('versions.model')}
           </span>
           <span className="text-sm">
             {version.provider?.name ?? version.providerId} / {version.modelId}
@@ -29,11 +31,11 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
         {/* Parameters */}
         <div className="flex flex-col gap-1">
           <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-            Parameters
+            {t('versions.parameters')}
           </span>
           <span className="text-sm">
-            Temperature {version.temperature} · Max Tokens{' '}
-            {version.maxTokens.toLocaleString()}
+            {t('agents.temperature')} {version.temperature} ·{' '}
+            {t('agents.maxTokens')} {version.maxTokens.toLocaleString()}
           </span>
         </div>
       </div>
@@ -41,7 +43,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
       {/* System Prompt */}
       <div className="mt-4 flex flex-col gap-1">
         <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-          System Prompt
+          {t('versions.systemPrompt')}
         </span>
         <pre className="bg-muted/50 max-h-40 overflow-y-auto rounded-md p-3 text-xs leading-relaxed whitespace-pre-wrap">
           {version.systemPrompt}
@@ -52,7 +54,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
       {version.skillsSnapshot.length > 0 && (
         <div className="mt-4 flex flex-col gap-1.5">
           <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-            Skills ({version.skillsSnapshot.length})
+            {t('versions.skills')} ({version.skillsSnapshot.length})
           </span>
           <div className="flex flex-wrap gap-1.5">
             {version.skillsSnapshot.map(skill => (
@@ -72,7 +74,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
       {version.mcpServersSnapshot.length > 0 && (
         <div className="mt-4 flex flex-col gap-1.5">
           <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
-            MCP Servers ({version.mcpServersSnapshot.length})
+            {t('versions.mcpServers')} ({version.mcpServersSnapshot.length})
           </span>
           <div className="flex flex-wrap gap-1.5">
             {version.mcpServersSnapshot.map(server => (
@@ -95,13 +97,14 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
 }
 
 export function VersionList({ agentId }: VersionListProps) {
+  const { t } = useTranslation();
   const { data: versions, isLoading } = useAgentVersions(agentId);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (isLoading) {
     return (
       <div className="text-muted-foreground py-8 text-center text-sm">
-        Loading versions...
+        {t('versions.loading')}
       </div>
     );
   }
@@ -110,10 +113,10 @@ export function VersionList({ agentId }: VersionListProps) {
     return (
       <div className="py-8 text-center">
         <p className="text-muted-foreground text-sm">
-          No versions published yet.
+          {t('versions.noVersions')}
         </p>
         <p className="text-muted-foreground mt-1 text-xs">
-          Publish a version to start sharing your agent.
+          {t('versions.noVersionsDesc')}
         </p>
       </div>
     );

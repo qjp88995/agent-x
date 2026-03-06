@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 
 import type { AgentStatus as AgentStatusType } from '@agent-x/shared';
@@ -52,21 +53,22 @@ import { cn } from '@/lib/utils';
 
 const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,
-  { label: string; className: string }
+  { labelKey: string; className: string }
 > = {
   ACTIVE: {
-    label: 'Active',
+    labelKey: 'agents.active',
     className:
       'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   ARCHIVED: {
-    label: 'Archived',
+    labelKey: 'agents.archived',
     className:
       'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
   },
 };
 
 export default function EditAgentPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const {
@@ -148,12 +150,12 @@ export default function EditAgentPage() {
       parsedTemperature < 0 ||
       parsedTemperature > 2
     ) {
-      setError('Temperature must be a number between 0 and 2.');
+      setError(t('agents.tempError'));
       return;
     }
 
     if (isNaN(parsedMaxTokens) || parsedMaxTokens < 1) {
-      setError('Max tokens must be a positive number.');
+      setError(t('agents.maxTokensError'));
       return;
     }
 
@@ -170,9 +172,9 @@ export default function EditAgentPage() {
           maxTokens: parsedMaxTokens,
         },
       });
-      toast.success('Agent updated successfully');
+      toast.success(t('agents.updated'));
     } catch {
-      toast.error('Failed to update agent. Please try again.');
+      toast.error(t('agents.updateFailed'));
     }
   }
 
@@ -187,9 +189,9 @@ export default function EditAgentPage() {
       });
       setPublishDialogOpen(false);
       setChangelog('');
-      toast.success('New version published successfully');
+      toast.success(t('agents.published'));
     } catch {
-      toast.error('Failed to publish version. Please try again.');
+      toast.error(t('agents.publishFailed'));
     }
   }
 
@@ -199,9 +201,9 @@ export default function EditAgentPage() {
 
     try {
       await archiveAgent.mutateAsync(id);
-      toast.success('Agent archived successfully');
+      toast.success(t('agents.archived'));
     } catch {
-      toast.error('Failed to archive agent. Please try again.');
+      toast.error(t('agents.archiveFailed'));
     }
   }
 
@@ -211,9 +213,9 @@ export default function EditAgentPage() {
 
     try {
       await unarchiveAgent.mutateAsync(id);
-      toast.success('Agent unarchived successfully');
+      toast.success(t('agents.unarchived'));
     } catch {
-      toast.error('Failed to unarchive agent. Please try again.');
+      toast.error(t('agents.unarchiveFailed'));
     }
   }
 
@@ -224,7 +226,9 @@ export default function EditAgentPage() {
   if (isLoadingAgent) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">Loading agent...</div>
+        <div className="text-muted-foreground text-sm">
+          {t('agents.loadingAgent')}
+        </div>
       </div>
     );
   }
@@ -233,12 +237,12 @@ export default function EditAgentPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Agent not found</h3>
+        <h3 className="mb-1 font-semibold">{t('agents.notFound')}</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          The agent you are looking for does not exist.
+          {t('agents.notFoundDesc')}
         </p>
         <Button variant="outline" onClick={() => navigate('/agents')}>
-          Back to Agents
+          {t('agents.backToAgents')}
         </Button>
       </div>
     );
@@ -264,13 +268,13 @@ export default function EditAgentPage() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-2xl font-bold tracking-tight">
-                  Edit Agent
+                  {t('agents.editAgent')}
                 </h1>
                 <Badge
                   variant="outline"
                   className={cn('border-0', statusConfig.className)}
                 >
-                  {statusConfig.label}
+                  {t(statusConfig.labelKey)}
                 </Badge>
                 {agent.latestVersion !== null && (
                   <span className="text-muted-foreground text-sm">
@@ -279,7 +283,7 @@ export default function EditAgentPage() {
                 )}
               </div>
               <p className="text-muted-foreground text-sm">
-                Update your agent configuration.
+                {t('agents.editAgentDesc')}
               </p>
             </div>
           </div>
@@ -293,7 +297,7 @@ export default function EditAgentPage() {
                   disabled={isBusy}
                 >
                   <Rocket className="mr-2 size-4" />
-                  Publish Version
+                  {t('agents.publishVersion')}
                 </Button>
                 <Button
                   variant="outline"
@@ -304,7 +308,7 @@ export default function EditAgentPage() {
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   )}
                   <Archive className="mr-2 size-4" />
-                  Archive
+                  {t('agents.archive')}
                 </Button>
               </>
             )}
@@ -318,7 +322,7 @@ export default function EditAgentPage() {
                   <Loader2 className="mr-2 size-4 animate-spin" />
                 )}
                 <ArchiveRestore className="mr-2 size-4" />
-                Unarchive
+                {t('agents.unarchive')}
               </Button>
             )}
           </div>
@@ -328,17 +332,14 @@ export default function EditAgentPage() {
         <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Publish New Version</DialogTitle>
-              <DialogDescription>
-                Create a snapshot of the current agent configuration as a new
-                version.
-              </DialogDescription>
+              <DialogTitle>{t('agents.publishNewVersion')}</DialogTitle>
+              <DialogDescription>{t('agents.publishDesc')}</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="changelog">Changelog (optional)</Label>
+              <Label htmlFor="changelog">{t('agents.changelog')}</Label>
               <Textarea
                 id="changelog"
-                placeholder="Describe what changed in this version..."
+                placeholder={t('agents.changelogPlaceholder')}
                 value={changelog}
                 onChange={e => setChangelog(e.target.value)}
                 rows={3}
@@ -349,7 +350,7 @@ export default function EditAgentPage() {
                 variant="outline"
                 onClick={() => setPublishDialogOpen(false)}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 onClick={handlePublishVersion}
@@ -359,7 +360,7 @@ export default function EditAgentPage() {
                 {isPublishing && (
                   <Loader2 className="mr-2 size-4 animate-spin" />
                 )}
-                Publish
+                {t('agents.publish')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -376,30 +377,34 @@ export default function EditAgentPage() {
         <form onSubmit={handleSubmit}>
           <Tabs defaultValue="basic" className="gap-6">
             <TabsList>
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              <TabsTrigger value="prompt">System Prompt</TabsTrigger>
-              <TabsTrigger value="mcp">MCP Servers</TabsTrigger>
-              <TabsTrigger value="versions">Versions</TabsTrigger>
-              <TabsTrigger value="share-links">Share Links</TabsTrigger>
-              <TabsTrigger value="conversations">Conversations</TabsTrigger>
+              <TabsTrigger value="basic">{t('agents.basicInfo')}</TabsTrigger>
+              <TabsTrigger value="prompt">
+                {t('agents.systemPrompt')}
+              </TabsTrigger>
+              <TabsTrigger value="mcp">{t('agents.mcpServers')}</TabsTrigger>
+              <TabsTrigger value="versions">{t('agents.versions')}</TabsTrigger>
+              <TabsTrigger value="share-links">
+                {t('agents.shareLinks')}
+              </TabsTrigger>
+              <TabsTrigger value="conversations">
+                {t('agents.conversations')}
+              </TabsTrigger>
             </TabsList>
 
             {/* Basic Info Tab */}
             <TabsContent value="basic">
               <Card className="max-w-4xl">
                 <CardHeader>
-                  <CardTitle>Basic Information</CardTitle>
-                  <CardDescription>
-                    General configuration for this agent.
-                  </CardDescription>
+                  <CardTitle>{t('agents.basicInfoTitle')}</CardTitle>
+                  <CardDescription>{t('agents.basicInfoDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-6">
                   {/* Name */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name">{t('common.name')}</Label>
                     <Input
                       id="name"
-                      placeholder="e.g., Customer Support Agent"
+                      placeholder={t('agents.namePlaceholder')}
                       value={name}
                       onChange={e => setName(e.target.value)}
                       disabled={isBusy}
@@ -409,10 +414,12 @@ export default function EditAgentPage() {
 
                   {/* Description */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">
+                      {t('common.description')}
+                    </Label>
                     <Textarea
                       id="description"
-                      placeholder="Describe what this agent does..."
+                      placeholder={t('agents.descPlaceholder')}
                       value={description}
                       onChange={e => setDescription(e.target.value)}
                       disabled={isBusy}
@@ -422,7 +429,7 @@ export default function EditAgentPage() {
 
                   {/* Provider */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="provider">Provider</Label>
+                    <Label htmlFor="provider">{t('agents.provider')}</Label>
                     <select
                       id="provider"
                       value={providerId}
@@ -432,8 +439,8 @@ export default function EditAgentPage() {
                     >
                       <option value="">
                         {isLoadingProviders
-                          ? 'Loading providers...'
-                          : 'Select a provider'}
+                          ? t('agents.loadingProviders')
+                          : t('agents.selectProvider')}
                       </option>
                       {activeProviders.map(provider => (
                         <option key={provider.id} value={provider.id}>
@@ -445,7 +452,7 @@ export default function EditAgentPage() {
 
                   {/* Model */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="model">Model</Label>
+                    <Label htmlFor="model">{t('agents.model')}</Label>
                     <select
                       id="model"
                       value={modelId}
@@ -455,8 +462,8 @@ export default function EditAgentPage() {
                     >
                       <option value="">
                         {!providerId
-                          ? 'Select a provider first'
-                          : 'Select a model'}
+                          ? t('agents.selectProviderFirst')
+                          : t('agents.selectModel')}
                       </option>
                       {activeModels.map(model => (
                         <option key={model.id} value={model.modelId}>
@@ -469,7 +476,7 @@ export default function EditAgentPage() {
                   {/* Temperature */}
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="temperature">
-                      Temperature{' '}
+                      {t('agents.temperature')}{' '}
                       <span className="text-muted-foreground font-normal">
                         ({temperature})
                       </span>
@@ -498,19 +505,18 @@ export default function EditAgentPage() {
                       />
                     </div>
                     <p className="text-muted-foreground text-xs leading-relaxed">
-                      推荐值：代码生成/数学解题 0.0 · 数据抽取/分析 1.0 ·
-                      通用对话 1.3 · 翻译 1.3 · 创意类写作/诗歌创作 1.5
+                      {t('agents.temperatureHint')}
                     </p>
                   </div>
 
                   {/* Max Tokens */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="maxTokens">Max Tokens</Label>
+                    <Label htmlFor="maxTokens">{t('agents.maxTokens')}</Label>
                     <Input
                       id="maxTokens"
                       type="number"
                       min="1"
-                      placeholder="4096"
+                      placeholder={t('agents.maxTokensPlaceholder')}
                       value={maxTokens}
                       onChange={e => setMaxTokens(e.target.value)}
                       disabled={isBusy}
@@ -526,7 +532,7 @@ export default function EditAgentPage() {
                   onClick={() => navigate('/agents')}
                   disabled={isBusy}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -535,7 +541,7 @@ export default function EditAgentPage() {
                 >
                   {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
                   <Save className="mr-2 size-4" />
-                  Save Changes
+                  {t('common.save')}
                 </Button>
               </div>
             </TabsContent>
@@ -544,14 +550,14 @@ export default function EditAgentPage() {
             <TabsContent value="prompt">
               <Card className="max-w-4xl">
                 <CardHeader>
-                  <CardTitle>System Prompt</CardTitle>
+                  <CardTitle>{t('agents.systemPrompt')}</CardTitle>
                   <CardDescription>
-                    Define the behavior and personality of your agent.
+                    {t('agents.systemPromptDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Textarea
-                    placeholder="You are a helpful assistant..."
+                    placeholder={t('agents.systemPromptPlaceholder')}
                     value={systemPrompt}
                     onChange={e => setSystemPrompt(e.target.value)}
                     disabled={isBusy}
@@ -569,7 +575,7 @@ export default function EditAgentPage() {
                   onClick={() => navigate('/agents')}
                   disabled={isBusy}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -578,7 +584,7 @@ export default function EditAgentPage() {
                 >
                   {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
                   <Save className="mr-2 size-4" />
-                  Save Changes
+                  {t('common.save')}
                 </Button>
               </div>
             </TabsContent>
@@ -592,9 +598,9 @@ export default function EditAgentPage() {
             <TabsContent value="versions">
               <Card className="max-w-4xl">
                 <CardHeader>
-                  <CardTitle>Published Versions</CardTitle>
+                  <CardTitle>{t('agents.publishedVersions')}</CardTitle>
                   <CardDescription>
-                    View published version history.
+                    {t('agents.publishedVersionsDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

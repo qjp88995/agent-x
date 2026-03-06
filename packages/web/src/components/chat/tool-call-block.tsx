@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   AlertCircle,
@@ -52,18 +53,12 @@ function StatusIndicator({ state }: { readonly state: ToolState }) {
   }
 }
 
-function statusLabel(state: ToolState): string {
-  switch (state) {
-    case 'input-streaming':
-      return 'Preparing...';
-    case 'input-available':
-      return 'Calling...';
-    case 'output-available':
-      return 'Completed';
-    case 'output-error':
-      return 'Error';
-  }
-}
+const statusLabelKeys: Record<ToolState, string> = {
+  'input-streaming': 'toolCall.preparing',
+  'input-available': 'toolCall.calling',
+  'output-available': 'toolCall.completed',
+  'output-error': 'toolCall.error',
+};
 
 function JsonBlock({ data }: { readonly data: unknown }) {
   const text = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
@@ -81,6 +76,7 @@ export function ToolCallBlock({
   output,
   errorText,
 }: ToolCallBlockProps) {
+  const { t } = useTranslation();
   const regionId = useId();
   const isDone = state === 'output-available' || state === 'output-error';
   const [userToggled, setUserToggled] = useState(false);
@@ -112,7 +108,7 @@ export function ToolCallBlock({
         <Wrench aria-hidden="true" className="size-3 shrink-0" />
         <span className="text-[10px] uppercase tracking-wider">{toolName}</span>
         <span className="text-muted-foreground/60 text-[10px]">
-          {statusLabel(state)}
+          {t(statusLabelKeys[state])}
         </span>
         <StatusIndicator state={state} />
       </button>
@@ -126,7 +122,7 @@ export function ToolCallBlock({
           {input != null && (
             <div>
               <div className="text-muted-foreground/50 mb-1 text-[10px] uppercase tracking-wider">
-                Input
+                {t('toolCall.input')}
               </div>
               <JsonBlock data={input} />
             </div>
@@ -134,7 +130,7 @@ export function ToolCallBlock({
           {state === 'output-available' && output != null && (
             <div>
               <div className="text-muted-foreground/50 mb-1 text-[10px] uppercase tracking-wider">
-                Output
+                {t('toolCall.output')}
               </div>
               <JsonBlock data={output} />
             </div>

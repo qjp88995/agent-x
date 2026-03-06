@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 
 import { Bot } from 'lucide-react';
@@ -17,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const register = useAuthStore(s => s.register);
 
@@ -44,11 +46,7 @@ export default function RegisterPage() {
       );
       await navigate('/');
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Registration failed. Please try again.'
-      );
+      setError(err instanceof Error ? err.message : t('auth.registerFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -69,16 +67,14 @@ export default function RegisterPage() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Agent-X</h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            Create a new account
+            {t('auth.platformDesc')}
           </p>
         </div>
 
         <Card className="glow-sm border-border/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Register</CardTitle>
-            <CardDescription>
-              Fill in the details below to get started
-            </CardDescription>
+            <CardTitle>{t('auth.register')}</CardTitle>
+            <CardDescription>{t('auth.registerDesc')}</CardDescription>
           </CardHeader>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -91,15 +87,15 @@ export default function RegisterPage() {
 
               <div className="flex flex-col gap-2">
                 <Label htmlFor="name">
-                  Name{' '}
+                  {t('common.name')}{' '}
                   <span className="text-muted-foreground font-normal">
-                    (optional)
+                    {t('common.optional')}
                   </span>
                 </Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Your name"
+                  placeholder={t('auth.namePlaceholder')}
                   autoComplete="name"
                   value={name}
                   onChange={e => setName(e.target.value)}
@@ -108,11 +104,11 @@ export default function RegisterPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   autoComplete="email"
                   required
                   value={email}
@@ -122,11 +118,11 @@ export default function RegisterPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="At least 6 characters"
+                  placeholder={t('auth.passwordHint')}
                   autoComplete="new-password"
                   required
                   minLength={6}
@@ -143,16 +139,18 @@ export default function RegisterPage() {
                 className="gradient-bg hover:opacity-90 w-full cursor-pointer text-white transition-opacity"
                 disabled={!isFormValid || isSubmitting}
               >
-                {isSubmitting ? 'Creating account...' : 'Create account'}
+                {isSubmitting
+                  ? t('auth.creatingAccount')
+                  : t('auth.createAccount')}
               </Button>
 
               <p className="text-muted-foreground text-center text-sm">
-                Already have an account?{' '}
+                {t('auth.hasAccount')}{' '}
                 <Link
                   to="/login"
                   className="text-primary underline-offset-4 hover:underline"
                 >
-                  Sign in
+                  {t('auth.signIn')}
                 </Link>
               </p>
             </CardFooter>

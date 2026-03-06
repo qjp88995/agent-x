@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Brain, ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface ThinkingBlockProps {
 }
 
 export function ThinkingBlock({ content, done }: ThinkingBlockProps) {
+  const { t } = useTranslation();
   const regionId = useId();
   const [userToggled, setUserToggled] = useState(false);
   const [manualOpen, setManualOpen] = useState(true);
@@ -32,7 +34,7 @@ export function ThinkingBlock({ content, done }: ThinkingBlockProps) {
         )}
         <Brain aria-hidden="true" className="size-3 shrink-0" />
         <span className="text-[10px] uppercase tracking-wider">
-          {done ? 'View thinking' : 'Thinking...'}
+          {done ? t('thinking.viewThinking') : t('thinking.thinking')}
         </span>
         {!done && (
           <span className="bg-primary ml-auto inline-block size-1.5 animate-pulse rounded-full" />
@@ -42,7 +44,7 @@ export function ThinkingBlock({ content, done }: ThinkingBlockProps) {
         <div
           id={regionId}
           role="region"
-          aria-label="Thinking process"
+          aria-label={t('thinking.thinkingProcess')}
           className="bg-muted/10 text-muted-foreground/80 max-h-64 overflow-y-auto px-3 py-2 leading-relaxed whitespace-pre-wrap"
         >
           {content || '...'}

@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 
 import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
@@ -19,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateSkill, useSkill, useUpdateSkill } from '@/hooks/use-skills';
 
 export default function SkillEditorPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id;
@@ -69,7 +71,7 @@ export default function SkillEditorPage() {
             tags,
           },
         });
-        toast.success('Skill updated successfully');
+        toast.success(t('skills.updated'));
       } else {
         await createSkill.mutateAsync({
           name: name.trim(),
@@ -77,14 +79,12 @@ export default function SkillEditorPage() {
           content: content.trim(),
           tags,
         });
-        toast.success('Skill created successfully');
+        toast.success(t('skills.created'));
       }
       await navigate('/skills');
     } catch {
       toast.error(
-        isEditMode
-          ? 'Failed to update skill. Please try again.'
-          : 'Failed to create skill. Please try again.'
+        isEditMode ? t('skills.updateFailed') : t('skills.createFailed')
       );
     }
   }
@@ -92,7 +92,9 @@ export default function SkillEditorPage() {
   if (isEditMode && isLoadingSkill) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">Loading skill...</div>
+        <div className="text-muted-foreground text-sm">
+          {t('skills.loadingSkill')}
+        </div>
       </div>
     );
   }
@@ -101,12 +103,12 @@ export default function SkillEditorPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Skill not found</h3>
+        <h3 className="mb-1 font-semibold">{t('skills.notFound')}</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          The skill you are looking for does not exist.
+          {t('skills.notFoundDesc')}
         </p>
         <Button variant="outline" onClick={() => navigate('/skills')}>
-          Back to Skills
+          {t('skills.backToSkills')}
         </Button>
       </div>
     );
@@ -127,12 +129,12 @@ export default function SkillEditorPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode ? 'Edit Skill' : 'Create Skill'}
+            {isEditMode ? t('skills.editSkill') : t('skills.createSkill')}
           </h1>
           <p className="text-muted-foreground text-sm">
             {isEditMode
-              ? 'Update your skill configuration.'
-              : 'Define a new skill for your agents.'}
+              ? t('skills.editSkillDesc')
+              : t('skills.createSkillDesc')}
           </p>
         </div>
       </div>
@@ -141,66 +143,64 @@ export default function SkillEditorPage() {
       <Card className="max-w-2xl">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <CardHeader>
-            <CardTitle>Skill Details</CardTitle>
-            <CardDescription>
-              Configure the skill name, tags, and content.
-            </CardDescription>
+            <CardTitle>{t('skills.skillDetails')}</CardTitle>
+            <CardDescription>{t('skills.skillDetailsDesc')}</CardDescription>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6">
             {/* Name */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('common.name')}</Label>
               <Input
                 id="name"
-                placeholder="e.g., Code Review Guidelines"
+                placeholder={t('skills.namePlaceholder')}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
               <p className="text-muted-foreground text-xs">
-                A descriptive name for this skill.
+                {t('skills.nameHint')}
               </p>
             </div>
 
             {/* Description */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('common.description')}</Label>
               <Textarea
                 id="description"
-                placeholder="Describe what this skill does..."
+                placeholder={t('skills.descPlaceholder')}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 disabled={isSaving}
                 rows={3}
               />
               <p className="text-muted-foreground text-xs">
-                Optional description of the skill&apos;s purpose.
+                {t('skills.descHint')}
               </p>
             </div>
 
             {/* Tags */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tags">Tags</Label>
+              <Label htmlFor="tags">{t('skills.tags')}</Label>
               <Input
                 id="tags"
-                placeholder="e.g., code-review, best-practices, testing"
+                placeholder={t('skills.tagsPlaceholder')}
                 value={tagsInput}
                 onChange={e => setTagsInput(e.target.value)}
                 disabled={isSaving}
               />
               <p className="text-muted-foreground text-xs">
-                Comma-separated list of tags for categorization.
+                {t('skills.tagsHint')}
               </p>
             </div>
 
             {/* Content */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="content">Content</Label>
+              <Label htmlFor="content">{t('skills.content')}</Label>
               <Textarea
                 id="content"
-                placeholder="Enter the skill content..."
+                placeholder={t('skills.contentPlaceholder')}
                 value={content}
                 onChange={e => setContent(e.target.value)}
                 disabled={isSaving}
@@ -209,7 +209,7 @@ export default function SkillEditorPage() {
                 className="font-mono text-sm"
               />
               <p className="text-muted-foreground text-xs">
-                The full skill content that will be provided to agents.
+                {t('skills.contentHint')}
               </p>
             </div>
           </CardContent>
@@ -221,7 +221,7 @@ export default function SkillEditorPage() {
               onClick={() => navigate('/skills')}
               disabled={isSaving}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -229,7 +229,7 @@ export default function SkillEditorPage() {
               className="gradient-bg text-white hover:opacity-90 cursor-pointer"
             >
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? 'Save Changes' : 'Create Skill'}
+              {isEditMode ? t('common.save') : t('skills.createSkill')}
             </Button>
           </CardFooter>
         </form>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { SharedConversationResponse } from '@agent-x/shared';
 import { formatDistanceToNow } from 'date-fns';
@@ -32,6 +33,7 @@ function ConversationDetail({
   conversation: SharedConversationResponse;
   onBack: () => void;
 }) {
+  const { t } = useTranslation();
   const { data: messages, isLoading } = useSharedConversationMessages(
     agentId,
     conversation.id
@@ -50,7 +52,7 @@ function ConversationDetail({
         </Button>
         <div>
           <h3 className="text-sm font-medium">
-            {conversation.title ?? 'Untitled conversation'}
+            {conversation.title ?? t('conversations.untitled')}
           </h3>
           <p className="text-muted-foreground text-xs">
             {conversation.shareToken?.name && (
@@ -68,11 +70,11 @@ function ConversationDetail({
 
       {isLoading ? (
         <div className="text-muted-foreground py-8 text-center text-sm">
-          Loading messages...
+          {t('conversations.loadingMessages')}
         </div>
       ) : !uiMessages.length ? (
         <div className="text-muted-foreground py-8 text-center text-sm">
-          No messages in this conversation.
+          {t('conversations.noMessages')}
         </div>
       ) : (
         <MessageList messages={uiMessages} />
@@ -82,6 +84,7 @@ function ConversationDetail({
 }
 
 export function ConversationsTab({ agentId }: ConversationsTabProps) {
+  const { t } = useTranslation();
   const { data: conversations, isLoading } = useSharedConversations(agentId);
   const [selectedConversation, setSelectedConversation] =
     useState<SharedConversationResponse | null>(null);
@@ -91,7 +94,7 @@ export function ConversationsTab({ agentId }: ConversationsTabProps) {
       <Card className="max-w-4xl">
         <CardContent className="py-8">
           <div className="text-muted-foreground text-center text-sm">
-            Loading...
+            {t('common.loading')}
           </div>
         </CardContent>
       </Card>
@@ -101,8 +104,8 @@ export function ConversationsTab({ agentId }: ConversationsTabProps) {
   return (
     <Card className="max-w-4xl">
       <CardHeader>
-        <CardTitle>Conversations</CardTitle>
-        <CardDescription>View conversations from shared links.</CardDescription>
+        <CardTitle>{t('conversations.title')}</CardTitle>
+        <CardDescription>{t('conversations.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent>
         {selectedConversation ? (
@@ -114,10 +117,10 @@ export function ConversationsTab({ agentId }: ConversationsTabProps) {
         ) : !conversations?.length ? (
           <div className="py-8 text-center">
             <p className="text-muted-foreground text-sm">
-              No conversations yet.
+              {t('conversations.noConversations')}
             </p>
             <p className="text-muted-foreground mt-1 text-xs">
-              Conversations will appear here when users chat via share links.
+              {t('conversations.noConversationsDesc')}
             </p>
           </div>
         ) : (
@@ -131,7 +134,7 @@ export function ConversationsTab({ agentId }: ConversationsTabProps) {
               >
                 <div className="flex flex-col gap-1">
                   <span className="text-sm font-medium">
-                    {conv.title ?? 'Untitled conversation'}
+                    {conv.title ?? t('conversations.untitled')}
                   </span>
                   <div className="text-muted-foreground flex items-center gap-2 text-xs">
                     {conv.agentVersion && (

@@ -1,14 +1,19 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useLocation } from 'react-router';
 
 import {
   Bot,
   Database,
   Key,
+  Languages,
   LogOut,
   Menu,
+  Monitor,
+  Moon,
   Server,
   Sparkles,
+  Sun,
 } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -22,19 +27,20 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
+import { useThemeStore } from '@/stores/theme-store';
 
 interface NavItem {
-  readonly label: string;
+  readonly labelKey: string;
   readonly href: string;
   readonly icon: React.ComponentType<{ className?: string }>;
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Providers', href: '/providers', icon: Database },
-  { label: 'Agents', href: '/agents', icon: Bot },
-  { label: 'MCP Servers', href: '/mcp-servers', icon: Server },
-  { label: 'Skills', href: '/skills', icon: Sparkles },
-  { label: 'API Keys', href: '/api-keys', icon: Key },
+  { labelKey: 'nav.providers', href: '/providers', icon: Database },
+  { labelKey: 'nav.agents', href: '/agents', icon: Bot },
+  { labelKey: 'nav.mcpServers', href: '/mcp-servers', icon: Server },
+  { labelKey: 'nav.skills', href: '/skills', icon: Sparkles },
+  { labelKey: 'nav.apiKeys', href: '/api-keys', icon: Key },
 ] as const;
 
 function getInitials(
@@ -70,6 +76,7 @@ function BrandLogo() {
 
 function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
   const location = useLocation();
+  const { t } = useTranslation();
 
   return (
     <nav className="flex flex-col gap-1 px-3">
@@ -97,7 +104,7 @@ function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
                 isActive && 'text-sidebar-primary'
               )}
             />
-            {item.label}
+            {t(item.labelKey)}
           </Link>
         );
       })}
@@ -105,7 +112,56 @@ function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
   );
 }
 
+function ThemeToggle() {
+  const { t } = useTranslation();
+  const theme = useThemeStore(s => s.theme);
+  const setTheme = useThemeStore(s => s.setTheme);
+
+  const next =
+    theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
+  const Icon = theme === 'system' ? Monitor : theme === 'light' ? Sun : Moon;
+  const label =
+    theme === 'system'
+      ? t('theme.system')
+      : theme === 'light'
+        ? t('theme.light')
+        : t('theme.dark');
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(next)}
+      className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
+      aria-label={label}
+      title={label}
+    >
+      <Icon className="size-4" />
+    </Button>
+  );
+}
+
+function LanguageToggle() {
+  const { t, i18n } = useTranslation();
+  const nextLang = i18n.language?.startsWith('zh') ? 'en' : 'zh';
+  const label = t('language.switchLang');
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => void i18n.changeLanguage(nextLang)}
+      className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
+      aria-label={label}
+      title={label}
+    >
+      <Languages className="size-4" />
+    </Button>
+  );
+}
+
 function UserSection() {
+  const { t } = useTranslation();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
 
@@ -134,7 +190,7 @@ function UserSection() {
           size="icon"
           onClick={logout}
           className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
-          aria-label="Sign out"
+          aria-label={t('auth.signOut')}
         >
           <LogOut className="size-4" />
         </Button>
@@ -146,10 +202,14 @@ function UserSection() {
 function DesktopSidebar() {
   return (
     <aside className="bg-sidebar text-sidebar-foreground border-sidebar-border hidden w-64 shrink-0 border-r md:flex md:flex-col">
-      <div className="flex h-14 items-center px-5">
+      <div className="flex h-14 items-center justify-between px-5">
         <Link to="/">
           <BrandLogo />
         </Link>
+        <div className="flex items-center gap-1">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </div>
       <div className="border-sidebar-border/50 mx-3 border-t" />
       <ScrollArea className="flex-1 py-4">
@@ -173,10 +233,14 @@ function MobileSidebar({
         side="left"
         className="bg-sidebar text-sidebar-foreground w-64 p-0"
       >
-        <SheetHeader className="h-14 justify-center px-5">
+        <SheetHeader className="h-14 flex-row items-center justify-between px-5">
           <SheetTitle>
             <BrandLogo />
           </SheetTitle>
+          <div className="flex items-center gap-1">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
         </SheetHeader>
         <div className="border-sidebar-border/50 mx-3 border-t" />
         <ScrollArea className="flex-1 py-4">
@@ -189,6 +253,7 @@ function MobileSidebar({
 }
 
 export default function DashboardLayout() {
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -204,7 +269,7 @@ export default function DashboardLayout() {
               variant="ghost"
               size="icon"
               onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
+              aria-label={t('nav.openMenu')}
               className="cursor-pointer"
             >
               <Menu className="size-5" />

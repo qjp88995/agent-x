@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { formatDistanceToNow } from 'date-fns';
 import { Check, Copy, Link2, Loader2, XCircle } from 'lucide-react';
@@ -28,6 +29,7 @@ interface ShareTokenPanelProps {
 }
 
 export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
+  const { t } = useTranslation();
   const { data: tokens, isLoading } = useShareTokens(agentId, versionId);
   const createToken = useCreateShareToken();
   const deactivateToken = useDeactivateShareToken();
@@ -98,7 +100,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
   if (isLoading) {
     return (
       <div className="text-muted-foreground py-4 text-center text-sm">
-        Loading tokens...
+        {t('shareLinks.loading')}
       </div>
     );
   }
@@ -106,7 +108,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium">Share Links</h4>
+        <h4 className="text-sm font-medium">{t('shareLinks.title')}</h4>
         <Dialog
           open={dialogOpen}
           onOpenChange={open => {
@@ -117,16 +119,16 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
           <DialogTrigger asChild>
             <Button size="sm" variant="outline">
               <Link2 className="mr-2 size-3.5" />
-              Create Share Link
+              {t('shareLinks.createLink')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             {createdToken ? (
               <>
                 <DialogHeader>
-                  <DialogTitle>Share Link Created</DialogTitle>
+                  <DialogTitle>{t('shareLinks.linkCreated')}</DialogTitle>
                   <DialogDescription>
-                    Copy this link now. It will only be shown once.
+                    {t('shareLinks.linkCreatedDesc')}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex items-center gap-2">
@@ -148,47 +150,49 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
                   </Button>
                 </div>
                 <DialogFooter>
-                  <Button onClick={handleCloseDialog}>Done</Button>
+                  <Button onClick={handleCloseDialog}>
+                    {t('common.done')}
+                  </Button>
                 </DialogFooter>
               </>
             ) : (
               <>
                 <DialogHeader>
-                  <DialogTitle>Create Share Link</DialogTitle>
+                  <DialogTitle>{t('shareLinks.createLink')}</DialogTitle>
                   <DialogDescription>
-                    Generate a shareable link for this version.
+                    {t('shareLinks.createDesc', { version: '' })}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="token-name">Name</Label>
+                    <Label htmlFor="token-name">{t('common.name')}</Label>
                     <Input
                       id="token-name"
-                      placeholder="e.g., Demo link"
+                      placeholder={t('shareLinks.namePlaceholder')}
                       value={tokenName}
                       onChange={e => setTokenName(e.target.value)}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="expires-in">
-                      Expires in (hours, optional)
+                      {t('shareLinks.expiresIn')}
                     </Label>
                     <Input
                       id="expires-in"
                       type="number"
-                      placeholder="e.g., 24"
+                      placeholder={t('shareLinks.expiresPlaceholder')}
                       value={expiresIn}
                       onChange={e => setExpiresIn(e.target.value)}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="max-conv">
-                      Max conversations (optional)
+                      {t('shareLinks.maxConversations')}
                     </Label>
                     <Input
                       id="max-conv"
                       type="number"
-                      placeholder="e.g., 100"
+                      placeholder={t('shareLinks.maxConversationsPlaceholder')}
                       value={maxConversations}
                       onChange={e => setMaxConversations(e.target.value)}
                     />
@@ -196,7 +200,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={handleCloseDialog}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     onClick={handleCreate}
@@ -205,7 +209,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
                     {createToken.isPending && (
                       <Loader2 className="mr-2 size-4 animate-spin" />
                     )}
-                    Create
+                    {t('common.create')}
                   </Button>
                 </DialogFooter>
               </>
@@ -215,7 +219,9 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
       </div>
 
       {!tokens?.length ? (
-        <p className="text-muted-foreground text-sm">No share links yet.</p>
+        <p className="text-muted-foreground text-sm">
+          {t('shareLinks.noLinks')}
+        </p>
       ) : (
         <div className="flex flex-col gap-2">
           {tokens.map(token => (
@@ -226,18 +232,18 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium">{token.name}</span>
                 <Badge variant={token.isActive ? 'default' : 'secondary'}>
-                  {token.isActive ? 'Active' : 'Inactive'}
+                  {token.isActive ? t('common.active') : t('common.inactive')}
                 </Badge>
                 <span className="text-muted-foreground text-xs">
                   {token.usedConversations}
                   {token.maxConversations !== null
                     ? `/${token.maxConversations}`
                     : ''}{' '}
-                  conversations
+                  {t('shareLinks.conversations')}
                 </span>
                 {token.expiresAt && (
                   <span className="text-muted-foreground text-xs">
-                    expires{' '}
+                    {t('shareLinks.expires')}{' '}
                     {formatDistanceToNow(new Date(token.expiresAt), {
                       addSuffix: true,
                     })}

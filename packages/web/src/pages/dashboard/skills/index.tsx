@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import type {
@@ -47,27 +48,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDeleteSkill, useSkills } from '@/hooks/use-skills';
 import { cn } from '@/lib/utils';
 
-const TYPE_BADGE_CONFIG: Record<
-  SkillTypeValue,
-  { label: string; className: string }
-> = {
+const TYPE_BADGE_CONFIG: Record<SkillTypeValue, { className: string }> = {
   SYSTEM: {
-    label: 'System',
     className:
       'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   },
   CUSTOM: {
-    label: 'Custom',
     className:
       'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   },
 };
 
 function TypeBadge({ type }: { readonly type: SkillTypeValue }) {
+  const { t } = useTranslation();
   const config = TYPE_BADGE_CONFIG[type];
+  const label = type === 'SYSTEM' ? t('skills.system') : t('skills.custom');
   return (
     <Badge variant="outline" className={cn('border-0', config.className)}>
-      {config.label}
+      {label}
     </Badge>
   );
 }
@@ -81,6 +79,7 @@ function SkillCard({
   readonly onDelete: (skill: SkillResponse) => void;
   readonly onPreview: (skill: SkillResponse) => void;
 }) {
+  const { t } = useTranslation();
   const isCustom = skill.type === SkillType.CUSTOM;
 
   return (
@@ -94,20 +93,20 @@ function SkillCard({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8">
               <MoreHorizontal className="size-4" />
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{t('common.actions')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onPreview(skill)}>
               <Eye className="mr-2 size-4" />
-              View Content
+              {t('skills.viewContent')}
             </DropdownMenuItem>
             {isCustom && (
               <>
                 <DropdownMenuItem asChild>
                   <Link to={`/skills/${skill.id}/edit`}>
                     <Pencil className="mr-2 size-4" />
-                    Edit
+                    {t('common.edit')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -116,7 +115,7 @@ function SkillCard({
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 size-4" />
-                  Delete
+                  {t('common.delete')}
                 </DropdownMenuItem>
               </>
             )}
@@ -131,7 +130,7 @@ function SkillCard({
           </p>
         ) : (
           <p className="text-muted-foreground/50 text-sm italic">
-            No description
+            {t('common.noDescription')}
           </p>
         )}
       </CardContent>
@@ -145,7 +144,9 @@ function SkillCard({
               </Badge>
             ))
           ) : (
-            <span className="text-muted-foreground text-xs">No tags</span>
+            <span className="text-muted-foreground text-xs">
+              {t('skills.noTags')}
+            </span>
           )}
         </div>
       </CardFooter>
@@ -154,6 +155,7 @@ function SkillCard({
 }
 
 function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
+  const { t } = useTranslation();
   const isSystem = tab === 'system';
 
   return (
@@ -162,12 +164,12 @@ function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
         <Sparkles className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">
-        {isSystem ? 'No system skills' : 'No custom skills yet'}
+        {isSystem ? t('skills.noSystemSkills') : t('skills.noCustomSkills')}
       </h3>
       <p className="text-muted-foreground mb-6 text-sm">
         {isSystem
-          ? 'System skills will appear here when available.'
-          : 'Create your first custom skill to get started.'}
+          ? t('skills.noSystemSkillsDesc')
+          : t('skills.noCustomSkillsDesc')}
       </p>
       {!isSystem && (
         <Button
@@ -176,7 +178,7 @@ function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
         >
           <Link to="/skills/new">
             <Plus className="mr-2 size-4" />
-            Create Skill
+            {t('skills.createSkill')}
           </Link>
         </Button>
       )}
@@ -185,6 +187,7 @@ function EmptyState({ tab }: { readonly tab: 'system' | 'custom' }) {
 }
 
 export default function SkillsPage() {
+  const { t } = useTranslation();
   const { data: skills, isLoading, error } = useSkills();
   const deleteSkill = useDeleteSkill();
   const [deleteTarget, setDeleteTarget] = useState<SkillResponse | null>(null);
@@ -207,7 +210,7 @@ export default function SkillsPage() {
     deleteSkill.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
-        toast.success('Skill deleted');
+        toast.success(t('skills.deleted'));
       },
     });
   }
@@ -215,7 +218,9 @@ export default function SkillsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">Loading skills...</div>
+        <div className="text-muted-foreground text-sm">
+          {t('common.loading')}
+        </div>
       </div>
     );
   }
@@ -224,9 +229,11 @@ export default function SkillsPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Failed to load skills</h3>
+        <h3 className="mb-1 font-semibold">
+          {t('common.failedToLoad', { resource: t('nav.skills') })}
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Please try refreshing the page.
+          {t('common.tryRefreshing')}
         </p>
       </div>
     );
@@ -237,9 +244,11 @@ export default function SkillsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Skills</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t('skills.title')}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Manage skill templates for your agents.
+            {t('skills.subtitle')}
           </p>
         </div>
         <Button
@@ -248,7 +257,7 @@ export default function SkillsPage() {
         >
           <Link to="/skills/new">
             <Plus className="mr-2 size-4" />
-            Create Skill
+            {t('skills.createSkill')}
           </Link>
         </Button>
       </div>
@@ -256,8 +265,8 @@ export default function SkillsPage() {
       {/* Tabs */}
       <Tabs defaultValue="system">
         <TabsList>
-          <TabsTrigger value="system">System Skills</TabsTrigger>
-          <TabsTrigger value="custom">My Skills</TabsTrigger>
+          <TabsTrigger value="system">{t('skills.systemSkills')}</TabsTrigger>
+          <TabsTrigger value="custom">{t('skills.mySkills')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="system">
@@ -306,7 +315,7 @@ export default function SkillsPage() {
           <DialogHeader>
             <DialogTitle>{previewTarget?.name}</DialogTitle>
             <DialogDescription>
-              {previewTarget?.description ?? 'No description'}
+              {previewTarget?.description ?? t('common.noDescription')}
             </DialogDescription>
           </DialogHeader>
           <ScrollArea className="max-h-[60vh]">
@@ -316,7 +325,7 @@ export default function SkillsPage() {
           </ScrollArea>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="outline">{t('common.close')}</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
@@ -331,22 +340,23 @@ export default function SkillsPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Skill</DialogTitle>
+            <DialogTitle>{t('skills.deleteSkill')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &ldquo;{deleteTarget?.name}
-              &rdquo;? This action cannot be undone.
+              {t('skills.deleteConfirm', { name: deleteTarget?.name })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('common.cancel')}</Button>
             </DialogClose>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deleteSkill.isPending}
             >
-              {deleteSkill.isPending ? 'Deleting...' : 'Delete'}
+              {deleteSkill.isPending
+                ? t('common.deleting')
+                : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import type {
@@ -52,25 +53,26 @@ import {
 } from '@/hooks/use-mcp';
 import { cn } from '@/lib/utils';
 
-const TRANSPORT_BADGE_CONFIG: Record<
-  McpTransportType,
-  { label: string; className: string }
-> = {
-  STDIO: {
-    label: 'STDIO',
-    className:
-      'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-  },
-  SSE: {
-    label: 'SSE',
-    className:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  },
-  STREAMABLE_HTTP: {
-    label: 'HTTP',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  },
+const TRANSPORT_BADGE_CONFIG: Record<McpTransportType, { className: string }> =
+  {
+    STDIO: {
+      className:
+        'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    },
+    SSE: {
+      className:
+        'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    },
+    STREAMABLE_HTTP: {
+      className:
+        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    },
+  };
+
+const TRANSPORT_LABEL_KEY: Record<McpTransportType, string> = {
+  STDIO: 'mcp.stdio',
+  SSE: 'mcp.sse',
+  STREAMABLE_HTTP: 'mcp.streamableHttp',
 };
 
 function TransportBadge({
@@ -78,10 +80,11 @@ function TransportBadge({
 }: {
   readonly transport: McpTransportType;
 }) {
+  const { t } = useTranslation();
   const config = TRANSPORT_BADGE_CONFIG[transport];
   return (
     <Badge variant="outline" className={cn('border-0', config.className)}>
-      {config.label}
+      {t(TRANSPORT_LABEL_KEY[transport])}
     </Badge>
   );
 }
@@ -95,6 +98,7 @@ function TestResultBanner({
   readonly success: boolean;
   readonly onDismiss: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -111,7 +115,7 @@ function TestResultBanner({
         onClick={onDismiss}
         className="h-auto px-2 py-1 text-xs"
       >
-        Dismiss
+        {t('common.dismiss')}
       </Button>
     </div>
   );
@@ -128,6 +132,7 @@ function MarketplaceCard({
   readonly onDelete: (server: McpServerResponse) => void;
   readonly onTestResult: (message: string, success: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const testMcpServer = useTestMcpServer();
   const toolCount = server.tools?.length ?? 0;
 
@@ -137,10 +142,7 @@ function MarketplaceCard({
         onTestResult(result.message, result.success);
       },
       onError: () => {
-        onTestResult(
-          'Connection test failed. Check your configuration.',
-          false
-        );
+        onTestResult(t('mcp.testFailed'), false);
       },
     });
   }
@@ -163,14 +165,14 @@ function MarketplaceCard({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8">
                 <MoreHorizontal className="size-4" />
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{t('common.actions')}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link to={`/mcp-servers/${server.id}/edit?type=official`}>
                   <Pencil className="mr-2 size-4" />
-                  Edit
+                  {t('common.edit')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -178,7 +180,9 @@ function MarketplaceCard({
                 disabled={testMcpServer.isPending}
               >
                 <PlugZap className="mr-2 size-4" />
-                {testMcpServer.isPending ? 'Testing...' : 'Test Connection'}
+                {testMcpServer.isPending
+                  ? t('mcp.testing')
+                  : t('mcp.testConnection')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -186,7 +190,7 @@ function MarketplaceCard({
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 size-4" />
-                Delete
+                {t('common.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -200,14 +204,14 @@ function MarketplaceCard({
           </p>
         ) : (
           <p className="text-muted-foreground/50 text-sm italic">
-            No description
+            {t('common.noDescription')}
           </p>
         )}
       </CardContent>
 
       <CardFooter className="border-t pt-4">
         <div className="text-muted-foreground text-sm">
-          {toolCount} tool{toolCount !== 1 ? 's' : ''}
+          {t('mcp.toolCount', { count: toolCount })}
         </div>
       </CardFooter>
     </Card>
@@ -223,6 +227,7 @@ function McpServerCard({
   readonly onDelete: (server: McpServerResponse) => void;
   readonly onTestResult: (message: string, success: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const testMcpServer = useTestMcpServer();
   const toolCount = server.tools?.length ?? 0;
 
@@ -232,10 +237,7 @@ function McpServerCard({
         onTestResult(result.message, result.success);
       },
       onError: () => {
-        onTestResult(
-          'Connection test failed. Check your configuration.',
-          false
-        );
+        onTestResult(t('mcp.testFailed'), false);
       },
     });
   }
@@ -251,14 +253,14 @@ function McpServerCard({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8">
               <MoreHorizontal className="size-4" />
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{t('common.actions')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
               <Link to={`/mcp-servers/${server.id}/edit`}>
                 <Pencil className="mr-2 size-4" />
-                Edit
+                {t('common.edit')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -266,7 +268,9 @@ function McpServerCard({
               disabled={testMcpServer.isPending}
             >
               <PlugZap className="mr-2 size-4" />
-              {testMcpServer.isPending ? 'Testing...' : 'Test Connection'}
+              {testMcpServer.isPending
+                ? t('mcp.testing')
+                : t('mcp.testConnection')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -274,7 +278,7 @@ function McpServerCard({
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="mr-2 size-4" />
-              Delete
+              {t('common.delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -287,7 +291,7 @@ function McpServerCard({
           </p>
         ) : (
           <p className="text-muted-foreground/50 text-sm italic">
-            No description
+            {t('common.noDescription')}
           </p>
         )}
       </CardContent>
@@ -295,8 +299,8 @@ function McpServerCard({
       <CardFooter className="border-t pt-4">
         <div className="text-muted-foreground text-sm">
           {toolCount > 0
-            ? `${toolCount} tool${toolCount !== 1 ? 's' : ''}`
-            : 'No tools detected'}
+            ? t('mcp.toolCount', { count: toolCount })
+            : t('mcp.noTools')}
         </div>
       </CardFooter>
     </Card>
@@ -310,6 +314,7 @@ function EmptyState({
   readonly tab: 'marketplace' | 'custom';
   readonly isAdmin: boolean;
 }) {
+  const { t } = useTranslation();
   const isMarketplace = tab === 'marketplace';
 
   return (
@@ -318,12 +323,10 @@ function EmptyState({
         <Server className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">
-        {isMarketplace ? 'No marketplace servers' : 'No custom servers yet'}
+        {isMarketplace ? t('mcp.noMarketplace') : t('mcp.noCustom')}
       </h3>
       <p className="text-muted-foreground mb-6 text-sm">
-        {isMarketplace
-          ? 'Marketplace MCP servers will appear here when available.'
-          : 'Add your first MCP server to get started.'}
+        {isMarketplace ? t('mcp.noMarketplaceDesc') : t('mcp.noCustomDesc')}
       </p>
       {isMarketplace && isAdmin && (
         <Button
@@ -332,7 +335,7 @@ function EmptyState({
         >
           <Link to="/mcp-servers/new?type=official">
             <Plus className="mr-2 size-4" />
-            Add to Marketplace
+            {t('mcp.addToMarketplace')}
           </Link>
         </Button>
       )}
@@ -343,7 +346,7 @@ function EmptyState({
         >
           <Link to="/mcp-servers/new">
             <Plus className="mr-2 size-4" />
-            Add Server
+            {t('mcp.addServer')}
           </Link>
         </Button>
       )}
@@ -352,6 +355,7 @@ function EmptyState({
 }
 
 export default function McpPage() {
+  const { t } = useTranslation();
   const isAdmin = useIsAdmin();
   const {
     data: marketServers,
@@ -400,7 +404,7 @@ export default function McpPage() {
     mutation.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
-        toast.success('MCP server deleted');
+        toast.success(t('mcp.deleted'));
       },
     });
   }
@@ -413,7 +417,7 @@ export default function McpPage() {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="text-muted-foreground text-sm">
-          Loading MCP servers...
+          {t('common.loading')}
         </div>
       </div>
     );
@@ -423,9 +427,11 @@ export default function McpPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Failed to load MCP servers</h3>
+        <h3 className="mb-1 font-semibold">
+          {t('common.failedToLoad', { resource: t('nav.mcpServers') })}
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Please try refreshing the page.
+          {t('common.tryRefreshing')}
         </p>
       </div>
     );
@@ -436,17 +442,17 @@ export default function McpPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">MCP Servers</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage Model Context Protocol server connections.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t('mcp.title')}
+          </h1>
+          <p className="text-muted-foreground text-sm">{t('mcp.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           {isAdmin && (
             <Button variant="outline" asChild>
               <Link to="/mcp-servers/new?type=official">
                 <Plus className="mr-2 size-4" />
-                Add to Marketplace
+                {t('mcp.addToMarketplace')}
               </Link>
             </Button>
           )}
@@ -456,7 +462,7 @@ export default function McpPage() {
           >
             <Link to="/mcp-servers/new">
               <Plus className="mr-2 size-4" />
-              Add Server
+              {t('mcp.addServer')}
             </Link>
           </Button>
         </div>
@@ -474,8 +480,8 @@ export default function McpPage() {
       {/* Tabs */}
       <Tabs defaultValue="marketplace">
         <TabsList>
-          <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-          <TabsTrigger value="custom">My Servers</TabsTrigger>
+          <TabsTrigger value="marketplace">{t('mcp.marketplace')}</TabsTrigger>
+          <TabsTrigger value="custom">{t('mcp.myServers')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="marketplace">
@@ -525,27 +531,27 @@ export default function McpPage() {
           <DialogHeader>
             <DialogTitle>
               {deleteMode === 'marketplace'
-                ? 'Delete Marketplace Server'
-                : 'Delete MCP Server'}
+                ? t('mcp.deleteMarketplace')
+                : t('mcp.deleteServer')}
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &ldquo;{deleteTarget?.name}
-              &rdquo;?{' '}
               {deleteMode === 'marketplace'
-                ? 'This will remove it from the marketplace for all users.'
-                : 'This action cannot be undone.'}
+                ? t('mcp.deleteMarketplaceConfirm', {
+                    name: deleteTarget?.name,
+                  })
+                : t('mcp.deleteConfirm', { name: deleteTarget?.name })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('common.cancel')}</Button>
             </DialogClose>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? t('common.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

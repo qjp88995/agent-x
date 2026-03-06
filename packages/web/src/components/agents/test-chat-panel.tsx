@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useChat } from '@ai-sdk/react';
 import {
@@ -19,6 +20,7 @@ interface TestChatPanelProps {
 }
 
 export function TestChatPanel({ agentId }: TestChatPanelProps) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const createConversation = useCreateConversation();
@@ -106,7 +108,7 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed(false)}
-          title="Open test chat"
+          title={t('chat.openTestChat')}
         >
           <PanelRightOpen className="size-4" />
         </Button>
@@ -118,13 +120,13 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
     <div className="flex w-[400px] shrink-0 flex-col border-l">
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b px-3">
-        <span className="text-sm font-medium">Test Chat</span>
+        <span className="text-sm font-medium">{t('chat.testChat')}</span>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
             onClick={handleNewChat}
-            title="New chat"
+            title={t('chat.newChat')}
           >
             <MessageSquarePlus className="size-4" />
           </Button>
@@ -132,7 +134,7 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(true)}
-            title="Collapse"
+            title={t('chat.collapse')}
           >
             <PanelRightClose className="size-4" />
           </Button>
@@ -147,7 +149,7 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
               <Bot className="text-muted-foreground size-6" />
             </div>
             <p className="text-muted-foreground text-center text-sm">
-              Test your agent by sending a message.
+              {t('chat.testAgent')}
             </p>
           </div>
         ) : (

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { formatDistanceToNow } from 'date-fns';
 import { Ban, Check, Copy, Link2, Loader2 } from 'lucide-react';
@@ -47,6 +48,7 @@ interface ShareLinksTabProps {
 }
 
 export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
+  const { t } = useTranslation();
   const { data: versions, isLoading: isLoadingVersions } =
     useAgentVersions(agentId);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
@@ -100,7 +102,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
         dto,
       });
       setCreatedToken(result.plainToken);
-      toast.success('Share link created');
+      toast.success(t('shareLinks.linkCreatedToast'));
     } catch {
       // mutation error handled by React Query
     }
@@ -141,7 +143,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
       <Card className="max-w-4xl">
         <CardContent className="py-8">
           <div className="text-muted-foreground text-center text-sm">
-            Loading...
+            {t('common.loading')}
           </div>
         </CardContent>
       </Card>
@@ -152,18 +154,16 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
     return (
       <Card className="max-w-4xl">
         <CardHeader>
-          <CardTitle>Share Links</CardTitle>
-          <CardDescription>
-            Manage share links for your published versions.
-          </CardDescription>
+          <CardTitle>{t('shareLinks.title')}</CardTitle>
+          <CardDescription>{t('shareLinks.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center">
             <p className="text-muted-foreground text-sm">
-              No versions published yet.
+              {t('shareLinks.noVersions')}
             </p>
             <p className="text-muted-foreground mt-1 text-xs">
-              Publish a version first to create share links.
+              {t('shareLinks.noVersionsDesc')}
             </p>
           </div>
         </CardContent>
@@ -176,10 +176,8 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Share Links</CardTitle>
-            <CardDescription>
-              Manage share links for your published versions.
-            </CardDescription>
+            <CardTitle>{t('shareLinks.title')}</CardTitle>
+            <CardDescription>{t('shareLinks.subtitle')}</CardDescription>
           </div>
           <Dialog
             open={dialogOpen}
@@ -191,16 +189,16 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
             <DialogTrigger asChild>
               <Button size="sm" variant="outline">
                 <Link2 className="mr-2 size-3.5" />
-                Create Share Link
+                {t('shareLinks.createLink')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               {createdToken ? (
                 <>
                   <DialogHeader>
-                    <DialogTitle>Share Link Created</DialogTitle>
+                    <DialogTitle>{t('shareLinks.linkCreated')}</DialogTitle>
                     <DialogDescription>
-                      Copy this link to share with others.
+                      {t('shareLinks.linkCreatedDesc')}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex items-center gap-2">
@@ -222,48 +220,53 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                     </Button>
                   </div>
                   <DialogFooter>
-                    <Button onClick={handleCloseDialog}>Done</Button>
+                    <Button onClick={handleCloseDialog}>
+                      {t('common.done')}
+                    </Button>
                   </DialogFooter>
                 </>
               ) : (
                 <>
                   <DialogHeader>
-                    <DialogTitle>Create Share Link</DialogTitle>
+                    <DialogTitle>{t('shareLinks.createLink')}</DialogTitle>
                     <DialogDescription>
-                      Generate a shareable link for version v
-                      {selectedVersion?.version}.
+                      {t('shareLinks.createDesc', {
+                        version: selectedVersion?.version,
+                      })}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                      <Label htmlFor="sl-token-name">Name</Label>
+                      <Label htmlFor="sl-token-name">{t('common.name')}</Label>
                       <Input
                         id="sl-token-name"
-                        placeholder="e.g., Demo link"
+                        placeholder={t('shareLinks.namePlaceholder')}
                         value={tokenName}
                         onChange={e => setTokenName(e.target.value)}
                       />
                     </div>
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="sl-expires-in">
-                        Expires in (hours, optional)
+                        {t('shareLinks.expiresIn')}
                       </Label>
                       <Input
                         id="sl-expires-in"
                         type="number"
-                        placeholder="e.g., 24"
+                        placeholder={t('shareLinks.expiresPlaceholder')}
                         value={expiresIn}
                         onChange={e => setExpiresIn(e.target.value)}
                       />
                     </div>
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="sl-max-conv">
-                        Max conversations (optional)
+                        {t('shareLinks.maxConversations')}
                       </Label>
                       <Input
                         id="sl-max-conv"
                         type="number"
-                        placeholder="e.g., 100"
+                        placeholder={t(
+                          'shareLinks.maxConversationsPlaceholder'
+                        )}
                         value={maxConversations}
                         onChange={e => setMaxConversations(e.target.value)}
                       />
@@ -271,7 +274,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={handleCloseDialog}>
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                     <Button
                       onClick={handleCreate}
@@ -280,7 +283,7 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                       {createToken.isPending && (
                         <Loader2 className="mr-2 size-4 animate-spin" />
                       )}
-                      Create
+                      {t('common.create')}
                     </Button>
                   </DialogFooter>
                 </>
@@ -292,7 +295,9 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
       <CardContent className="flex flex-col gap-4">
         {/* Version filter */}
         <div className="flex items-center gap-3">
-          <Label className="text-sm whitespace-nowrap">Version</Label>
+          <Label className="text-sm whitespace-nowrap">
+            {t('shareLinks.version')}
+          </Label>
           <select
             value={effectiveVersionId}
             onChange={e => setSelectedVersionId(e.target.value)}
@@ -310,11 +315,11 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
         {/* Token list */}
         {isLoadingTokens ? (
           <div className="text-muted-foreground py-4 text-center text-sm">
-            Loading share links...
+            {t('shareLinks.loading')}
           </div>
         ) : !tokens?.length ? (
           <p className="text-muted-foreground py-4 text-center text-sm">
-            No share links for this version.
+            {t('shareLinks.noLinks')}
           </p>
         ) : (
           <div className="flex flex-col gap-2">
@@ -327,25 +332,27 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="text-sm font-medium">{token.name}</span>
                     <Badge variant={token.isActive ? 'default' : 'secondary'}>
-                      {token.isActive ? 'Active' : 'Inactive'}
+                      {token.isActive
+                        ? t('common.active')
+                        : t('common.inactive')}
                     </Badge>
                     <span className="text-muted-foreground text-xs">
                       {token.usedConversations}
                       {token.maxConversations !== null
                         ? `/${token.maxConversations}`
                         : ''}{' '}
-                      conversations
+                      {t('shareLinks.conversations')}
                     </span>
                     {token.expiresAt && (
                       <span className="text-muted-foreground text-xs">
-                        expires{' '}
+                        {t('shareLinks.expires')}{' '}
                         {formatDistanceToNow(new Date(token.expiresAt), {
                           addSuffix: true,
                         })}
                       </span>
                     )}
                     <span className="text-muted-foreground text-xs">
-                      created{' '}
+                      {t('shareLinks.created')}{' '}
                       {formatDistanceToNow(new Date(token.createdAt), {
                         addSuffix: true,
                       })}
@@ -383,17 +390,16 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>
-                          Deactivate Share Link
+                          {t('shareLinks.deactivate')}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will permanently disable this share link. Anyone
-                          with this link will no longer be able to start new
-                          conversations. Existing conversations will not be
-                          affected.
+                          {t('shareLinks.deactivateDesc')}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>
+                          {t('common.cancel')}
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           variant="destructive"
                           onClick={() =>
@@ -405,13 +411,15 @@ export function ShareLinksTab({ agentId }: ShareLinksTabProps) {
                               },
                               {
                                 onSuccess: () => {
-                                  toast.success('Share link deactivated');
+                                  toast.success(
+                                    t('shareLinks.linkDeactivated')
+                                  );
                                 },
                               }
                             )
                           }
                         >
-                          Deactivate
+                          {t('shareLinks.deactivate')}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

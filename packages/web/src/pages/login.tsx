@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 
 import { Bot } from 'lucide-react';
@@ -17,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const login = useAuthStore(s => s.login);
 
@@ -38,9 +40,7 @@ export default function LoginPage() {
       await login(email.trim(), password);
       await navigate('/');
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Login failed. Please try again.'
-      );
+      setError(err instanceof Error ? err.message : t('auth.loginFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -61,16 +61,14 @@ export default function LoginPage() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Agent-X</h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            Intelligent agent publishing platform
+            {t('auth.platformDesc')}
           </p>
         </div>
 
         <Card className="glow-sm border-border/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Sign in</CardTitle>
-            <CardDescription>
-              Enter your credentials to continue
-            </CardDescription>
+            <CardTitle>{t('auth.signIn')}</CardTitle>
+            <CardDescription>{t('auth.signInDesc')}</CardDescription>
           </CardHeader>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -82,11 +80,11 @@ export default function LoginPage() {
               )}
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   autoComplete="email"
                   required
                   value={email}
@@ -96,11 +94,11 @@ export default function LoginPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   autoComplete="current-password"
                   required
                   value={password}
@@ -116,16 +114,16 @@ export default function LoginPage() {
                 className="gradient-bg hover:opacity-90 w-full cursor-pointer text-white transition-opacity"
                 disabled={!isFormValid || isSubmitting}
               >
-                {isSubmitting ? 'Signing in...' : 'Sign in'}
+                {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
               </Button>
 
               <p className="text-muted-foreground text-center text-sm">
-                Don&apos;t have an account?{' '}
+                {t('auth.noAccount')}{' '}
                 <Link
                   to="/register"
                   className="text-primary underline-offset-4 hover:underline"
                 >
-                  Create one
+                  {t('auth.createOne')}
                 </Link>
               </p>
             </CardFooter>

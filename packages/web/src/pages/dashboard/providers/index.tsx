@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
@@ -50,55 +51,57 @@ import { cn } from '@/lib/utils';
 
 const PROTOCOL_CONFIG: Record<
   ProviderProtocol,
-  { label: string; className: string }
+  { labelKey: string; className: string }
 > = {
   OPENAI: {
-    label: 'OpenAI',
+    labelKey: 'providers.openai',
     className:
       'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   },
   ANTHROPIC: {
-    label: 'Anthropic',
+    labelKey: 'providers.anthropic',
     className:
       'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
   },
   GEMINI: {
-    label: 'Gemini',
+    labelKey: 'providers.gemini',
     className:
       'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   DEEPSEEK: {
-    label: 'DeepSeek',
+    labelKey: 'providers.deepseek',
     className:
       'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400',
   },
   QWEN: {
-    label: 'Qwen',
+    labelKey: 'providers.qwen',
     className:
       'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
   },
   ZHIPU: {
-    label: 'GLM',
+    labelKey: 'providers.zhipu',
     className:
       'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
   },
   MOONSHOT: {
-    label: 'Kimi',
+    labelKey: 'providers.moonshot',
     className:
       'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400',
   },
 };
 
 function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
+  const { t } = useTranslation();
   const config = PROTOCOL_CONFIG[protocol];
   return (
     <Badge variant="outline" className={cn('border-0', config.className)}>
-      {config.label}
+      {t(config.labelKey)}
     </Badge>
   );
 }
 
 function StatusDot({ active }: { readonly active: boolean }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1.5">
       <span
@@ -108,7 +111,7 @@ function StatusDot({ active }: { readonly active: boolean }) {
         )}
       />
       <span className="text-muted-foreground text-xs">
-        {active ? 'Active' : 'Inactive'}
+        {active ? t('common.active') : t('common.inactive')}
       </span>
     </div>
   );
@@ -128,6 +131,7 @@ function ProviderCard({
   readonly onDelete: (provider: ProviderResponse) => void;
   readonly onTestResult: (message: string, success: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const testProvider = useTestProvider();
   const syncModels = useSyncModels();
 
@@ -137,10 +141,7 @@ function ProviderCard({
         onTestResult(result.message, result.success);
       },
       onError: () => {
-        onTestResult(
-          'Connection test failed. Check your configuration.',
-          false
-        );
+        onTestResult(t('providers.testFailed'), false);
       },
     });
   }
@@ -148,10 +149,13 @@ function ProviderCard({
   function handleSync() {
     syncModels.mutate(provider.id, {
       onSuccess: models => {
-        onTestResult(`Synced ${models.length} model(s) successfully.`, true);
+        onTestResult(
+          t('providers.syncSuccess', { count: models.length }),
+          true
+        );
       },
       onError: () => {
-        onTestResult('Failed to sync models.', false);
+        onTestResult(t('providers.syncFailed'), false);
       },
     });
   }
@@ -170,14 +174,14 @@ function ProviderCard({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8">
               <MoreHorizontal className="size-4" />
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{t('common.actions')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
               <Link to={`/providers/${provider.id}/edit`}>
                 <Pencil className="mr-2 size-4" />
-                Edit
+                {t('common.edit')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -185,7 +189,9 @@ function ProviderCard({
               disabled={testProvider.isPending}
             >
               <PlugZap className="mr-2 size-4" />
-              {testProvider.isPending ? 'Testing...' : 'Test Connection'}
+              {testProvider.isPending
+                ? t('providers.testing')
+                : t('providers.testConnection')}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleSync}
@@ -197,7 +203,9 @@ function ProviderCard({
                   syncModels.isPending && 'animate-spin'
                 )}
               />
-              {syncModels.isPending ? 'Syncing...' : 'Sync Models'}
+              {syncModels.isPending
+                ? t('providers.syncing')
+                : t('providers.syncModels')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -205,7 +213,7 @@ function ProviderCard({
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="mr-2 size-4" />
-              Delete
+              {t('common.delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -220,8 +228,7 @@ function ProviderCard({
 
       <CardFooter className="border-t pt-4">
         <div className="text-muted-foreground text-sm">
-          {provider.models.length} model
-          {provider.models.length !== 1 ? 's' : ''}
+          {t('providers.modelCount', { count: provider.models.length })}
         </div>
       </CardFooter>
     </Card>
@@ -229,14 +236,17 @@ function ProviderCard({
 }
 
 function EmptyState() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
       <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
         <Database className="size-8" />
       </div>
-      <h3 className="mb-1 text-lg font-semibold">No providers yet</h3>
+      <h3 className="mb-1 text-lg font-semibold">
+        {t('providers.noProviders')}
+      </h3>
       <p className="text-muted-foreground mb-6 text-sm">
-        Add your first AI provider to get started.
+        {t('providers.noProvidersDesc')}
       </p>
       <Button
         asChild
@@ -244,7 +254,7 @@ function EmptyState() {
       >
         <Link to="/providers/new">
           <Plus className="mr-2 size-4" />
-          Add Provider
+          {t('providers.addProvider')}
         </Link>
       </Button>
     </div>
@@ -260,6 +270,7 @@ function TestResultBanner({
   readonly success: boolean;
   readonly onDismiss: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -276,13 +287,14 @@ function TestResultBanner({
         onClick={onDismiss}
         className="h-auto px-2 py-1 text-xs"
       >
-        Dismiss
+        {t('common.dismiss')}
       </Button>
     </div>
   );
 }
 
 export default function ProviderListPage() {
+  const { t } = useTranslation();
   const { data: providers, isLoading, error } = useProviders();
   const deleteProvider = useDeleteProvider();
   const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(
@@ -298,7 +310,7 @@ export default function ProviderListPage() {
     deleteProvider.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
-        toast.success('Provider deleted');
+        toast.success(t('providers.deleted'));
       },
     });
   }
@@ -311,7 +323,7 @@ export default function ProviderListPage() {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="text-muted-foreground text-sm">
-          Loading providers...
+          {t('common.loading')}
         </div>
       </div>
     );
@@ -321,9 +333,13 @@ export default function ProviderListPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Failed to load providers</h3>
+        <h3 className="mb-1 font-semibold">
+          {t('common.failedToLoad', {
+            resource: t('providers.title').toLowerCase(),
+          })}
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Please try refreshing the page.
+          {t('common.tryRefreshing')}
         </p>
       </div>
     );
@@ -334,9 +350,11 @@ export default function ProviderListPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Providers</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t('providers.title')}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Manage your AI provider connections.
+            {t('providers.subtitle')}
           </p>
         </div>
         <Button
@@ -345,7 +363,7 @@ export default function ProviderListPage() {
         >
           <Link to="/providers/new">
             <Plus className="mr-2 size-4" />
-            Add Provider
+            {t('providers.addProvider')}
           </Link>
         </Button>
       </div>
@@ -384,23 +402,23 @@ export default function ProviderListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Provider</DialogTitle>
+            <DialogTitle>{t('providers.deleteProvider')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &ldquo;{deleteTarget?.name}
-              &rdquo;? This action cannot be undone and will remove all
-              associated models.
+              {t('providers.deleteConfirm', { name: deleteTarget?.name })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('common.cancel')}</Button>
             </DialogClose>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deleteProvider.isPending}
             >
-              {deleteProvider.isPending ? 'Deleting...' : 'Delete'}
+              {deleteProvider.isPending
+                ? t('common.deleting')
+                : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

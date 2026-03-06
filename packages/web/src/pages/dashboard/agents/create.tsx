@@ -1,4 +1,5 @@
 import { type FormEvent, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react';
@@ -20,6 +21,7 @@ import { useCreateAgent } from '@/hooks/use-agents';
 import { useProviders } from '@/hooks/use-providers';
 
 export default function CreateAgentPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const createAgent = useCreateAgent();
   const {
@@ -78,12 +80,12 @@ export default function CreateAgentPage() {
       parsedTemperature < 0 ||
       parsedTemperature > 2
     ) {
-      setError('Temperature must be a number between 0 and 2.');
+      setError(t('agents.tempError'));
       return;
     }
 
     if (isNaN(parsedMaxTokens) || parsedMaxTokens < 1) {
-      setError('Max tokens must be a positive number.');
+      setError(t('agents.maxTokensError'));
       return;
     }
 
@@ -97,10 +99,10 @@ export default function CreateAgentPage() {
         temperature: parsedTemperature,
         maxTokens: parsedMaxTokens,
       });
-      toast.success('Agent created successfully');
+      toast.success(t('agents.created'));
       await navigate('/agents');
     } catch {
-      toast.error('Failed to create agent. Please try again.');
+      toast.error(t('agents.createFailed'));
     }
   }
 
@@ -108,9 +110,9 @@ export default function CreateAgentPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Failed to load providers</h3>
+        <h3 className="mb-1 font-semibold">{t('agents.providersFailed')}</h3>
         <p className="text-muted-foreground text-sm">
-          Providers are required to create an agent. Please try refreshing.
+          {t('agents.providersRequired')}
         </p>
       </div>
     );
@@ -130,9 +132,11 @@ export default function CreateAgentPage() {
           <ArrowLeft className="size-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Create Agent</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t('agents.createAgent')}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Configure a new AI agent.
+            {t('agents.createAgentDesc')}
           </p>
         </div>
       </div>
@@ -141,10 +145,8 @@ export default function CreateAgentPage() {
       <Card className="max-w-2xl">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <CardHeader>
-            <CardTitle>Agent Configuration</CardTitle>
-            <CardDescription>
-              Set up the basic configuration for your new agent.
-            </CardDescription>
+            <CardTitle>{t('agents.agentConfig')}</CardTitle>
+            <CardDescription>{t('agents.agentConfigDesc')}</CardDescription>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6">
@@ -156,39 +158,39 @@ export default function CreateAgentPage() {
 
             {/* Name */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('common.name')}</Label>
               <Input
                 id="name"
-                placeholder="e.g., Customer Support Agent"
+                placeholder={t('agents.namePlaceholder')}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
               <p className="text-muted-foreground text-xs">
-                A descriptive name for your agent.
+                {t('agents.nameHint')}
               </p>
             </div>
 
             {/* Description */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('common.description')}</Label>
               <Textarea
                 id="description"
-                placeholder="Describe what this agent does..."
+                placeholder={t('agents.descPlaceholder')}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 disabled={isSaving}
                 rows={3}
               />
               <p className="text-muted-foreground text-xs">
-                Optional description of the agent&apos;s purpose.
+                {t('agents.descHint')}
               </p>
             </div>
 
             {/* Provider */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="provider">Provider</Label>
+              <Label htmlFor="provider">{t('agents.provider')}</Label>
               <select
                 id="provider"
                 value={providerId}
@@ -198,8 +200,8 @@ export default function CreateAgentPage() {
               >
                 <option value="">
                   {isLoadingProviders
-                    ? 'Loading providers...'
-                    : 'Select a provider'}
+                    ? t('agents.loadingProviders')
+                    : t('agents.selectProvider')}
                 </option>
                 {activeProviders.map(provider => (
                   <option key={provider.id} value={provider.id}>
@@ -208,13 +210,13 @@ export default function CreateAgentPage() {
                 ))}
               </select>
               <p className="text-muted-foreground text-xs">
-                The AI provider to use for this agent.
+                {t('agents.providerHint')}
               </p>
             </div>
 
             {/* Model */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="model">Model</Label>
+              <Label htmlFor="model">{t('agents.model')}</Label>
               <select
                 id="model"
                 value={modelId}
@@ -223,7 +225,9 @@ export default function CreateAgentPage() {
                 className="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <option value="">
-                  {!providerId ? 'Select a provider first' : 'Select a model'}
+                  {!providerId
+                    ? t('agents.selectProviderFirst')
+                    : t('agents.selectModel')}
                 </option>
                 {activeModels.map(model => (
                   <option key={model.id} value={model.modelId}>
@@ -232,17 +236,16 @@ export default function CreateAgentPage() {
                 ))}
               </select>
               <p className="text-muted-foreground text-xs">
-                The model to use. Available models depend on the selected
-                provider.
+                {t('agents.modelHint')}
               </p>
             </div>
 
             {/* System Prompt */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="systemPrompt">System Prompt</Label>
+              <Label htmlFor="systemPrompt">{t('agents.systemPrompt')}</Label>
               <Textarea
                 id="systemPrompt"
-                placeholder="You are a helpful assistant..."
+                placeholder={t('agents.systemPromptPlaceholder')}
                 value={systemPrompt}
                 onChange={e => setSystemPrompt(e.target.value)}
                 disabled={isSaving}
@@ -251,15 +254,14 @@ export default function CreateAgentPage() {
                 className="font-mono text-sm"
               />
               <p className="text-muted-foreground text-xs">
-                The system prompt defines the agent&apos;s behavior and
-                personality.
+                {t('agents.systemPromptHint')}
               </p>
             </div>
 
             {/* Temperature */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="temperature">
-                Temperature{' '}
+                {t('agents.temperature')}{' '}
                 <span className="text-muted-foreground font-normal">
                   ({temperature})
                 </span>
@@ -288,25 +290,24 @@ export default function CreateAgentPage() {
                 />
               </div>
               <p className="text-muted-foreground text-xs leading-relaxed">
-                推荐值：代码生成/数学解题 0.0 · 数据抽取/分析 1.0 · 通用对话 1.3
-                · 翻译 1.3 · 创意类写作/诗歌创作 1.5
+                {t('agents.temperatureHint')}
               </p>
             </div>
 
             {/* Max Tokens */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="maxTokens">Max Tokens</Label>
+              <Label htmlFor="maxTokens">{t('agents.maxTokens')}</Label>
               <Input
                 id="maxTokens"
                 type="number"
                 min="1"
-                placeholder="4096"
+                placeholder={t('agents.maxTokensPlaceholder')}
                 value={maxTokens}
                 onChange={e => setMaxTokens(e.target.value)}
                 disabled={isSaving}
               />
               <p className="text-muted-foreground text-xs">
-                Maximum number of tokens the model can generate in a response.
+                {t('agents.maxTokensHint')}
               </p>
             </div>
           </CardContent>
@@ -318,7 +319,7 @@ export default function CreateAgentPage() {
               onClick={() => navigate('/agents')}
               disabled={isSaving}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -326,7 +327,7 @@ export default function CreateAgentPage() {
               className="gradient-bg text-white hover:opacity-90 cursor-pointer"
             >
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              Create Agent
+              {t('agents.createAgent')}
             </Button>
           </CardFooter>
         </form>

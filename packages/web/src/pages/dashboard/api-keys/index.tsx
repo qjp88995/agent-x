@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   AlertTriangle,
@@ -55,13 +56,15 @@ function StatusBadge({
   readonly isActive: boolean;
   readonly expiresAt: string | null;
 }) {
+  const { t } = useTranslation();
+
   if (!isActive) {
     return (
       <Badge
         variant="outline"
         className="border-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
       >
-        Revoked
+        {t('apiKeys.revoked')}
       </Badge>
     );
   }
@@ -72,7 +75,7 @@ function StatusBadge({
         variant="outline"
         className="border-0 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
       >
-        Expired
+        {t('apiKeys.expired')}
       </Badge>
     );
   }
@@ -82,7 +85,7 @@ function StatusBadge({
       variant="outline"
       className="border-0 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
     >
-      Active
+      {t('common.active')}
     </Badge>
   );
 }
@@ -94,6 +97,7 @@ function CreateKeyDialog({
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [agentId, setAgentId] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
@@ -145,12 +149,10 @@ function CreateKeyDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {createdKey ? 'API Key Created' : 'Create API Key'}
+            {createdKey ? t('apiKeys.keyCreated') : t('apiKeys.createTitle')}
           </DialogTitle>
           <DialogDescription>
-            {createdKey
-              ? 'Copy your API key now. It will not be shown again.'
-              : 'Create a new API key for programmatic access.'}
+            {createdKey ? t('apiKeys.keyCreatedDesc') : t('apiKeys.createDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -158,8 +160,7 @@ function CreateKeyDialog({
           <div className="flex flex-col gap-4">
             <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900 dark:bg-yellow-950">
               <p className="mb-2 text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                Make sure to copy your API key now. You will not be able to see
-                it again.
+                {t('apiKeys.createWarning')}
               </p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 break-all rounded bg-yellow-100 px-2 py-1 font-mono text-xs dark:bg-yellow-900">
@@ -181,31 +182,31 @@ function CreateKeyDialog({
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button>Done</Button>
+                <Button>{t('common.done')}</Button>
               </DialogClose>
             </DialogFooter>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="key-name">Name</Label>
+              <Label htmlFor="key-name">{t('common.name')}</Label>
               <Input
                 id="key-name"
-                placeholder="e.g. Production API Key"
+                placeholder={t('apiKeys.namePlaceholder')}
                 value={name}
                 onChange={e => setName(e.target.value)}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="key-agent">Agent (optional)</Label>
+              <Label htmlFor="key-agent">{t('apiKeys.agentOptional')}</Label>
               <select
                 id="key-agent"
                 className="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
                 value={agentId}
                 onChange={e => setAgentId(e.target.value)}
               >
-                <option value="">Any agent (specify in request)</option>
+                <option value="">{t('apiKeys.anyAgent')}</option>
                 {agents?.map(agent => (
                   <option key={agent.id} value={agent.id}>
                     {agent.name}
@@ -213,13 +214,12 @@ function CreateKeyDialog({
                 ))}
               </select>
               <p className="text-muted-foreground text-xs">
-                Bind this key to a specific agent, or leave blank to specify the
-                agent in each request via the model field.
+                {t('apiKeys.agentHint')}
               </p>
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="key-expires">Expiration (optional)</Label>
+              <Label htmlFor="key-expires">{t('apiKeys.expiration')}</Label>
               <Input
                 id="key-expires"
                 type="date"
@@ -230,13 +230,15 @@ function CreateKeyDialog({
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline">{t('common.cancel')}</Button>
               </DialogClose>
               <Button
                 onClick={handleCreate}
                 disabled={!name.trim() || createApiKey.isPending}
               >
-                {createApiKey.isPending ? 'Creating...' : 'Create Key'}
+                {createApiKey.isPending
+                  ? t('apiKeys.creating')
+                  : t('apiKeys.createKey')}
               </Button>
             </DialogFooter>
           </div>
@@ -253,6 +255,7 @@ function DeleteConfirmDialog({
   readonly target: ApiKeyResponse | null;
   readonly onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const deleteApiKey = useDeleteApiKey();
 
   function handleDelete() {
@@ -260,7 +263,7 @@ function DeleteConfirmDialog({
     deleteApiKey.mutate(target.id, {
       onSuccess: () => {
         onOpenChange(false);
-        toast.success('API key revoked');
+        toast.success(t('apiKeys.keyRevoked'));
       },
     });
   }
@@ -274,22 +277,23 @@ function DeleteConfirmDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Revoke API Key</DialogTitle>
+          <DialogTitle>{t('apiKeys.revokeTitle')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to revoke &ldquo;{target?.name}&rdquo;? Any
-            applications using this key will no longer be able to authenticate.
+            {t('apiKeys.revokeConfirm', { name: target?.name })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('common.cancel')}</Button>
           </DialogClose>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteApiKey.isPending}
           >
-            {deleteApiKey.isPending ? 'Revoking...' : 'Revoke Key'}
+            {deleteApiKey.isPending
+              ? t('apiKeys.revoking')
+              : t('apiKeys.revokeKey')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -298,27 +302,30 @@ function DeleteConfirmDialog({
 }
 
 function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
       <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
         <Key className="size-8" />
       </div>
-      <h3 className="mb-1 text-lg font-semibold">No API keys yet</h3>
+      <h3 className="mb-1 text-lg font-semibold">{t('apiKeys.noKeys')}</h3>
       <p className="text-muted-foreground mb-6 text-sm">
-        Create your first API key to use the OpenAI-compatible API.
+        {t('apiKeys.noKeysDesc')}
       </p>
       <Button
         onClick={onCreateClick}
         className="gradient-bg text-white hover:opacity-90 cursor-pointer"
       >
         <Plus className="mr-2 size-4" />
-        Create API Key
+        {t('apiKeys.createKey')}
       </Button>
     </div>
   );
 }
 
 function UsageDocs() {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const curlExample = `curl https://your-domain/v1/chat/completions \\
@@ -338,10 +345,9 @@ function UsageDocs() {
 
   return (
     <div className="rounded-lg border p-6">
-      <h3 className="mb-2 text-lg font-semibold">Usage</h3>
+      <h3 className="mb-2 text-lg font-semibold">{t('apiKeys.usage')}</h3>
       <p className="text-muted-foreground mb-4 text-sm">
-        Use your API key with any OpenAI-compatible client. The endpoint follows
-        the OpenAI Chat Completions API format.
+        {t('apiKeys.usageDesc')}
       </p>
       <div className="relative">
         <pre className="bg-muted overflow-x-auto rounded-md p-4 font-mono text-sm">
@@ -365,6 +371,7 @@ function UsageDocs() {
 }
 
 export default function ApiKeysPage() {
+  const { t } = useTranslation();
   const { data: apiKeys, isLoading, error } = useApiKeys();
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ApiKeyResponse | null>(null);
@@ -372,7 +379,9 @@ export default function ApiKeysPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">Loading API keys...</div>
+        <div className="text-muted-foreground text-sm">
+          {t('common.loading')}
+        </div>
       </div>
     );
   }
@@ -381,9 +390,11 @@ export default function ApiKeysPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Failed to load API keys</h3>
+        <h3 className="mb-1 font-semibold">
+          {t('common.failedToLoad', { resource: t('apiKeys.title') })}
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Please try refreshing the page.
+          {t('common.tryRefreshing')}
         </p>
       </div>
     );
@@ -396,9 +407,11 @@ export default function ApiKeysPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">API Keys</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t('apiKeys.title')}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Manage API keys for the OpenAI-compatible endpoint.
+            {t('apiKeys.subtitle')}
           </p>
         </div>
         <Button
@@ -406,7 +419,7 @@ export default function ApiKeysPage() {
           className="gradient-bg text-white hover:opacity-90 cursor-pointer"
         >
           <Plus className="mr-2 size-4" />
-          Create Key
+          {t('apiKeys.createKey')}
         </Button>
       </div>
 
@@ -416,13 +429,15 @@ export default function ApiKeysPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Key</TableHead>
-                <TableHead>Agent</TableHead>
-                <TableHead>Last Used</TableHead>
-                <TableHead>Expires</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[80px]">Actions</TableHead>
+                <TableHead>{t('common.name')}</TableHead>
+                <TableHead>{t('apiKeys.key')}</TableHead>
+                <TableHead>{t('apiKeys.agent')}</TableHead>
+                <TableHead>{t('apiKeys.lastUsed')}</TableHead>
+                <TableHead>{t('apiKeys.expires')}</TableHead>
+                <TableHead>{t('common.status')}</TableHead>
+                <TableHead className="w-[80px]">
+                  {t('common.actions')}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -438,7 +453,9 @@ export default function ApiKeysPage() {
                     {apiKey.agent ? (
                       <span>{apiKey.agent.name}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">Any</span>
+                      <span className="text-muted-foreground text-xs">
+                        {t('apiKeys.any')}
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>{formatDate(apiKey.lastUsedAt)}</TableCell>
@@ -458,7 +475,7 @@ export default function ApiKeysPage() {
                         onClick={() => setDeleteTarget(apiKey)}
                       >
                         <Trash2 className="size-4" />
-                        <span className="sr-only">Revoke</span>
+                        <span className="sr-only">{t('apiKeys.revoke')}</span>
                       </Button>
                     )}
                   </TableCell>

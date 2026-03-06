@@ -228,6 +228,12 @@ importers:
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
+      i18next:
+        specifier: ^25.8.14
+        version: 25.8.14(typescript@5.7.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.1
+        version: 8.2.1
       lucide-react:
         specifier: ^0.469.0
         version: 0.469.0(react@19.2.4)
@@ -243,6 +249,9 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
+      react-i18next:
+        specifier: ^16.5.5
+        version: 16.5.5(i18next@25.8.14(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.14)(react@19.2.4)
@@ -594,6 +603,10 @@ packages:
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
+
+  '@babel/runtime@7.28.6':
+    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
+    engines: {node: '>=6.9.0'}
 
   '@babel/template@7.28.6':
     resolution: {integrity: sha512-YA6Ma2KsCdGb+WC6UpBVFJGXL58MDA6oyONbjyF/+5sBgxY/dwkhLogbMT2GXXyU84/IhRw/2D1Os1B/giz+BQ==}
@@ -3941,6 +3954,9 @@ packages:
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
+  html-parse-stringify@3.0.1:
+    resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
+
   html-url-attributes@3.0.1:
     resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
 
@@ -3959,6 +3975,17 @@ packages:
     resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
     engines: {node: '>=18'}
     hasBin: true
+
+  i18next-browser-languagedetector@8.2.1:
+    resolution: {integrity: sha512-bZg8+4bdmaOiApD7N7BPT9W8MLZG+nPTOFlLiJiT8uzKXFjhxw4v2ierCXOwB5sFDMtuA5G4kgYZ0AznZxQ/cw==}
+
+  i18next@25.8.14:
+    resolution: {integrity: sha512-paMUYkfWJMsWPeE/Hejcw+XLhHrQPehem+4wMo+uELnvIwvCG019L9sAIljwjCmEMtFQQO3YeitJY8Kctei3iA==}
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   iconv-lite@0.7.2:
     resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
@@ -5143,6 +5170,22 @@ packages:
     peerDependencies:
       react: ^19.2.4
 
+  react-i18next@16.5.5:
+    resolution: {integrity: sha512-5Z35e2JMALNR16FK/LDNQoAatQTVuO/4m4uHrIzewOPXIyf75gAHzuNLSWwmj5lRDJxDvXRJDECThkxWSAReng==}
+    peerDependencies:
+      i18next: '>= 25.6.2'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+      typescript: ^5
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+      typescript:
+        optional: true
+
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
@@ -5885,6 +5928,10 @@ packages:
       yaml:
         optional: true
 
+  void-elements@3.1.0:
+    resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
+    engines: {node: '>=0.10.0'}
+
   w3c-keyname@2.2.8:
     resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
@@ -6340,6 +6387,8 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/runtime@7.28.6': {}
 
   '@babel/template@7.28.6':
     dependencies:
@@ -10024,6 +10073,10 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
+  html-parse-stringify@3.0.1:
+    dependencies:
+      void-elements: 3.1.0
+
   html-url-attributes@3.0.1: {}
 
   http-errors@2.0.1:
@@ -10039,6 +10092,16 @@ snapshots:
   human-signals@2.1.0: {}
 
   husky@9.1.7: {}
+
+  i18next-browser-languagedetector@8.2.1:
+    dependencies:
+      '@babel/runtime': 7.28.6
+
+  i18next@25.8.14(typescript@5.7.3):
+    dependencies:
+      '@babel/runtime': 7.28.6
+    optionalDependencies:
+      typescript: 5.7.3
 
   iconv-lite@0.7.2:
     dependencies:
@@ -11665,6 +11728,17 @@ snapshots:
       react: 19.2.4
       scheduler: 0.27.0
 
+  react-i18next@16.5.5(i18next@25.8.14(typescript@5.7.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.7.3):
+    dependencies:
+      '@babel/runtime': 7.28.6
+      html-parse-stringify: 3.0.1
+      i18next: 25.8.14(typescript@5.7.3)
+      react: 19.2.4
+      use-sync-external-store: 1.6.0(react@19.2.4)
+    optionalDependencies:
+      react-dom: 19.2.4(react@19.2.4)
+      typescript: 5.7.3
+
   react-is@18.3.1: {}
 
   react-markdown@10.1.0(@types/react@19.2.14)(react@19.2.4):
@@ -12424,6 +12498,8 @@ snapshots:
       lightningcss: 1.31.1
       terser: 5.46.0
       yaml: 2.8.2
+
+  void-elements@3.1.0: {}
 
   w3c-keyname@2.2.8: {}
 

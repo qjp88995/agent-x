@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
@@ -19,6 +20,7 @@ function getStorageKey(token: string) {
 }
 
 export default function SharedChatPage() {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const { data: agentInfo, isLoading, error } = useSharedAgentInfo(token);
   const createConversation = useCreateSharedConversation();
@@ -88,7 +90,9 @@ export default function SharedChatPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground text-sm">Loading...</div>
+        <div className="text-muted-foreground text-sm">
+          {t('common.loading')}
+        </div>
       </div>
     );
   }
@@ -134,7 +138,7 @@ export default function SharedChatPage() {
               {agentInfo.agentName}
             </h3>
             <p className="text-muted-foreground text-sm">
-              Start a conversation by sending a message below.
+              {t('chat.startConversation')}
             </p>
           </div>
         ) : (
@@ -155,7 +159,7 @@ export default function SharedChatPage() {
 
       {/* Footer */}
       <div className="border-t py-2 text-center text-xs">
-        <span className="text-muted-foreground">Powered by </span>
+        <span className="text-muted-foreground">{t('common.poweredBy')} </span>
         <span className="gradient-text font-semibold">Agent-X</span>
       </div>
     </div>

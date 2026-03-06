@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
@@ -20,6 +21,7 @@ export function ChatInput({
   isLoading,
   disabled = false,
 }: ChatInputProps) {
+  const { t } = useTranslation();
   const onSendRef = useRef(onSend);
   onSendRef.current = onSend;
   const isLoadingRef = useRef(isLoading);
@@ -38,7 +40,7 @@ export function ChatInput({
         orderedList: false,
       }),
       Placeholder.configure({
-        placeholder: 'Type a message...',
+        placeholder: t('common.typeMessage'),
       }),
     ],
     editorProps: {
@@ -87,7 +89,7 @@ export function ChatInput({
             onClick={onStop}
           >
             <Square className="size-4" />
-            <span className="sr-only">Stop</span>
+            <span className="sr-only">{t('common.stop')}</span>
           </Button>
         ) : (
           <Button
@@ -97,7 +99,7 @@ export function ChatInput({
             disabled={disabled}
           >
             <Send className="size-4" />
-            <span className="sr-only">Send</span>
+            <span className="sr-only">{t('common.send')}</span>
           </Button>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { AgentResponse } from '@agent-x/shared';
 import {
@@ -37,6 +38,7 @@ interface AgentMcpTabProps {
 }
 
 export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
+  const { t } = useTranslation();
   const { data: customServers } = useMcpServers();
   const { data: marketServers } = useMcpMarket();
   const addMcp = useAddAgentMcp();
@@ -58,7 +60,7 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
       { agentId, mcpServerId },
       {
         onSuccess: () => {
-          toast.success('MCP server added');
+          toast.success(t('mcp.created'));
         },
       }
     );
@@ -69,7 +71,7 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
       { agentId, mcpServerId },
       {
         onSuccess: () => {
-          toast.success('MCP server removed');
+          toast.success(t('mcp.deleted'));
         },
       }
     );
@@ -80,16 +82,13 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
       {/* Bound MCP servers */}
       <Card>
         <CardHeader>
-          <CardTitle>Bound MCP Servers</CardTitle>
-          <CardDescription>
-            MCP servers currently attached to this agent. Expand to manage
-            enabled tools.
-          </CardDescription>
+          <CardTitle>{t('agentMcp.boundServers')}</CardTitle>
+          <CardDescription>{t('agentMcp.boundServersDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {currentMcpServers.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No MCP servers bound yet. Add one from the list below.
+              {t('agentMcp.noBound')}
             </p>
           ) : (
             <div className="flex flex-col gap-3">
@@ -113,16 +112,15 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
       {/* Available MCP servers */}
       <Card>
         <CardHeader>
-          <CardTitle>Available MCP Servers</CardTitle>
+          <CardTitle>{t('agentMcp.availableServers')}</CardTitle>
           <CardDescription>
-            Add MCP servers to give your agent access to external tools.
+            {t('agentMcp.availableServersDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {availableServers.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No additional MCP servers available. Create one in the MCP Servers
-              page first.
+              {t('agentMcp.noAvailable')}
             </p>
           ) : (
             <div className="flex flex-col gap-2">
@@ -139,7 +137,7 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
                       </Badge>
                       {server.tools && (
                         <span className="text-muted-foreground text-xs">
-                          {server.tools.length} tools
+                          {server.tools.length} {t('agentMcp.tools')}
                         </span>
                       )}
                     </div>
@@ -161,7 +159,7 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
                     ) : (
                       <Plus className="mr-1 size-3" />
                     )}
-                    Add
+                    {t('agentMcp.add')}
                   </Button>
                 </div>
               ))}
@@ -184,6 +182,7 @@ function BoundServerItem({
   onRemove: () => void;
   isRemoving: boolean;
 }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [selectedTools, setSelectedTools] = useState<string[]>(
     entry.enabledTools
@@ -224,7 +223,7 @@ function BoundServerItem({
       },
       {
         onSuccess: () => {
-          toast.success('Tools configuration saved');
+          toast.success(t('agentMcp.saveTools'));
         },
       }
     );
@@ -249,10 +248,10 @@ function BoundServerItem({
           </Badge>
           <span className="text-muted-foreground text-xs">
             {entry.enabledTools.length > 0
-              ? `${entry.enabledTools.length} / ${serverTools.length} tools enabled`
+              ? `${entry.enabledTools.length} / ${serverTools.length} ${t('agentMcp.tools')}`
               : serverTools.length > 0
-                ? `All ${serverTools.length} tools enabled`
-                : 'No tools discovered'}
+                ? `${serverTools.length} ${t('agentMcp.tools')}`
+                : t('mcp.noTools')}
           </span>
         </button>
         <Button
@@ -276,8 +275,7 @@ function BoundServerItem({
           <div className="px-4 py-3">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-muted-foreground text-xs">
-                Select which tools this agent can use. Leave all unchecked to
-                enable all tools.
+                {t('agentMcp.toolsDesc')}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -287,7 +285,7 @@ function BoundServerItem({
                   className="h-7 text-xs"
                   onClick={handleSelectAll}
                 >
-                  Select All
+                  {t('agentMcp.selectAll')}
                 </Button>
                 <Button
                   type="button"
@@ -296,7 +294,7 @@ function BoundServerItem({
                   className="h-7 text-xs"
                   onClick={handleSelectNone}
                 >
-                  Clear
+                  {t('agentMcp.clear')}
                 </Button>
               </div>
             </div>
@@ -335,7 +333,7 @@ function BoundServerItem({
                   ) : (
                     <Check className="mr-1 size-3" />
                   )}
-                  Save Tools
+                  {t('agentMcp.saveTools')}
                 </Button>
               </div>
             )}
@@ -348,8 +346,7 @@ function BoundServerItem({
           <Separator />
           <div className="px-4 py-3">
             <p className="text-muted-foreground text-xs">
-              No tools discovered for this server. Try testing the connection on
-              the MCP Servers page first.
+              {t('agentMcp.noTools')}
             </p>
           </div>
         </>

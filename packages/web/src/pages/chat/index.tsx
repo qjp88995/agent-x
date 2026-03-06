@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 
 import {
@@ -55,6 +56,8 @@ function ConversationItem({
   readonly onSelect: () => void;
   readonly onDelete: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <button
       type="button"
@@ -69,7 +72,7 @@ function ConversationItem({
       <MessageSquare className="mt-0.5 size-4 shrink-0 opacity-60" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">
-          {conversation.title ?? 'New Chat'}
+          {conversation.title ?? t('chat.newChat')}
         </p>
         <p className="text-muted-foreground mt-0.5 truncate text-xs">
           {conversation.agent.name} &middot;{' '}
@@ -83,7 +86,7 @@ function ConversationItem({
           onDelete();
         }}
         className="text-muted-foreground hover:text-destructive mt-0.5 hidden shrink-0 rounded p-0.5 group-hover:block"
-        aria-label="Delete conversation"
+        aria-label={t('chat.deleteConversation')}
       >
         <Trash2 className="size-3.5" />
       </button>
@@ -114,6 +117,7 @@ function Sidebar({
   readonly onNewChat: () => void;
   readonly onSelectAgent: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const publishedAgents = agents.filter(a => a.status === 'ACTIVE');
   const selectedAgent = publishedAgents.find(a => a.id === selectedAgentId);
   const filteredConversations = selectedAgentId
@@ -132,11 +136,11 @@ function Sidebar({
         >
           <Link to="/agents">
             <ArrowLeft className="size-4" />
-            <span className="sr-only">Back to dashboard</span>
+            <span className="sr-only">{t('chat.backToDashboard')}</span>
           </Link>
         </Button>
         <span className="gradient-text text-lg font-bold tracking-tight">
-          Chat
+          {t('chat.title')}
         </span>
       </div>
       <Separator />
@@ -153,7 +157,7 @@ function Sidebar({
               <span className="flex items-center gap-2 truncate">
                 <Bot className="size-4 shrink-0" />
                 <span className="truncate">
-                  {selectedAgent?.name ?? 'All Agents'}
+                  {selectedAgent?.name ?? t('chat.allAgents')}
                 </span>
               </span>
               <ChevronDown className="size-3.5 shrink-0 opacity-50" />
@@ -161,7 +165,7 @@ function Sidebar({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-64" align="start">
             <DropdownMenuItem onClick={() => onSelectAgent('')}>
-              All Agents
+              {t('chat.allAgents')}
             </DropdownMenuItem>
             {publishedAgents.map(agent => (
               <DropdownMenuItem
@@ -174,7 +178,7 @@ function Sidebar({
             ))}
             {publishedAgents.length === 0 && (
               <div className="text-muted-foreground px-2 py-1.5 text-sm">
-                No agents available
+                {t('chat.noAgentsAvailable')}
               </div>
             )}
           </DropdownMenuContent>
@@ -190,7 +194,7 @@ function Sidebar({
           disabled={!selectedAgentId}
         >
           <Plus className="mr-2 size-4" />
-          New Chat
+          {t('chat.newChat')}
         </Button>
       </div>
 
@@ -204,8 +208,8 @@ function Sidebar({
               <MessageSquare className="text-muted-foreground mb-2 size-8 opacity-40" />
               <p className="text-muted-foreground text-xs">
                 {selectedAgentId
-                  ? 'No conversations yet'
-                  : 'Select an agent to start'}
+                  ? t('chat.noConversationsYet')
+                  : t('chat.selectAgentToStart')}
               </p>
             </div>
           )}
@@ -225,20 +229,25 @@ function Sidebar({
 }
 
 function NoChatSelected() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center">
       <div className="gradient-bg glow-primary mb-4 flex size-16 items-center justify-center rounded-full">
         <MessageSquare className="size-8 text-white" />
       </div>
-      <h3 className="mb-1 text-lg font-semibold">Select a conversation</h3>
+      <h3 className="mb-1 text-lg font-semibold">
+        {t('chat.selectConversation')}
+      </h3>
       <p className="text-muted-foreground text-sm">
-        Choose an existing conversation or start a new one.
+        {t('chat.chooseConversation')}
       </p>
     </div>
   );
 }
 
 export default function ChatPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const agentParam = searchParams.get('agent');
   const conversationParam = searchParams.get('conversation');
@@ -313,9 +322,11 @@ export default function ChatPage() {
       <div className="flex h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <AlertTriangle className="text-destructive size-10" />
-          <p className="text-muted-foreground">Failed to load conversations</p>
+          <p className="text-muted-foreground">
+            {t('chat.failedToLoadConversations')}
+          </p>
           <Button variant="outline" asChild>
-            <Link to="/agents">Back to Dashboard</Link>
+            <Link to="/agents">{t('chat.backToDashboard')}</Link>
           </Button>
         </div>
       </div>
@@ -340,7 +351,9 @@ export default function ChatPage() {
       <div className="flex flex-1 flex-col overflow-hidden">
         {conversationsLoading ? (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-muted-foreground text-sm">Loading...</p>
+            <p className="text-muted-foreground text-sm">
+              {t('common.loading')}
+            </p>
           </div>
         ) : activeConversationId ? (
           <ChatPanel

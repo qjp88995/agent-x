@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Navigate,
   useNavigate,
@@ -35,23 +36,23 @@ import { cn } from '@/lib/utils';
 
 const TRANSPORT_OPTIONS: readonly {
   value: McpTransportType;
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
 }[] = [
   {
     value: McpTransport.STDIO,
-    label: 'STDIO',
-    description: 'Standard input/output process',
+    labelKey: 'mcp.stdio',
+    descKey: 'mcp.stdioDesc',
   },
   {
     value: McpTransport.SSE,
-    label: 'SSE',
-    description: 'Server-Sent Events transport',
+    labelKey: 'mcp.sse',
+    descKey: 'mcp.sseDesc',
   },
   {
     value: McpTransport.STREAMABLE_HTTP,
-    label: 'Streamable HTTP',
-    description: 'HTTP streaming transport',
+    labelKey: 'mcp.streamableHttp',
+    descKey: 'mcp.streamableHttpDesc',
   },
 ] as const;
 
@@ -68,35 +69,32 @@ function StdioConfigFields({
   readonly onArgsChange: (value: string) => void;
   readonly disabled: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="command">Command</Label>
+        <Label htmlFor="command">{t('mcp.command')}</Label>
         <Input
           id="command"
-          placeholder="e.g., npx or python"
+          placeholder={t('mcp.commandPlaceholder')}
           value={command}
           onChange={e => onCommandChange(e.target.value)}
           disabled={disabled}
           required
         />
-        <p className="text-muted-foreground text-xs">
-          The executable command to run the MCP server.
-        </p>
+        <p className="text-muted-foreground text-xs">{t('mcp.commandHint')}</p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="args">Arguments</Label>
+        <Label htmlFor="args">{t('mcp.arguments')}</Label>
         <Input
           id="args"
-          placeholder="e.g., -y, @modelcontextprotocol/server-github"
+          placeholder={t('mcp.argsPlaceholder')}
           value={argsInput}
           onChange={e => onArgsChange(e.target.value)}
           disabled={disabled}
         />
-        <p className="text-muted-foreground text-xs">
-          Comma-separated list of command arguments.
-        </p>
+        <p className="text-muted-foreground text-xs">{t('mcp.argsHint')}</p>
       </div>
     </>
   );
@@ -117,32 +115,33 @@ function HttpConfigFields({
   readonly headersError: string | null;
   readonly disabled: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="url">URL</Label>
+        <Label htmlFor="url">{t('mcp.url')}</Label>
         <Input
           id="url"
           type="url"
-          placeholder="e.g., https://mcp-server.example.com/sse"
+          placeholder={t('mcp.urlPlaceholder')}
           value={url}
           onChange={e => onUrlChange(e.target.value)}
           disabled={disabled}
           required
         />
-        <p className="text-muted-foreground text-xs">
-          The MCP server endpoint URL.
-        </p>
+        <p className="text-muted-foreground text-xs">{t('mcp.urlHint')}</p>
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="headers">
-          Headers{' '}
-          <span className="text-muted-foreground font-normal">(optional)</span>
+          {t('mcp.headers')}{' '}
+          <span className="text-muted-foreground font-normal">
+            {t('common.optional')}
+          </span>
         </Label>
         <Textarea
           id="headers"
-          placeholder={'{\n  "Authorization": "Bearer token"\n}'}
+          placeholder={t('mcp.headersPlaceholder')}
           value={headersInput}
           onChange={e => onHeadersChange(e.target.value)}
           disabled={disabled}
@@ -152,15 +151,14 @@ function HttpConfigFields({
         {headersError && (
           <p className="text-destructive text-xs">{headersError}</p>
         )}
-        <p className="text-muted-foreground text-xs">
-          Optional HTTP headers as JSON object.
-        </p>
+        <p className="text-muted-foreground text-xs">{t('mcp.headersHint')}</p>
       </div>
     </>
   );
 }
 
 export default function McpEditorPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -242,7 +240,7 @@ export default function McpEditorPage() {
 
     const headers = parseHeaders(headersInput);
     if (headers === null) {
-      setHeadersError('Invalid JSON format. Please enter a valid JSON object.');
+      setHeadersError(t('mcp.headersError'));
       return null;
     }
     setHeadersError(null);
@@ -294,18 +292,10 @@ export default function McpEditorPage() {
           await createMcpServer.mutateAsync(dto);
         }
       }
-      toast.success(
-        isEditMode
-          ? 'MCP server updated successfully'
-          : 'MCP server created successfully'
-      );
+      toast.success(isEditMode ? t('mcp.updated') : t('mcp.created'));
       await navigate('/mcp-servers');
     } catch {
-      toast.error(
-        isEditMode
-          ? 'Failed to update MCP server. Please try again.'
-          : 'Failed to create MCP server. Please try again.'
-      );
+      toast.error(isEditMode ? t('mcp.updateFailed') : t('mcp.createFailed'));
     }
   }
 
@@ -316,25 +306,25 @@ export default function McpEditorPage() {
 
   const pageTitle = isOfficialMode
     ? isEditMode
-      ? 'Edit Marketplace Server'
-      : 'Add Marketplace Server'
+      ? t('mcp.editMarketplace')
+      : t('mcp.addMarketplaceTitle')
     : isEditMode
-      ? 'Edit MCP Server'
-      : 'Add MCP Server';
+      ? t('mcp.editServer')
+      : t('mcp.addServerTitle');
 
   const pageDescription = isOfficialMode
     ? isEditMode
-      ? 'Update this marketplace server configuration.'
-      : 'Add a new server to the marketplace for all users.'
+      ? t('mcp.editMarketplaceDesc')
+      : t('mcp.addMarketplaceDesc')
     : isEditMode
-      ? 'Update your MCP server configuration.'
-      : 'Configure a new MCP server connection.';
+      ? t('mcp.editServerDesc')
+      : t('mcp.addServerDesc');
 
   if (isEditMode && isLoadingServer) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="text-muted-foreground text-sm">
-          Loading MCP server...
+          {t('mcp.loadingServer')}
         </div>
       </div>
     );
@@ -344,12 +334,12 @@ export default function McpEditorPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">MCP Server not found</h3>
+        <h3 className="mb-1 font-semibold">{t('mcp.notFound')}</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          The MCP server you are looking for does not exist.
+          {t('mcp.notFoundDesc')}
         </p>
         <Button variant="outline" onClick={() => navigate('/mcp-servers')}>
-          Back to MCP Servers
+          {t('mcp.backToServers')}
         </Button>
       </div>
     );
@@ -378,48 +368,46 @@ export default function McpEditorPage() {
       <Card className="max-w-2xl">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <CardHeader>
-            <CardTitle>Server Details</CardTitle>
-            <CardDescription>
-              Enter the connection details for your MCP server.
-            </CardDescription>
+            <CardTitle>{t('mcp.serverDetails')}</CardTitle>
+            <CardDescription>{t('mcp.serverDetailsDesc')}</CardDescription>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6">
             {/* Name */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('common.name')}</Label>
               <Input
                 id="name"
-                placeholder="e.g., GitHub MCP Server"
+                placeholder={t('mcp.namePlaceholder')}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
               <p className="text-muted-foreground text-xs">
-                A friendly name to identify this MCP server.
+                {t('mcp.nameHint')}
               </p>
             </div>
 
             {/* Description */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('common.description')}</Label>
               <Textarea
                 id="description"
-                placeholder="Describe what this MCP server provides..."
+                placeholder={t('mcp.descPlaceholder')}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 disabled={isSaving}
                 rows={3}
               />
               <p className="text-muted-foreground text-xs">
-                Optional description of this server&apos;s capabilities.
+                {t('mcp.descHint')}
               </p>
             </div>
 
             {/* Transport */}
             <div className="flex flex-col gap-2">
-              <Label>Transport</Label>
+              <Label>{t('mcp.transport')}</Label>
               <div className="grid gap-3 sm:grid-cols-3">
                 {TRANSPORT_OPTIONS.map(option => (
                   <button
@@ -435,9 +423,11 @@ export default function McpEditorPage() {
                       isSaving && 'cursor-not-allowed opacity-60'
                     )}
                   >
-                    <span className="text-sm font-medium">{option.label}</span>
+                    <span className="text-sm font-medium">
+                      {t(option.labelKey)}
+                    </span>
                     <span className="text-muted-foreground text-xs">
-                      {option.description}
+                      {t(option.descKey)}
                     </span>
                   </button>
                 ))}
@@ -472,7 +462,7 @@ export default function McpEditorPage() {
               onClick={() => navigate('/mcp-servers')}
               disabled={isSaving}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -480,7 +470,7 @@ export default function McpEditorPage() {
               className="gradient-bg text-white hover:opacity-90 cursor-pointer"
             >
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? 'Save Changes' : 'Create Server'}
+              {isEditMode ? t('common.save') : t('mcp.createServer')}
             </Button>
           </CardFooter>
         </form>

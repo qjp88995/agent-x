@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import type {
@@ -56,15 +57,15 @@ import { cn } from '@/lib/utils';
 
 const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,
-  { label: string; className: string }
+  { labelKey: string; className: string }
 > = {
   ACTIVE: {
-    label: 'Active',
+    labelKey: 'agents.active',
     className:
       'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   },
   ARCHIVED: {
-    label: 'Archived',
+    labelKey: 'agents.archived',
     className:
       'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
   },
@@ -73,10 +74,11 @@ const STATUS_BADGE_CONFIG: Record<
 type FilterTab = 'all' | AgentStatusType;
 
 function StatusBadge({ status }: { readonly status: AgentStatusType }) {
+  const { t } = useTranslation();
   const config = STATUS_BADGE_CONFIG[status];
   return (
     <Badge variant="outline" className={cn('border-0', config.className)}>
-      {config.label}
+      {t(config.labelKey)}
     </Badge>
   );
 }
@@ -96,6 +98,7 @@ function AgentCard({
   readonly onArchive: (agent: AgentResponse) => void;
   readonly onUnarchive: (agent: AgentResponse) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
@@ -121,14 +124,14 @@ function AgentCard({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8">
               <MoreHorizontal className="size-4" />
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{t('common.actions')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
               <Link to={`/agents/${agent.id}/edit`}>
                 <Pencil className="mr-2 size-4" />
-                Edit
+                {t('common.edit')}
               </Link>
             </DropdownMenuItem>
             {agent.status === AgentStatus.ACTIVE && (
@@ -136,12 +139,12 @@ function AgentCard({
                 <DropdownMenuItem asChild>
                   <Link to={`/chat?agent=${agent.id}`}>
                     <MessageSquare className="mr-2 size-4" />
-                    Chat
+                    {t('agents.chat')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onArchive(agent)}>
                   <Archive className="mr-2 size-4" />
-                  Archive
+                  {t('agents.archive')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -149,14 +152,14 @@ function AgentCard({
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 size-4" />
-                  Delete
+                  {t('common.delete')}
                 </DropdownMenuItem>
               </>
             )}
             {agent.status === AgentStatus.ARCHIVED && (
               <DropdownMenuItem onClick={() => onUnarchive(agent)}>
                 <ArchiveRestore className="mr-2 size-4" />
-                Unarchive
+                {t('agents.unarchive')}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -170,7 +173,7 @@ function AgentCard({
           </p>
         ) : (
           <p className="text-muted-foreground/50 text-sm italic">
-            No description
+            {t('common.noDescription')}
           </p>
         )}
       </CardContent>
@@ -183,17 +186,18 @@ function AgentCard({
 }
 
 function EmptyState({ filter }: { readonly filter: FilterTab }) {
+  const { t } = useTranslation();
   const message =
     filter === 'all'
-      ? 'Create your first AI agent to get started.'
-      : `No ${filter.toLowerCase()} agents found.`;
+      ? t('agents.noAgentsDesc')
+      : t('agents.noFilteredAgents', { filter: filter.toLowerCase() });
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
       <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
         <Bot className="size-8" />
       </div>
-      <h3 className="mb-1 text-lg font-semibold">No agents yet</h3>
+      <h3 className="mb-1 text-lg font-semibold">{t('agents.noAgents')}</h3>
       <p className="text-muted-foreground mb-6 text-sm">{message}</p>
       {filter === 'all' && (
         <Button
@@ -202,7 +206,7 @@ function EmptyState({ filter }: { readonly filter: FilterTab }) {
         >
           <Link to="/agents/new">
             <Plus className="mr-2 size-4" />
-            Create Agent
+            {t('agents.createAgent')}
           </Link>
         </Button>
       )}
@@ -211,6 +215,7 @@ function EmptyState({ filter }: { readonly filter: FilterTab }) {
 }
 
 export default function AgentListPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const statusFilter =
     activeTab === 'all' ? undefined : (activeTab as AgentStatusType);
@@ -225,7 +230,7 @@ export default function AgentListPage() {
     deleteAgent.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
-        toast.success('Agent deleted');
+        toast.success(t('agents.deleted'));
       },
     });
   }
@@ -233,7 +238,7 @@ export default function AgentListPage() {
   function handleArchive(agent: AgentResponse) {
     archiveAgent.mutate(agent.id, {
       onSuccess: () => {
-        toast.success('Agent archived');
+        toast.success(t('agents.archived'));
       },
     });
   }
@@ -241,7 +246,7 @@ export default function AgentListPage() {
   function handleUnarchive(agent: AgentResponse) {
     unarchiveAgent.mutate(agent.id, {
       onSuccess: () => {
-        toast.success('Agent unarchived');
+        toast.success(t('agents.unarchived'));
       },
     });
   }
@@ -249,7 +254,9 @@ export default function AgentListPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">Loading agents...</div>
+        <div className="text-muted-foreground text-sm">
+          {t('agents.loadingAgents')}
+        </div>
       </div>
     );
   }
@@ -258,9 +265,13 @@ export default function AgentListPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Failed to load agents</h3>
+        <h3 className="mb-1 font-semibold">
+          {t('common.failedToLoad', {
+            resource: t('agents.title').toLowerCase(),
+          })}
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Please try refreshing the page.
+          {t('common.tryRefreshing')}
         </p>
       </div>
     );
@@ -271,9 +282,11 @@ export default function AgentListPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Agents</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t('agents.title')}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Create and manage your AI agents.
+            {t('agents.subtitle')}
           </p>
         </div>
         <Button
@@ -282,7 +295,7 @@ export default function AgentListPage() {
         >
           <Link to="/agents/new">
             <Plus className="mr-2 size-4" />
-            Create Agent
+            {t('agents.createAgent')}
           </Link>
         </Button>
       </div>
@@ -293,9 +306,13 @@ export default function AgentListPage() {
         onValueChange={value => setActiveTab(value as FilterTab)}
       >
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value={AgentStatus.ACTIVE}>Active</TabsTrigger>
-          <TabsTrigger value={AgentStatus.ARCHIVED}>Archived</TabsTrigger>
+          <TabsTrigger value="all">{t('agents.all')}</TabsTrigger>
+          <TabsTrigger value={AgentStatus.ACTIVE}>
+            {t('agents.active')}
+          </TabsTrigger>
+          <TabsTrigger value={AgentStatus.ARCHIVED}>
+            {t('agents.archived')}
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -325,22 +342,23 @@ export default function AgentListPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Agent</DialogTitle>
+            <DialogTitle>{t('agents.deleteAgent')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &ldquo;{deleteTarget?.name}
-              &rdquo;? This action cannot be undone.
+              {t('agents.deleteConfirm', { name: deleteTarget?.name })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('common.cancel')}</Button>
             </DialogClose>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deleteAgent.isPending}
             >
-              {deleteAgent.isPending ? 'Deleting...' : 'Delete'}
+              {deleteAgent.isPending
+                ? t('common.deleting')
+                : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

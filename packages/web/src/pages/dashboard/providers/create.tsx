@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 
 import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
@@ -43,43 +44,43 @@ const DEFAULT_BASE_URLS: Record<ProviderProtocolType, string> = {
 
 const PROTOCOL_OPTIONS: readonly {
   value: ProviderProtocolType;
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
 }[] = [
   {
     value: ProviderProtocol.OPENAI,
-    label: 'OpenAI',
-    description: 'GPT models and compatible APIs',
+    labelKey: 'providers.openai',
+    descKey: 'providers.openaiDesc',
   },
   {
     value: ProviderProtocol.ANTHROPIC,
-    label: 'Anthropic',
-    description: 'Claude models',
+    labelKey: 'providers.anthropic',
+    descKey: 'providers.anthropicDesc',
   },
   {
     value: ProviderProtocol.GEMINI,
-    label: 'Gemini',
-    description: 'Google Gemini models',
+    labelKey: 'providers.gemini',
+    descKey: 'providers.geminiDesc',
   },
   {
     value: ProviderProtocol.DEEPSEEK,
-    label: 'DeepSeek',
-    description: '深度求索',
+    labelKey: 'providers.deepseek',
+    descKey: 'providers.deepseekDesc',
   },
   {
     value: ProviderProtocol.QWEN,
-    label: 'Qwen (通义千问)',
-    description: '阿里云百炼',
+    labelKey: 'providers.qwen',
+    descKey: 'providers.qwenDesc',
   },
   {
     value: ProviderProtocol.ZHIPU,
-    label: 'GLM (智谱)',
-    description: '智谱 AI',
+    labelKey: 'providers.zhipu',
+    descKey: 'providers.zhipuDesc',
   },
   {
     value: ProviderProtocol.MOONSHOT,
-    label: 'Kimi (月之暗面)',
-    description: 'Moonshot AI',
+    labelKey: 'providers.moonshot',
+    descKey: 'providers.moonshotDesc',
   },
 ] as const;
 
@@ -89,6 +90,7 @@ interface TestResultState {
 }
 
 export default function CreateProviderPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id;
@@ -148,7 +150,7 @@ export default function CreateProviderPage() {
       onError: () =>
         setTestResult({
           success: false,
-          message: 'Connection test failed. Check your configuration.',
+          message: t('providers.testFailed'),
         }),
     });
   }
@@ -167,7 +169,7 @@ export default function CreateProviderPage() {
             ...(apiKey.trim().length > 0 ? { apiKey: apiKey.trim() } : {}),
           },
         });
-        toast.success('Provider updated successfully');
+        toast.success(t('providers.updated'));
       } else {
         await createProvider.mutateAsync({
           name: name.trim(),
@@ -175,14 +177,12 @@ export default function CreateProviderPage() {
           baseUrl: baseUrl.trim(),
           apiKey: apiKey.trim(),
         });
-        toast.success('Provider created successfully');
+        toast.success(t('providers.created'));
       }
       await navigate('/providers');
     } catch {
       toast.error(
-        isEditMode
-          ? 'Failed to update provider. Please try again.'
-          : 'Failed to create provider. Please try again.'
+        isEditMode ? t('providers.updateFailed') : t('providers.createFailed')
       );
     }
   }
@@ -190,7 +190,9 @@ export default function CreateProviderPage() {
   if (isEditMode && isLoadingProvider) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">Loading provider...</div>
+        <div className="text-muted-foreground text-sm">
+          {t('providers.loadingProvider')}
+        </div>
       </div>
     );
   }
@@ -199,12 +201,12 @@ export default function CreateProviderPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
-        <h3 className="mb-1 font-semibold">Provider not found</h3>
+        <h3 className="mb-1 font-semibold">{t('providers.notFound')}</h3>
         <p className="text-muted-foreground mb-4 text-sm">
-          The provider you are looking for does not exist.
+          {t('providers.notFoundDesc')}
         </p>
         <Button variant="outline" onClick={() => navigate('/providers')}>
-          Back to Providers
+          {t('providers.backToProviders')}
         </Button>
       </div>
     );
@@ -225,12 +227,14 @@ export default function CreateProviderPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode ? 'Edit Provider' : 'Add Provider'}
+            {isEditMode
+              ? t('providers.editProvider')
+              : t('providers.addProvider')}
           </h1>
           <p className="text-muted-foreground text-sm">
             {isEditMode
-              ? 'Update your provider configuration.'
-              : 'Configure a new AI provider connection.'}
+              ? t('providers.editProviderDesc')
+              : t('providers.addProviderDesc')}
           </p>
         </div>
       </div>
@@ -239,32 +243,32 @@ export default function CreateProviderPage() {
       <Card className="max-w-2xl border-border/50">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <CardHeader>
-            <CardTitle>Provider Details</CardTitle>
+            <CardTitle>{t('providers.providerDetails')}</CardTitle>
             <CardDescription>
-              Enter the connection details for your AI provider.
+              {t('providers.providerDetailsDesc')}
             </CardDescription>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6">
             {/* Name */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('common.name')}</Label>
               <Input
                 id="name"
-                placeholder="e.g., My OpenAI Provider"
+                placeholder={t('providers.namePlaceholder')}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 disabled={isSaving}
                 required
               />
               <p className="text-muted-foreground text-xs">
-                A friendly name to identify this provider.
+                {t('providers.nameHint')}
               </p>
             </div>
 
             {/* Protocol */}
             <div className="flex flex-col gap-2">
-              <Label>Protocol</Label>
+              <Label>{t('providers.protocol')}</Label>
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
                 {PROTOCOL_OPTIONS.map(option => (
                   <button
@@ -281,46 +285,49 @@ export default function CreateProviderPage() {
                         'cursor-not-allowed opacity-60'
                     )}
                   >
-                    <span className="text-sm font-medium">{option.label}</span>
+                    <span className="text-sm font-medium">
+                      {t(option.labelKey)}
+                    </span>
                     <span className="text-muted-foreground text-xs">
-                      {option.description}
+                      {t(option.descKey)}
                     </span>
                   </button>
                 ))}
               </div>
               {isEditMode && (
                 <p className="text-muted-foreground text-xs">
-                  Protocol cannot be changed after creation.
+                  {t('providers.protocolLocked')}
                 </p>
               )}
             </div>
 
             {/* Base URL */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="baseUrl">Base URL</Label>
+              <Label htmlFor="baseUrl">{t('providers.baseUrl')}</Label>
               <Input
                 id="baseUrl"
                 type="url"
-                placeholder="https://api.example.com/v1"
+                placeholder={t('providers.baseUrlPlaceholder')}
                 value={baseUrl}
                 onChange={e => handleBaseUrlChange(e.target.value)}
                 disabled={isSaving}
                 required
               />
               <p className="text-muted-foreground text-xs">
-                The API endpoint for this provider. Auto-filled based on
-                protocol.
+                {t('providers.baseUrlHint')}
               </p>
             </div>
 
             {/* API Key */}
             <div className="flex flex-col gap-2">
-              <Label htmlFor="apiKey">API Key</Label>
+              <Label htmlFor="apiKey">{t('providers.apiKey')}</Label>
               <Input
                 id="apiKey"
                 type="password"
                 placeholder={
-                  isEditMode ? 'Leave blank to keep current key' : 'sk-...'
+                  isEditMode
+                    ? t('providers.apiKeyKeep')
+                    : t('providers.apiKeyPlaceholder')
                 }
                 value={apiKey}
                 onChange={e => setApiKey(e.target.value)}
@@ -330,8 +337,8 @@ export default function CreateProviderPage() {
               />
               <p className="text-muted-foreground text-xs">
                 {isEditMode
-                  ? 'Leave blank to keep the existing API key.'
-                  : 'Your API key will be stored securely.'}
+                  ? t('providers.apiKeyKeepHint')
+                  : t('providers.apiKeyHint')}
               </p>
             </div>
 
@@ -349,7 +356,7 @@ export default function CreateProviderPage() {
                     {testProvider.isPending && (
                       <Loader2 className="mr-2 size-4 animate-spin" />
                     )}
-                    Test Connection
+                    {t('providers.testConnection')}
                   </Button>
                   {testResult && (
                     <div
@@ -378,7 +385,7 @@ export default function CreateProviderPage() {
               onClick={() => navigate('/providers')}
               disabled={isSaving}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -386,7 +393,7 @@ export default function CreateProviderPage() {
               className="gradient-bg text-white hover:opacity-90 cursor-pointer"
             >
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditMode ? 'Save Changes' : 'Create Provider'}
+              {isEditMode ? t('common.save') : t('providers.createProvider')}
             </Button>
           </CardFooter>
         </form>

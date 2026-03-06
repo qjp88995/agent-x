@@ -1,20 +1,23 @@
+import { useTranslation } from 'react-i18next';
+
 import { LinkIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
 export default function SharedExpiredPage() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-4">
       <div className="gradient-bg flex size-16 items-center justify-center rounded-full glow-sm opacity-80">
         <LinkIcon className="text-white size-8" />
       </div>
-      <h1 className="text-xl font-semibold">Link Expired or Invalid</h1>
+      <h1 className="text-xl font-semibold">{t('shared.expired')}</h1>
       <p className="text-muted-foreground max-w-md text-center text-sm">
-        This share link has expired, reached its usage limit, or is no longer
-        valid.
+        {t('shared.expiredDesc')}
       </p>
       <Button variant="outline" asChild>
-        <a href="/">Go to Homepage</a>
+        <a href="/">{t('shared.goHome')}</a>
       </Button>
     </div>
   );
