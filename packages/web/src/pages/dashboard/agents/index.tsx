@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
@@ -218,9 +218,15 @@ function EmptyState({ filter }: { readonly filter: FilterTab }) {
 export default function AgentListPage() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
-  const statusFilter =
-    activeTab === 'all' ? undefined : (activeTab as AgentStatusType);
-  const { data: agents, isLoading, error } = useAgents(statusFilter);
+  const { data: allAgents, isLoading, error } = useAgents();
+
+  const agents = useMemo(
+    () =>
+      activeTab === 'all'
+        ? allAgents
+        : allAgents?.filter(a => a.status === activeTab),
+    [allAgents, activeTab]
+  );
   const deleteAgent = useDeleteAgent();
   const archiveAgent = useArchiveAgent();
   const unarchiveAgent = useUnarchiveAgent();

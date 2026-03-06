@@ -1,15 +1,9 @@
 import type {
   AgentResponse,
-  AgentStatus,
   CreateAgentDto,
   UpdateAgentDto,
 } from '@agent-x/shared';
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
@@ -19,15 +13,13 @@ export function agentKey(id: string) {
   return ['agents', id] as const;
 }
 
-export function useAgents(status?: AgentStatus) {
+export function useAgents() {
   return useQuery({
-    queryKey: status ? [...AGENTS_KEY, { status }] : AGENTS_KEY,
+    queryKey: AGENTS_KEY,
     queryFn: async () => {
-      const params = status ? { status } : undefined;
-      const { data } = await api.get<AgentResponse[]>('/agents', { params });
+      const { data } = await api.get<AgentResponse[]>('/agents');
       return data;
     },
-    placeholderData: keepPreviousData,
   });
 }
 
