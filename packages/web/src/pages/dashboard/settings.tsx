@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Check, Globe, Monitor, Moon, Sun } from 'lucide-react';
+import { Check, Monitor, Moon, Sun } from 'lucide-react';
 
 import {
   Card,
@@ -60,23 +60,20 @@ export default function SettingsPage() {
   const currentLang = i18n.language?.startsWith('zh') ? 'zh' : 'en';
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
           {t('settings.title')}
         </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="text-muted-foreground text-sm">
           {t('settings.subtitle')}
         </p>
       </div>
 
       {/* Theme */}
-      <Card>
+      <Card className="max-w-2xl border-border/50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Monitor className="size-5" />
-            {t('settings.theme')}
-          </CardTitle>
+          <CardTitle>{t('settings.theme')}</CardTitle>
           <CardDescription>{t('settings.themeDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,12 +125,9 @@ export default function SettingsPage() {
       </Card>
 
       {/* Language */}
-      <Card>
+      <Card className="max-w-2xl border-border/50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="size-5" />
-            {t('settings.language')}
-          </CardTitle>
+          <CardTitle>{t('settings.language')}</CardTitle>
           <CardDescription>{t('settings.languageDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
