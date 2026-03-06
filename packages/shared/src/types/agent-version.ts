@@ -31,6 +31,7 @@ export interface AgentVersionResponse {
   changelog: string | null;
   publishedAt: string;
   createdAt: string;
+  provider?: { name: string };
   _count?: {
     shareTokens: number;
     conversations: number;

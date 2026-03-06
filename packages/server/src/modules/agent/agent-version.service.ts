@@ -92,6 +92,7 @@ export class AgentVersionService {
       where: { agentId },
       orderBy: { version: 'desc' },
       include: {
+        provider: { select: { name: true } },
         _count: { select: { shareTokens: true, conversations: true } },
       },
     });
