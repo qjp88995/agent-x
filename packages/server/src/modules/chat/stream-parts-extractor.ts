@@ -68,27 +68,38 @@ export function extractPartsFromBuffer(
   let currentText = '';
   let currentReasoning = '';
 
+  const flushReasoning = () => {
+    if (currentReasoning) {
+      parts.push({ type: 'reasoning', text: currentReasoning });
+      currentReasoning = '';
+    }
+  };
+
+  const flushText = () => {
+    if (currentText) {
+      parts.push({ type: 'text', text: currentText });
+      currentText = '';
+    }
+  };
+
   for (const chunk of buffer) {
     switch (chunk.type) {
       case 'reasoning-delta':
         currentReasoning += chunk.delta;
         break;
       case 'reasoning-end':
-        if (currentReasoning) {
-          parts.push({ type: 'reasoning', text: currentReasoning });
-          currentReasoning = '';
-        }
+        flushReasoning();
         break;
       case 'text-delta':
         currentText += chunk.delta;
         break;
       case 'text-end':
-        if (currentText) {
-          parts.push({ type: 'text', text: currentText });
-          currentText = '';
-        }
+        flushText();
         break;
       case 'tool-input-available':
+        // Flush pending content so it appears before the tool call
+        flushReasoning();
+        flushText();
         parts.push({
           type: 'tool-call',
           toolCallId: chunk.toolCallId,
@@ -97,6 +108,8 @@ export function extractPartsFromBuffer(
         });
         break;
       case 'tool-output-available':
+        flushReasoning();
+        flushText();
         parts.push({
           type: 'tool-result',
           toolCallId: chunk.toolCallId,
@@ -110,12 +123,8 @@ export function extractPartsFromBuffer(
   }
 
   // Flush any remaining accumulated content (stream interrupted mid-part)
-  if (currentReasoning) {
-    parts.push({ type: 'reasoning', text: currentReasoning });
-  }
-  if (currentText) {
-    parts.push({ type: 'text', text: currentText });
-  }
+  flushReasoning();
+  flushText();
 
   return parts;
 }
