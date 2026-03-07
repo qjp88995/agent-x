@@ -21,7 +21,10 @@ import { Public } from '../auth/decorators/public.decorator';
 import { AgentRuntimeService } from '../chat/agent-runtime.service';
 import { ChatService } from '../chat/chat.service';
 import { StreamManagerService } from '../chat/stream-manager.service';
-import { extractPartsFromSteps } from '../chat/stream-parts-extractor';
+import {
+  extractPartsFromBuffer,
+  extractPartsFromSteps,
+} from '../chat/stream-parts-extractor';
 import { PublicChatService } from './public-chat.service';
 
 @Public()
@@ -100,15 +103,18 @@ export class PublicChatController {
             usage
           );
         } catch {
+          // If steps fail (e.g. aborted), extract parts from buffered chunks
           const session = this.streamManager.getSession(messageId);
-          const hasContent = session && session.buffer.length > 0;
-          if (hasContent) {
-            await this.chatService.saveMessageWithId(
-              messageId,
-              id,
-              MessageRole.ASSISTANT,
-              [{ type: 'text', text: '[Stream interrupted]' }]
-            );
+          if (session && session.buffer.length > 0) {
+            const parts = extractPartsFromBuffer(session.buffer);
+            if (parts.length > 0) {
+              await this.chatService.saveMessageWithId(
+                messageId,
+                id,
+                MessageRole.ASSISTANT,
+                parts
+              );
+            }
           }
         }
       },

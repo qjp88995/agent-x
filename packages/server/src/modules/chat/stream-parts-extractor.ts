@@ -1,3 +1,5 @@
+import type { UIMessageChunk } from 'ai';
+
 interface StepData {
   readonly reasoning?: string | ReadonlyArray<{ text: string }>;
   readonly text?: string;
@@ -54,6 +56,65 @@ export function extractPartsFromSteps(
     if (step.text && !step.toolCalls?.length) {
       parts.push({ type: 'text', text: step.text });
     }
+  }
+
+  return parts;
+}
+
+export function extractPartsFromBuffer(
+  buffer: ReadonlyArray<UIMessageChunk>
+): Array<Record<string, unknown>> {
+  const parts: Array<Record<string, unknown>> = [];
+  let currentText = '';
+  let currentReasoning = '';
+
+  for (const chunk of buffer) {
+    switch (chunk.type) {
+      case 'reasoning-delta':
+        currentReasoning += chunk.delta;
+        break;
+      case 'reasoning-end':
+        if (currentReasoning) {
+          parts.push({ type: 'reasoning', text: currentReasoning });
+          currentReasoning = '';
+        }
+        break;
+      case 'text-delta':
+        currentText += chunk.delta;
+        break;
+      case 'text-end':
+        if (currentText) {
+          parts.push({ type: 'text', text: currentText });
+          currentText = '';
+        }
+        break;
+      case 'tool-input-available':
+        parts.push({
+          type: 'tool-call',
+          toolCallId: chunk.toolCallId,
+          toolName: chunk.toolName,
+          args: chunk.input,
+        });
+        break;
+      case 'tool-output-available':
+        parts.push({
+          type: 'tool-result',
+          toolCallId: chunk.toolCallId,
+          result: chunk.output,
+          isError: false,
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Flush any remaining accumulated content (stream interrupted mid-part)
+  if (currentReasoning) {
+    parts.push({ type: 'reasoning', text: currentReasoning });
+  }
+  if (currentText) {
+    parts.push({ type: 'text', text: currentText });
   }
 
   return parts;

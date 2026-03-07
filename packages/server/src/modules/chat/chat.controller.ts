@@ -22,7 +22,10 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AgentRuntimeService } from './agent-runtime.service';
 import { ChatService } from './chat.service';
 import { StreamManagerService } from './stream-manager.service';
-import { extractPartsFromSteps } from './stream-parts-extractor';
+import {
+  extractPartsFromBuffer,
+  extractPartsFromSteps,
+} from './stream-parts-extractor';
 
 @Controller('conversations')
 export class ChatController {
@@ -104,16 +107,18 @@ export class ChatController {
             usage
           );
         } catch {
-          // If steps fail (e.g. aborted), save what we have from buffer
+          // If steps fail (e.g. aborted), extract parts from buffered chunks
           const session = this.streamManager.getSession(messageId);
-          const hasContent = session && session.buffer.length > 0;
-          if (hasContent) {
-            await this.chatService.saveMessageWithId(
-              messageId,
-              id,
-              MessageRole.ASSISTANT,
-              [{ type: 'text', text: '[Stream interrupted]' }]
-            );
+          if (session && session.buffer.length > 0) {
+            const parts = extractPartsFromBuffer(session.buffer);
+            if (parts.length > 0) {
+              await this.chatService.saveMessageWithId(
+                messageId,
+                id,
+                MessageRole.ASSISTANT,
+                parts
+              );
+            }
           }
         }
       },

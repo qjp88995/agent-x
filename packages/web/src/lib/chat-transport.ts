@@ -82,6 +82,12 @@ export class AgentXChatTransport implements ChatTransport<UIMessage> {
 
   async stopStream(): Promise<void> {
     if (!this.lastMessageId) return;
+
+    // Abort the client-side SSE connection so the browser stops reading
+    this.activeStreamController?.abort();
+    this.activeStreamController = null;
+
+    // Tell the server to stop generating
     await fetch(
       `/api/conversations/${this.conversationId}/messages/${this.lastMessageId}/stop`,
       {
