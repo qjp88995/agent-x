@@ -139,7 +139,7 @@ export class AgentController {
     @CurrentUser() user: { id: string }
   ) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId: user.id, deletedAt: null },
       select: { id: true },
     });
     if (!agent) {
@@ -167,7 +167,7 @@ export class AgentController {
     @CurrentUser() user: { id: string }
   ) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId: user.id, deletedAt: null },
       select: { id: true },
     });
     if (!agent) {

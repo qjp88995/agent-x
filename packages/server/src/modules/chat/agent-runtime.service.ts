@@ -55,19 +55,17 @@ export class AgentRuntimeService {
     messages: Array<{ role: string; content: string }>,
     options?: { abortSignal?: AbortSignal }
   ): Promise<any> {
-    const agent: AgentWithRelations = await this.prisma.agent.findUniqueOrThrow(
-      {
-        where: { id: agentId },
-        include: {
-          provider: true,
-          skills: {
-            include: { skill: true },
-            orderBy: { priority: 'desc' },
-          },
-          mcpServers: { include: { mcpServer: true } },
+    const agent: AgentWithRelations = await this.prisma.agent.findFirstOrThrow({
+      where: { id: agentId, deletedAt: null },
+      include: {
+        provider: true,
+        skills: {
+          include: { skill: true },
+          orderBy: { priority: 'desc' },
         },
-      }
-    );
+        mcpServers: { include: { mcpServer: true } },
+      },
+    });
 
     if (agent.status === 'ARCHIVED') {
       throw new BadRequestException('Cannot chat with an archived agent');

@@ -13,7 +13,7 @@ export class AgentVersionService {
 
   async publishVersion(agentId: string, userId: string, dto: CreateVersionDto) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
       include: {
         skills: {
           include: { skill: true },
@@ -81,7 +81,7 @@ export class AgentVersionService {
 
   async findAllVersions(agentId: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
       select: { id: true },
     });
     if (!agent) {
@@ -100,7 +100,7 @@ export class AgentVersionService {
 
   async findOneVersion(agentId: string, versionId: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
       select: { id: true },
     });
     if (!agent) {

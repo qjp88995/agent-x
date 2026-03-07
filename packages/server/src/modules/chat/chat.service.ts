@@ -28,7 +28,7 @@ export class ChatService {
 
   async createConversation(userId: string, agentId: string, title?: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId },
+      where: { id: agentId, deletedAt: null },
     });
 
     if (!agent) {

@@ -36,7 +36,11 @@ export class AgentService {
   }
 
   async findAll(userId: string, status?: AgentStatus) {
-    const where: { userId: string; status?: AgentStatus } = { userId };
+    const where: {
+      userId: string;
+      status?: AgentStatus;
+      deletedAt: null;
+    } = { userId, deletedAt: null };
 
     if (status) {
       where.status = status;
@@ -66,7 +70,7 @@ export class AgentService {
 
   async findOne(id: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id, userId },
+      where: { id, userId, deletedAt: null },
       include: {
         provider: { select: { id: true, name: true, protocol: true } },
         skills: {
@@ -97,7 +101,7 @@ export class AgentService {
 
   async update(id: string, userId: string, dto: UpdateAgentDto) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id, userId },
+      where: { id, userId, deletedAt: null },
     });
 
     if (!agent) {
@@ -135,7 +139,7 @@ export class AgentService {
 
   async archive(id: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id, userId },
+      where: { id, userId, deletedAt: null },
     });
 
     if (!agent) {
@@ -150,7 +154,7 @@ export class AgentService {
 
   async unarchive(id: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id, userId },
+      where: { id, userId, deletedAt: null },
     });
 
     if (!agent) {
@@ -165,14 +169,17 @@ export class AgentService {
 
   async remove(id: string, userId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id, userId },
+      where: { id, userId, deletedAt: null },
     });
 
     if (!agent) {
       throw new NotFoundException('Agent not found');
     }
 
-    await this.prisma.agent.delete({ where: { id } });
+    await this.prisma.agent.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Agent deleted successfully' };
   }
@@ -184,7 +191,7 @@ export class AgentService {
     priority?: number
   ) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
     });
 
     if (!agent) {
@@ -203,7 +210,7 @@ export class AgentService {
 
   async removeSkill(agentId: string, userId: string, skillId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
     });
 
     if (!agent) {
@@ -232,7 +239,7 @@ export class AgentService {
     enabledTools?: string[]
   ) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
     });
 
     if (!agent) {
@@ -256,7 +263,7 @@ export class AgentService {
     enabledTools: string[]
   ) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
     });
 
     if (!agent) {
@@ -280,7 +287,7 @@ export class AgentService {
 
   async removeMcpServer(agentId: string, userId: string, mcpServerId: string) {
     const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId },
+      where: { id: agentId, userId, deletedAt: null },
     });
 
     if (!agent) {

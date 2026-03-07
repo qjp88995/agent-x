@@ -91,6 +91,7 @@ export class ShareTokenService {
                 description: true,
                 avatar: true,
                 status: true,
+                deletedAt: true,
               },
             },
             provider: true,
@@ -109,7 +110,10 @@ export class ShareTokenService {
       return null;
     }
 
-    if (token.agentVersion.agent.status === 'ARCHIVED') {
+    if (
+      token.agentVersion.agent.status === 'ARCHIVED' ||
+      token.agentVersion.agent.deletedAt !== null
+    ) {
       return null;
     }
 
