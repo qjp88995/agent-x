@@ -17,6 +17,7 @@ export interface WorkspaceFileInfo {
   path: string;
   mimeType: string;
   size: number;
+  isDirectory: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -407,10 +408,24 @@ export class WorkspaceService {
   async createDirectory(
     conversationId: string,
     dirPath: string
-  ): Promise<void> {
+  ): Promise<WorkspaceFileInfo> {
     this.validatePath(dirPath);
     const fullPath = path.join(this.getWorkspaceDir(conversationId), dirPath);
     await fs.mkdir(fullPath, { recursive: true });
+
+    return this.prisma.workspaceFile.upsert({
+      where: {
+        conversationId_path: { conversationId, path: dirPath },
+      },
+      create: {
+        conversationId,
+        path: dirPath,
+        mimeType: 'inode/directory',
+        size: 0,
+        isDirectory: true,
+      },
+      update: {},
+    });
   }
 
   async deleteDirectory(
@@ -421,11 +436,11 @@ export class WorkspaceService {
 
     const normalizedDir = dirPath.endsWith('/') ? dirPath : `${dirPath}/`;
 
-    // Delete all files under this directory from DB
+    // Delete all files under this directory + the directory record itself
     const deleted = await this.prisma.workspaceFile.findMany({
       where: {
         conversationId,
-        path: { startsWith: normalizedDir },
+        OR: [{ path: { startsWith: normalizedDir } }, { path: dirPath }],
       },
       select: { path: true },
     });
@@ -433,7 +448,7 @@ export class WorkspaceService {
     await this.prisma.workspaceFile.deleteMany({
       where: {
         conversationId,
-        path: { startsWith: normalizedDir },
+        OR: [{ path: { startsWith: normalizedDir } }, { path: dirPath }],
       },
     });
 
@@ -463,7 +478,20 @@ export class WorkspaceService {
     await fs.mkdir(path.dirname(newFullPath), { recursive: true });
     await fs.rename(oldFullPath, newFullPath);
 
-    // Update all file paths in DB
+    // Update the directory record itself
+    const dirRecord = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: oldDir },
+      },
+    });
+    if (dirRecord) {
+      await this.prisma.workspaceFile.update({
+        where: { id: dirRecord.id },
+        data: { path: newDir },
+      });
+    }
+
+    // Update all file paths under the directory
     const files = await this.prisma.workspaceFile.findMany({
       where: {
         conversationId,

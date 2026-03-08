@@ -88,8 +88,7 @@ export class WorkspaceController {
     @Body() body: { path: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
-    await this.workspaceService.createDirectory(conversationId, body.path);
-    return { success: true };
+    return this.workspaceService.createDirectory(conversationId, body.path);
   }
 
   @Delete('directories')

@@ -250,6 +250,7 @@ model WorkspaceFile {
   path           String   // e.g. "src/App.tsx"
   mimeType       String   // e.g. "text/typescript", "image/png"
   size           Int      // bytes
+  isDirectory    Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

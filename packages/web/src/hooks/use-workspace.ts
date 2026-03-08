@@ -216,11 +216,17 @@ export function useCreateDirectory() {
       conversationId: string;
       path: string;
     }) => {
-      await api.post(`/conversations/${conversationId}/files/directories`, {
-        path,
-      });
+      const { data } = await api.post<WorkspaceFileResponse>(
+        `/conversations/${conversationId}/files/directories`,
+        { path }
+      );
+      return data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<WorkspaceFileResponse[]>(
+        workspaceFilesKey(variables.conversationId),
+        old => (old ? [...old, data] : [data])
+      );
       void queryClient.invalidateQueries({
         queryKey: workspaceFilesKey(variables.conversationId),
       });
@@ -251,7 +257,10 @@ export function useDeleteDirectory() {
         : `${variables.path}/`;
       queryClient.setQueryData<WorkspaceFileResponse[]>(
         workspaceFilesKey(variables.conversationId),
-        old => old?.filter(f => !f.path.startsWith(prefix))
+        old =>
+          old?.filter(
+            f => !f.path.startsWith(prefix) && f.path !== variables.path
+          )
       );
       void queryClient.invalidateQueries({
         queryKey: workspaceFilesKey(variables.conversationId),

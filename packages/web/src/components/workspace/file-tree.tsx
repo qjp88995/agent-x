@@ -66,6 +66,30 @@ function buildTree(files: WorkspaceFileResponse[]): TreeNode[] {
   const root: TreeNode[] = [];
 
   for (const file of files) {
+    // Directory records from the backend
+    if (file.isDirectory) {
+      const parts = file.path.split('/');
+      let current = root;
+      for (let i = 0; i < parts.length; i++) {
+        const name = parts[i];
+        const pathSoFar = parts.slice(0, i + 1).join('/');
+        const existing = current.find(n => n.name === name);
+        if (existing && existing.isDirectory) {
+          current = existing.children;
+        } else if (!existing) {
+          const dir: TreeNode = {
+            name,
+            path: pathSoFar,
+            isDirectory: true,
+            children: [],
+          };
+          current.push(dir);
+          current = dir.children;
+        }
+      }
+      continue;
+    }
+
     const parts = file.path.split('/');
     let current = root;
 
