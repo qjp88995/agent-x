@@ -24,6 +24,14 @@ const mockWorkspaceService = {
   deleteFile: jest.fn(),
   writeFiles: jest.fn(),
   listFiles: jest.fn(),
+  fileExists: jest.fn(),
+  getFileStats: jest.fn(),
+  readFileLines: jest.fn(),
+  searchFiles: jest.fn(),
+  patchFile: jest.fn(),
+  renameFile: jest.fn(),
+  createDirectory: jest.fn(),
+  deleteDirectory: jest.fn(),
 };
 
 describe('workspace tools', () => {
@@ -212,6 +220,356 @@ describe('workspace tools', () => {
         MOCK_CONVERSATION_ID,
         'src'
       );
+    });
+  });
+
+  describe('fileExists', () => {
+    it('should return true when file exists', async () => {
+      mockWorkspaceService.fileExists.mockResolvedValue({
+        exists: true,
+        isDirectory: false,
+      });
+
+      const result = await tools.fileExists.execute!(
+        { path: 'src/index.ts' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        exists: true,
+        isDirectory: false,
+      });
+      expect(mockWorkspaceService.fileExists).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts'
+      );
+    });
+
+    it('should return false when file does not exist', async () => {
+      mockWorkspaceService.fileExists.mockResolvedValue({
+        exists: false,
+        isDirectory: false,
+      });
+
+      const result = await tools.fileExists.execute!(
+        { path: 'missing.ts' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        exists: false,
+        isDirectory: false,
+      });
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.fileExists.mockRejectedValue(
+        new Error('Path traversal is not allowed')
+      );
+
+      const result = await tools.fileExists.execute!(
+        { path: '../evil.txt' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Path traversal is not allowed',
+      });
+    });
+  });
+
+  describe('fileInfo', () => {
+    it('should return file stats', async () => {
+      mockWorkspaceService.getFileStats.mockResolvedValue({
+        path: 'src/index.ts',
+        mimeType: 'video/mp2t',
+        size: 20,
+        isDirectory: false,
+        lineCount: 5,
+      });
+
+      const result = await tools.fileInfo.execute!(
+        { path: 'src/index.ts' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        path: 'src/index.ts',
+        mimeType: 'video/mp2t',
+        size: 20,
+        isDirectory: false,
+        lineCount: 5,
+      });
+      expect(mockWorkspaceService.getFileStats).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts'
+      );
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.getFileStats.mockRejectedValue(
+        new Error('File not found: missing.ts')
+      );
+
+      const result = await tools.fileInfo.execute!(
+        { path: 'missing.ts' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'File not found: missing.ts',
+      });
+    });
+  });
+
+  describe('readFileLines', () => {
+    it('should read specific lines from a file', async () => {
+      mockWorkspaceService.readFileLines.mockResolvedValue({
+        content: 'line 1\nline 2\nline 3',
+        totalLines: 10,
+        startLine: 1,
+        endLine: 3,
+      });
+
+      const result = await tools.readFileLines.execute!(
+        { path: 'src/index.ts', startLine: 1, endLine: 3 },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        content: 'line 1\nline 2\nline 3',
+        totalLines: 10,
+        startLine: 1,
+        endLine: 3,
+      });
+      expect(mockWorkspaceService.readFileLines).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts',
+        1,
+        3
+      );
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.readFileLines.mockRejectedValue(
+        new Error('File not found: missing.ts')
+      );
+
+      const result = await tools.readFileLines.execute!(
+        { path: 'missing.ts', startLine: 1, endLine: 5 },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'File not found: missing.ts',
+      });
+    });
+  });
+
+  describe('searchFiles', () => {
+    it('should return search results', async () => {
+      const searchResults = [
+        { path: 'src/index.ts', line: 1, content: 'console.log("hello")' },
+      ];
+      mockWorkspaceService.searchFiles.mockResolvedValue(searchResults);
+
+      const result = await tools.searchFiles.execute!(
+        { query: 'hello' },
+        toolCtx
+      );
+
+      expect(result).toEqual({ success: true, results: searchResults });
+      expect(mockWorkspaceService.searchFiles).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'hello',
+        undefined
+      );
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.searchFiles.mockRejectedValue(
+        new Error('Search failed')
+      );
+
+      const result = await tools.searchFiles.execute!(
+        { query: 'hello' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Search failed',
+      });
+    });
+  });
+
+  describe('patchFile', () => {
+    it('should patch file and return result', async () => {
+      mockWorkspaceService.patchFile.mockResolvedValue({
+        size: 25,
+        occurrences: 2,
+      });
+
+      const result = await tools.patchFile.execute!(
+        { path: 'src/index.ts', search: 'old', replace: 'new' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        size: 25,
+        occurrences: 2,
+      });
+      expect(mockWorkspaceService.patchFile).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts',
+        'old',
+        'new'
+      );
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.patchFile.mockRejectedValue(
+        new Error('Search string not found')
+      );
+
+      const result = await tools.patchFile.execute!(
+        { path: 'src/index.ts', search: 'missing', replace: 'new' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Search string not found',
+      });
+    });
+  });
+
+  describe('renameFile', () => {
+    it('should rename file and return result', async () => {
+      const renamedFile = { ...mockFile, path: 'src/main.ts' };
+      mockWorkspaceService.renameFile.mockResolvedValue(renamedFile);
+
+      const result = await tools.renameFile.execute!(
+        { oldPath: 'src/index.ts', newPath: 'src/main.ts' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        file: {
+          id: 'file-1',
+          path: 'src/main.ts',
+          mimeType: 'video/mp2t',
+          size: 20,
+        },
+      });
+      expect(mockWorkspaceService.renameFile).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts',
+        'src/main.ts'
+      );
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.renameFile.mockRejectedValue(
+        new Error('File not found: missing.ts')
+      );
+
+      const result = await tools.renameFile.execute!(
+        { oldPath: 'missing.ts', newPath: 'new.ts' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'File not found: missing.ts',
+      });
+    });
+  });
+
+  describe('createDirectory', () => {
+    it('should create directory and return result', async () => {
+      mockWorkspaceService.createDirectory.mockResolvedValue({
+        id: 'dir-1',
+        path: 'src/utils',
+      });
+
+      const result = await tools.createDirectory.execute!(
+        { path: 'src/utils' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        directory: { id: 'dir-1', path: 'src/utils' },
+      });
+      expect(mockWorkspaceService.createDirectory).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'src/utils'
+      );
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.createDirectory.mockRejectedValue(
+        new Error('Path traversal is not allowed')
+      );
+
+      const result = await tools.createDirectory.execute!(
+        { path: '../evil' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Path traversal is not allowed',
+      });
+    });
+  });
+
+  describe('deleteDirectory', () => {
+    it('should delete directory and return deleted paths', async () => {
+      mockWorkspaceService.deleteDirectory.mockResolvedValue([
+        'src/utils',
+        'src/utils/helper.ts',
+      ]);
+
+      const result = await tools.deleteDirectory.execute!(
+        { path: 'src/utils' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: true,
+        deletedPaths: ['src/utils', 'src/utils/helper.ts'],
+      });
+      expect(mockWorkspaceService.deleteDirectory).toHaveBeenCalledWith(
+        MOCK_CONVERSATION_ID,
+        'src/utils'
+      );
+    });
+
+    it('should return error on failure', async () => {
+      mockWorkspaceService.deleteDirectory.mockRejectedValue(
+        new Error('Directory not found')
+      );
+
+      const result = await tools.deleteDirectory.execute!(
+        { path: 'missing-dir' },
+        toolCtx
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Directory not found',
+      });
     });
   });
 });
