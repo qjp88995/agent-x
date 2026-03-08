@@ -170,20 +170,46 @@ function getParentDir(path: string): string {
   return idx > 0 ? path.substring(0, idx) : '';
 }
 
+const INVALID_FILENAME_CHARS = /[<>:"/\\|?*]/;
+
+function validateFileName(
+  name: string,
+  existingNames?: readonly string[]
+): string | null {
+  if (!name) return null;
+  if (INVALID_FILENAME_CHARS.test(name)) {
+    return 'invalidFileName';
+  }
+  if (name === '.' || name === '..') {
+    return 'invalidFileName';
+  }
+  if (name.endsWith(' ') || name.endsWith('.')) {
+    return 'invalidFileName';
+  }
+  if (existingNames?.some(n => n.toLowerCase() === name.toLowerCase())) {
+    return 'nameAlreadyExists';
+  }
+  return null;
+}
+
 function InlineInput({
   defaultValue,
   placeholder,
   selectWithoutExtension,
+  existingNames,
   onSubmit,
   onCancel,
 }: {
   readonly defaultValue?: string;
   readonly placeholder?: string;
   readonly selectWithoutExtension?: boolean;
+  readonly existingNames?: readonly string[];
   readonly onSubmit: (value: string) => void;
   readonly onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const input = inputRef.current;
@@ -201,30 +227,61 @@ function InlineInput({
     return () => clearTimeout(timer);
   }, [defaultValue, selectWithoutExtension]);
 
+  const validate = useCallback(
+    (name: string) => validateFileName(name, existingNames),
+    [existingNames]
+  );
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     e.stopPropagation();
     if (e.key === 'Enter') {
       const value = inputRef.current?.value.trim();
-      if (value) onSubmit(value);
-      else onCancel();
+      if (!value) {
+        onCancel();
+        return;
+      }
+      const err = validate(value);
+      if (err) {
+        setError(t(`workspace.${err}`));
+        return;
+      }
+      onSubmit(value);
     } else if (e.key === 'Escape') {
       onCancel();
     }
   };
 
   return (
-    <input
-      ref={inputRef}
-      defaultValue={defaultValue}
-      placeholder={placeholder}
-      className="h-6 w-full min-w-0 rounded border border-primary bg-background px-1 text-sm outline-none"
-      onKeyDown={handleKeyDown}
-      onBlur={() => {
-        const value = inputRef.current?.value.trim();
-        if (value && value !== defaultValue) onSubmit(value);
-        else onCancel();
-      }}
-    />
+    <div className="relative flex min-w-0 flex-1">
+      <input
+        ref={inputRef}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        className={cn(
+          'h-6 w-full min-w-0 rounded border bg-background px-1 text-sm outline-none',
+          error ? 'border-destructive' : 'border-primary'
+        )}
+        onKeyDown={handleKeyDown}
+        onChange={e => {
+          const val = e.target.value.trim();
+          const err = val ? validate(val) : null;
+          setError(err ? t(`workspace.${err}`) : null);
+        }}
+        onBlur={() => {
+          const value = inputRef.current?.value.trim();
+          if (value && value !== defaultValue && !validate(value)) {
+            onSubmit(value);
+          } else {
+            onCancel();
+          }
+        }}
+      />
+      {error && (
+        <span className="absolute top-full left-0 z-10 mt-0.5 rounded bg-destructive px-1.5 py-0.5 text-[10px] text-destructive-foreground shadow-sm">
+          {error}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -245,6 +302,7 @@ interface DeleteTarget {
 interface TreeNodeItemProps {
   readonly node: TreeNode;
   readonly depth: number;
+  readonly siblingNames: readonly string[];
   readonly selectedFileId: string | undefined;
   readonly expandedDirs: ReadonlySet<string>;
   readonly clipboard: ClipboardItem | null;
@@ -266,6 +324,7 @@ interface TreeNodeItemProps {
 function TreeNodeItem({
   node,
   depth,
+  siblingNames,
   selectedFileId,
   expandedDirs,
   clipboard,
@@ -313,6 +372,7 @@ function TreeNodeItem({
               {isRenaming ? (
                 <InlineInput
                   defaultValue={node.name}
+                  existingNames={siblingNames.filter(n => n !== node.name)}
                   onSubmit={newName => {
                     onRenameDirectory(node.path, newName);
                     onSetEditingNode(null);
@@ -399,6 +459,7 @@ function TreeNodeItem({
                 key={child.path}
                 node={child}
                 depth={depth + 1}
+                siblingNames={node.children.map(c => c.name)}
                 selectedFileId={selectedFileId}
                 expandedDirs={expandedDirs}
                 clipboard={clipboard}
@@ -427,6 +488,7 @@ function TreeNodeItem({
                   <FilePlus className="size-4 text-muted-foreground" />
                   <InlineInput
                     placeholder={t('workspace.enterFileName')}
+                    existingNames={node.children.map(c => c.name)}
                     onSubmit={name => {
                       onCreateFile(node.path, name);
                       onSetEditingNode(null);
@@ -445,6 +507,7 @@ function TreeNodeItem({
                   <FolderPlus className="size-4 text-muted-foreground" />
                   <InlineInput
                     placeholder={t('workspace.enterFolderName')}
+                    existingNames={node.children.map(c => c.name)}
                     onSubmit={name => {
                       onCreateDirectory(node.path, name);
                       onSetEditingNode(null);
@@ -486,6 +549,7 @@ function TreeNodeItem({
             <InlineInput
               defaultValue={node.name}
               selectWithoutExtension
+              existingNames={siblingNames.filter(n => n !== node.name)}
               onSubmit={newName => {
                 onRenameFile(file, newName);
                 onSetEditingNode(null);
@@ -715,6 +779,7 @@ export function FileTree({
                     key={node.path}
                     node={node}
                     depth={0}
+                    siblingNames={tree.map(n => n.name)}
                     selectedFileId={selectedFileId}
                     expandedDirs={expandedDirs}
                     clipboard={clipboard}
@@ -744,6 +809,7 @@ export function FileTree({
                       <FilePlus className="size-4 text-muted-foreground" />
                       <InlineInput
                         placeholder={t('workspace.enterFileName')}
+                        existingNames={tree.map(n => n.name)}
                         onSubmit={name => {
                           onCreateFile('', name);
                           setEditingNode(null);
@@ -762,6 +828,7 @@ export function FileTree({
                       <FolderPlus className="size-4 text-muted-foreground" />
                       <InlineInput
                         placeholder={t('workspace.enterFolderName')}
+                        existingNames={tree.map(n => n.name)}
                         onSubmit={name => {
                           onCreateDirectory('', name);
                           setEditingNode(null);

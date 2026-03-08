@@ -502,7 +502,9 @@
     "folderCreated": "文件夹已创建",
     "enterFileName": "请输入文件名",
     "enterFolderName": "请输入文件夹名",
-    "enterNewName": "请输入新名称"
+    "enterNewName": "请输入新名称",
+    "invalidFileName": "名称包含非法字符",
+    "nameAlreadyExists": "已存在同名文件或文件夹"
   },
   "validation": {
     "required": "此字段为必填项",

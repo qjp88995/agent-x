@@ -42,6 +42,15 @@ export class WorkspaceService {
     );
   }
 
+  private static readonly INVALID_FILENAME_CHARS = /[<>:"|?*]/;
+
+  private static hasControlChars(str: string): boolean {
+    for (let i = 0; i < str.length; i++) {
+      if (str.charCodeAt(i) < 0x20) return true;
+    }
+    return false;
+  }
+
   private validatePath(filePath: string): void {
     if (!filePath || typeof filePath !== 'string') {
       throw new BadRequestException('File path is required');
@@ -55,6 +64,22 @@ export class WorkspaceService {
     }
     if (normalized.startsWith(path.sep)) {
       throw new BadRequestException('Absolute paths are not allowed');
+    }
+    // Validate each segment for illegal filename characters
+    const segments = filePath.split('/');
+    for (const segment of segments) {
+      if (!segment) continue;
+      if (
+        WorkspaceService.INVALID_FILENAME_CHARS.test(segment) ||
+        WorkspaceService.hasControlChars(segment)
+      ) {
+        throw new BadRequestException(
+          `Invalid characters in filename: ${segment}`
+        );
+      }
+      if (segment === '.' || segment === '..') {
+        throw new BadRequestException('Invalid path segment');
+      }
     }
   }
 

@@ -502,7 +502,9 @@
     "folderCreated": "Folder created",
     "enterFileName": "Enter file name",
     "enterFolderName": "Enter folder name",
-    "enterNewName": "Enter new name"
+    "enterNewName": "Enter new name",
+    "invalidFileName": "Name contains invalid characters",
+    "nameAlreadyExists": "A file or folder with this name already exists"
   },
   "validation": {
     "required": "This field is required",
