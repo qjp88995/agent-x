@@ -272,10 +272,7 @@ function EmptyState() {
       <p className="text-muted-foreground mb-6 text-sm">
         {t('providers.noProvidersDesc')}
       </p>
-      <Button
-        asChild
-        className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-      >
+      <Button asChild variant="gradient">
         <Link to="/providers/new">
           <Plus className="mr-2 size-4" />
           {t('providers.addProvider')}
@@ -341,10 +338,7 @@ export default function ProviderListPage() {
             {t('providers.subtitle')}
           </p>
         </div>
-        <Button
-          asChild
-          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-        >
+        <Button asChild variant="gradient">
           <Link to="/providers/new">
             <Plus className="mr-2 size-4" />
             {t('providers.addProvider')}

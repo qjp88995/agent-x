@@ -136,7 +136,8 @@ export default function RegisterPage() {
             <CardFooter className="flex flex-col gap-4">
               <Button
                 type="submit"
-                className="gradient-bg hover:opacity-90 w-full cursor-pointer text-white transition-opacity"
+                variant="gradient"
+                className="w-full transition-opacity"
                 disabled={!isFormValid || isSubmitting}
               >
                 {isSubmitting

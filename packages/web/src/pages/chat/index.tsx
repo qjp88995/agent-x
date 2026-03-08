@@ -199,7 +199,8 @@ function Sidebar({
       {/* New chat button */}
       <div className="px-3 pb-2">
         <Button
-          className="w-full gradient-bg text-white hover:opacity-90 cursor-pointer"
+          variant="gradient"
+          className="w-full"
           size="sm"
           onClick={onNewChat}
           disabled={!selectedAgentId}

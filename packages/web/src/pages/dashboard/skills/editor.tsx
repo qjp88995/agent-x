@@ -183,7 +183,7 @@ export default function SkillEditorPage() {
                 <Button
                   type="submit"
                   disabled={!form.formState.isValid || isSaving}
-                  className="gradient-bg cursor-pointer text-white hover:opacity-90"
+                  variant="gradient"
                 >
                   {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
                   {isEditMode ? t('common.save') : t('skills.createSkill')}

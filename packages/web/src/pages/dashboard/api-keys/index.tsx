@@ -292,7 +292,7 @@ function CreateKeyDialog({
               <Button
                 type="submit"
                 disabled={!form.formState.isValid || createApiKey.isPending}
-                className="gradient-bg cursor-pointer text-white hover:opacity-90"
+                variant="gradient"
               >
                 {createApiKey.isPending
                   ? t('apiKeys.creating')
@@ -368,10 +368,7 @@ function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
       <p className="text-muted-foreground mb-6 text-sm">
         {t('apiKeys.noKeysDesc')}
       </p>
-      <Button
-        onClick={onCreateClick}
-        className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-      >
+      <Button onClick={onCreateClick} variant="gradient">
         <Plus className="mr-2 size-4" />
         {t('apiKeys.createKey')}
       </Button>
@@ -476,10 +473,7 @@ export default function ApiKeysPage() {
             {t('apiKeys.subtitle')}
           </p>
         </div>
-        <Button
-          onClick={() => setCreateOpen(true)}
-          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-        >
+        <Button onClick={() => setCreateOpen(true)} variant="gradient">
           <Plus className="mr-2 size-4" />
           {t('apiKeys.createKey')}
         </Button>

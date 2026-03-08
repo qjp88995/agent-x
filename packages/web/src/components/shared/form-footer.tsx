@@ -34,11 +34,7 @@ export function FormFooter({
       >
         {cancelLabel}
       </Button>
-      <Button
-        type="submit"
-        disabled={disabled || isSaving}
-        className="gradient-bg cursor-pointer text-white hover:opacity-90"
-      >
+      <Button type="submit" disabled={disabled || isSaving} variant="gradient">
         {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
         {icon}
         {submitLabel}

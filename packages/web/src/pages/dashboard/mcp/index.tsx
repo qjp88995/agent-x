@@ -337,10 +337,7 @@ function EmptyState({
         {isMarketplace ? t('mcp.noMarketplaceDesc') : t('mcp.noCustomDesc')}
       </p>
       {isMarketplace && isAdmin && (
-        <Button
-          asChild
-          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-        >
+        <Button asChild variant="gradient">
           <Link to="/mcp-servers/new?type=official">
             <Plus className="mr-2 size-4" />
             {t('mcp.addToMarketplace')}
@@ -348,10 +345,7 @@ function EmptyState({
         </Button>
       )}
       {!isMarketplace && (
-        <Button
-          asChild
-          className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-        >
+        <Button asChild variant="gradient">
           <Link to="/mcp-servers/new">
             <Plus className="mr-2 size-4" />
             {t('mcp.addServer')}
@@ -455,10 +449,7 @@ export default function McpPage() {
               </Link>
             </Button>
           )}
-          <Button
-            asChild
-            className="gradient-bg text-white hover:opacity-90 cursor-pointer"
-          >
+          <Button asChild variant="gradient">
             <Link to="/mcp-servers/new">
               <Plus className="mr-2 size-4" />
               {t('mcp.addServer')}
