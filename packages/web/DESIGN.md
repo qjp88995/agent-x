@@ -103,12 +103,15 @@ shadcn/ui Card uses `flex flex-col gap-6` for spacing between its direct childre
 
 ### Button Styles
 
-| Type             | Class                                                    |
-| ---------------- | -------------------------------------------------------- |
-| Primary action   | `gradient-bg text-white hover:opacity-90 cursor-pointer` |
-| Secondary/Cancel | `variant="outline"`                                      |
-| Ghost/icon       | `variant="ghost"` + `cursor-pointer`                     |
-| Destructive      | `variant="destructive"`                                  |
+| Type                 | Variant                       | Usage                         |
+| -------------------- | ----------------------------- | ----------------------------- |
+| Primary action (CTA) | `variant="primary"`           | Create, submit, save          |
+| Default action       | (default, no variant)         | Dialogs, secondary actions    |
+| Secondary/Cancel     | `variant="outline"`           | Cancel, back, close           |
+| Ghost/icon           | `variant="ghost"`             | Toolbar icons, inline actions |
+| Destructive (solid)  | `variant="destructive"`       | Confirm delete in dialogs     |
+| Destructive (ghost)  | `variant="ghost-destructive"` | Card delete icon buttons      |
+| Link                 | `variant="link"`              | Inline text links             |
 
 ### Empty State Pattern
 
