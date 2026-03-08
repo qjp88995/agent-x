@@ -38,7 +38,9 @@ export function extractFileChanges(
       continue;
     }
 
-    const toolName = (part as { toolName?: string }).toolName ?? '';
+    const toolName =
+      (part as { toolName?: string }).toolName ??
+      (part.type.startsWith('tool-') ? part.type.slice(5) : '');
     const input = parseInput(part.input);
 
     if (toolName === 'createFile' && input?.path) {
