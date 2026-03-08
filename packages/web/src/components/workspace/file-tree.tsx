@@ -501,21 +501,6 @@ function TreeNodeItem({
       <ContextMenuContent className="w-48">
         <ContextMenuItem
           onClick={() =>
-            onSetEditingNode({ type: 'new-file', parentPath: parentDir })
-          }
-        >
-          <FilePlus className="mr-2 size-4" /> {t('workspace.newFile')}
-        </ContextMenuItem>
-        <ContextMenuItem
-          onClick={() =>
-            onSetEditingNode({ type: 'new-dir', parentPath: parentDir })
-          }
-        >
-          <FolderPlus className="mr-2 size-4" /> {t('workspace.newFolder')}
-        </ContextMenuItem>
-        <ContextMenuSeparator />
-        <ContextMenuItem
-          onClick={() =>
             onCopy({
               operation: 'copy',
               type: 'file',
