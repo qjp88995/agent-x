@@ -82,6 +82,11 @@ export function extractPartsFromBuffer(
     }
   };
 
+  const partialToolCalls = new Map<
+    string,
+    { toolName: string; inputText: string }
+  >();
+
   for (const chunk of buffer) {
     switch (chunk.type) {
       case 'reasoning-delta':
@@ -96,8 +101,25 @@ export function extractPartsFromBuffer(
       case 'text-end':
         flushText();
         break;
+      case 'tool-input-start':
+        flushReasoning();
+        flushText();
+        partialToolCalls.set(chunk.toolCallId, {
+          toolName: chunk.toolName,
+          inputText: '',
+        });
+        break;
+      case 'tool-input-delta':
+        {
+          const partial = partialToolCalls.get(chunk.toolCallId);
+          if (partial) {
+            partial.inputText += chunk.inputTextDelta;
+          }
+        }
+        break;
       case 'tool-input-available':
-        // Flush pending content so it appears before the tool call
+        // Full input received — remove from partial tracking
+        partialToolCalls.delete(chunk.toolCallId);
         flushReasoning();
         flushText();
         parts.push({
@@ -125,6 +147,22 @@ export function extractPartsFromBuffer(
   // Flush any remaining accumulated content (stream interrupted mid-part)
   flushReasoning();
   flushText();
+
+  // Flush partial tool calls that never received tool-input-available
+  for (const [toolCallId, partial] of partialToolCalls) {
+    let args: unknown = partial.inputText;
+    try {
+      args = JSON.parse(partial.inputText);
+    } catch {
+      // Keep as string if JSON is incomplete
+    }
+    parts.push({
+      type: 'tool-call',
+      toolCallId,
+      toolName: partial.toolName,
+      args,
+    });
+  }
 
   return parts;
 }

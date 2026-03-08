@@ -9,6 +9,21 @@ export interface FileChange {
  * Extract file changes from tool call results in message parts.
  * Detects workspace tool calls: createFile, updateFile, deleteFile, writeFiles
  */
+function parseInput(raw: unknown): Record<string, unknown> | undefined {
+  if (raw == null) return undefined;
+  if (typeof raw === 'object' && !Array.isArray(raw))
+    return raw as Record<string, unknown>;
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+    } catch {
+      // Incomplete JSON from interrupted stream
+    }
+  }
+  return undefined;
+}
+
 export function extractFileChanges(
   parts: readonly { type: string; [key: string]: unknown }[]
 ): FileChange[] {
@@ -24,7 +39,7 @@ export function extractFileChanges(
     }
 
     const toolName = (part as { toolName?: string }).toolName ?? '';
-    const input = part.input as Record<string, unknown> | undefined;
+    const input = parseInput(part.input);
 
     if (toolName === 'createFile' && input?.path) {
       changes.push({ path: input.path as string, operation: 'created' });

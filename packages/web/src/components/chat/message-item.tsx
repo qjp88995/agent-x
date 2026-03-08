@@ -96,15 +96,19 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
                 getToolName(p as ToolUIPart) !== 'readFile' &&
                 getToolName(p as ToolUIPart) !== 'listFiles'
             );
-            if (i === firstWorkspaceToolIdx && fileChanges.length > 0) {
-              return (
-                <FileChangeCard
-                  key={`file-changes-${i}`}
-                  changes={fileChanges}
-                />
-              );
+            if (i === firstWorkspaceToolIdx) {
+              if (fileChanges.length > 0) {
+                return (
+                  <FileChangeCard
+                    key={`file-changes-${i}`}
+                    changes={fileChanges}
+                  />
+                );
+              }
+              // No file changes extracted (e.g. incomplete writeFiles) — fall through to ToolCallBlock
+            } else {
+              return null;
             }
-            return null;
           }
 
           return (
