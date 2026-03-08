@@ -468,6 +468,23 @@
     "expiredDesc": "此分享链接已过期、已达使用上限或不再有效。",
     "goHome": "返回首页"
   },
+  "workspace": {
+    "title": "工作区",
+    "noFiles": "暂无文件",
+    "selectFile": "选择一个文件以查看",
+    "binaryFile": "不支持二进制文件预览",
+    "downloadFile": "下载文件",
+    "downloadZip": "下载为 ZIP",
+    "fileSaved": "文件已保存",
+    "saveFailed": "保存文件失败",
+    "openIde": "打开 IDE 视图",
+    "backToChat": "返回对话",
+    "fileCreated": "已创建",
+    "fileUpdated": "已更新",
+    "fileDeleted": "已删除",
+    "filesChanged": "{{count}} 个文件已更改",
+    "viewChanges": "查看更改"
+  },
   "validation": {
     "required": "此字段为必填项",
     "invalidUrl": "请输入有效的 URL",

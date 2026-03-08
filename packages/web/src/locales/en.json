@@ -468,6 +468,23 @@
     "expiredDesc": "This share link has expired, reached its usage limit, or is no longer valid.",
     "goHome": "Go to Homepage"
   },
+  "workspace": {
+    "title": "Workspace",
+    "noFiles": "No files yet",
+    "selectFile": "Select a file to view",
+    "binaryFile": "Binary file preview not supported",
+    "downloadFile": "Download File",
+    "downloadZip": "Download as ZIP",
+    "fileSaved": "File saved",
+    "saveFailed": "Failed to save file",
+    "openIde": "Open IDE View",
+    "backToChat": "Back to Chat",
+    "fileCreated": "Created",
+    "fileUpdated": "Updated",
+    "fileDeleted": "Deleted",
+    "filesChanged": "{{count}} file(s) changed",
+    "viewChanges": "View Changes"
+  },
   "validation": {
     "required": "This field is required",
     "invalidUrl": "Please enter a valid URL",
