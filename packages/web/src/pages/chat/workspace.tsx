@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/tooltip';
 import { WorkspacePanel } from '@/components/workspace/workspace-panel';
 import { messagesKey, useMessages } from '@/hooks/use-chat';
+import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { toUIMessages } from '@/lib/message-utils';
 
@@ -44,6 +45,8 @@ export default function WorkspacePage() {
     transport: transport ?? undefined,
     resume: true,
   });
+
+  useWorkspaceSync(conversationId, messages);
 
   const statusRef = useRef(status);
   statusRef.current = status;

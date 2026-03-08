@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/tooltip';
 import { messagesKey, useMessages } from '@/hooks/use-chat';
 import { useWorkspaceFiles } from '@/hooks/use-workspace';
+import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { toUIMessages } from '@/lib/message-utils';
 
@@ -58,6 +59,8 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
     transport,
     resume: true,
   });
+
+  useWorkspaceSync(conversationId, messages);
 
   const statusRef = useRef(status);
   statusRef.current = status;
