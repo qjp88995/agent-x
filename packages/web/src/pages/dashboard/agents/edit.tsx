@@ -298,7 +298,7 @@ function AgentEditForm({
                 <Button
                   onClick={() => setPublishDialogOpen(true)}
                   disabled={isBusy}
-                  variant="gradient"
+                  variant="primary"
                 >
                   <Rocket className="mr-2 size-4" />
                   {t('agents.publishVersion')}
@@ -348,7 +348,7 @@ function AgentEditForm({
               <Button
                 onClick={handlePublishVersion}
                 disabled={isPublishing}
-                variant="gradient"
+                variant="primary"
               >
                 {isPublishing && (
                   <Loader2 className="mr-2 size-4 animate-spin" />

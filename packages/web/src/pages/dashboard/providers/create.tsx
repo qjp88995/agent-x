@@ -243,7 +243,7 @@ export default function CreateProviderPage() {
                 <Button
                   type="submit"
                   disabled={!form.formState.isValid || isSaving}
-                  variant="gradient"
+                  variant="primary"
                 >
                   {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
                   {isEditMode

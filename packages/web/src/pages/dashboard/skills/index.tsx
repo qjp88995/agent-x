@@ -286,7 +286,7 @@ function EmptyState({
           : t('skills.noCustomSkillsDesc')}
       </p>
       {isMarketplace && isAdmin && (
-        <Button asChild variant="gradient">
+        <Button asChild variant="primary">
           <Link to="/skills/new?type=system">
             <Plus className="mr-2 size-4" />
             {t('skills.addToMarketplace')}
@@ -294,7 +294,7 @@ function EmptyState({
         </Button>
       )}
       {!isMarketplace && (
-        <Button asChild variant="gradient">
+        <Button asChild variant="primary">
           <Link to="/skills/new">
             <Plus className="mr-2 size-4" />
             {t('skills.createSkill')}
@@ -398,7 +398,7 @@ export default function SkillsPage() {
               </Link>
             </Button>
           )}
-          <Button asChild variant="gradient">
+          <Button asChild variant="primary">
             <Link to="/skills/new">
               <Plus className="mr-2 size-4" />
               {t('skills.createSkill')}

@@ -21,7 +21,7 @@ const buttonVariants = cva(
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         'ghost-destructive':
           'text-destructive/60 hover:text-destructive hover:bg-destructive/10 cursor-pointer',
-        gradient: 'gradient-bg text-white hover:opacity-90 cursor-pointer',
+        primary: 'gradient-bg text-white hover:opacity-90 cursor-pointer',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

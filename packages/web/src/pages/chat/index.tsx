@@ -199,7 +199,7 @@ function Sidebar({
       {/* New chat button */}
       <div className="px-3 pb-2">
         <Button
-          variant="gradient"
+          variant="primary"
           className="w-full"
           size="sm"
           onClick={onNewChat}

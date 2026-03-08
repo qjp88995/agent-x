@@ -207,7 +207,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
                   <Button
                     onClick={handleCreate}
                     disabled={!tokenName.trim() || createToken.isPending}
-                    variant="gradient"
+                    variant="primary"
                   >
                     {createToken.isPending && (
                       <Loader2 className="mr-2 size-4 animate-spin" />

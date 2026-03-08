@@ -232,7 +232,7 @@ function EmptyState({ filter }: { readonly filter: FilterTab }) {
       <h3 className="mb-1 text-lg font-semibold">{t('agents.noAgents')}</h3>
       <p className="text-muted-foreground mb-6 text-sm">{message}</p>
       {filter === 'all' && (
-        <Button asChild variant="gradient">
+        <Button asChild variant="primary">
           <Link to="/agents/new">
             <Plus className="mr-2 size-4" />
             {t('agents.createAgent')}
@@ -329,7 +329,7 @@ export default function AgentListPage() {
             {t('agents.subtitle')}
           </p>
         </div>
-        <Button asChild variant="gradient">
+        <Button asChild variant="primary">
           <Link to="/agents/new">
             <Plus className="mr-2 size-4" />
             {t('agents.createAgent')}

@@ -111,7 +111,7 @@ export default function LoginPage() {
             <CardFooter className="flex flex-col gap-4">
               <Button
                 type="submit"
-                variant="gradient"
+                variant="primary"
                 className="w-full transition-opacity"
                 disabled={!isFormValid || isSubmitting}
               >

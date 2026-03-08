@@ -34,7 +34,7 @@ export function FormFooter({
       >
         {cancelLabel}
       </Button>
-      <Button type="submit" disabled={disabled || isSaving} variant="gradient">
+      <Button type="submit" disabled={disabled || isSaving} variant="primary">
         {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
         {icon}
         {submitLabel}

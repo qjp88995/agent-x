@@ -105,7 +105,7 @@ export function ChatInput({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                variant="gradient"
+                variant="primary"
                 className="size-11 shrink-0 rounded-xl"
                 onClick={handleSubmitFromEditor}
                 disabled={disabled}
