@@ -434,4 +434,341 @@ describe('WorkspaceService', () => {
       );
     });
   });
+
+  describe('fileExists', () => {
+    it('should return exists true and isDirectory false for a regular file', async () => {
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue({
+        isDirectory: false,
+      });
+
+      const result = await service.fileExists(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts'
+      );
+
+      expect(result).toEqual({ exists: true, isDirectory: false });
+      expect(mockPrismaService.workspaceFile.findUnique).toHaveBeenCalledWith({
+        where: {
+          conversationId_path: {
+            conversationId: MOCK_CONVERSATION_ID,
+            path: 'src/index.ts',
+          },
+        },
+        select: { isDirectory: true },
+      });
+    });
+
+    it('should return exists false when file does not exist', async () => {
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(null);
+
+      const result = await service.fileExists(
+        MOCK_CONVERSATION_ID,
+        'nonexistent.ts'
+      );
+
+      expect(result).toEqual({ exists: false, isDirectory: false });
+    });
+
+    it('should return isDirectory true for a directory', async () => {
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue({
+        isDirectory: true,
+      });
+
+      const result = await service.fileExists(MOCK_CONVERSATION_ID, 'src');
+
+      expect(result).toEqual({ exists: true, isDirectory: true });
+    });
+  });
+
+  describe('getFileStats', () => {
+    it('should return line count for text files', async () => {
+      const textFile = {
+        ...mockWorkspaceFile,
+        mimeType: 'text/plain',
+        isDirectory: false,
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(textFile);
+      mockedFs.readFile.mockResolvedValue('line1\nline2\nline3' as never);
+
+      const result = await service.getFileStats(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts'
+      );
+
+      expect(result).toEqual({
+        path: textFile.path,
+        mimeType: 'text/plain',
+        size: textFile.size,
+        isDirectory: false,
+        lineCount: 3,
+      });
+      expect(mockedFs.readFile).toHaveBeenCalledWith(
+        path.join('/tmp/test-workspaces', MOCK_CONVERSATION_ID, 'src/index.ts'),
+        'utf-8'
+      );
+    });
+
+    it('should return lineCount null for binary files', async () => {
+      const binaryFile = {
+        ...mockWorkspaceFile,
+        path: 'image.png',
+        mimeType: 'image/png',
+        isDirectory: false,
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(binaryFile);
+
+      const result = await service.getFileStats(
+        MOCK_CONVERSATION_ID,
+        'image.png'
+      );
+
+      expect(result).toEqual({
+        path: 'image.png',
+        mimeType: 'image/png',
+        size: binaryFile.size,
+        isDirectory: false,
+        lineCount: null,
+      });
+      expect(mockedFs.readFile).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException for missing file', async () => {
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.getFileStats(MOCK_CONVERSATION_ID, 'nonexistent.ts')
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('readFileLines', () => {
+    it('should read specific line range', async () => {
+      const textFile = {
+        ...mockWorkspaceFile,
+        mimeType: 'text/plain',
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(textFile);
+      mockedFs.readFile.mockResolvedValue(
+        'line1\nline2\nline3\nline4\nline5' as never
+      );
+
+      const result = await service.readFileLines(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts',
+        2,
+        4
+      );
+
+      expect(result).toEqual({
+        content: 'line2\nline3\nline4',
+        totalLines: 5,
+        startLine: 2,
+        endLine: 4,
+      });
+    });
+
+    it('should clamp out-of-range lines', async () => {
+      const textFile = {
+        ...mockWorkspaceFile,
+        mimeType: 'text/plain',
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(textFile);
+      mockedFs.readFile.mockResolvedValue('line1\nline2\nline3' as never);
+
+      const result = await service.readFileLines(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts',
+        -5,
+        100
+      );
+
+      expect(result).toEqual({
+        content: 'line1\nline2\nline3',
+        totalLines: 3,
+        startLine: 1,
+        endLine: 3,
+      });
+    });
+
+    it('should throw NotFoundException for missing file', async () => {
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.readFileLines(MOCK_CONVERSATION_ID, 'nonexistent.ts', 1, 10)
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException for binary file', async () => {
+      const binaryFile = {
+        ...mockWorkspaceFile,
+        path: 'image.png',
+        mimeType: 'image/png',
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(binaryFile);
+
+      await expect(
+        service.readFileLines(MOCK_CONVERSATION_ID, 'image.png', 1, 10)
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('searchFiles', () => {
+    it('should find matches across files', async () => {
+      const files = [
+        {
+          ...mockWorkspaceFile,
+          path: 'src/a.ts',
+          mimeType: 'text/plain',
+          isDirectory: false,
+        },
+        {
+          ...mockWorkspaceFile,
+          path: 'src/b.ts',
+          mimeType: 'text/plain',
+          isDirectory: false,
+        },
+      ];
+      mockPrismaService.workspaceFile.findMany.mockResolvedValue(files);
+      mockedFs.readFile
+        .mockResolvedValueOnce('hello world\nfoo bar' as never)
+        .mockResolvedValueOnce('baz hello\nqux' as never);
+
+      const result = await service.searchFiles(MOCK_CONVERSATION_ID, 'hello');
+
+      expect(result).toEqual([
+        {
+          path: 'src/a.ts',
+          matches: [{ line: 1, content: 'hello world' }],
+        },
+        {
+          path: 'src/b.ts',
+          matches: [{ line: 1, content: 'baz hello' }],
+        },
+      ]);
+    });
+
+    it('should throw BadRequestException for empty query', async () => {
+      await expect(
+        service.searchFiles(MOCK_CONVERSATION_ID, '')
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should filter by directory path', async () => {
+      mockPrismaService.workspaceFile.findMany.mockResolvedValue([]);
+
+      await service.searchFiles(MOCK_CONVERSATION_ID, 'test', 'src');
+
+      expect(mockPrismaService.workspaceFile.findMany).toHaveBeenCalledWith({
+        where: {
+          conversationId: MOCK_CONVERSATION_ID,
+          isDirectory: false,
+          path: { startsWith: 'src/' },
+        },
+        orderBy: { path: 'asc' },
+      });
+    });
+
+    it('should skip binary files', async () => {
+      const files = [
+        {
+          ...mockWorkspaceFile,
+          path: 'image.png',
+          mimeType: 'image/png',
+          isDirectory: false,
+        },
+        {
+          ...mockWorkspaceFile,
+          path: 'src/a.ts',
+          mimeType: 'text/plain',
+          isDirectory: false,
+        },
+      ];
+      mockPrismaService.workspaceFile.findMany.mockResolvedValue(files);
+      mockedFs.readFile.mockResolvedValue('hello world' as never);
+
+      const result = await service.searchFiles(MOCK_CONVERSATION_ID, 'hello');
+
+      // Only the text file should be in results; binary is skipped
+      expect(result).toEqual([
+        {
+          path: 'src/a.ts',
+          matches: [{ line: 1, content: 'hello world' }],
+        },
+      ]);
+      // readFile called only once (for the text file)
+      expect(mockedFs.readFile).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('patchFile', () => {
+    it('should replace all occurrences', async () => {
+      const textFile = {
+        ...mockWorkspaceFile,
+        id: 'cuid-file-1',
+        mimeType: 'text/plain',
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(textFile);
+      mockedFs.readFile.mockResolvedValue('foo bar foo baz foo' as never);
+      mockPrismaService.workspaceFile.update.mockResolvedValue({
+        ...textFile,
+        size: 20,
+      });
+
+      const result = await service.patchFile(
+        MOCK_CONVERSATION_ID,
+        'src/index.ts',
+        'foo',
+        'qux'
+      );
+
+      expect(result.occurrences).toBe(3);
+      expect(mockedFs.writeFile).toHaveBeenCalledWith(
+        path.join('/tmp/test-workspaces', MOCK_CONVERSATION_ID, 'src/index.ts'),
+        expect.any(Buffer)
+      );
+      expect(mockPrismaService.workspaceFile.update).toHaveBeenCalledWith({
+        where: { id: 'cuid-file-1' },
+        data: { size: expect.any(Number) },
+      });
+    });
+
+    it('should throw NotFoundException for missing file', async () => {
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.patchFile(MOCK_CONVERSATION_ID, 'nonexistent.ts', 'foo', 'bar')
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException when search string not found', async () => {
+      const textFile = {
+        ...mockWorkspaceFile,
+        mimeType: 'text/plain',
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(textFile);
+      mockedFs.readFile.mockResolvedValue('hello world' as never);
+
+      await expect(
+        service.patchFile(
+          MOCK_CONVERSATION_ID,
+          'src/index.ts',
+          'nonexistent',
+          'replacement'
+        )
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException for binary file', async () => {
+      const binaryFile = {
+        ...mockWorkspaceFile,
+        path: 'image.png',
+        mimeType: 'image/png',
+      };
+      mockPrismaService.workspaceFile.findUnique.mockResolvedValue(binaryFile);
+
+      await expect(
+        service.patchFile(MOCK_CONVERSATION_ID, 'image.png', 'foo', 'bar')
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
 });
