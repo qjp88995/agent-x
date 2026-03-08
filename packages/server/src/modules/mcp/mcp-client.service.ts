@@ -11,9 +11,35 @@ interface McpSessionResult {
   readonly cleanup: () => Promise<void>;
 }
 
+const MCP_SESSION_TIMEOUT_MS = 30_000;
+
 @Injectable()
 export class McpClientService {
   private readonly logger = new Logger(McpClientService.name);
+
+  private withTimeout<T>(
+    promise: Promise<T>,
+    ms: number,
+    label: string
+  ): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(
+        () =>
+          reject(new Error(`MCP operation timed out after ${ms}ms: ${label}`)),
+        ms
+      );
+      promise.then(
+        value => {
+          clearTimeout(timer);
+          resolve(value);
+        },
+        error => {
+          clearTimeout(timer);
+          reject(error);
+        }
+      );
+    });
+  }
 
   async getTools(
     transport: string,
@@ -25,17 +51,30 @@ export class McpClientService {
       inputSchema?: Record<string, unknown>;
     }>
   > {
-    const client = await this.createClient(transport, config);
+    const label =
+      transport === 'STDIO'
+        ? `${transport}:${config.command}`
+        : `${transport}:${config.url}`;
+
+    const client = await this.withTimeout(
+      this.createClient(transport, config),
+      MCP_SESSION_TIMEOUT_MS,
+      `createClient(${label})`
+    );
 
     try {
-      const result = await client.listTools();
+      const result = await this.withTimeout(
+        client.listTools(),
+        MCP_SESSION_TIMEOUT_MS,
+        `listTools(${label})`
+      );
       return result.tools.map(tool => ({
         name: tool.name,
         description: tool.description,
         inputSchema: tool.inputSchema as Record<string, unknown> | undefined,
       }));
     } finally {
-      await client.close();
+      await client.close().catch(() => {});
     }
   }
 
@@ -44,10 +83,23 @@ export class McpClientService {
     config: Record<string, unknown>,
     enabledTools: string[]
   ): Promise<McpSessionResult> {
-    const client = await this.createClient(transport, config);
+    const label =
+      transport === 'STDIO'
+        ? `${transport}:${config.command}`
+        : `${transport}:${config.url}`;
+
+    const client = await this.withTimeout(
+      this.createClient(transport, config),
+      MCP_SESSION_TIMEOUT_MS,
+      `createClient(${label})`
+    );
 
     try {
-      const allTools = await client.tools();
+      const allTools = await this.withTimeout(
+        client.tools(),
+        MCP_SESSION_TIMEOUT_MS,
+        `listTools(${label})`
+      );
       const filteredTools =
         enabledTools.length > 0
           ? Object.fromEntries(
@@ -62,7 +114,7 @@ export class McpClientService {
         cleanup: () => client.close(),
       };
     } catch (error) {
-      await client.close();
+      await client.close().catch(() => {});
       throw error;
     }
   }
