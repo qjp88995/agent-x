@@ -384,6 +384,108 @@ export class WorkspaceService {
     }
   }
 
+  async fileExists(
+    conversationId: string,
+    filePath: string
+  ): Promise<{ exists: boolean; isDirectory: boolean }> {
+    this.validatePath(filePath);
+
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+      select: { isDirectory: true },
+    });
+
+    return {
+      exists: !!record,
+      isDirectory: record?.isDirectory ?? false,
+    };
+  }
+
+  async getFileStats(
+    conversationId: string,
+    filePath: string
+  ): Promise<{
+    path: string;
+    mimeType: string;
+    size: number;
+    isDirectory: boolean;
+    lineCount: number | null;
+  }> {
+    this.validatePath(filePath);
+
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`File not found: ${filePath}`);
+    }
+
+    let lineCount: number | null = null;
+    if (!record.isDirectory && this.isTextMimeType(record.mimeType)) {
+      const diskPath = this.getDiskPath(conversationId, filePath);
+      const content = await fs.readFile(diskPath, 'utf-8');
+      lineCount = content.split('\n').length;
+    }
+
+    return {
+      path: record.path,
+      mimeType: record.mimeType,
+      size: record.size,
+      isDirectory: record.isDirectory,
+      lineCount,
+    };
+  }
+
+  async readFileLines(
+    conversationId: string,
+    filePath: string,
+    startLine: number,
+    endLine: number
+  ): Promise<{
+    content: string;
+    totalLines: number;
+    startLine: number;
+    endLine: number;
+  }> {
+    this.validatePath(filePath);
+
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`File not found: ${filePath}`);
+    }
+
+    if (!this.isTextMimeType(record.mimeType)) {
+      throw new BadRequestException('readFileLines only supports text files');
+    }
+
+    const diskPath = this.getDiskPath(conversationId, filePath);
+    const content = await fs.readFile(diskPath, 'utf-8');
+    const allLines = content.split('\n');
+    const totalLines = allLines.length;
+
+    const start = Math.max(1, startLine);
+    const end = Math.min(totalLines, endLine);
+
+    const selectedLines = allLines.slice(start - 1, end);
+
+    return {
+      content: selectedLines.join('\n'),
+      totalLines,
+      startLine: start,
+      endLine: end,
+    };
+  }
+
   async renameFile(
     conversationId: string,
     oldPath: string,

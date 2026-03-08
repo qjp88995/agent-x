@@ -185,6 +185,98 @@ export function createWorkspaceTools(
       },
     }),
 
+    fileExists: tool({
+      description:
+        'Check if a file or directory exists in the workspace. This is a lightweight check that does not read file content.',
+      inputSchema: jsonSchema<{ path: string }>({
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description: 'Relative file or directory path to check',
+          },
+        },
+        required: ['path'],
+      }),
+      execute: async ({ path }) => {
+        try {
+          const result = await workspaceService.fileExists(
+            conversationId,
+            path
+          );
+          return { success: true, ...result };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
+
+    fileInfo: tool({
+      description:
+        'Get file metadata (size, MIME type, line count for text files) without reading the full content. Use this instead of readFile when you only need to check file properties.',
+      inputSchema: jsonSchema<{ path: string }>({
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description: 'Relative file path to inspect',
+          },
+        },
+        required: ['path'],
+      }),
+      execute: async ({ path }) => {
+        try {
+          const result = await workspaceService.getFileStats(
+            conversationId,
+            path
+          );
+          return { success: true, ...result };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
+
+    readFileLines: tool({
+      description:
+        'Read specific lines from a text file in the workspace. Use this instead of readFile when you only need to read a portion of a large file. Line numbers are 1-based.',
+      inputSchema: jsonSchema<{
+        path: string;
+        startLine: number;
+        endLine: number;
+      }>({
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description: 'Relative file path to read',
+          },
+          startLine: {
+            type: 'number',
+            description: 'Start line number (1-based, inclusive)',
+          },
+          endLine: {
+            type: 'number',
+            description: 'End line number (1-based, inclusive)',
+          },
+        },
+        required: ['path', 'startLine', 'endLine'],
+      }),
+      execute: async ({ path, startLine, endLine }) => {
+        try {
+          const result = await workspaceService.readFileLines(
+            conversationId,
+            path,
+            startLine,
+            endLine
+          );
+          return { success: true, ...result };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
+
     listFiles: tool({
       description:
         'List all files in the workspace or in a specific subdirectory.',
