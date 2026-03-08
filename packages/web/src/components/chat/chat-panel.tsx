@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,7 +12,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { IdeLayout } from '@/components/workspace/ide-layout';
 import { messagesKey, useMessages } from '@/hooks/use-chat';
 import { useWorkspaceFiles } from '@/hooks/use-workspace';
 import { AgentXChatTransport } from '@/lib/chat-transport';
@@ -123,24 +123,8 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
     void transportRef.current?.stopStream();
   }, [stop]);
 
-  // IDE view state
-  const [ideMode, setIdeMode] = useState(false);
   const { data: workspaceFiles } = useWorkspaceFiles(conversationId);
   const hasFiles = workspaceFiles && workspaceFiles.length > 0;
-
-  if (ideMode) {
-    return (
-      <IdeLayout
-        conversationId={conversationId}
-        messages={messages}
-        messagesEndRef={messagesEndRef}
-        isLoading={isLoading}
-        onSend={handleSend}
-        onStop={handleStop}
-        onBackToChat={() => setIdeMode(false)}
-      />
-    );
-  }
 
   return (
     <div className="flex h-full flex-col">
@@ -155,9 +139,11 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
                 variant="ghost"
                 size="icon"
                 className="ml-auto size-8 cursor-pointer"
-                onClick={() => setIdeMode(true)}
+                asChild
               >
-                <Code2 className="size-4" />
+                <Link to={`/chat/${conversationId}/workspace`}>
+                  <Code2 className="size-4" />
+                </Link>
               </Button>
             </TooltipTrigger>
             <TooltipContent>{t('workspace.openIde')}</TooltipContent>

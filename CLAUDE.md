@@ -159,6 +159,7 @@ pnpm format:check # prettier --check
 - `/api-keys` - API key management
 - `/settings` - theme and language preferences
 - `/chat` - full-screen chat UI (outside dashboard layout)
+- `/chat/:conversationId/workspace` - full-screen IDE workspace view
 - `/s/:token` - shared chat page (public, no auth required)
 
 ## Docker Deployment

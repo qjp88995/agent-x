@@ -22,6 +22,7 @@ const McpEditorPage = lazy(() => import('@/pages/dashboard/mcp/editor'));
 const ApiKeysPage = lazy(() => import('@/pages/dashboard/api-keys/index'));
 const SettingsPage = lazy(() => import('@/pages/dashboard/settings'));
 const ChatPage = lazy(() => import('@/pages/chat/index'));
+const WorkspacePage = lazy(() => import('@/pages/chat/workspace'));
 const SharedChatPage = lazy(() => import('@/pages/shared/index'));
 
 function PageLoader() {
@@ -61,6 +62,10 @@ export function AppRoutes() {
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
           <Route path="/chat" element={<ChatPage />} />
+          <Route
+            path="/chat/:conversationId/workspace"
+            element={<WorkspacePage />}
+          />
         </Route>
         <Route
           path="*"
