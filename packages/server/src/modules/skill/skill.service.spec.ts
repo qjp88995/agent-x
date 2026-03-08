@@ -48,19 +48,6 @@ const mockSystemSkill = {
   updatedAt: new Date('2026-01-01'),
 };
 
-const mockPublicSkill = {
-  id: 'cuid-skill-public',
-  name: 'Public Skill',
-  description: 'A public skill',
-  content: '# Public Skill\n\nPublic content.',
-  type: SkillType.CUSTOM,
-  tags: ['public'],
-  isPublic: true,
-  createdBy: MOCK_OTHER_USER_ID,
-  createdAt: new Date('2026-01-01'),
-  updatedAt: new Date('2026-01-01'),
-};
-
 const mockPrismaService = {
   skill: {
     create: jest.fn(),
@@ -115,23 +102,20 @@ describe('SkillService', () => {
   });
 
   describe('findAll', () => {
-    it("should return user's custom + system + public skills", async () => {
-      const allSkills = [mockCustomSkill, mockSystemSkill, mockPublicSkill];
+    it("should return user's custom skills", async () => {
+      const allSkills = [mockCustomSkill];
       mockPrismaService.skill.findMany.mockResolvedValue(allSkills);
 
       const result = await service.findAll(MOCK_USER_ID);
 
       expect(mockPrismaService.skill.findMany).toHaveBeenCalledWith({
         where: {
-          OR: [
-            { createdBy: MOCK_USER_ID },
-            { type: SkillType.SYSTEM },
-            { isPublic: true },
-          ],
+          createdBy: MOCK_USER_ID,
+          type: SkillType.CUSTOM,
         },
         orderBy: { createdAt: 'desc' },
       });
-      expect(result).toHaveLength(3);
+      expect(result).toHaveLength(1);
     });
   });
 

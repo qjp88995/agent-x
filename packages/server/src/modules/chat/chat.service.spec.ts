@@ -100,7 +100,7 @@ describe('ChatService', () => {
       );
 
       expect(mockPrismaService.agent.findFirst).toHaveBeenCalledWith({
-        where: { id: MOCK_AGENT_ID },
+        where: { id: MOCK_AGENT_ID, deletedAt: null },
       });
       expect(mockPrismaService.conversation.create).toHaveBeenCalledWith({
         data: {

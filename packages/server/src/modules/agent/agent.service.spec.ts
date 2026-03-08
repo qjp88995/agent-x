@@ -162,7 +162,7 @@ describe('AgentService', () => {
       const result = await service.findAll(MOCK_USER_ID);
 
       expect(mockPrismaService.agent.findMany).toHaveBeenCalledWith({
-        where: { userId: MOCK_USER_ID },
+        where: { userId: MOCK_USER_ID, deletedAt: null },
         include: {
           provider: { select: { id: true, name: true, protocol: true } },
           _count: {
@@ -201,7 +201,11 @@ describe('AgentService', () => {
       const result = await service.findAll(MOCK_USER_ID, AgentStatus.ARCHIVED);
 
       expect(mockPrismaService.agent.findMany).toHaveBeenCalledWith({
-        where: { userId: MOCK_USER_ID, status: AgentStatus.ARCHIVED },
+        where: {
+          userId: MOCK_USER_ID,
+          deletedAt: null,
+          status: AgentStatus.ARCHIVED,
+        },
         include: {
           provider: { select: { id: true, name: true, protocol: true } },
           _count: {
@@ -251,7 +255,7 @@ describe('AgentService', () => {
       const result = await service.findOne(MOCK_AGENT_ID, MOCK_USER_ID);
 
       expect(mockPrismaService.agent.findFirst).toHaveBeenCalledWith({
-        where: { id: MOCK_AGENT_ID, userId: MOCK_USER_ID },
+        where: { id: MOCK_AGENT_ID, userId: MOCK_USER_ID, deletedAt: null },
         include: {
           provider: { select: { id: true, name: true, protocol: true } },
           skills: {
@@ -352,14 +356,18 @@ describe('AgentService', () => {
   });
 
   describe('remove', () => {
-    it('should delete agent', async () => {
+    it('should soft delete agent', async () => {
       mockPrismaService.agent.findFirst.mockResolvedValue(mockAgent);
-      mockPrismaService.agent.delete.mockResolvedValue(mockAgent);
+      mockPrismaService.agent.update.mockResolvedValue({
+        ...mockAgent,
+        deletedAt: new Date(),
+      });
 
       const result = await service.remove(MOCK_AGENT_ID, MOCK_USER_ID);
 
-      expect(mockPrismaService.agent.delete).toHaveBeenCalledWith({
+      expect(mockPrismaService.agent.update).toHaveBeenCalledWith({
         where: { id: MOCK_AGENT_ID },
+        data: { deletedAt: expect.any(Date) },
       });
       expect(result).toEqual({ message: 'Agent deleted successfully' });
     });
@@ -393,7 +401,7 @@ describe('AgentService', () => {
       );
 
       expect(mockPrismaService.agent.findFirst).toHaveBeenCalledWith({
-        where: { id: MOCK_AGENT_ID, userId: MOCK_USER_ID },
+        where: { id: MOCK_AGENT_ID, userId: MOCK_USER_ID, deletedAt: null },
       });
       expect(mockPrismaService.agentSkill.create).toHaveBeenCalledWith({
         data: {
@@ -505,7 +513,7 @@ describe('AgentService', () => {
       );
 
       expect(mockPrismaService.agent.findFirst).toHaveBeenCalledWith({
-        where: { id: MOCK_AGENT_ID, userId: MOCK_USER_ID },
+        where: { id: MOCK_AGENT_ID, userId: MOCK_USER_ID, deletedAt: null },
       });
       expect(mockPrismaService.agentMcp.create).toHaveBeenCalledWith({
         data: {

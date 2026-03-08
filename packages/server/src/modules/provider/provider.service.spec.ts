@@ -354,6 +354,7 @@ describe('ProviderService', () => {
         model: 'openai-model-instance',
         prompt: 'Say hello in one word.',
         maxOutputTokens: 10,
+        experimental_telemetry: { isEnabled: true },
       });
       expect(result).toEqual({
         success: true,
