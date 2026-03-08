@@ -57,6 +57,9 @@ export class AgentRuntimeService {
     messages: Array<{ role: string; content: string }>,
     options?: { abortSignal?: AbortSignal; conversationId?: string }
   ): Promise<any> {
+    const start = Date.now();
+    this.logger.log(`[createStream] START agentId=${agentId}`);
+
     const agent: AgentWithRelations = await this.prisma.agent.findFirstOrThrow({
       where: { id: agentId, deletedAt: null },
       include: {
@@ -68,6 +71,9 @@ export class AgentRuntimeService {
         mcpServers: { include: { mcpServer: true } },
       },
     });
+    this.logger.log(
+      `[createStream] agent loaded model=${agent.modelId} protocol=${agent.provider.protocol} skills=${agent.skills.length} mcpServers=${agent.mcpServers.length} +${Date.now() - start}ms`
+    );
 
     if (agent.status === 'ARCHIVED') {
       throw new BadRequestException('Cannot chat with an archived agent');
@@ -89,6 +95,7 @@ export class AgentRuntimeService {
       agent.modelId
     );
 
+    this.logger.log(`[createStream] collecting MCP tools...`);
     const { tools: mcpTools, cleanups } = await this.collectMcpTools(
       agent.mcpServers
     );
@@ -98,8 +105,12 @@ export class AgentRuntimeService {
     );
     const tools: McpToolSet = { ...built, ...mcpTools };
     const hasTools = Object.keys(tools).length > 0;
+    this.logger.log(
+      `[createStream] tools ready count=${Object.keys(tools).length} (mcp=${Object.keys(mcpTools).length} builtin=${Object.keys(built).length}) +${Date.now() - start}ms`
+    );
 
-    return streamText({
+    this.logger.log(`[createStream] calling streamText...`);
+    const result = streamText({
       model,
       system: systemPrompt,
       messages: messages as any,
@@ -111,10 +122,16 @@ export class AgentRuntimeService {
       onFinish: async () => {
         await this.cleanupMcpSessions(cleanups);
       },
-      onError: async () => {
+      onError: async event => {
+        this.logger.error(`[createStream] streamText error: ${event.error}`);
         await this.cleanupMcpSessions(cleanups);
       },
     });
+    this.logger.log(
+      `[createStream] streamText started +${Date.now() - start}ms`
+    );
+
+    return result;
   }
 
   async createStreamFromVersion(

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Logger,
   Param,
   Post,
   Res,
@@ -29,6 +30,8 @@ import {
 
 @Controller('conversations')
 export class ChatController {
+  private readonly logger = new Logger(ChatController.name);
+
   constructor(
     private readonly chatService: ChatService,
     private readonly runtime: AgentRuntimeService,
@@ -64,7 +67,13 @@ export class ChatController {
     @CurrentUser() user: { id: string },
     @Body() body: { messages: UIMessage[] }
   ) {
+    const start = Date.now();
+    this.logger.log(`[chat] START conversationId=${id} userId=${user.id}`);
+
     const conversation = await this.chatService.verifyOwnership(id, user.id);
+    this.logger.log(
+      `[chat] verifyOwnership OK agentId=${conversation.agentId} +${Date.now() - start}ms`
+    );
 
     const lastMsg = body.messages[body.messages.length - 1];
     const content = lastMsg.parts
@@ -75,15 +84,24 @@ export class ChatController {
     await this.chatService.saveMessage(id, MessageRole.USER, [
       { type: 'text', text: content },
     ]);
+    this.logger.log(`[chat] saveMessage OK +${Date.now() - start}ms`);
 
     const history = await this.chatService.getMessagesForAI(id);
+    this.logger.log(
+      `[chat] getMessagesForAI OK count=${history.length} +${Date.now() - start}ms`
+    );
+
     const messageId = randomUUID();
     const abortController = new AbortController();
 
+    this.logger.log(`[chat] creating stream...`);
     const result = await this.runtime.createStream(
       conversation.agentId,
       history,
       { abortSignal: abortController.signal, conversationId: id }
+    );
+    this.logger.log(
+      `[chat] createStream OK messageId=${messageId} +${Date.now() - start}ms`
     );
 
     const uiStream = result.toUIMessageStream({ sendReasoning: true });
@@ -106,7 +124,13 @@ export class ChatController {
             parts,
             usage
           );
-        } catch {
+          this.logger.log(
+            `[chat] onComplete OK messageId=${messageId} usage=${JSON.stringify(usage)}`
+          );
+        } catch (err) {
+          this.logger.warn(
+            `[chat] onComplete steps failed messageId=${messageId}: ${err}`
+          );
           // If steps fail (e.g. aborted), extract parts from buffered chunks
           const session = this.streamManager.getSession(messageId);
           if (session && session.buffer.length > 0) {
@@ -124,6 +148,9 @@ export class ChatController {
       },
     });
 
+    this.logger.log(
+      `[chat] DONE messageId=${messageId} total=${Date.now() - start}ms`
+    );
     return { messageId };
   }
 
