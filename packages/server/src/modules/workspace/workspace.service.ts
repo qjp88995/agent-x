@@ -357,4 +357,128 @@ export class WorkspaceService {
       // Directory may not exist
     }
   }
+
+  async renameFile(
+    conversationId: string,
+    oldPath: string,
+    newPath: string
+  ): Promise<WorkspaceFileInfo> {
+    this.validatePath(oldPath);
+    this.validatePath(newPath);
+
+    const workspaceDir = this.getWorkspaceDir(conversationId);
+    const oldFullPath = path.join(workspaceDir, oldPath);
+    const newFullPath = path.join(workspaceDir, newPath);
+
+    // Verify source exists
+    const file = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: oldPath },
+      },
+    });
+    if (!file) {
+      throw new NotFoundException(`File not found: ${oldPath}`);
+    }
+
+    // Check target doesn't exist
+    const existing = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: newPath },
+      },
+    });
+    if (existing) {
+      throw new BadRequestException(`File already exists: ${newPath}`);
+    }
+
+    // Ensure target directory exists
+    await fs.mkdir(path.dirname(newFullPath), { recursive: true });
+
+    // Move on disk
+    await fs.rename(oldFullPath, newFullPath);
+
+    // Update DB
+    const mimeType = mime.lookup(newPath) || 'application/octet-stream';
+    return this.prisma.workspaceFile.update({
+      where: { id: file.id },
+      data: { path: newPath, mimeType },
+    });
+  }
+
+  async createDirectory(
+    conversationId: string,
+    dirPath: string
+  ): Promise<void> {
+    this.validatePath(dirPath);
+    const fullPath = path.join(this.getWorkspaceDir(conversationId), dirPath);
+    await fs.mkdir(fullPath, { recursive: true });
+  }
+
+  async deleteDirectory(
+    conversationId: string,
+    dirPath: string
+  ): Promise<string[]> {
+    this.validatePath(dirPath);
+
+    const normalizedDir = dirPath.endsWith('/') ? dirPath : `${dirPath}/`;
+
+    // Delete all files under this directory from DB
+    const deleted = await this.prisma.workspaceFile.findMany({
+      where: {
+        conversationId,
+        path: { startsWith: normalizedDir },
+      },
+      select: { path: true },
+    });
+
+    await this.prisma.workspaceFile.deleteMany({
+      where: {
+        conversationId,
+        path: { startsWith: normalizedDir },
+      },
+    });
+
+    // Delete from disk
+    const fullPath = path.join(this.getWorkspaceDir(conversationId), dirPath);
+    await fs.rm(fullPath, { recursive: true, force: true });
+
+    return deleted.map(f => f.path);
+  }
+
+  async renameDirectory(
+    conversationId: string,
+    oldDir: string,
+    newDir: string
+  ): Promise<void> {
+    this.validatePath(oldDir);
+    this.validatePath(newDir);
+
+    const normalizedOld = oldDir.endsWith('/') ? oldDir : `${oldDir}/`;
+    const normalizedNew = newDir.endsWith('/') ? newDir : `${newDir}/`;
+
+    const workspaceDir = this.getWorkspaceDir(conversationId);
+    const oldFullPath = path.join(workspaceDir, oldDir);
+    const newFullPath = path.join(workspaceDir, newDir);
+
+    // Move on disk
+    await fs.mkdir(path.dirname(newFullPath), { recursive: true });
+    await fs.rename(oldFullPath, newFullPath);
+
+    // Update all file paths in DB
+    const files = await this.prisma.workspaceFile.findMany({
+      where: {
+        conversationId,
+        path: { startsWith: normalizedOld },
+      },
+    });
+
+    for (const file of files) {
+      const relativePath = file.path.slice(normalizedOld.length);
+      const updatedPath = `${normalizedNew}${relativePath}`;
+      const mimeType = mime.lookup(updatedPath) || file.mimeType;
+      await this.prisma.workspaceFile.update({
+        where: { id: file.id },
+        data: { path: updatedPath, mimeType },
+      });
+    }
+  }
 }
