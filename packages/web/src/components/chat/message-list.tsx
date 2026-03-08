@@ -28,14 +28,29 @@ interface MessageListProps {
   readonly messages: UIMessage[];
   readonly className?: string;
   readonly showTyping?: boolean;
+  readonly isStreaming?: boolean;
 }
 
 export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
-  function MessageList({ messages, className, showTyping }, ref) {
+  function MessageList({ messages, className, showTyping, isStreaming }, ref) {
+    let lastAssistantIdx = -1;
+    if (isStreaming) {
+      for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].role === 'assistant') {
+          lastAssistantIdx = i;
+          break;
+        }
+      }
+    }
+
     return (
       <div className={cn('py-4', className)}>
-        {messages.map(message => (
-          <MessageItem key={message.id} message={message} />
+        {messages.map((message, i) => (
+          <MessageItem
+            key={message.id}
+            message={message}
+            streaming={i === lastAssistantIdx}
+          />
         ))}
         {showTyping && <TypingPlaceholder />}
         <div ref={ref} />

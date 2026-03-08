@@ -55,7 +55,22 @@ function isWorkspaceTool(part: ToolUIPart): boolean {
   return WORKSPACE_TOOLS.has(getToolName(part));
 }
 
-function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
+function StreamingIndicator() {
+  return (
+    <div className="mt-1 flex items-center gap-1.5 py-1">
+      <span className="bg-primary/60 size-1.5 animate-pulse rounded-full" />
+      <span className="text-muted-foreground/50 text-[10px]">···</span>
+    </div>
+  );
+}
+
+function AssistantContent({
+  parts,
+  streaming,
+}: {
+  readonly parts: UIMessage['parts'];
+  readonly streaming?: boolean;
+}) {
   // Extract file changes from workspace tool calls
   const fileChanges = useMemo(
     () =>
@@ -138,14 +153,17 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
         }
         return null;
       })}
+      {streaming && <StreamingIndicator />}
     </div>
   );
 }
 
 export const MessageItem = memo(function MessageItem({
   message,
+  streaming,
 }: {
   readonly message: UIMessage;
+  readonly streaming?: boolean;
 }) {
   const isUser = message.role === 'user';
   const hasContent = message.parts.some(
@@ -194,7 +212,7 @@ export const MessageItem = memo(function MessageItem({
               .join('')}
           </p>
         ) : (
-          <AssistantContent parts={message.parts} />
+          <AssistantContent parts={message.parts} streaming={streaming} />
         )}
       </div>
     </div>

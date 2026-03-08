@@ -146,6 +146,7 @@ export default function SharedChatPage() {
             ref={messagesEndRef}
             messages={messages}
             className="mx-auto max-w-3xl"
+            isStreaming={isStreaming}
             showTyping={
               isStreaming &&
               messages.length > 0 &&

@@ -79,6 +79,7 @@ export function IdeLayout({
                 ref={messagesEndRef}
                 messages={messages}
                 className="mx-auto max-w-full px-2"
+                isStreaming={isLoading}
                 showTyping={
                   isLoading &&
                   messages.length > 0 &&

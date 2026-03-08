@@ -174,6 +174,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
             ref={messagesEndRef}
             messages={messages}
             className="mx-auto max-w-3xl"
+            isStreaming={isLoading}
             showTyping={
               isLoading &&
               messages.length > 0 &&

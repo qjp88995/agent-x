@@ -169,6 +169,7 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
           <MessageList
             ref={messagesEndRef}
             messages={messages}
+            isStreaming={isLoading}
             showTyping={
               isLoading &&
               messages.length > 0 &&
