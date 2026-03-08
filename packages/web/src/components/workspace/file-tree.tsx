@@ -188,13 +188,17 @@ function InlineInput({
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
-    input.focus();
-    if (selectWithoutExtension && defaultValue) {
-      const dotIdx = defaultValue.lastIndexOf('.');
-      input.setSelectionRange(0, dotIdx > 0 ? dotIdx : defaultValue.length);
-    } else {
-      input.select();
-    }
+    // Delay focus to run after context menu closes and releases focus
+    const timer = setTimeout(() => {
+      input.focus();
+      if (selectWithoutExtension && defaultValue) {
+        const dotIdx = defaultValue.lastIndexOf('.');
+        input.setSelectionRange(0, dotIdx > 0 ? dotIdx : defaultValue.length);
+      } else {
+        input.select();
+      }
+    }, 50);
+    return () => clearTimeout(timer);
   }, [defaultValue, selectWithoutExtension]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
