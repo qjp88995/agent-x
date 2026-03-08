@@ -117,3 +117,152 @@ export function useDownloadFile() {
     },
   });
 }
+
+export function useCreateFile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      conversationId,
+      path,
+      content,
+    }: {
+      conversationId: string;
+      path: string;
+      content: string;
+    }) => {
+      const { data } = await api.post<WorkspaceFileResponse>(
+        `/conversations/${conversationId}/files`,
+        { path, content }
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: workspaceFilesKey(variables.conversationId),
+      });
+    },
+  });
+}
+
+export function useDeleteFile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      conversationId,
+      fileId,
+    }: {
+      conversationId: string;
+      fileId: string;
+    }) => {
+      await api.delete(`/conversations/${conversationId}/files/${fileId}`);
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: workspaceFilesKey(variables.conversationId),
+      });
+    },
+  });
+}
+
+export function useRenameFile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      conversationId,
+      fileId,
+      newPath,
+    }: {
+      conversationId: string;
+      fileId: string;
+      newPath: string;
+    }) => {
+      const { data } = await api.patch<WorkspaceFileResponse>(
+        `/conversations/${conversationId}/files/${fileId}/rename`,
+        { newPath }
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: workspaceFilesKey(variables.conversationId),
+      });
+    },
+  });
+}
+
+export function useCreateDirectory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      conversationId,
+      path,
+    }: {
+      conversationId: string;
+      path: string;
+    }) => {
+      await api.post(`/conversations/${conversationId}/files/directories`, {
+        path,
+      });
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: workspaceFilesKey(variables.conversationId),
+      });
+    },
+  });
+}
+
+export function useDeleteDirectory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      conversationId,
+      path,
+    }: {
+      conversationId: string;
+      path: string;
+    }) => {
+      const { data } = await api.delete(
+        `/conversations/${conversationId}/files/directories`,
+        { data: { path } }
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: workspaceFilesKey(variables.conversationId),
+      });
+    },
+  });
+}
+
+export function useRenameDirectory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      conversationId,
+      oldPath,
+      newPath,
+    }: {
+      conversationId: string;
+      oldPath: string;
+      newPath: string;
+    }) => {
+      await api.patch(
+        `/conversations/${conversationId}/files/directories/rename`,
+        { oldPath, newPath }
+      );
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: workspaceFilesKey(variables.conversationId),
+      });
+    },
+  });
+}
