@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { WorkspaceFileResponse } from '@agent-x/shared';
 import { Download, FolderTree } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,13 +17,19 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
+  useCreateDirectory,
+  useCreateFile,
+  useDeleteDirectory,
+  useDeleteFile,
   useDownloadFile,
   useDownloadWorkspace,
+  useRenameDirectory,
+  useRenameFile,
   useWorkspaceFiles,
 } from '@/hooks/use-workspace';
 
 import { FileEditor, type OpenTab } from './file-editor';
-import { FileTree } from './file-tree';
+import { type ClipboardItem,FileTree } from './file-tree';
 
 interface WorkspacePanelProps {
   readonly conversationId: string;
@@ -34,8 +41,16 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
   const downloadWorkspace = useDownloadWorkspace();
   const downloadFile = useDownloadFile();
 
+  const createFileMutation = useCreateFile();
+  const deleteFileMutation = useDeleteFile();
+  const renameFileMutation = useRenameFile();
+  const createDirMutation = useCreateDirectory();
+  const deleteDirMutation = useDeleteDirectory();
+  const renameDirMutation = useRenameDirectory();
+
   const [openTabs, setOpenTabs] = useState<OpenTab[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | undefined>();
+  const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
 
   const handleSelectFile = useCallback((file: WorkspaceFileResponse) => {
     setOpenTabs(prev => {
@@ -81,6 +96,138 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
     downloadWorkspace.mutate(conversationId);
   }, [conversationId, downloadWorkspace]);
 
+  const handleCreateFile = useCallback(
+    (dirPath: string, name: string) => {
+      const filePath = dirPath ? `${dirPath}/${name}` : name;
+      createFileMutation.mutate(
+        { conversationId, path: filePath, content: '' },
+        {
+          onSuccess: data => {
+            toast.success(t('workspace.fileCreatedManual'));
+            handleSelectFile(data);
+          },
+        }
+      );
+    },
+    [conversationId, createFileMutation, handleSelectFile, t]
+  );
+
+  const handleCreateDirectory = useCallback(
+    (dirPath: string, name: string) => {
+      const fullPath = dirPath ? `${dirPath}/${name}` : name;
+      createDirMutation.mutate(
+        { conversationId, path: fullPath },
+        { onSuccess: () => toast.success(t('workspace.folderCreated')) }
+      );
+    },
+    [conversationId, createDirMutation, t]
+  );
+
+  const handleDeleteFile = useCallback(
+    (file: WorkspaceFileResponse) => {
+      deleteFileMutation.mutate(
+        { conversationId, fileId: file.id },
+        {
+          onSuccess: () => {
+            toast.success(t('workspace.fileDeleted'));
+            handleCloseTab(file.id);
+          },
+        }
+      );
+    },
+    [conversationId, deleteFileMutation, handleCloseTab, t]
+  );
+
+  const handleDeleteDirectory = useCallback(
+    (dirPath: string) => {
+      deleteDirMutation.mutate(
+        { conversationId, path: dirPath },
+        {
+          onSuccess: () => {
+            toast.success(t('workspace.folderDeleted'));
+            const prefix = dirPath.endsWith('/') ? dirPath : `${dirPath}/`;
+            setOpenTabs(prev =>
+              prev.filter(tab => !tab.file.path.startsWith(prefix))
+            );
+          },
+        }
+      );
+    },
+    [conversationId, deleteDirMutation, t]
+  );
+
+  const handleRenameFile = useCallback(
+    (file: WorkspaceFileResponse, newName: string) => {
+      const dir = file.path.includes('/')
+        ? file.path.substring(0, file.path.lastIndexOf('/'))
+        : '';
+      const newPath = dir ? `${dir}/${newName}` : newName;
+      renameFileMutation.mutate(
+        { conversationId, fileId: file.id, newPath },
+        {
+          onSuccess: data => {
+            toast.success(t('workspace.fileRenamed'));
+            setOpenTabs(prev =>
+              prev.map(tab =>
+                tab.file.id === file.id ? { ...tab, file: data } : tab
+              )
+            );
+          },
+        }
+      );
+    },
+    [conversationId, renameFileMutation, t]
+  );
+
+  const handleRenameDirectory = useCallback(
+    (dirPath: string, newName: string) => {
+      const parent = dirPath.includes('/')
+        ? dirPath.substring(0, dirPath.lastIndexOf('/'))
+        : '';
+      const newDir = parent ? `${parent}/${newName}` : newName;
+      renameDirMutation.mutate(
+        { conversationId, oldPath: dirPath, newPath: newDir },
+        { onSuccess: () => toast.success(t('workspace.folderRenamed')) }
+      );
+    },
+    [conversationId, renameDirMutation, t]
+  );
+
+  const handleCopy = useCallback(
+    (item: ClipboardItem) => setClipboard(item),
+    []
+  );
+
+  const handleCut = useCallback(
+    (item: ClipboardItem) => setClipboard(item),
+    []
+  );
+
+  const handlePaste = useCallback(
+    (targetDir: string) => {
+      if (!clipboard) return;
+      if (clipboard.operation === 'cut') {
+        const name = clipboard.path.split('/').pop() ?? '';
+        const newPath = targetDir ? `${targetDir}/${name}` : name;
+        if (clipboard.type === 'file' && clipboard.fileId) {
+          renameFileMutation.mutate({
+            conversationId,
+            fileId: clipboard.fileId,
+            newPath,
+          });
+        } else if (clipboard.type === 'directory') {
+          renameDirMutation.mutate({
+            conversationId,
+            oldPath: clipboard.path,
+            newPath,
+          });
+        }
+        setClipboard(null);
+      }
+    },
+    [clipboard, conversationId, renameFileMutation, renameDirMutation]
+  );
+
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
@@ -111,8 +258,18 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
           <FileTree
             files={files ?? []}
             selectedFileId={activeFileId}
+            clipboard={clipboard}
             onSelectFile={handleSelectFile}
             onDownloadFile={handleDownloadFile}
+            onCreateFile={handleCreateFile}
+            onCreateDirectory={handleCreateDirectory}
+            onRenameFile={handleRenameFile}
+            onRenameDirectory={handleRenameDirectory}
+            onDeleteFile={handleDeleteFile}
+            onDeleteDirectory={handleDeleteDirectory}
+            onCopy={handleCopy}
+            onCut={handleCut}
+            onPaste={handlePaste}
           />
         </ResizablePanel>
         <ResizableHandle />
