@@ -498,6 +498,7 @@
     "fileRenamed": "File renamed",
     "folderRenamed": "Folder renamed",
     "fileCreatedManual": "File created",
+    "filePasted": "File pasted",
     "folderCreated": "Folder created",
     "enterFileName": "Enter file name",
     "enterFolderName": "Enter folder name",

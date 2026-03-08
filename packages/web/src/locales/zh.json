@@ -498,6 +498,7 @@
     "fileRenamed": "文件已重命名",
     "folderRenamed": "文件夹已重命名",
     "fileCreatedManual": "文件已创建",
+    "filePasted": "文件已粘贴",
     "folderCreated": "文件夹已创建",
     "enterFileName": "请输入文件名",
     "enterFolderName": "请输入文件夹名",

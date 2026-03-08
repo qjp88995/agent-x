@@ -1,7 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { WorkspaceFileResponse } from '@agent-x/shared';
+import type {
+  WorkspaceFileContentResponse,
+  WorkspaceFileResponse,
+} from '@agent-x/shared';
 import { toast } from 'sonner';
 
 import {
@@ -19,6 +22,7 @@ import {
   useRenameFile,
   useWorkspaceFiles,
 } from '@/hooks/use-workspace';
+import { api } from '@/lib/api';
 
 import { FileEditor, type OpenTab } from './file-editor';
 import { type ClipboardItem, FileTree } from './file-tree';
@@ -190,29 +194,94 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
     []
   );
 
+  const pasteInProgress = useRef(false);
+
+  const deduplicatePath = useCallback(
+    (targetDir: string, fileName: string, isDirectory: boolean) => {
+      const basePath = targetDir ? `${targetDir}/${fileName}` : fileName;
+      const existingPaths = new Set((files ?? []).map(f => f.path));
+      if (!existingPaths.has(basePath)) return basePath;
+
+      const dotIdx = !isDirectory ? fileName.lastIndexOf('.') : -1;
+      const baseName = dotIdx > 0 ? fileName.slice(0, dotIdx) : fileName;
+      const ext = dotIdx > 0 ? fileName.slice(dotIdx) : '';
+      let counter = 1;
+      let destPath: string;
+      do {
+        const copyName = `${baseName} (${counter})${ext}`;
+        destPath = targetDir ? `${targetDir}/${copyName}` : copyName;
+        counter++;
+      } while (existingPaths.has(destPath));
+      return destPath;
+    },
+    [files]
+  );
+
   const handlePaste = useCallback(
-    (targetDir: string) => {
-      if (!clipboard) return;
-      if (clipboard.operation === 'cut') {
+    async (targetDir: string) => {
+      if (!clipboard || pasteInProgress.current) return;
+      pasteInProgress.current = true;
+
+      try {
         const name = clipboard.path.split('/').pop() ?? '';
-        const newPath = targetDir ? `${targetDir}/${name}` : name;
-        if (clipboard.type === 'file' && clipboard.fileId) {
-          renameFileMutation.mutate({
-            conversationId,
-            fileId: clipboard.fileId,
-            newPath,
-          });
-        } else if (clipboard.type === 'directory') {
-          renameDirMutation.mutate({
-            conversationId,
-            oldPath: clipboard.path,
-            newPath,
-          });
+
+        if (clipboard.operation === 'cut') {
+          const destPath = deduplicatePath(
+            targetDir,
+            name,
+            clipboard.type === 'directory'
+          );
+          if (clipboard.type === 'file' && clipboard.fileId) {
+            renameFileMutation.mutate({
+              conversationId,
+              fileId: clipboard.fileId,
+              newPath: destPath,
+            });
+          } else if (clipboard.type === 'directory') {
+            renameDirMutation.mutate({
+              conversationId,
+              oldPath: clipboard.path,
+              newPath: destPath,
+            });
+          }
+          setClipboard(null);
+        } else if (clipboard.operation === 'copy') {
+          if (clipboard.type === 'file' && clipboard.fileId) {
+            const { data: source } =
+              await api.get<WorkspaceFileContentResponse>(
+                `/conversations/${conversationId}/files/${clipboard.fileId}/content`
+              );
+            const destPath = deduplicatePath(targetDir, name, false);
+            createFileMutation.mutate(
+              {
+                conversationId,
+                path: destPath,
+                content: source.content,
+              },
+              {
+                onSuccess: data => {
+                  toast.success(t('workspace.filePasted'));
+                  handleSelectFile(data);
+                },
+              }
+            );
+          }
+          // Keep clipboard for repeated paste
         }
-        setClipboard(null);
+      } finally {
+        pasteInProgress.current = false;
       }
     },
-    [clipboard, conversationId, renameFileMutation, renameDirMutation]
+    [
+      clipboard,
+      conversationId,
+      deduplicatePath,
+      renameFileMutation,
+      renameDirMutation,
+      createFileMutation,
+      handleSelectFile,
+      t,
+    ]
   );
 
   return (
