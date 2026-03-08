@@ -146,6 +146,11 @@ export default function SharedChatPage() {
             ref={messagesEndRef}
             messages={messages}
             className="mx-auto max-w-3xl"
+            showTyping={
+              isStreaming &&
+              messages.length > 0 &&
+              messages[messages.length - 1].role === 'user'
+            }
           />
         )}
       </div>

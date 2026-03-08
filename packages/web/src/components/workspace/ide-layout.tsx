@@ -79,6 +79,11 @@ export function IdeLayout({
                 ref={messagesEndRef}
                 messages={messages}
                 className="mx-auto max-w-full px-2"
+                showTyping={
+                  isLoading &&
+                  messages.length > 0 &&
+                  messages[messages.length - 1].role === 'user'
+                }
               />
             </div>
             <ChatInput onSend={onSend} onStop={onStop} isLoading={isLoading} />

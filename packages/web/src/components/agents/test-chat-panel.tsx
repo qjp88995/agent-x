@@ -166,7 +166,15 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
             </p>
           </div>
         ) : (
-          <MessageList ref={messagesEndRef} messages={messages} />
+          <MessageList
+            ref={messagesEndRef}
+            messages={messages}
+            showTyping={
+              isLoading &&
+              messages.length > 0 &&
+              messages[messages.length - 1].role === 'user'
+            }
+          />
         )}
       </div>
 

@@ -174,6 +174,11 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
             ref={messagesEndRef}
             messages={messages}
             className="mx-auto max-w-3xl"
+            showTyping={
+              isLoading &&
+              messages.length > 0 &&
+              messages[messages.length - 1].role === 'user'
+            }
           />
         )}
       </div>
