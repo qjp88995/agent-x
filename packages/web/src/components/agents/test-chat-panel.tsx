@@ -126,7 +126,7 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
   }
 
   return (
-    <div className="flex w-100 shrink-0 flex-col border-l">
+    <div className="flex w-120 shrink-0 flex-col border-l">
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b px-3">
         <span className="text-sm font-medium">{t('chat.testChat')}</span>
