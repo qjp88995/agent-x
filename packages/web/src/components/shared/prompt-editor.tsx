@@ -67,7 +67,8 @@ export function PromptEditor({
         lintKeymap: false,
         completionKeymap: false,
       }}
-      className={cn('min-h-0 flex-1 overflow-hidden rounded-md', className)}
+      height="100%"
+      className={cn('min-h-0 flex-1 [&_.cm-editor]:h-full', className)}
     />
   );
 }
