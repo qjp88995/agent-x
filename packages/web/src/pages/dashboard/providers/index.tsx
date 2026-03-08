@@ -39,9 +39,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   useDeleteProvider,
   useProviders,
@@ -178,36 +182,6 @@ function ProviderCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link to={`/providers/${provider.id}/edit`}>
-                <Pencil className="mr-2 size-4" />
-                {t('common.edit')}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleTest}
-              disabled={testProvider.isPending}
-            >
-              <PlugZap className="mr-2 size-4" />
-              {testProvider.isPending
-                ? t('providers.testing')
-                : t('providers.testConnection')}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleSync}
-              disabled={syncModels.isPending}
-            >
-              <RefreshCw
-                className={cn(
-                  'mr-2 size-4',
-                  syncModels.isPending && 'animate-spin'
-                )}
-              />
-              {syncModels.isPending
-                ? t('providers.syncing')
-                : t('providers.syncModels')}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onDelete(provider)}
               className="text-destructive focus:text-destructive"
@@ -227,8 +201,68 @@ function ProviderCard({
       </CardContent>
 
       <CardFooter className="border-t pt-4">
-        <div className="text-muted-foreground text-sm">
-          {t('providers.modelCount', { count: provider.models.length })}
+        <div className="flex w-full items-center justify-between">
+          <div className="text-muted-foreground text-sm">
+            {t('providers.modelCount', { count: provider.models.length })}
+          </div>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  onClick={handleSync}
+                  disabled={syncModels.isPending}
+                >
+                  <RefreshCw
+                    className={cn(
+                      'size-3.5',
+                      syncModels.isPending && 'animate-spin'
+                    )}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {syncModels.isPending
+                  ? t('providers.syncing')
+                  : t('providers.syncModels')}
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  onClick={handleTest}
+                  disabled={testProvider.isPending}
+                >
+                  <PlugZap className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {testProvider.isPending
+                  ? t('providers.testing')
+                  : t('providers.testConnection')}
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  asChild
+                >
+                  <Link to={`/providers/${provider.id}/edit`}>
+                    <Pencil className="size-3.5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('common.edit')}</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </CardFooter>
     </Card>

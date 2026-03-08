@@ -49,6 +49,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   useAgents,
   useArchiveAgent,
   useDeleteAgent,
@@ -129,20 +134,8 @@ function AgentCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link to={`/agents/${agent.id}/edit`}>
-                <Pencil className="mr-2 size-4" />
-                {t('common.edit')}
-              </Link>
-            </DropdownMenuItem>
             {agent.status === AgentStatus.ACTIVE && (
               <>
-                <DropdownMenuItem asChild>
-                  <Link to={`/chat?agent=${agent.id}`}>
-                    <MessageSquare className="mr-2 size-4" />
-                    {t('agents.chat')}
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onArchive(agent)}>
                   <Archive className="mr-2 size-4" />
                   {t('agents.archive')}
@@ -180,7 +173,43 @@ function AgentCard({
       </CardContent>
 
       <CardFooter className="border-t pt-4">
-        <div className="text-muted-foreground text-xs">{agent.modelId}</div>
+        <div className="flex w-full items-center justify-between">
+          <div className="text-muted-foreground text-xs">{agent.modelId}</div>
+          <div className="flex items-center gap-1">
+            {agent.status === AgentStatus.ACTIVE && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 cursor-pointer"
+                    asChild
+                  >
+                    <Link to={`/chat?agent=${agent.id}`}>
+                      <MessageSquare className="size-3.5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t('agents.chat')}</TooltipContent>
+              </Tooltip>
+            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  asChild
+                >
+                  <Link to={`/agents/${agent.id}/edit`}>
+                    <Pencil className="size-3.5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('common.edit')}</TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
       </CardFooter>
     </Card>
   );

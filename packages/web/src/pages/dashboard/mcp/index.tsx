@@ -40,10 +40,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useDeleteMarketplaceMcpServer,
@@ -140,22 +144,6 @@ function MarketplaceCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link to={`/mcp-servers/${server.id}/edit?type=official`}>
-                  <Pencil className="mr-2 size-4" />
-                  {t('common.edit')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleTest}
-                disabled={testMcpServer.isPending}
-              >
-                <PlugZap className="mr-2 size-4" />
-                {testMcpServer.isPending
-                  ? t('mcp.testing')
-                  : t('mcp.testConnection')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => onDelete(server)}
                 className="text-destructive focus:text-destructive"
@@ -181,8 +169,47 @@ function MarketplaceCard({
       </CardContent>
 
       <CardFooter className="border-t pt-4">
-        <div className="text-muted-foreground text-sm">
-          {t('mcp.toolCount', { count: toolCount })}
+        <div className="flex w-full items-center justify-between">
+          <div className="text-muted-foreground text-sm">
+            {t('mcp.toolCount', { count: toolCount })}
+          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 cursor-pointer"
+                    onClick={handleTest}
+                    disabled={testMcpServer.isPending}
+                  >
+                    <PlugZap className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {testMcpServer.isPending
+                    ? t('mcp.testing')
+                    : t('mcp.testConnection')}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 cursor-pointer"
+                    asChild
+                  >
+                    <Link to={`/mcp-servers/${server.id}/edit?type=official`}>
+                      <Pencil className="size-3.5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t('common.edit')}</TooltipContent>
+              </Tooltip>
+            </div>
+          )}
         </div>
       </CardFooter>
     </Card>
@@ -230,22 +257,6 @@ function McpServerCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link to={`/mcp-servers/${server.id}/edit`}>
-                <Pencil className="mr-2 size-4" />
-                {t('common.edit')}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleTest}
-              disabled={testMcpServer.isPending}
-            >
-              <PlugZap className="mr-2 size-4" />
-              {testMcpServer.isPending
-                ? t('mcp.testing')
-                : t('mcp.testConnection')}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onDelete(server)}
               className="text-destructive focus:text-destructive"
@@ -270,10 +281,47 @@ function McpServerCard({
       </CardContent>
 
       <CardFooter className="border-t pt-4">
-        <div className="text-muted-foreground text-sm">
-          {toolCount > 0
-            ? t('mcp.toolCount', { count: toolCount })
-            : t('mcp.noTools')}
+        <div className="flex w-full items-center justify-between">
+          <div className="text-muted-foreground text-sm">
+            {toolCount > 0
+              ? t('mcp.toolCount', { count: toolCount })
+              : t('mcp.noTools')}
+          </div>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  onClick={handleTest}
+                  disabled={testMcpServer.isPending}
+                >
+                  <PlugZap className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {testMcpServer.isPending
+                  ? t('mcp.testing')
+                  : t('mcp.testConnection')}
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  asChild
+                >
+                  <Link to={`/mcp-servers/${server.id}/edit`}>
+                    <Pencil className="size-3.5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('common.edit')}</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </CardFooter>
     </Card>

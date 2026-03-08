@@ -46,11 +46,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useDeleteMarketplaceSkill,
@@ -93,17 +97,6 @@ function MarketplaceCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onPreview(skill)}>
-                <Eye className="mr-2 size-4" />
-                {t('skills.viewContent')}
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to={`/skills/${skill.id}/edit?type=system`}>
-                  <Pencil className="mr-2 size-4" />
-                  {t('common.edit')}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => onDelete(skill)}
                 className="text-destructive focus:text-destructive"
@@ -129,18 +122,52 @@ function MarketplaceCard({
       </CardContent>
 
       <CardFooter className="border-t pt-4">
-        <div className="flex flex-wrap gap-1.5">
-          {skill.tags.length > 0 ? (
-            skill.tags.map(tag => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))
-          ) : (
-            <span className="text-muted-foreground text-xs">
-              {t('skills.noTags')}
-            </span>
-          )}
+        <div className="flex w-full items-center justify-between">
+          <div className="flex flex-wrap gap-1.5">
+            {skill.tags.length > 0 ? (
+              skill.tags.map(tag => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))
+            ) : (
+              <span className="text-muted-foreground text-xs">
+                {t('skills.noTags')}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  onClick={() => onPreview(skill)}
+                >
+                  <Eye className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('skills.viewContent')}</TooltipContent>
+            </Tooltip>
+            {isAdmin && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 cursor-pointer"
+                    asChild
+                  >
+                    <Link to={`/skills/${skill.id}/edit?type=system`}>
+                      <Pencil className="size-3.5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t('common.edit')}</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         </div>
       </CardFooter>
     </Card>
@@ -172,17 +199,6 @@ function SkillCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onPreview(skill)}>
-              <Eye className="mr-2 size-4" />
-              {t('skills.viewContent')}
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to={`/skills/${skill.id}/edit`}>
-                <Pencil className="mr-2 size-4" />
-                {t('common.edit')}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onDelete(skill)}
               className="text-destructive focus:text-destructive"
@@ -207,18 +223,50 @@ function SkillCard({
       </CardContent>
 
       <CardFooter className="border-t pt-4">
-        <div className="flex flex-wrap gap-1.5">
-          {skill.tags.length > 0 ? (
-            skill.tags.map(tag => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))
-          ) : (
-            <span className="text-muted-foreground text-xs">
-              {t('skills.noTags')}
-            </span>
-          )}
+        <div className="flex w-full items-center justify-between">
+          <div className="flex flex-wrap gap-1.5">
+            {skill.tags.length > 0 ? (
+              skill.tags.map(tag => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))
+            ) : (
+              <span className="text-muted-foreground text-xs">
+                {t('skills.noTags')}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  onClick={() => onPreview(skill)}
+                >
+                  <Eye className="size-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('skills.viewContent')}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  asChild
+                >
+                  <Link to={`/skills/${skill.id}/edit`}>
+                    <Pencil className="size-3.5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('common.edit')}</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </CardFooter>
     </Card>
