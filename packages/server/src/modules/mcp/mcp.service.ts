@@ -1,10 +1,11 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 
-import { McpType, Prisma } from '../../generated/prisma/client';
+import { McpTransport, McpType, Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateMcpServerDto } from './dto/create-mcp-server.dto';
 import { UpdateMcpServerDto } from './dto/update-mcp-server.dto';
@@ -18,6 +19,12 @@ export class McpService {
   ) {}
 
   async create(userId: string, dto: CreateMcpServerDto) {
+    if (dto.transport === McpTransport.STDIO) {
+      throw new BadRequestException(
+        'STDIO transport is only available for marketplace servers managed by administrators'
+      );
+    }
+
     return this.prisma.mcpServer.create({
       data: {
         name: dto.name,

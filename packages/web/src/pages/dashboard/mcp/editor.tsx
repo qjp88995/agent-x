@@ -43,7 +43,7 @@ import {
 import { type McpFormValues, mcpSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
-const TRANSPORT_OPTIONS: readonly {
+const ALL_TRANSPORT_OPTIONS: readonly {
   value: McpTransportType;
   labelKey: string;
   descKey: string;
@@ -64,6 +64,10 @@ const TRANSPORT_OPTIONS: readonly {
     descKey: 'mcp.streamableHttpDesc',
   },
 ] as const;
+
+const USER_TRANSPORT_OPTIONS = ALL_TRANSPORT_OPTIONS.filter(
+  o => o.value !== McpTransport.STDIO
+);
 
 function StdioConfigFields({ disabled }: { readonly disabled: boolean }) {
   const { t } = useTranslation();
@@ -207,7 +211,9 @@ export default function McpEditorPage() {
     defaultValues: {
       name: '',
       description: '',
-      transport: McpTransport.STDIO as string,
+      transport: (isOfficialMode
+        ? McpTransport.STDIO
+        : McpTransport.SSE) as string,
       command: '',
       args: '',
       url: '',
@@ -423,8 +429,16 @@ export default function McpEditorPage() {
                 <FormItem>
                   <FormLabel>{t('mcp.transport')}</FormLabel>
                   <FormControl>
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      {TRANSPORT_OPTIONS.map(option => (
+                    <div
+                      className={cn(
+                        'grid gap-3',
+                        isOfficialMode ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+                      )}
+                    >
+                      {(isOfficialMode
+                        ? ALL_TRANSPORT_OPTIONS
+                        : USER_TRANSPORT_OPTIONS
+                      ).map(option => (
                         <button
                           key={option.value}
                           type="button"

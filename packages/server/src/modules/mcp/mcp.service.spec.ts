@@ -1,4 +1,8 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { McpTransport, McpType } from '../../generated/prisma/client';
@@ -102,14 +106,19 @@ describe('McpService', () => {
   });
 
   describe('create', () => {
-    it('should create CUSTOM MCP server', async () => {
-      mockPrismaService.mcpServer.create.mockResolvedValue(mockCustomMcp);
+    it('should create CUSTOM MCP server with SSE transport', async () => {
+      const sseMcp = {
+        ...mockCustomMcp,
+        transport: McpTransport.SSE,
+        config: { url: 'https://mcp.example.com/sse' },
+      };
+      mockPrismaService.mcpServer.create.mockResolvedValue(sseMcp);
 
       const dto = {
         name: 'Custom MCP Server',
         description: 'A custom MCP server',
-        transport: McpTransport.STDIO,
-        config: { command: 'node', args: ['server.js'] },
+        transport: McpTransport.SSE,
+        config: { url: 'https://mcp.example.com/sse' },
       };
 
       const result = await service.create(MOCK_USER_ID, dto);
@@ -124,7 +133,22 @@ describe('McpService', () => {
           createdBy: MOCK_USER_ID,
         },
       });
-      expect(result).toEqual(mockCustomMcp);
+      expect(result).toEqual(sseMcp);
+    });
+
+    it('should reject STDIO transport for user-created servers', async () => {
+      const dto = {
+        name: 'STDIO Server',
+        description: 'A STDIO MCP server',
+        transport: McpTransport.STDIO,
+        config: { command: 'node', args: ['server.js'] },
+      };
+
+      await expect(service.create(MOCK_USER_ID, dto)).rejects.toThrow(
+        BadRequestException
+      );
+
+      expect(mockPrismaService.mcpServer.create).not.toHaveBeenCalled();
     });
   });
 
