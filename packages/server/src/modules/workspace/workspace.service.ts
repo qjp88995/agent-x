@@ -1,0 +1,360 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
+import * as fs from 'fs/promises';
+import * as mime from 'mime-types';
+import * as path from 'path';
+
+import { PrismaService } from '../../prisma/prisma.service';
+
+const DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export interface WorkspaceFileInfo {
+  id: string;
+  path: string;
+  mimeType: string;
+  size: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WriteFileInput {
+  path: string;
+  content: string;
+}
+
+@Injectable()
+export class WorkspaceService {
+  private readonly maxFileSize: number;
+  private readonly baseDir: string;
+
+  constructor(private readonly prisma: PrismaService) {
+    this.maxFileSize = parseInt(
+      process.env.WORKSPACE_MAX_FILE_SIZE || String(DEFAULT_MAX_FILE_SIZE),
+      10
+    );
+    this.baseDir = path.resolve(
+      process.env.WORKSPACE_BASE_DIR || 'data/workspaces'
+    );
+  }
+
+  private validatePath(filePath: string): void {
+    if (!filePath || typeof filePath !== 'string') {
+      throw new BadRequestException('File path is required');
+    }
+    if (path.isAbsolute(filePath)) {
+      throw new BadRequestException('Absolute paths are not allowed');
+    }
+    const normalized = path.normalize(filePath);
+    if (normalized.startsWith('..') || normalized.includes(`..${path.sep}`)) {
+      throw new BadRequestException('Path traversal is not allowed');
+    }
+    if (normalized.startsWith(path.sep)) {
+      throw new BadRequestException('Absolute paths are not allowed');
+    }
+  }
+
+  private getWorkspaceDir(conversationId: string): string {
+    return path.join(this.baseDir, conversationId);
+  }
+
+  private getDiskPath(conversationId: string, filePath: string): string {
+    return path.join(this.getWorkspaceDir(conversationId), filePath);
+  }
+
+  private detectMimeType(filePath: string): string {
+    return mime.lookup(filePath) || 'application/octet-stream';
+  }
+
+  private isTextMimeType(mimeType: string): boolean {
+    return (
+      mimeType.startsWith('text/') ||
+      mimeType === 'application/json' ||
+      mimeType === 'application/javascript' ||
+      mimeType === 'application/typescript' ||
+      mimeType === 'application/xml' ||
+      mimeType === 'application/yaml' ||
+      mimeType === 'application/x-yaml' ||
+      mimeType === 'image/svg+xml'
+    );
+  }
+
+  async createFile(
+    conversationId: string,
+    filePath: string,
+    content: string
+  ): Promise<WorkspaceFileInfo> {
+    this.validatePath(filePath);
+
+    const mimeType = this.detectMimeType(filePath);
+    const isText = this.isTextMimeType(mimeType);
+    const buffer = isText
+      ? Buffer.from(content, 'utf-8')
+      : Buffer.from(content, 'base64');
+
+    if (buffer.length > this.maxFileSize) {
+      throw new BadRequestException(
+        `File size ${buffer.length} exceeds limit of ${this.maxFileSize} bytes`
+      );
+    }
+
+    const diskPath = this.getDiskPath(conversationId, filePath);
+    await fs.mkdir(path.dirname(diskPath), { recursive: true });
+    await fs.writeFile(diskPath, buffer);
+
+    const record = await this.prisma.workspaceFile.upsert({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+      create: {
+        conversationId,
+        path: filePath,
+        mimeType,
+        size: buffer.length,
+      },
+      update: {
+        mimeType,
+        size: buffer.length,
+      },
+    });
+
+    return record;
+  }
+
+  async readFile(
+    conversationId: string,
+    filePath: string
+  ): Promise<{ content: string; mimeType: string; size: number }> {
+    this.validatePath(filePath);
+
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`File not found: ${filePath}`);
+    }
+
+    const diskPath = this.getDiskPath(conversationId, filePath);
+    const buffer = await fs.readFile(diskPath);
+    const isText = this.isTextMimeType(record.mimeType);
+    const content = isText
+      ? buffer.toString('utf-8')
+      : buffer.toString('base64');
+
+    return { content, mimeType: record.mimeType, size: record.size };
+  }
+
+  async updateFile(
+    conversationId: string,
+    filePath: string,
+    content: string
+  ): Promise<WorkspaceFileInfo> {
+    this.validatePath(filePath);
+
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`File not found: ${filePath}`);
+    }
+
+    const isText = this.isTextMimeType(record.mimeType);
+    const buffer = isText
+      ? Buffer.from(content, 'utf-8')
+      : Buffer.from(content, 'base64');
+
+    if (buffer.length > this.maxFileSize) {
+      throw new BadRequestException(
+        `File size ${buffer.length} exceeds limit of ${this.maxFileSize} bytes`
+      );
+    }
+
+    const diskPath = this.getDiskPath(conversationId, filePath);
+    await fs.writeFile(diskPath, buffer);
+
+    const updated = await this.prisma.workspaceFile.update({
+      where: { id: record.id },
+      data: { size: buffer.length },
+    });
+
+    return updated;
+  }
+
+  async deleteFile(conversationId: string, filePath: string): Promise<void> {
+    this.validatePath(filePath);
+
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`File not found: ${filePath}`);
+    }
+
+    const diskPath = this.getDiskPath(conversationId, filePath);
+
+    await this.prisma.workspaceFile.delete({ where: { id: record.id } });
+
+    try {
+      await fs.unlink(diskPath);
+    } catch {
+      // File may already be deleted from disk
+    }
+  }
+
+  async writeFiles(
+    conversationId: string,
+    files: WriteFileInput[]
+  ): Promise<WorkspaceFileInfo[]> {
+    for (const file of files) {
+      this.validatePath(file.path);
+    }
+
+    // Write to a temp directory first for atomicity
+    const workspaceDir = this.getWorkspaceDir(conversationId);
+    const tempDir = `${workspaceDir}.__tmp_${Date.now()}`;
+
+    try {
+      // Prepare buffers and validate sizes
+      const prepared = files.map(file => {
+        const mimeType = this.detectMimeType(file.path);
+        const isText = this.isTextMimeType(mimeType);
+        const buffer = isText
+          ? Buffer.from(file.content, 'utf-8')
+          : Buffer.from(file.content, 'base64');
+
+        if (buffer.length > this.maxFileSize) {
+          throw new BadRequestException(
+            `File ${file.path}: size ${buffer.length} exceeds limit of ${this.maxFileSize} bytes`
+          );
+        }
+
+        return { path: file.path, mimeType, buffer };
+      });
+
+      // Write all files to temp directory
+      for (const file of prepared) {
+        const tempPath = path.join(tempDir, file.path);
+        await fs.mkdir(path.dirname(tempPath), { recursive: true });
+        await fs.writeFile(tempPath, file.buffer);
+      }
+
+      // Move files from temp to workspace
+      await fs.mkdir(workspaceDir, { recursive: true });
+      for (const file of prepared) {
+        const srcPath = path.join(tempDir, file.path);
+        const destPath = path.join(workspaceDir, file.path);
+        await fs.mkdir(path.dirname(destPath), { recursive: true });
+        await fs.rename(srcPath, destPath);
+      }
+
+      // Upsert DB records
+      const results: WorkspaceFileInfo[] = [];
+      for (const file of prepared) {
+        const record = await this.prisma.workspaceFile.upsert({
+          where: {
+            conversationId_path: { conversationId, path: file.path },
+          },
+          create: {
+            conversationId,
+            path: file.path,
+            mimeType: file.mimeType,
+            size: file.buffer.length,
+          },
+          update: {
+            mimeType: file.mimeType,
+            size: file.buffer.length,
+          },
+        });
+        results.push(record);
+      }
+
+      return results;
+    } finally {
+      // Clean up temp directory
+      try {
+        await fs.rm(tempDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  }
+
+  async listFiles(
+    conversationId: string,
+    dirPath?: string
+  ): Promise<WorkspaceFileInfo[]> {
+    if (dirPath) {
+      this.validatePath(dirPath);
+    }
+
+    const where: Record<string, unknown> = { conversationId };
+    if (dirPath) {
+      const prefix = dirPath.endsWith('/') ? dirPath : `${dirPath}/`;
+      where.path = { startsWith: prefix };
+    }
+
+    const files = await this.prisma.workspaceFile.findMany({
+      where,
+      orderBy: { path: 'asc' },
+    });
+
+    return files;
+  }
+
+  async getFileById(
+    conversationId: string,
+    fileId: string
+  ): Promise<WorkspaceFileInfo> {
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: { id: fileId },
+    });
+
+    if (!record || record.conversationId !== conversationId) {
+      throw new NotFoundException('File not found');
+    }
+
+    return record;
+  }
+
+  async readFileById(
+    conversationId: string,
+    fileId: string
+  ): Promise<{ content: Buffer; mimeType: string; fileName: string }> {
+    const record = await this.getFileById(conversationId, fileId);
+    const diskPath = this.getDiskPath(conversationId, record.path);
+    const content = await fs.readFile(diskPath);
+    const fileName = path.basename(record.path);
+
+    return { content, mimeType: record.mimeType, fileName };
+  }
+
+  async updateFileById(
+    conversationId: string,
+    fileId: string,
+    content: string
+  ): Promise<WorkspaceFileInfo> {
+    const record = await this.getFileById(conversationId, fileId);
+    return this.updateFile(conversationId, record.path, content);
+  }
+
+  async cleanupWorkspace(conversationId: string): Promise<void> {
+    const workspaceDir = this.getWorkspaceDir(conversationId);
+    try {
+      await fs.rm(workspaceDir, { recursive: true, force: true });
+    } catch {
+      // Directory may not exist
+    }
+  }
+}
