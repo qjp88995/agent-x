@@ -183,6 +183,7 @@ model Conversation {
   agentVersion AgentVersion? @relation(fields: [agentVersionId], references: [id])
   shareToken   ShareToken?   @relation(fields: [shareTokenId], references: [id])
   messages     Message[]
+  files        WorkspaceFile[]
 }
 
 enum MessageRole {
@@ -241,6 +242,20 @@ model ShareToken {
 
   agentVersion  AgentVersion   @relation(fields: [agentVersionId], references: [id], onDelete: Cascade)
   conversations Conversation[]
+}
+
+model WorkspaceFile {
+  id             String   @id @default(cuid())
+  conversationId String
+  path           String   // e.g. "src/App.tsx"
+  mimeType       String   // e.g. "text/typescript", "image/png"
+  size           Int      // bytes
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, path])
 }
 
 model ApiKey {
