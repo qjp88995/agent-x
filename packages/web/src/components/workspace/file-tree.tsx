@@ -40,6 +40,11 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 export interface ClipboardItem {
@@ -606,80 +611,153 @@ export function FileTree({
     });
   }, []);
 
+  const toolbar = (
+    <div className="flex h-8 shrink-0 items-center justify-end gap-0.5 border-b px-2">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            onClick={() => setEditingNode({ type: 'new-file', parentPath: '' })}
+          >
+            <FilePlus className="size-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{t('workspace.newFile')}</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            onClick={() => setEditingNode({ type: 'new-dir', parentPath: '' })}
+          >
+            <FolderPlus className="size-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          {t('workspace.newFolder')}
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+
   if (files.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-        <Folder className="mb-2 size-8 opacity-40" />
-        <p className="text-xs">{t('workspace.noFiles')}</p>
+      <div className="flex h-full flex-col">
+        {toolbar}
+        <div className="flex flex-1 flex-col items-center justify-center py-8 text-muted-foreground">
+          <Folder className="mb-2 size-8 opacity-40" />
+          <p className="text-xs">{t('workspace.noFiles')}</p>
+        </div>
+        {/* Root-level inline inputs when empty */}
+        {editingNode?.type === 'new-file' && editingNode.parentPath === '' && (
+          <div
+            className="flex items-center gap-1.5 px-2 py-1"
+            style={{ paddingLeft: '8px' }}
+          >
+            <span className="size-3.5" />
+            <FilePlus className="size-4 text-muted-foreground" />
+            <InlineInput
+              placeholder={t('workspace.enterFileName')}
+              onSubmit={name => {
+                onCreateFile('', name);
+                setEditingNode(null);
+              }}
+              onCancel={() => setEditingNode(null)}
+            />
+          </div>
+        )}
+        {editingNode?.type === 'new-dir' && editingNode.parentPath === '' && (
+          <div
+            className="flex items-center gap-1.5 px-2 py-1"
+            style={{ paddingLeft: '8px' }}
+          >
+            <span className="size-3.5" />
+            <FolderPlus className="size-4 text-muted-foreground" />
+            <InlineInput
+              placeholder={t('workspace.enterFolderName')}
+              onSubmit={name => {
+                onCreateDirectory('', name);
+                setEditingNode(null);
+              }}
+              onCancel={() => setEditingNode(null)}
+            />
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <>
-      <ScrollArea className="h-full">
-        <div className="py-1">
-          {tree.map(node => (
-            <TreeNodeItem
-              key={node.path}
-              node={node}
-              depth={0}
-              selectedFileId={selectedFileId}
-              expandedDirs={expandedDirs}
-              clipboard={clipboard}
-              editingNode={editingNode}
-              onToggleDir={handleToggleDir}
-              onSelectFile={onSelectFile}
-              onDownloadFile={onDownloadFile}
-              onCopy={onCopy}
-              onCut={onCut}
-              onPaste={onPaste}
-              onSetEditingNode={setEditingNode}
-              onSetDeleteTarget={setDeleteTarget}
-              onCreateFile={onCreateFile}
-              onCreateDirectory={onCreateDirectory}
-              onRenameFile={onRenameFile}
-              onRenameDirectory={onRenameDirectory}
-            />
-          ))}
-          {/* New file/folder at root level */}
-          {editingNode?.type === 'new-file' &&
-            editingNode.parentPath === '' && (
-              <div
-                className="flex items-center gap-1.5 px-2 py-1"
-                style={{ paddingLeft: '8px' }}
-              >
-                <span className="size-3.5" />
-                <FilePlus className="size-4 text-muted-foreground" />
-                <InlineInput
-                  placeholder={t('workspace.enterFileName')}
-                  onSubmit={name => {
-                    onCreateFile('', name);
-                    setEditingNode(null);
-                  }}
-                  onCancel={() => setEditingNode(null)}
-                />
-              </div>
-            )}
-          {editingNode?.type === 'new-dir' && editingNode.parentPath === '' && (
-            <div
-              className="flex items-center gap-1.5 px-2 py-1"
-              style={{ paddingLeft: '8px' }}
-            >
-              <span className="size-3.5" />
-              <FolderPlus className="size-4 text-muted-foreground" />
-              <InlineInput
-                placeholder={t('workspace.enterFolderName')}
-                onSubmit={name => {
-                  onCreateDirectory('', name);
-                  setEditingNode(null);
-                }}
-                onCancel={() => setEditingNode(null)}
+      <div className="flex h-full flex-col">
+        {toolbar}
+        <ScrollArea className="flex-1">
+          <div className="py-1">
+            {tree.map(node => (
+              <TreeNodeItem
+                key={node.path}
+                node={node}
+                depth={0}
+                selectedFileId={selectedFileId}
+                expandedDirs={expandedDirs}
+                clipboard={clipboard}
+                editingNode={editingNode}
+                onToggleDir={handleToggleDir}
+                onSelectFile={onSelectFile}
+                onDownloadFile={onDownloadFile}
+                onCopy={onCopy}
+                onCut={onCut}
+                onPaste={onPaste}
+                onSetEditingNode={setEditingNode}
+                onSetDeleteTarget={setDeleteTarget}
+                onCreateFile={onCreateFile}
+                onCreateDirectory={onCreateDirectory}
+                onRenameFile={onRenameFile}
+                onRenameDirectory={onRenameDirectory}
               />
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+            ))}
+            {/* New file/folder at root level */}
+            {editingNode?.type === 'new-file' &&
+              editingNode.parentPath === '' && (
+                <div
+                  className="flex items-center gap-1.5 px-2 py-1"
+                  style={{ paddingLeft: '8px' }}
+                >
+                  <span className="size-3.5" />
+                  <FilePlus className="size-4 text-muted-foreground" />
+                  <InlineInput
+                    placeholder={t('workspace.enterFileName')}
+                    onSubmit={name => {
+                      onCreateFile('', name);
+                      setEditingNode(null);
+                    }}
+                    onCancel={() => setEditingNode(null)}
+                  />
+                </div>
+              )}
+            {editingNode?.type === 'new-dir' &&
+              editingNode.parentPath === '' && (
+                <div
+                  className="flex items-center gap-1.5 px-2 py-1"
+                  style={{ paddingLeft: '8px' }}
+                >
+                  <span className="size-3.5" />
+                  <FolderPlus className="size-4 text-muted-foreground" />
+                  <InlineInput
+                    placeholder={t('workspace.enterFolderName')}
+                    onSubmit={name => {
+                      onCreateDirectory('', name);
+                      setEditingNode(null);
+                    }}
+                    onCancel={() => setEditingNode(null)}
+                  />
+                </div>
+              )}
+          </div>
+        </ScrollArea>
+      </div>
 
       <AlertDialog
         open={!!deleteTarget}
