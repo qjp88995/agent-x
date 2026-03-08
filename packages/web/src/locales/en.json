@@ -483,6 +483,8 @@
     "fileUpdated": "Updated",
     "fileDeleted": "Deleted",
     "filesChanged": "{{count}} file(s) changed",
+    "fileWriting": "Writing...",
+    "filesWriting": "Writing {{count}} file(s)...",
     "viewChanges": "View Changes"
   },
   "validation": {

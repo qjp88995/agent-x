@@ -98,10 +98,18 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
             );
             if (i === firstWorkspaceToolIdx) {
               if (fileChanges.length > 0) {
+                const loading = parts.some(
+                  p =>
+                    isToolPart(p) &&
+                    isWorkspaceTool(p as ToolUIPart) &&
+                    p.state !== 'output-available' &&
+                    p.state !== 'output-error'
+                );
                 return (
                   <FileChangeCard
                     key={`file-changes-${i}`}
                     changes={fileChanges}
+                    loading={loading}
                   />
                 );
               }

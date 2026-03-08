@@ -483,6 +483,8 @@
     "fileUpdated": "已更新",
     "fileDeleted": "已删除",
     "filesChanged": "{{count}} 个文件已更改",
+    "fileWriting": "写入中...",
+    "filesWriting": "正在写入 {{count}} 个文件...",
     "viewChanges": "查看更改"
   },
   "validation": {

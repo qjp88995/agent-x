@@ -7,6 +7,7 @@ import {
   FileCheck,
   FileMinus,
   FilePlus,
+  Loader2,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -35,10 +36,15 @@ const OPERATION_CONFIG: Record<
 
 interface FileChangeCardProps {
   readonly changes: FileChange[];
+  readonly loading?: boolean;
   readonly onClickFile?: (path: string) => void;
 }
 
-export function FileChangeCard({ changes, onClickFile }: FileChangeCardProps) {
+export function FileChangeCard({
+  changes,
+  loading,
+  onClickFile,
+}: FileChangeCardProps) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(changes.length <= 3);
 
@@ -56,10 +62,14 @@ export function FileChangeCard({ changes, onClickFile }: FileChangeCardProps) {
         className="my-1 flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-sm transition-colors hover:bg-accent/30"
         onClick={() => onClickFile?.(change.path)}
       >
-        <Icon className={cn('size-4 shrink-0', config.colorClass)} />
+        {loading ? (
+          <Loader2 className="size-4 shrink-0 animate-spin text-primary" />
+        ) : (
+          <Icon className={cn('size-4 shrink-0', config.colorClass)} />
+        )}
         <span className="truncate font-mono text-xs">{change.path}</span>
         <span className="text-muted-foreground text-[10px] shrink-0">
-          {t(config.labelKey)}
+          {loading ? t('workspace.fileWriting') : t(config.labelKey)}
         </span>
       </button>
     );
@@ -78,8 +88,13 @@ export function FileChangeCard({ changes, onClickFile }: FileChangeCardProps) {
         ) : (
           <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
         )}
+        {loading && (
+          <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />
+        )}
         <span className="text-muted-foreground text-xs">
-          {t('workspace.filesChanged', { count: changes.length })}
+          {loading
+            ? t('workspace.filesWriting', { count: changes.length })
+            : t('workspace.filesChanged', { count: changes.length })}
         </span>
       </button>
       {expanded && (
