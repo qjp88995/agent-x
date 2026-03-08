@@ -106,8 +106,8 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
       </div>
 
       {/* Content: file tree + editor */}
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
-        <ResizablePanel defaultSize={25} minSize={15} maxSize={50}>
+      <ResizablePanelGroup orientation="horizontal" className="flex-1">
+        <ResizablePanel defaultSize="25%" minSize="15%" maxSize="50%">
           <FileTree
             files={files ?? []}
             selectedFileId={activeFileId}
@@ -116,7 +116,7 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
           />
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={75}>
+        <ResizablePanel defaultSize="75%">
           <FileEditor
             conversationId={conversationId}
             tabs={openTabs}

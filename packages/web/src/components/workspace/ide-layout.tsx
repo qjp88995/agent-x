@@ -63,16 +63,16 @@ export function IdeLayout({
       </div>
 
       {/* IDE Content */}
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
+      <ResizablePanelGroup orientation="horizontal" className="flex-1">
         {/* Workspace panel (file tree + editor) */}
-        <ResizablePanel defaultSize={60} minSize={30}>
+        <ResizablePanel defaultSize="60%" minSize="30%">
           <WorkspacePanel conversationId={conversationId} />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
 
         {/* Chat panel */}
-        <ResizablePanel defaultSize={40} minSize={25}>
+        <ResizablePanel defaultSize="40%" minSize="25%">
           <div className="flex h-full flex-col">
             <div className="flex-1 overflow-y-auto">
               <MessageList
