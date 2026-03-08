@@ -137,7 +137,11 @@ export function useCreateFile() {
       );
       return data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<WorkspaceFileResponse[]>(
+        workspaceFilesKey(variables.conversationId),
+        old => (old ? [...old, data] : [data])
+      );
       void queryClient.invalidateQueries({
         queryKey: workspaceFilesKey(variables.conversationId),
       });
@@ -159,6 +163,10 @@ export function useDeleteFile() {
       await api.delete(`/conversations/${conversationId}/files/${fileId}`);
     },
     onSuccess: (_data, variables) => {
+      queryClient.setQueryData<WorkspaceFileResponse[]>(
+        workspaceFilesKey(variables.conversationId),
+        old => old?.filter(f => f.id !== variables.fileId)
+      );
       void queryClient.invalidateQueries({
         queryKey: workspaceFilesKey(variables.conversationId),
       });
@@ -185,7 +193,11 @@ export function useRenameFile() {
       );
       return data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<WorkspaceFileResponse[]>(
+        workspaceFilesKey(variables.conversationId),
+        old => old?.map(f => (f.id === variables.fileId ? data : f))
+      );
       void queryClient.invalidateQueries({
         queryKey: workspaceFilesKey(variables.conversationId),
       });
@@ -234,6 +246,13 @@ export function useDeleteDirectory() {
       return data;
     },
     onSuccess: (_data, variables) => {
+      const prefix = variables.path.endsWith('/')
+        ? variables.path
+        : `${variables.path}/`;
+      queryClient.setQueryData<WorkspaceFileResponse[]>(
+        workspaceFilesKey(variables.conversationId),
+        old => old?.filter(f => !f.path.startsWith(prefix))
+      );
       void queryClient.invalidateQueries({
         queryKey: workspaceFilesKey(variables.conversationId),
       });
