@@ -39,6 +39,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Tooltip,
@@ -253,14 +254,12 @@ function InlineInput({
 
   return (
     <div className="relative flex min-w-0 flex-1">
-      <input
+      <Input
         ref={inputRef}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className={cn(
-          'h-6 w-full min-w-0 rounded border bg-background px-1 text-sm outline-none',
-          error ? 'border-destructive' : 'border-primary'
-        )}
+        aria-invalid={!!error}
+        className="h-6 rounded border-primary px-1 text-sm shadow-none"
         onKeyDown={handleKeyDown}
         onChange={e => {
           const val = e.target.value.trim();
