@@ -47,15 +47,16 @@ Sidebar (w-64, 256px) | Main content (flex-1, full width, p-6)
 
 #### Width Standards by Page Type
 
-| Page Type            | Width      | Class                                                     | Examples                                                   |
-| -------------------- | ---------- | --------------------------------------------------------- | ---------------------------------------------------------- |
-| Auth forms           | 384px      | `max-w-sm`                                                | login, register                                            |
-| Dashboard form cards | 672px      | `max-w-2xl`                                               | agents/create, providers/create, skills/editor, mcp/editor |
-| Agent edit tab cards | 896px      | `max-w-4xl`                                               | All tabs + save button area                                |
-| Chat messages        | 768px      | `max-w-3xl mx-auto`                                       | chat-panel, shared chat, chat-input                        |
-| Dashboard list grids | Full width | `grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` | providers, agents, skills, mcp                             |
-| API keys table       | Full width | (no constraint)                                           | api-keys                                                   |
-| Test chat panel      | 400px      | `w-[400px]`                                               | agents/edit sidebar                                        |
+| Page Type            | Width      | Class                                                     | Examples                                    |
+| -------------------- | ---------- | --------------------------------------------------------- | ------------------------------------------- |
+| Auth forms           | 384px      | `max-w-sm`                                                | login, register                             |
+| Dashboard form cards | 672px      | `max-w-2xl`                                               | providers/create, skills/editor, mcp/editor |
+| Agent create form    | Full width | Left-right 50/50 split (`w-1/2` each)                     | agents/create                               |
+| Agent edit tab cards | 896px      | `max-w-4xl`                                               | All tabs + save button area                 |
+| Chat messages        | 768px      | `max-w-3xl mx-auto`                                       | chat-panel, shared chat, chat-input         |
+| Dashboard list grids | Full width | `grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` | providers, agents, skills, mcp              |
+| API keys table       | Full width | (no constraint)                                           | api-keys                                    |
+| Test chat panel      | 400px      | `w-[400px]`                                               | agents/edit sidebar                         |
 
 ### Spacing Conventions
 
