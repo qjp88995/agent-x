@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/tooltip';
 import { WorkspacePanel } from '@/components/workspace/workspace-panel';
 import { messagesKey, useMessages } from '@/hooks/use-chat';
+import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { toUIMessages } from '@/lib/message-utils';
@@ -47,6 +48,13 @@ export default function WorkspacePage() {
   });
 
   useWorkspaceSync(conversationId, messages);
+
+  const { data: workspaceFiles } = useWorkspaceFiles(conversationId);
+  const downloadWorkspace = useDownloadWorkspace();
+
+  const handleDownloadWorkspace = useCallback(() => {
+    if (conversationId) downloadWorkspace.mutate(conversationId);
+  }, [conversationId, downloadWorkspace]);
 
   const statusRef = useRef(status);
   statusRef.current = status;
@@ -133,6 +141,22 @@ export default function WorkspacePage() {
         <span className="gradient-text text-sm font-semibold">
           {t('workspace.title')}
         </span>
+        <div className="ml-auto">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 cursor-pointer"
+                onClick={handleDownloadWorkspace}
+                disabled={!workspaceFiles || workspaceFiles.length === 0}
+              >
+                <Download className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('workspace.downloadZip')}</TooltipContent>
+          </Tooltip>
+        </div>
       </div>
 
       {/* Content */}

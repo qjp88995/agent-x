@@ -2,34 +2,26 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { WorkspaceFileResponse } from '@agent-x/shared';
-import { Download, FolderTree } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
   useCreateDirectory,
   useCreateFile,
   useDeleteDirectory,
   useDeleteFile,
   useDownloadFile,
-  useDownloadWorkspace,
   useRenameDirectory,
   useRenameFile,
   useWorkspaceFiles,
 } from '@/hooks/use-workspace';
 
 import { FileEditor, type OpenTab } from './file-editor';
-import { type ClipboardItem,FileTree } from './file-tree';
+import { type ClipboardItem, FileTree } from './file-tree';
 
 interface WorkspacePanelProps {
   readonly conversationId: string;
@@ -38,7 +30,6 @@ interface WorkspacePanelProps {
 export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
   const { t } = useTranslation();
   const { data: files } = useWorkspaceFiles(conversationId);
-  const downloadWorkspace = useDownloadWorkspace();
   const downloadFile = useDownloadFile();
 
   const createFileMutation = useCreateFile();
@@ -91,10 +82,6 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
     },
     [conversationId, downloadFile]
   );
-
-  const handleDownloadWorkspace = useCallback(() => {
-    downloadWorkspace.mutate(conversationId);
-  }, [conversationId, downloadWorkspace]);
 
   const handleCreateFile = useCallback(
     (dirPath: string, name: string) => {
@@ -230,29 +217,6 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Toolbar */}
-      <div className="flex h-10 shrink-0 items-center justify-between border-b px-3">
-        <div className="flex items-center gap-2">
-          <FolderTree className="size-4 text-primary" />
-          <span className="text-sm font-medium">{t('workspace.title')}</span>
-        </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7 cursor-pointer"
-              onClick={handleDownloadWorkspace}
-              disabled={!files || files.length === 0}
-            >
-              <Download className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('workspace.downloadZip')}</TooltipContent>
-        </Tooltip>
-      </div>
-
-      {/* Content: file tree + editor */}
       <ResizablePanelGroup orientation="horizontal" className="flex-1">
         <ResizablePanel defaultSize="25%" minSize="15%" maxSize="50%">
           <FileTree
