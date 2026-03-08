@@ -13,6 +13,8 @@
   "dependencies": {
     "@agent-x/shared": "workspace:*",
     "@ai-sdk/react": "^3.0.113",
+    "@codemirror/state": "^6.5.4",
+    "@codemirror/view": "^6.39.16",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.0",

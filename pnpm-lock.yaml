@@ -168,6 +168,12 @@ importers:
       '@ai-sdk/react':
         specifier: ^3.0.113
         version: 3.0.113(react@19.2.4)(zod@4.3.6)
+      '@codemirror/state':
+        specifier: ^6.5.4
+        version: 6.5.4
+      '@codemirror/view':
+        specifier: ^6.39.16
+        version: 6.39.16
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.2(react@19.2.4))
