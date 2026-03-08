@@ -11,6 +11,7 @@ import { OpenaiCompatModule } from './modules/openai-compat/openai-compat.module
 import { ProviderModule } from './modules/provider/provider.module';
 import { PublicChatModule } from './modules/public-chat/public-chat.module';
 import { SkillModule } from './modules/skill/skill.module';
+import { WorkspaceModule } from './modules/workspace/workspace.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { PrismaModule } from './prisma/prisma.module';
     PublicChatModule,
     ApiKeyModule,
     OpenaiCompatModule,
+    WorkspaceModule,
   ],
 })
 export class AppModule implements NestModule {

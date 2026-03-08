@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 
 import { McpModule } from '../mcp/mcp.module';
 import { WorkspaceModule } from '../workspace/workspace.module';
@@ -8,7 +8,7 @@ import { ChatService } from './chat.service';
 import { StreamManagerService } from './stream-manager.service';
 
 @Module({
-  imports: [McpModule, WorkspaceModule],
+  imports: [McpModule, forwardRef(() => WorkspaceModule)],
   controllers: [ChatController],
   providers: [ChatService, AgentRuntimeService, StreamManagerService],
   exports: [ChatService, AgentRuntimeService, StreamManagerService],
