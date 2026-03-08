@@ -9,3 +9,10 @@ export interface WorkspaceFileResponse {
 }
 
 export type WorkspaceFileTreeResponse = WorkspaceFileResponse[];
+
+export interface WorkspaceFileContentResponse {
+  content: string;
+  mimeType: string;
+  size: number;
+  path: string;
+}

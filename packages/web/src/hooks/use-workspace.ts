@@ -1,4 +1,5 @@
 import type {
+  WorkspaceFileContentResponse,
   WorkspaceFileResponse,
   WorkspaceFileTreeResponse,
 } from '@agent-x/shared';
@@ -36,7 +37,7 @@ export function useFileContent(
   return useQuery({
     queryKey: fileContentKey(conversationId ?? '', fileId ?? ''),
     queryFn: async () => {
-      const { data } = await api.get<string>(
+      const { data } = await api.get<WorkspaceFileContentResponse>(
         `/conversations/${conversationId}/files/${fileId}/content`
       );
       return data;

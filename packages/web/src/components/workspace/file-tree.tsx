@@ -131,6 +131,7 @@ function TreeNodeItem({
   onDownloadFile,
 }: TreeNodeItemProps) {
   const { t } = useTranslation();
+  const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
 
   if (node.isDirectory) {
     const isExpanded = expandedDirs.has(node.path);
@@ -176,38 +177,54 @@ function TreeNodeItem({
   const isSelected = selectedFileId === file.id;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'flex w-full items-center gap-1.5 rounded px-2 py-1 text-sm transition-colors',
-            isSelected
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent/50'
-          )}
-          style={{ paddingLeft: `${depth * 16 + 8}px` }}
-          onClick={() => onSelectFile(file)}
-          onContextMenu={e => e.preventDefault()}
-        >
-          <span className="size-3.5 shrink-0" />
-          <Icon className="size-4 shrink-0 text-muted-foreground" />
-          <span className="truncate flex-1 text-left">{node.name}</span>
-          <span className="text-muted-foreground text-[10px] shrink-0">
-            {formatFileSize(file.size)}
-          </span>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-48">
-        <DropdownMenuItem
-          onClick={() => onDownloadFile(file)}
-          className="cursor-pointer"
-        >
-          <Download className="mr-2 size-4" />
-          {t('workspace.downloadFile')}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <button
+        type="button"
+        className={cn(
+          'flex w-full items-center gap-1.5 rounded px-2 py-1 text-sm transition-colors',
+          isSelected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
+        )}
+        style={{ paddingLeft: `${depth * 16 + 8}px` }}
+        onClick={() => onSelectFile(file)}
+        onContextMenu={e => {
+          e.preventDefault();
+          setMenuPos({ x: e.clientX, y: e.clientY });
+        }}
+      >
+        <span className="size-3.5 shrink-0" />
+        <Icon className="size-4 shrink-0 text-muted-foreground" />
+        <span className="truncate flex-1 text-left">{node.name}</span>
+        <span className="text-muted-foreground text-[10px] shrink-0">
+          {formatFileSize(file.size)}
+        </span>
+      </button>
+      <DropdownMenu
+        open={menuPos !== null}
+        onOpenChange={open => {
+          if (!open) setMenuPos(null);
+        }}
+      >
+        <DropdownMenuTrigger asChild>
+          <span
+            className="fixed size-0"
+            style={{
+              left: menuPos?.x ?? 0,
+              top: menuPos?.y ?? 0,
+              pointerEvents: 'none',
+            }}
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuItem
+            onClick={() => onDownloadFile(file)}
+            className="cursor-pointer"
+          >
+            <Download className="mr-2 size-4" />
+            {t('workspace.downloadFile')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 }
 

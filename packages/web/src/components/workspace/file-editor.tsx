@@ -138,10 +138,11 @@ export function FileEditor({
   const activeTab = tabs.find(tab => tab.file.id === activeFileId);
   const activeFile = activeTab?.file;
 
-  const { data: content, isLoading } = useFileContent(
+  const { data: fileData, isLoading } = useFileContent(
     conversationId,
     activeFile?.id
   );
+  const content = fileData?.content;
   const updateContent = useUpdateFileContent();
 
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
@@ -299,9 +300,7 @@ export function FileEditor({
             key={activeFile?.id}
             language={activeFile ? detectLanguage(activeFile) : 'plaintext'}
             value={
-              activeFile
-                ? (pendingContent[activeFile.id] ?? (content as string) ?? '')
-                : ''
+              activeFile ? (pendingContent[activeFile.id] ?? content ?? '') : ''
             }
             theme={editorTheme}
             onMount={handleEditorMount}
