@@ -70,6 +70,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { usePublishVersion } from '@/hooks/use-agent-versions';
@@ -522,15 +523,12 @@ function AgentEditForm({
                           </FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-4">
-                              <input
-                                type="range"
-                                min="0"
-                                max="2"
-                                step="0.1"
-                                value={field.value}
-                                onChange={e =>
-                                  field.onChange(parseFloat(e.target.value))
-                                }
+                              <Slider
+                                min={0}
+                                max={2}
+                                step={0.1}
+                                value={[field.value]}
+                                onValueChange={([v]) => field.onChange(v)}
                                 disabled={isBusy}
                                 className="flex-1"
                               />
