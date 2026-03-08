@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { markdown } from '@codemirror/lang-markdown';
 import { EditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
 
@@ -43,6 +44,7 @@ export function PromptEditor({
 
   const extensions = useMemo(
     () => [
+      markdown(),
       EditorView.lineWrapping,
       ...(disabled ? [EditorView.editable.of(false)] : []),
     ],
