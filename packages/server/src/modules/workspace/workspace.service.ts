@@ -486,6 +486,123 @@ export class WorkspaceService {
     };
   }
 
+  async searchFiles(
+    conversationId: string,
+    query: string,
+    filePath?: string
+  ): Promise<
+    Array<{
+      path: string;
+      matches: Array<{ line: number; content: string }>;
+    }>
+  > {
+    if (!query) {
+      throw new BadRequestException('Search query is required');
+    }
+
+    const where: Record<string, unknown> = {
+      conversationId,
+      isDirectory: false,
+    };
+    if (filePath) {
+      this.validatePath(filePath);
+      const prefix = filePath.endsWith('/') ? filePath : `${filePath}/`;
+      where.path = { startsWith: prefix };
+    }
+
+    const files = await this.prisma.workspaceFile.findMany({
+      where,
+      orderBy: { path: 'asc' },
+    });
+
+    const results: Array<{
+      path: string;
+      matches: Array<{ line: number; content: string }>;
+    }> = [];
+    const queryLower = query.toLowerCase();
+
+    for (const file of files) {
+      if (!this.isTextMimeType(file.mimeType)) continue;
+
+      const diskPath = this.getDiskPath(conversationId, file.path);
+      let content: string;
+      try {
+        content = await fs.readFile(diskPath, 'utf-8');
+      } catch {
+        continue;
+      }
+
+      const matches: Array<{ line: number; content: string }> = [];
+      const lines = content.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].toLowerCase().includes(queryLower)) {
+          matches.push({ line: i + 1, content: lines[i] });
+        }
+      }
+
+      if (matches.length > 0) {
+        results.push({ path: file.path, matches });
+      }
+    }
+
+    return results;
+  }
+
+  async patchFile(
+    conversationId: string,
+    filePath: string,
+    search: string,
+    replace: string
+  ): Promise<{ size: number; occurrences: number }> {
+    this.validatePath(filePath);
+
+    const record = await this.prisma.workspaceFile.findUnique({
+      where: {
+        conversationId_path: { conversationId, path: filePath },
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`File not found: ${filePath}`);
+    }
+
+    if (!this.isTextMimeType(record.mimeType)) {
+      throw new BadRequestException('patchFile only supports text files');
+    }
+
+    const diskPath = this.getDiskPath(conversationId, filePath);
+    const content = await fs.readFile(diskPath, 'utf-8');
+
+    // Count occurrences
+    let occurrences = 0;
+    let idx = 0;
+    while ((idx = content.indexOf(search, idx)) !== -1) {
+      occurrences++;
+      idx += search.length;
+    }
+
+    if (occurrences === 0) {
+      throw new BadRequestException('Search string not found in file');
+    }
+
+    const newContent = content.split(search).join(replace);
+    const buffer = Buffer.from(newContent, 'utf-8');
+
+    if (buffer.length > this.maxFileSize) {
+      throw new BadRequestException(
+        `File size ${buffer.length} exceeds limit of ${this.maxFileSize} bytes`
+      );
+    }
+
+    await fs.writeFile(diskPath, buffer);
+    await this.prisma.workspaceFile.update({
+      where: { id: record.id },
+      data: { size: buffer.length },
+    });
+
+    return { size: buffer.length, occurrences };
+  }
+
   async renameFile(
     conversationId: string,
     oldPath: string,

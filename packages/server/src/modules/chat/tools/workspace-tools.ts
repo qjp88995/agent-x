@@ -307,5 +307,169 @@ export function createWorkspaceTools(
         }
       },
     }),
+
+    searchFiles: tool({
+      description:
+        'Search for text across workspace files (case-insensitive). Returns matching lines with line numbers. Optionally restrict search to a subdirectory.',
+      inputSchema: jsonSchema<{ query: string; path?: string }>({
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'Text to search for (case-insensitive)',
+          },
+          path: {
+            type: 'string',
+            description: 'Optional subdirectory path to limit the search scope',
+          },
+        },
+        required: ['query'],
+      }),
+      execute: async ({ query, path }) => {
+        try {
+          const results = await workspaceService.searchFiles(
+            conversationId,
+            query,
+            path
+          );
+          return { success: true, results };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
+
+    patchFile: tool({
+      description:
+        'Apply a find-and-replace edit to a text file. Replaces all occurrences of the search string with the replacement string. Use this instead of updateFile when you only need to change a small part of a large file.',
+      inputSchema: jsonSchema<{
+        path: string;
+        search: string;
+        replace: string;
+      }>({
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description: 'Relative file path to patch',
+          },
+          search: {
+            type: 'string',
+            description: 'Exact text to find in the file',
+          },
+          replace: {
+            type: 'string',
+            description: 'Text to replace the search string with',
+          },
+        },
+        required: ['path', 'search', 'replace'],
+      }),
+      execute: async ({ path, search, replace }) => {
+        try {
+          const result = await workspaceService.patchFile(
+            conversationId,
+            path,
+            search,
+            replace
+          );
+          return { success: true, ...result };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
+
+    renameFile: tool({
+      description: 'Rename or move a file within the workspace.',
+      inputSchema: jsonSchema<{ oldPath: string; newPath: string }>({
+        type: 'object',
+        properties: {
+          oldPath: {
+            type: 'string',
+            description: 'Current relative file path',
+          },
+          newPath: {
+            type: 'string',
+            description: 'New relative file path',
+          },
+        },
+        required: ['oldPath', 'newPath'],
+      }),
+      execute: async ({ oldPath, newPath }) => {
+        try {
+          const file = await workspaceService.renameFile(
+            conversationId,
+            oldPath,
+            newPath
+          );
+          return {
+            success: true,
+            file: {
+              id: file.id,
+              path: file.path,
+              mimeType: file.mimeType,
+              size: file.size,
+            },
+          };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
+
+    createDirectory: tool({
+      description: 'Create a directory in the workspace.',
+      inputSchema: jsonSchema<{ path: string }>({
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description:
+              'Relative directory path to create (parent directories will be created automatically)',
+          },
+        },
+        required: ['path'],
+      }),
+      execute: async ({ path }) => {
+        try {
+          const dir = await workspaceService.createDirectory(
+            conversationId,
+            path
+          );
+          return {
+            success: true,
+            directory: { id: dir.id, path: dir.path },
+          };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
+
+    deleteDirectory: tool({
+      description:
+        'Delete a directory and all its contents from the workspace.',
+      inputSchema: jsonSchema<{ path: string }>({
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description: 'Relative directory path to delete',
+          },
+        },
+        required: ['path'],
+      }),
+      execute: async ({ path }) => {
+        try {
+          const deletedPaths = await workspaceService.deleteDirectory(
+            conversationId,
+            path
+          );
+          return { success: true, deletedPaths };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
   };
 }
