@@ -621,7 +621,7 @@ export function FileTree({
   }, []);
 
   const toolbar = (
-    <div className="flex h-8 shrink-0 items-center justify-end gap-0.5 border-b px-2">
+    <div className="flex h-9 shrink-0 items-center justify-end gap-0.5 border-b px-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <button

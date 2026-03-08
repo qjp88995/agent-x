@@ -243,7 +243,7 @@ export function FileEditor({
   return (
     <div className="flex h-full flex-col">
       {/* Tab bar */}
-      <div className="flex shrink-0 items-center border-b bg-muted/20 overflow-x-auto">
+      <div className="flex h-9 shrink-0 items-center border-b bg-muted/20 overflow-x-auto">
         {tabs.map(tab => (
           <button
             key={tab.file.id}
