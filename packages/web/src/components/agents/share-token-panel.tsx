@@ -207,6 +207,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
                   <Button
                     onClick={handleCreate}
                     disabled={!tokenName.trim() || createToken.isPending}
+                    className="gradient-bg cursor-pointer text-white hover:opacity-90"
                   >
                     {createToken.isPending && (
                       <Loader2 className="mr-2 size-4 animate-spin" />
