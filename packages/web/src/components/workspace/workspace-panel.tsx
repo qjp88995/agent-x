@@ -218,7 +218,12 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
   return (
     <div className="flex h-full flex-col">
       <ResizablePanelGroup orientation="horizontal" className="flex-1">
-        <ResizablePanel defaultSize="25%" minSize="15%" maxSize="50%">
+        <ResizablePanel
+          defaultSize="25%"
+          minSize="15%"
+          maxSize="50%"
+          className="overflow-hidden"
+        >
           <FileTree
             files={files ?? []}
             selectedFileId={activeFileId}

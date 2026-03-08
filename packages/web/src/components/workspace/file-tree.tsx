@@ -653,9 +653,9 @@ export function FileTree({
 
   if (files.length === 0) {
     return (
-      <div className="flex h-full flex-col">
+      <div className="flex h-full flex-col overflow-hidden">
         {toolbar}
-        <div className="flex flex-1 flex-col items-center justify-center py-8 text-muted-foreground">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-8 text-muted-foreground">
           <Folder className="mb-2 size-8 opacity-40" />
           <p className="text-xs">{t('workspace.noFiles')}</p>
         </div>
@@ -700,9 +700,9 @@ export function FileTree({
 
   return (
     <>
-      <div className="flex h-full flex-col">
+      <div className="flex h-full flex-col overflow-hidden">
         {toolbar}
-        <ScrollArea className="flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <div className="py-1">
             {tree.map(node => (
               <TreeNodeItem
