@@ -1,9 +1,11 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 
 import type { ReasoningUIPart, UIMessage } from 'ai';
 import { Bot, User } from 'lucide-react';
 
+import { FileChangeCard } from '@/components/workspace/file-change-card';
 import { cn } from '@/lib/utils';
+import { extractFileChanges } from '@/lib/workspace-utils';
 
 import { MarkdownRenderer } from './markdown-renderer';
 import { ThinkingBlock } from './thinking-block';
@@ -40,7 +42,27 @@ function getToolName(part: ToolUIPart): string {
   return part.toolName ?? part.type.slice(5);
 }
 
+const WORKSPACE_TOOLS = new Set([
+  'createFile',
+  'updateFile',
+  'deleteFile',
+  'writeFiles',
+  'readFile',
+  'listFiles',
+]);
+
+function isWorkspaceTool(part: ToolUIPart): boolean {
+  return WORKSPACE_TOOLS.has(getToolName(part));
+}
+
 function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
+  // Extract file changes from workspace tool calls
+  const fileChanges = useMemo(
+    () =>
+      extractFileChanges(parts as { type: string; [key: string]: unknown }[]),
+    [parts]
+  );
+
   return (
     <div>
       {parts.map((part, i) => {
@@ -60,6 +82,31 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
           return <MarkdownRenderer key={`text-${i}`} content={text} />;
         }
         if (isToolPart(part)) {
+          // Render workspace tools as file change cards (skip readFile/listFiles)
+          if (
+            isWorkspaceTool(part) &&
+            getToolName(part) !== 'readFile' &&
+            getToolName(part) !== 'listFiles'
+          ) {
+            // Only render the card once for the group (at the first workspace tool part)
+            const firstWorkspaceToolIdx = parts.findIndex(
+              p =>
+                isToolPart(p) &&
+                isWorkspaceTool(p as ToolUIPart) &&
+                getToolName(p as ToolUIPart) !== 'readFile' &&
+                getToolName(p as ToolUIPart) !== 'listFiles'
+            );
+            if (i === firstWorkspaceToolIdx && fileChanges.length > 0) {
+              return (
+                <FileChangeCard
+                  key={`file-changes-${i}`}
+                  changes={fileChanges}
+                />
+              );
+            }
+            return null;
+          }
+
           return (
             <ToolCallBlock
               key={part.toolCallId ?? `tool-${i}`}

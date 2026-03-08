@@ -1,11 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bot, MessageSquare } from 'lucide-react';
+import { Bot, Code2, MessageSquare } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { IdeLayout } from '@/components/workspace/ide-layout';
 import { messagesKey, useMessages } from '@/hooks/use-chat';
+import { useWorkspaceFiles } from '@/hooks/use-workspace';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { toUIMessages } from '@/lib/message-utils';
 
@@ -33,6 +41,7 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
 }
 
 export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const transportRef = useRef<AgentXChatTransport | null>(null);
   const transport = useMemo(
@@ -114,12 +123,46 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
     void transportRef.current?.stopStream();
   }, [stop]);
 
+  // IDE view state
+  const [ideMode, setIdeMode] = useState(false);
+  const { data: workspaceFiles } = useWorkspaceFiles(conversationId);
+  const hasFiles = workspaceFiles && workspaceFiles.length > 0;
+
+  if (ideMode) {
+    return (
+      <IdeLayout
+        conversationId={conversationId}
+        messages={messages}
+        messagesEndRef={messagesEndRef}
+        isLoading={isLoading}
+        onSend={handleSend}
+        onStop={handleStop}
+        onBackToChat={() => setIdeMode(false)}
+      />
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
         <MessageSquare className="text-primary size-5" />
         <h2 className="truncate font-semibold">{agentName}</h2>
+        {hasFiles && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="ml-auto size-8 cursor-pointer"
+                onClick={() => setIdeMode(true)}
+              >
+                <Code2 className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('workspace.openIde')}</TooltipContent>
+          </Tooltip>
+        )}
       </div>
 
       {/* Messages area */}
