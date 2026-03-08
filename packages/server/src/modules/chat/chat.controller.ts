@@ -83,7 +83,7 @@ export class ChatController {
     const result = await this.runtime.createStream(
       conversation.agentId,
       history,
-      { abortSignal: abortController.signal }
+      { abortSignal: abortController.signal, conversationId: id }
     );
 
     const uiStream = result.toUIMessageStream({ sendReasoning: true });

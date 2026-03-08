@@ -13,7 +13,8 @@ import { createZhipu } from 'zhipu-ai-provider';
 import { decrypt } from '../../common/crypto.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { McpClientService } from '../mcp/mcp-client.service';
-import { builtInTools } from './tools';
+import { WorkspaceService } from '../workspace/workspace.service';
+import { getBuiltInTools } from './tools';
 
 interface AgentWithRelations {
   readonly status: string;
@@ -47,13 +48,14 @@ export class AgentRuntimeService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly mcpClient: McpClientService
+    private readonly mcpClient: McpClientService,
+    private readonly workspaceService: WorkspaceService
   ) {}
 
   async createStream(
     agentId: string,
     messages: Array<{ role: string; content: string }>,
-    options?: { abortSignal?: AbortSignal }
+    options?: { abortSignal?: AbortSignal; conversationId?: string }
   ): Promise<any> {
     const agent: AgentWithRelations = await this.prisma.agent.findFirstOrThrow({
       where: { id: agentId, deletedAt: null },
@@ -90,7 +92,11 @@ export class AgentRuntimeService {
     const { tools: mcpTools, cleanups } = await this.collectMcpTools(
       agent.mcpServers
     );
-    const tools: McpToolSet = { ...builtInTools, ...mcpTools };
+    const built = getBuiltInTools(
+      this.workspaceService,
+      options?.conversationId
+    );
+    const tools: McpToolSet = { ...built, ...mcpTools };
     const hasTools = Object.keys(tools).length > 0;
 
     return streamText({
@@ -114,7 +120,7 @@ export class AgentRuntimeService {
   async createStreamFromVersion(
     agentVersionId: string,
     messages: Array<{ role: string; content: string }>,
-    options?: { abortSignal?: AbortSignal }
+    options?: { abortSignal?: AbortSignal; conversationId?: string }
   ): Promise<any> {
     const version = await this.prisma.agentVersion.findUniqueOrThrow({
       where: { id: agentVersionId },
@@ -148,7 +154,11 @@ export class AgentRuntimeService {
       }))
     );
 
-    const tools: McpToolSet = { ...builtInTools, ...mcpTools };
+    const built = getBuiltInTools(
+      this.workspaceService,
+      options?.conversationId
+    );
+    const tools: McpToolSet = { ...built, ...mcpTools };
     const hasTools = Object.keys(tools).length > 0;
 
     return streamText({

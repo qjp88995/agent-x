@@ -79,7 +79,7 @@ export class PublicChatController {
     const result = await this.runtime.createStreamFromVersion(
       agentVersionId,
       history,
-      { abortSignal: abortController.signal }
+      { abortSignal: abortController.signal, conversationId: id }
     );
 
     const uiStream = result.toUIMessageStream({ sendReasoning: true });
