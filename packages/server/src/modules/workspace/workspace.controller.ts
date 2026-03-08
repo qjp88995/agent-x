@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
+  Post,
   Put,
   Res,
   StreamableFile,
@@ -64,6 +67,60 @@ export class WorkspaceController {
     await archive.finalize();
   }
 
+  @Post()
+  async createFile(
+    @Param('conversationId') conversationId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { path: string; content: string }
+  ) {
+    await this.chatService.verifyOwnership(conversationId, user.id);
+    return this.workspaceService.createFile(
+      conversationId,
+      body.path,
+      body.content
+    );
+  }
+
+  @Post('directories')
+  async createDirectory(
+    @Param('conversationId') conversationId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { path: string }
+  ) {
+    await this.chatService.verifyOwnership(conversationId, user.id);
+    await this.workspaceService.createDirectory(conversationId, body.path);
+    return { success: true };
+  }
+
+  @Delete('directories')
+  async deleteDirectory(
+    @Param('conversationId') conversationId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { path: string }
+  ) {
+    await this.chatService.verifyOwnership(conversationId, user.id);
+    const deleted = await this.workspaceService.deleteDirectory(
+      conversationId,
+      body.path
+    );
+    return { success: true, deletedFiles: deleted };
+  }
+
+  @Patch('directories/rename')
+  async renameDirectory(
+    @Param('conversationId') conversationId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { oldPath: string; newPath: string }
+  ) {
+    await this.chatService.verifyOwnership(conversationId, user.id);
+    await this.workspaceService.renameDirectory(
+      conversationId,
+      body.oldPath,
+      body.newPath
+    );
+    return { success: true };
+  }
+
   @Get(':fileId/content')
   async getFileContent(
     @Param('conversationId') conversationId: string,
@@ -101,6 +158,40 @@ export class WorkspaceController {
       conversationId,
       fileId,
       body.content
+    );
+  }
+
+  @Delete(':fileId')
+  async deleteFile(
+    @Param('conversationId') conversationId: string,
+    @Param('fileId') fileId: string,
+    @CurrentUser() user: { id: string }
+  ) {
+    await this.chatService.verifyOwnership(conversationId, user.id);
+    const file = await this.workspaceService.getFileById(
+      conversationId,
+      fileId
+    );
+    await this.workspaceService.deleteFile(conversationId, file.path);
+    return { success: true };
+  }
+
+  @Patch(':fileId/rename')
+  async renameFile(
+    @Param('conversationId') conversationId: string,
+    @Param('fileId') fileId: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { newPath: string }
+  ) {
+    await this.chatService.verifyOwnership(conversationId, user.id);
+    const file = await this.workspaceService.getFileById(
+      conversationId,
+      fileId
+    );
+    return this.workspaceService.renameFile(
+      conversationId,
+      file.path,
+      body.newPath
     );
   }
 
