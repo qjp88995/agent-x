@@ -268,8 +268,7 @@ function BoundServerItem({
           <TooltipTrigger asChild>
             <Button
               size="sm"
-              variant="ghost"
-              className="text-destructive hover:text-destructive"
+              variant="ghost-destructive"
               onClick={onRemove}
               disabled={isRemoving}
             >

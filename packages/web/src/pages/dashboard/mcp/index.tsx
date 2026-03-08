@@ -8,7 +8,6 @@ import type {
 } from '@agent-x/shared';
 import {
   AlertTriangle,
-  MoreHorizontal,
   Pencil,
   PlugZap,
   Plus,
@@ -36,12 +35,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Tooltip,
@@ -136,23 +129,20 @@ function MarketplaceCard({
           <TransportBadge transport={server.transport} />
         </div>
         {isAdmin && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8">
-                <MoreHorizontal className="size-4" />
-                <span className="sr-only">{t('common.actions')}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost-destructive"
+                size="icon"
+                className="size-8"
                 onClick={() => onDelete(server)}
-                className="text-destructive focus:text-destructive"
               >
-                <Trash2 className="mr-2 size-4" />
-                {t('common.delete')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Trash2 className="size-4" />
+                <span className="sr-only">{t('common.delete')}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('common.delete')}</TooltipContent>
+          </Tooltip>
         )}
       </CardHeader>
 
@@ -249,23 +239,20 @@ function McpServerCard({
           <CardTitle className="text-base">{server.name}</CardTitle>
           <TransportBadge transport={server.transport} />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8">
-              <MoreHorizontal className="size-4" />
-              <span className="sr-only">{t('common.actions')}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost-destructive"
+              size="icon"
+              className="size-8"
               onClick={() => onDelete(server)}
-              className="text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 size-4" />
-              {t('common.delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <Trash2 className="size-4" />
+              <span className="sr-only">{t('common.delete')}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('common.delete')}</TooltipContent>
+        </Tooltip>
       </CardHeader>
 
       <CardContent className="flex-1">

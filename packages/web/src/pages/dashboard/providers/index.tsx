@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   Database,
   ExternalLink,
-  MoreHorizontal,
   Pencil,
   PlugZap,
   Plus,
@@ -35,12 +34,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Tooltip,
   TooltipContent,
@@ -174,23 +167,20 @@ function ProviderCard({
             <StatusDot active={provider.isActive} />
           </div>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8">
-              <MoreHorizontal className="size-4" />
-              <span className="sr-only">{t('common.actions')}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost-destructive"
+              size="icon"
+              className="size-8"
               onClick={() => onDelete(provider)}
-              className="text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 size-4" />
-              {t('common.delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <Trash2 className="size-4" />
+              <span className="sr-only">{t('common.delete')}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('common.delete')}</TooltipContent>
+        </Tooltip>
       </CardHeader>
 
       <CardContent className="flex-1">

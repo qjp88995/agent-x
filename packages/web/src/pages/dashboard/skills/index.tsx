@@ -6,7 +6,6 @@ import type { SkillResponse } from '@agent-x/shared';
 import {
   AlertTriangle,
   Eye,
-  MoreHorizontal,
   Pencil,
   Plus,
   Sparkles,
@@ -42,12 +41,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -89,23 +82,20 @@ function MarketplaceCard({
           <CardTitle className="text-base">{skill.name}</CardTitle>
         </div>
         {isAdmin && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8">
-                <MoreHorizontal className="size-4" />
-                <span className="sr-only">{t('common.actions')}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost-destructive"
+                size="icon"
+                className="size-8"
                 onClick={() => onDelete(skill)}
-                className="text-destructive focus:text-destructive"
               >
-                <Trash2 className="mr-2 size-4" />
-                {t('common.delete')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Trash2 className="size-4" />
+                <span className="sr-only">{t('common.delete')}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('common.delete')}</TooltipContent>
+          </Tooltip>
         )}
       </CardHeader>
 
@@ -191,23 +181,20 @@ function SkillCard({
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{skill.name}</CardTitle>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8">
-              <MoreHorizontal className="size-4" />
-              <span className="sr-only">{t('common.actions')}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost-destructive"
+              size="icon"
+              className="size-8"
               onClick={() => onDelete(skill)}
-              className="text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 size-4" />
-              {t('common.delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <Trash2 className="size-4" />
+              <span className="sr-only">{t('common.delete')}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('common.delete')}</TooltipContent>
+        </Tooltip>
       </CardHeader>
 
       <CardContent className="flex-1">

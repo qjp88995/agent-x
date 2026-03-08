@@ -535,9 +535,9 @@ export default function ApiKeysPage() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
-                            variant="ghost"
+                            variant="ghost-destructive"
                             size="icon"
-                            className="size-8 text-destructive hover:text-destructive"
+                            className="size-8"
                             onClick={() => setDeleteTarget(apiKey)}
                           >
                             <Trash2 className="size-4" />

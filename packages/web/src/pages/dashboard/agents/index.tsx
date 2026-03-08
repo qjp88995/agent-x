@@ -142,8 +142,8 @@ function AgentCard({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
+                  variant="destructive"
                   onClick={() => onDelete(agent)}
-                  className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 size-4" />
                   {t('common.delete')}
