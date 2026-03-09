@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronRight, Link2, MessageSquare } from 'lucide-react';
 
 import { VersionShareLinks } from '@/components/agents/version-share-links';
+import { CopyableId } from '@/components/shared';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -143,6 +144,7 @@ function VersionItem({
             <ChevronRight className="text-muted-foreground size-4 shrink-0" />
           )}
           <Badge variant="outline">v{version.version}</Badge>
+          <CopyableId id={version.id} />
           <span className="text-muted-foreground text-sm">
             {formatDistanceToNow(new Date(version.publishedAt), {
               addSuffix: true,

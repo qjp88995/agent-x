@@ -1,3 +1,4 @@
+export { CopyableId } from './copyable-id';
 export { FormCard } from './form-card';
 export { FormFooter } from './form-footer';
 export { PageHeader } from './page-header';
