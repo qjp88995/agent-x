@@ -42,8 +42,8 @@ export default function AgentVersionsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        backTo={`/agents/${id}/edit`}
-        backLabel={t('agents.backToEdit')}
+        backTo={-1}
+        backLabel={t('common.back')}
         title={t('agents.versionManagement')}
         description={t('agents.versionManagementDesc', { name: agent.name })}
       />

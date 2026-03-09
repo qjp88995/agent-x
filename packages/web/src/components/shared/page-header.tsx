@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { To } from 'react-router';
 import { useNavigate } from 'react-router';
 
 import { ArrowLeft } from 'lucide-react';
@@ -11,7 +12,7 @@ import {
 } from '@/components/ui/tooltip';
 
 interface PageHeaderProps {
-  readonly backTo: string;
+  readonly backTo: string | number;
   readonly backLabel: string;
   readonly title: string;
   readonly description: string;
@@ -37,7 +38,11 @@ export function PageHeader({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(backTo)}
+              onClick={() =>
+                typeof backTo === 'number'
+                  ? navigate(backTo)
+                  : navigate(backTo as To)
+              }
               aria-label={backLabel}
               className="cursor-pointer"
             >
