@@ -59,13 +59,11 @@ const WORKSPACE_TOOLS = new Set([
   'readFileLines',
 ]);
 
-const READ_ONLY_TOOLS = new Set([
-  'readFile',
+const HIDDEN_TOOLS = new Set([
   'listFiles',
   'searchFiles',
   'fileExists',
   'fileInfo',
-  'readFileLines',
 ]);
 
 function isWorkspaceTool(part: ToolUIPart): boolean {
@@ -115,7 +113,7 @@ function AssistantContent({
         }
         if (isToolPart(part)) {
           // Hide read-only workspace tools (readFile, listFiles, etc.)
-          if (isWorkspaceTool(part) && READ_ONLY_TOOLS.has(getToolName(part))) {
+          if (isWorkspaceTool(part) && HIDDEN_TOOLS.has(getToolName(part))) {
             return null;
           }
 
@@ -126,7 +124,7 @@ function AssistantContent({
               p =>
                 isToolPart(p) &&
                 isWorkspaceTool(p as ToolUIPart) &&
-                !READ_ONLY_TOOLS.has(getToolName(p as ToolUIPart))
+                !HIDDEN_TOOLS.has(getToolName(p as ToolUIPart))
             );
             if (i === firstWorkspaceToolIdx) {
               if (fileChanges.length > 0) {

@@ -8,6 +8,7 @@ import {
   FileCheck,
   FileMinus,
   FilePlus,
+  FileSearch,
   Loader2,
 } from 'lucide-react';
 
@@ -37,6 +38,11 @@ const OPERATION_CONFIG: Record<
     icon: ArrowRightLeft,
     colorClass: 'text-orange-500',
     labelKey: 'workspace.fileRenamed',
+  },
+  read: {
+    icon: FileSearch,
+    colorClass: 'text-muted-foreground',
+    labelKey: 'workspace.fileRead',
   },
 };
 

@@ -483,6 +483,7 @@
     "fileUpdated": "Updated",
     "fileDeleted": "Deleted",
     "fileRenamed": "Renamed",
+    "fileRead": "Read",
     "filesChanged": "{{count}} file(s) changed",
     "fileWriting": "Writing...",
     "filesWriting": "Writing {{count}} file(s)...",
