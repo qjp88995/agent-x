@@ -72,6 +72,16 @@ export class ChatService {
     });
   }
 
+  async getPublicConversations(shareTokenId: string) {
+    return this.prisma.conversation.findMany({
+      where: { shareTokenId },
+      include: {
+        agent: { select: { id: true, name: true, avatar: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
   async getConversations(userId: string) {
     return this.prisma.conversation.findMany({
       where: { userId },

@@ -47,6 +47,11 @@ export class PublicChatController {
     return this.publicChatService.createConversation(token);
   }
 
+  @Get(':token/conversations')
+  getConversations(@Param('token') token: string) {
+    return this.publicChatService.getConversations(token);
+  }
+
   @Get(':token/conversations/:id/messages')
   getMessages(@Param('token') token: string, @Param('id') id: string) {
     return this.publicChatService.getMessages(token, id);

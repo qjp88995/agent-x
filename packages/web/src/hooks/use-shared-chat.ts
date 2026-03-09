@@ -1,10 +1,17 @@
 import type { MessageResponse, SharedAgentInfo } from '@agent-x/shared';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 const publicApi = axios.create({
   baseURL: '/api',
 });
+
+export interface SharedConversation {
+  readonly id: string;
+  readonly title: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
 
 export function useSharedAgentInfo(token: string | undefined) {
   return useQuery({
@@ -20,13 +27,39 @@ export function useSharedAgentInfo(token: string | undefined) {
   });
 }
 
-export function useCreateSharedConversation() {
-  return useMutation({
-    mutationFn: async ({ token }: { token: string }) => {
-      const { data } = await publicApi.post<{ id: string }>(
+export const SHARED_CONVERSATIONS_KEY = ['shared-conversations'] as const;
+
+export function sharedConversationsKey(token: string) {
+  return ['shared-conversations', token] as const;
+}
+
+export function useSharedConversations(token: string | undefined) {
+  return useQuery({
+    queryKey: sharedConversationsKey(token ?? ''),
+    queryFn: async () => {
+      const { data } = await publicApi.get<SharedConversation[]>(
         `/shared/${token}/conversations`
       );
       return data;
+    },
+    enabled: !!token,
+  });
+}
+
+export function useCreateSharedConversation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ token }: { token: string }) => {
+      const { data } = await publicApi.post<SharedConversation>(
+        `/shared/${token}/conversations`
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: sharedConversationsKey(variables.token),
+      });
     },
   });
 }

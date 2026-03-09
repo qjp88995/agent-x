@@ -49,6 +49,12 @@ export class PublicChatService {
     );
   }
 
+  async getConversations(rawToken: string) {
+    const { shareTokenId } = await this.validateToken(rawToken);
+
+    return this.chatService.getPublicConversations(shareTokenId);
+  }
+
   async getMessages(rawToken: string, conversationId: string) {
     const { shareTokenId } = await this.validateToken(rawToken);
 
