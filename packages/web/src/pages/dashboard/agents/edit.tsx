@@ -15,6 +15,7 @@ import {
   ArchiveRestore,
   Check,
   ClipboardCopy,
+  History,
   Loader2,
   Rocket,
   Save,
@@ -22,10 +23,7 @@ import {
 import { toast } from 'sonner';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
-import { ConversationsTab } from '@/components/agents/conversations-tab';
-import { ShareLinksTab } from '@/components/agents/share-links-tab';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
-import { VersionList } from '@/components/agents/version-list';
 import {
   FormFooter,
   LoadingState,
@@ -328,6 +326,13 @@ function AgentEditForm({
           }
         >
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/agents/${agentId}/versions`)}
+            >
+              <History className="mr-2 size-4" />
+              {t('agents.versionManagement')}
+            </Button>
             {agent.status === AgentStatus.ACTIVE && (
               <>
                 <Button
@@ -418,15 +423,6 @@ function AgentEditForm({
                   {t('agents.systemPrompt')}
                 </TabsTrigger>
                 <TabsTrigger value="mcp">{t('agents.mcpServers')}</TabsTrigger>
-                <TabsTrigger value="versions">
-                  {t('agents.versions')}
-                </TabsTrigger>
-                <TabsTrigger value="share-links">
-                  {t('agents.shareLinks')}
-                </TabsTrigger>
-                <TabsTrigger value="conversations">
-                  {t('agents.conversations')}
-                </TabsTrigger>
               </TabsList>
 
               {/* Basic Info Tab */}
@@ -691,31 +687,6 @@ function AgentEditForm({
                   agentId={agentId}
                   currentMcpServers={agent.mcpServers}
                 />
-              </TabsContent>
-
-              {/* Versions Tab */}
-              <TabsContent value="versions">
-                <Card className="max-w-4xl">
-                  <CardHeader>
-                    <CardTitle>{t('agents.publishedVersions')}</CardTitle>
-                    <CardDescription>
-                      {t('agents.publishedVersionsDesc')}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <VersionList agentId={agentId} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Share Links Tab */}
-              <TabsContent value="share-links">
-                <ShareLinksTab agentId={agentId} />
-              </TabsContent>
-
-              {/* Conversations Tab */}
-              <TabsContent value="conversations">
-                <ConversationsTab agentId={agentId} />
               </TabsContent>
             </Tabs>
           </form>

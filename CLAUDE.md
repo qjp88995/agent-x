@@ -190,7 +190,7 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - `/login`, `/register` - public auth pages
 - `/` → redirects to `/providers`
 - `/providers` - provider list, `/providers/new`, `/providers/:id/edit`
-- `/agents` - agent list, `/agents/new`, `/agents/:id/edit`
+- `/agents` - agent list, `/agents/new`, `/agents/:id/edit`, `/agents/:id/versions` (version management)
 - `/skills` - skills list, `/skills/new`, `/skills/:id/edit`
 - `/mcp-servers` - MCP server list, `/mcp-servers/new`, `/mcp-servers/:id/edit`
 - `/api-keys` - API key management
