@@ -12,6 +12,8 @@ import {
   Archive,
   ArchiveRestore,
   Bot,
+  Check,
+  ClipboardCopy,
   MessageSquare,
   MoreHorizontal,
   Pencil,
@@ -60,6 +62,46 @@ import {
   useUnarchiveAgent,
 } from '@/hooks/use-agents';
 import { cn } from '@/lib/utils';
+
+function CopyableId({ id }: { readonly id: string }) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API may fail in non-HTTPS contexts
+    }
+  }
+
+  const shortId = id.slice(0, 8);
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-mono text-xs transition-colors cursor-pointer"
+        >
+          <span>{shortId}</span>
+          {copied ? (
+            <Check className="size-3 text-green-600" />
+          ) : (
+            <ClipboardCopy className="size-3" />
+          )}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>
+        {copied ? t('common.copied') : `${t('common.copy')} ID: ${id}`}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,
@@ -174,7 +216,11 @@ function AgentCard({
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-xs">{agent.modelId}</div>
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
+            <CopyableId id={agent.id} />
+            <span className="text-muted-foreground/30">|</span>
+            <span>{agent.modelId}</span>
+          </div>
           <div className="flex items-center gap-1">
             {agent.status === AgentStatus.ACTIVE && (
               <Tooltip>

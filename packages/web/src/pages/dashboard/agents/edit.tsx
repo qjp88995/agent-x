@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
@@ -10,7 +10,15 @@ import type {
 } from '@agent-x/shared';
 import { AgentStatus } from '@agent-x/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Archive, ArchiveRestore, Loader2, Rocket, Save } from 'lucide-react';
+import {
+  Archive,
+  ArchiveRestore,
+  Check,
+  ClipboardCopy,
+  Loader2,
+  Rocket,
+  Save,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
@@ -73,6 +81,11 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { usePublishVersion } from '@/hooks/use-agent-versions';
 import {
   useAgent,
@@ -256,6 +269,18 @@ function AgentEditForm({
 
   const statusConfig = STATUS_BADGE_CONFIG[agent.status];
 
+  const [idCopied, setIdCopied] = useState(false);
+
+  const handleCopyId = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(agentId);
+      setIdCopied(true);
+      setTimeout(() => setIdCopied(false), 2000);
+    } catch {
+      // Clipboard API may fail in non-HTTPS contexts
+    }
+  }, [agentId]);
+
   return (
     <div className="-m-6 flex min-h-0 flex-1">
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
@@ -278,6 +303,27 @@ function AgentEditForm({
                   v{agent.latestVersion}
                 </span>
               )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={handleCopyId}
+                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-mono text-xs transition-colors cursor-pointer"
+                  >
+                    <span>ID: {agentId.slice(0, 8)}</span>
+                    {idCopied ? (
+                      <Check className="size-3 text-green-600" />
+                    ) : (
+                      <ClipboardCopy className="size-3" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {idCopied
+                    ? t('common.copied')
+                    : `${t('common.copy')} ID: ${agentId}`}
+                </TooltipContent>
+              </Tooltip>
             </>
           }
         >
