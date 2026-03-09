@@ -34,7 +34,7 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix('api', {
-    exclude: ['v1/chat/completions'],
+    exclude: ['v1/(.*)'],
   });
 
   const port = process.env.PORT ?? 3000;
