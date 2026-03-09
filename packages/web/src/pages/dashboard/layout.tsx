@@ -8,9 +8,12 @@ import {
   Key,
   LogOut,
   Menu,
+  Monitor,
+  Moon,
   Server,
   Settings,
   Sparkles,
+  Sun,
 } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -29,6 +32,7 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
+import { useThemeStore } from '@/stores/theme-store';
 
 interface NavItem {
   readonly labelKey: string;
@@ -61,6 +65,40 @@ function getInitials(
     return email[0].toUpperCase();
   }
   return 'U';
+}
+
+const THEME_CYCLE = ['system', 'light', 'dark'] as const;
+const THEME_ICON = {
+  system: Monitor,
+  light: Sun,
+  dark: Moon,
+} as const;
+
+function ThemeToggle() {
+  const { t } = useTranslation();
+  const theme = useThemeStore(s => s.theme);
+  const setTheme = useThemeStore(s => s.setTheme);
+
+  const nextTheme =
+    THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % THEME_CYCLE.length];
+  const Icon = THEME_ICON[theme];
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setTheme(nextTheme)}
+          className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
+          aria-label={t('settings.theme')}
+        >
+          <Icon className="size-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{t('settings.theme')}</TooltipContent>
+    </Tooltip>
+  );
 }
 
 function BrandLogo() {
@@ -161,10 +199,11 @@ function UserSection() {
 function DesktopSidebar() {
   return (
     <aside className="bg-sidebar text-sidebar-foreground border-sidebar-border hidden w-64 shrink-0 border-r md:flex md:flex-col">
-      <div className="flex h-14 items-center px-5">
+      <div className="flex h-14 items-center justify-between px-5">
         <Link to="/">
           <BrandLogo />
         </Link>
+        <ThemeToggle />
       </div>
       <div className="border-sidebar-border/50 mx-3 border-t" />
       <ScrollArea className="flex-1 py-4">
