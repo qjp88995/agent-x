@@ -73,6 +73,11 @@ export function extractFileChanges(
       changes.push({ path: input.path as string, operation: 'created' });
     } else if (toolName === 'deleteDirectory' && input?.path) {
       changes.push({ path: input.path as string, operation: 'deleted' });
+    } else if (toolName === 'renameDirectory' && input?.oldPath) {
+      changes.push({
+        path: `${input.oldPath as string} → ${input.newPath as string}`,
+        operation: 'renamed',
+      });
     } else if (toolName === 'readFile' && input?.path) {
       changes.push({ path: input.path as string, operation: 'read' });
     } else if (toolName === 'readFileLines' && input?.path) {

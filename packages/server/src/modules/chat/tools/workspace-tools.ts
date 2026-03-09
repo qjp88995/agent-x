@@ -471,5 +471,36 @@ export function createWorkspaceTools(
         }
       },
     }),
+
+    renameDirectory: tool({
+      description:
+        'Rename or move a directory within the workspace. All files inside the directory are moved along with it.',
+      inputSchema: jsonSchema<{ oldPath: string; newPath: string }>({
+        type: 'object',
+        properties: {
+          oldPath: {
+            type: 'string',
+            description: 'Current relative directory path',
+          },
+          newPath: {
+            type: 'string',
+            description: 'New relative directory path',
+          },
+        },
+        required: ['oldPath', 'newPath'],
+      }),
+      execute: async ({ oldPath, newPath }) => {
+        try {
+          await workspaceService.renameDirectory(
+            conversationId,
+            oldPath,
+            newPath
+          );
+          return { success: true, oldPath, newPath };
+        } catch (error: any) {
+          return { success: false, error: error.message };
+        }
+      },
+    }),
   };
 }

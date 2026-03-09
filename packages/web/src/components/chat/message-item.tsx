@@ -51,6 +51,7 @@ const WORKSPACE_TOOLS = new Set([
   'renameFile',
   'createDirectory',
   'deleteDirectory',
+  'renameDirectory',
   'readFile',
   'listFiles',
   'searchFiles',

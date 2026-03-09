@@ -14,6 +14,7 @@ const WORKSPACE_TOOLS = new Set([
   'renameFile',
   'createDirectory',
   'deleteDirectory',
+  'renameDirectory',
 ]);
 
 function getToolName(part: { type: string; toolName?: string }): string {
