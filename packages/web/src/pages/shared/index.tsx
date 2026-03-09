@@ -10,7 +10,9 @@ import { MessageList } from '@/components/chat/message-list';
 import {
   useCreateSharedConversation,
   useSharedAgentInfo,
+  useSharedMessages,
 } from '@/hooks/use-shared-chat';
+import { toUIMessages } from '@/lib/message-utils';
 import { SharedChatTransport } from '@/lib/shared-chat-transport';
 
 import SharedExpiredPage from './expired';
@@ -39,10 +41,29 @@ export default function SharedChatPage() {
     return t;
   }, [token, conversationId]);
 
-  const { messages, sendMessage, status, stop } = useChat({
+  const { messages, sendMessage, status, setMessages, stop } = useChat({
     id: conversationId ?? 'shared-pending',
     transport,
   });
+
+  const { data: savedMessages } = useSharedMessages(
+    token,
+    conversationId ?? undefined
+  );
+  const historyLoadedRef = useRef<string | null>(null);
+
+  // Load saved messages when conversation exists
+  useEffect(() => {
+    if (
+      savedMessages &&
+      savedMessages.length > 0 &&
+      conversationId &&
+      historyLoadedRef.current !== conversationId
+    ) {
+      setMessages(toUIMessages(savedMessages as any));
+      historyLoadedRef.current = conversationId;
+    }
+  }, [savedMessages, conversationId, setMessages]);
 
   useEffect(() => {
     return () => {
