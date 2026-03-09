@@ -2,12 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { WorkspaceFileResponse } from '@agent-x/shared';
-import {
-  ClipboardPaste,
-  FilePlus,
-  Folder,
-  FolderPlus,
-} from 'lucide-react';
+import { ClipboardPaste, FilePlus, Folder, FolderPlus } from 'lucide-react';
 
 import {
   AlertDialog,

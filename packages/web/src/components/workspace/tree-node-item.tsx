@@ -27,8 +27,8 @@ import {
 import { cn } from '@/lib/utils';
 
 import type { ClipboardItem } from './file-tree';
-import { formatFileSize, getFileIcon, getParentDir } from './file-tree-utils';
 import type { TreeNode } from './file-tree-utils';
+import { formatFileSize, getFileIcon, getParentDir } from './file-tree-utils';
 import { InlineInput } from './inline-input';
 
 export interface EditingNode {

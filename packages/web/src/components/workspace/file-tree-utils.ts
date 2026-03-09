@@ -91,10 +91,7 @@ export function buildTree(files: WorkspaceFileResponse[]): TreeNode[] {
   return sortTree(root);
 }
 
-export function getFileIcon(
-  mimeType: string,
-  fileName: string
-): typeof File {
+export function getFileIcon(mimeType: string, fileName: string): typeof File {
   if (mimeType.startsWith('image/')) return FileImage;
   if (mimeType === 'application/json' || fileName.endsWith('.json'))
     return FileJson;
