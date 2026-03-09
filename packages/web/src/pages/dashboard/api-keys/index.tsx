@@ -1,51 +1,15 @@
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import type { Locale } from 'date-fns';
 import { format } from 'date-fns';
-import {
-  AlertTriangle,
-  Check,
-  ClipboardCopy,
-  Key,
-  Plus,
-  Trash2,
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { AlertTriangle, Key, Plus, Trash2 } from 'lucide-react';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { CreateKeyDialog } from '@/components/api-keys/create-key-dialog';
+import { DeleteConfirmDialog } from '@/components/api-keys/delete-confirm-dialog';
+import { UsageDocs } from '@/components/api-keys/usage-docs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -54,21 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useAgents } from '@/hooks/use-agents';
 import type { ApiKeyResponse } from '@/hooks/use-api-keys';
-import {
-  useApiKeys,
-  useCreateApiKey,
-  useDeleteApiKey,
-} from '@/hooks/use-api-keys';
+import { useApiKeys } from '@/hooks/use-api-keys';
 import { useDateLocale } from '@/hooks/use-date-locale';
-import { type CreateApiKeyFormValues, createApiKeySchema } from '@/lib/schemas';
 
 function formatDate(dateStr: string | null, locale: Locale): string {
   if (!dateStr) return '-';
@@ -116,247 +73,6 @@ function StatusBadge({
   );
 }
 
-function CreateKeyDialog({
-  open,
-  onOpenChange,
-}: {
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const [createdKey, setCreatedKey] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-
-  const createApiKey = useCreateApiKey();
-  const { data: agents } = useAgents();
-
-  const form = useForm<CreateApiKeyFormValues>({
-    resolver: zodResolver(createApiKeySchema),
-    defaultValues: { name: '', agentId: '', expiresAt: undefined },
-    mode: 'onChange',
-  });
-
-  function handleClose(nextOpen: boolean) {
-    if (!nextOpen) {
-      form.reset();
-      setCreatedKey(null);
-      setCopied(false);
-    }
-    onOpenChange(nextOpen);
-  }
-
-  function handleCreate(values: CreateApiKeyFormValues) {
-    createApiKey.mutate(
-      {
-        name: values.name,
-        agentId: values.agentId || undefined,
-        expiresAt: values.expiresAt
-          ? values.expiresAt.toISOString()
-          : undefined,
-      },
-      {
-        onSuccess: data => {
-          setCreatedKey(data.plainKey);
-        },
-      }
-    );
-  }
-
-  async function handleCopy() {
-    if (!createdKey) return;
-    try {
-      await navigator.clipboard.writeText(createdKey);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard API may fail in non-HTTPS contexts
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {createdKey ? t('apiKeys.keyCreated') : t('apiKeys.createTitle')}
-          </DialogTitle>
-          <DialogDescription>
-            {createdKey ? t('apiKeys.keyCreatedDesc') : t('apiKeys.createDesc')}
-          </DialogDescription>
-        </DialogHeader>
-
-        {createdKey ? (
-          <div className="flex flex-col gap-4">
-            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-900 dark:bg-yellow-950">
-              <p className="mb-2 text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                {t('apiKeys.createWarning')}
-              </p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 break-all rounded bg-yellow-100 px-2 py-1 font-mono text-xs dark:bg-yellow-900">
-                  {createdKey}
-                </code>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="shrink-0"
-                      onClick={handleCopy}
-                    >
-                      {copied ? (
-                        <Check className="size-4 text-green-600" />
-                      ) : (
-                        <ClipboardCopy className="size-4" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t('common.copy')}</TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button>{t('common.done')}</Button>
-              </DialogClose>
-            </DialogFooter>
-          </div>
-        ) : (
-          <form
-            onSubmit={form.handleSubmit(handleCreate)}
-            className="flex flex-col gap-4"
-          >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="key-name">{t('common.name')}</Label>
-              <Input
-                id="key-name"
-                placeholder={t('apiKeys.namePlaceholder')}
-                {...form.register('name')}
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label>{t('apiKeys.agentOptional')}</Label>
-              <Controller
-                control={form.control}
-                name="agentId"
-                render={({ field }) => (
-                  <Select
-                    value={field.value || '__any__'}
-                    onValueChange={v =>
-                      field.onChange(v === '__any__' ? '' : v)
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t('apiKeys.anyAgent')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__any__">
-                        {t('apiKeys.anyAgent')}
-                      </SelectItem>
-                      {agents?.map(agent => (
-                        <SelectItem key={agent.id} value={agent.id}>
-                          {agent.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              <p className="text-muted-foreground text-xs">
-                {t('apiKeys.agentHint')}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label>{t('apiKeys.expiration')}</Label>
-              <Controller
-                control={form.control}
-                name="expiresAt"
-                render={({ field }) => (
-                  <DatePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder={t('apiKeys.selectExpiration')}
-                    fromDate={new Date()}
-                    clearable
-                  />
-                )}
-              />
-            </div>
-
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  {t('common.cancel')}
-                </Button>
-              </DialogClose>
-              <Button
-                type="submit"
-                disabled={!form.formState.isValid || createApiKey.isPending}
-                variant="primary"
-              >
-                {createApiKey.isPending
-                  ? t('apiKeys.creating')
-                  : t('apiKeys.createKey')}
-              </Button>
-            </DialogFooter>
-          </form>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function DeleteConfirmDialog({
-  target,
-  onOpenChange,
-}: {
-  readonly target: ApiKeyResponse | null;
-  readonly onOpenChange: (open: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const deleteApiKey = useDeleteApiKey();
-
-  function handleDelete() {
-    if (!target) return;
-    deleteApiKey.mutate(target.id, {
-      onSuccess: () => {
-        onOpenChange(false);
-        toast.success(t('apiKeys.keyRevoked'));
-      },
-    });
-  }
-
-  return (
-    <AlertDialog
-      open={target !== null}
-      onOpenChange={open => {
-        if (!open) onOpenChange(false);
-      }}
-    >
-      <AlertDialogContent variant="destructive">
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t('apiKeys.revokeTitle')}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t('apiKeys.revokeConfirm', { name: target?.name })}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            disabled={deleteApiKey.isPending}
-          >
-            {deleteApiKey.isPending
-              ? t('apiKeys.revoking')
-              : t('apiKeys.revokeKey')}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
 function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
   const { t } = useTranslation();
 
@@ -373,155 +89,6 @@ function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
         <Plus className="mr-2 size-4" />
         {t('apiKeys.createKey')}
       </Button>
-    </div>
-  );
-}
-
-function CodeBlock({ code }: { readonly code: string }) {
-  const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard API may fail in non-HTTPS contexts
-    }
-  }
-
-  return (
-    <div className="relative">
-      <pre className="bg-muted overflow-x-auto rounded-md p-4 font-mono text-sm leading-relaxed">
-        {code}
-      </pre>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-2 size-8"
-            onClick={handleCopy}
-          >
-            {copied ? (
-              <Check className="size-4 text-green-600" />
-            ) : (
-              <ClipboardCopy className="size-4" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('common.copy')}</TooltipContent>
-      </Tooltip>
-    </div>
-  );
-}
-
-function UsageDocs() {
-  const { t } = useTranslation();
-  const domain = window.location.origin;
-
-  const curlChat = `curl ${domain}/v1/chat/completions \\
-  -H "Authorization: Bearer sk-agx-..." \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "<version-id>",
-    "messages": [{"role": "user", "content": "Hello"}],
-    "stream": true
-  }'`;
-
-  const curlModels = `curl ${domain}/v1/models \\
-  -H "Authorization: Bearer sk-agx-..."`;
-
-  const pythonExample = `from openai import OpenAI
-
-client = OpenAI(
-    api_key="sk-agx-...",
-    base_url="${domain}/v1",
-)
-
-# ${t('apiKeys.usageListModels')}
-models = client.models.list()
-for model in models.data:
-    print(f"{model.id} - {model.name}")
-
-# ${t('apiKeys.usageChatStream')}
-stream = client.chat.completions.create(
-    model="<version-id>",
-    messages=[{"role": "user", "content": "Hello"}],
-    stream=True,
-)
-for chunk in stream:
-    if chunk.choices[0].delta.content:
-        print(chunk.choices[0].delta.content, end="")`;
-
-  const nodeExample = `import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: "sk-agx-...",
-  baseURL: "${domain}/v1",
-});
-
-// ${t('apiKeys.usageListModels')}
-const models = await client.models.list();
-for (const model of models.data) {
-  console.log(\`\${model.id} - \${model.name}\`);
-}
-
-// ${t('apiKeys.usageChatStream')}
-const stream = await client.chat.completions.create({
-  model: "<version-id>",
-  messages: [{ role: "user", content: "Hello" }],
-  stream: true,
-});
-for await (const chunk of stream) {
-  const content = chunk.choices[0]?.delta?.content;
-  if (content) process.stdout.write(content);
-}`;
-
-  return (
-    <div className="rounded-lg border p-6">
-      <h3 className="mb-2 text-lg font-semibold">{t('apiKeys.usage')}</h3>
-      <p className="text-muted-foreground mb-4 text-sm">
-        {t('apiKeys.usageDesc')}
-      </p>
-
-      <Tabs defaultValue="curl">
-        <TabsList>
-          <TabsTrigger value="curl">cURL</TabsTrigger>
-          <TabsTrigger value="python">Python</TabsTrigger>
-          <TabsTrigger value="node">Node.js</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="curl" className="flex flex-col gap-4">
-          <div>
-            <h4 className="mb-2 text-sm font-medium">
-              {t('apiKeys.usageChatCompletion')}
-            </h4>
-            <CodeBlock code={curlChat} />
-          </div>
-          <div>
-            <h4 className="mb-2 text-sm font-medium">
-              {t('apiKeys.usageListModels')}
-            </h4>
-            <CodeBlock code={curlModels} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="python">
-          <p className="text-muted-foreground mb-3 text-xs">
-            pip install openai
-          </p>
-          <CodeBlock code={pythonExample} />
-        </TabsContent>
-
-        <TabsContent value="node">
-          <p className="text-muted-foreground mb-3 text-xs">
-            npm install openai
-          </p>
-          <CodeBlock code={nodeExample} />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }
@@ -561,7 +128,6 @@ export default function ApiKeysPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -577,7 +143,6 @@ export default function ApiKeysPage() {
         </Button>
       </div>
 
-      {/* Table or Empty State */}
       {hasKeys ? (
         <div className="rounded-lg border">
           <Table>
@@ -648,13 +213,10 @@ export default function ApiKeysPage() {
         <EmptyState onCreateClick={() => setCreateOpen(true)} />
       )}
 
-      {/* Usage docs */}
       <UsageDocs />
 
-      {/* Create key dialog */}
       <CreateKeyDialog open={createOpen} onOpenChange={setCreateOpen} />
 
-      {/* Delete confirmation dialog */}
       <DeleteConfirmDialog
         target={deleteTarget}
         onOpenChange={open => {
