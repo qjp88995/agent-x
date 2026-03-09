@@ -234,7 +234,8 @@
     "parameters": "Parameters",
     "systemPrompt": "System Prompt",
     "skills": "Skills",
-    "mcpServers": "MCP Servers"
+    "mcpServers": "MCP Servers",
+    "configSnapshot": "Configuration"
   },
   "shareLinks": {
     "title": "Share Links",
@@ -252,6 +253,7 @@
     "maxConversationsPlaceholder": "e.g., 100",
     "version": "Version",
     "loading": "Loading share links...",
+    "linksCount": "share links",
     "noLinks": "No share links for this version.",
     "conversations": "conversations",
     "expires": "expires",

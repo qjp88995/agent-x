@@ -234,7 +234,8 @@
     "parameters": "参数",
     "systemPrompt": "系统提示词",
     "skills": "技能",
-    "mcpServers": "MCP 服务"
+    "mcpServers": "MCP 服务",
+    "configSnapshot": "配置快照"
   },
   "shareLinks": {
     "title": "分享链接",
@@ -252,6 +253,7 @@
     "maxConversationsPlaceholder": "例如：100",
     "version": "版本",
     "loading": "加载分享链接中...",
+    "linksCount": "个分享链接",
     "noLinks": "此版本暂无分享链接。",
     "conversations": "会话",
     "expires": "过期",
