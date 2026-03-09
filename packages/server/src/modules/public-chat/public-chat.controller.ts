@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Logger,
   Param,
   Post,
   Res,
@@ -30,6 +31,8 @@ import { PublicChatService } from './public-chat.service';
 @Public()
 @Controller('shared')
 export class PublicChatController {
+  private readonly logger = new Logger(PublicChatController.name);
+
   constructor(
     private readonly publicChatService: PublicChatService,
     private readonly runtime: AgentRuntimeService,
@@ -106,6 +109,12 @@ export class PublicChatController {
             MessageRole.ASSISTANT,
             parts,
             usage
+          );
+
+          this.maybeGenerateTitle(id, agentVersionId, content).catch(err =>
+            this.logger.warn(
+              `[shared-chat] title generation failed conversationId=${id}: ${err}`
+            )
           );
         } catch {
           // If steps fail (e.g. aborted), extract parts from buffered chunks
@@ -208,5 +217,34 @@ export class PublicChatController {
 
     const stopped = this.streamManager.abortStream(messageId);
     return { stopped };
+  }
+
+  private async maybeGenerateTitle(
+    conversationId: string,
+    agentVersionId: string,
+    userMessage: string
+  ): Promise<void> {
+    const count = await this.chatService.getMessageCount(conversationId);
+    if (count !== 2) return;
+
+    const title = await this.chatService.getConversationTitle(conversationId);
+    if (title && title !== 'New Chat') return;
+
+    const messages = await this.chatService.getMessagesForAI(conversationId);
+    const assistantMsg = messages.find(m => m.role === 'assistant');
+    if (!assistantMsg) return;
+
+    const generated = await this.runtime.generateTitleFromVersion(
+      agentVersionId,
+      userMessage,
+      assistantMsg.content
+    );
+
+    if (generated) {
+      await this.chatService.updateTitle(conversationId, generated);
+      this.logger.log(
+        `[shared-chat] title generated conversationId=${conversationId} title="${generated}"`
+      );
+    }
   }
 }
