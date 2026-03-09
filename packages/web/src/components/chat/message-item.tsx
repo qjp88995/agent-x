@@ -5,7 +5,7 @@ import { Bot, User } from 'lucide-react';
 
 import { FileChangeCard } from '@/components/workspace/file-change-card';
 import { cn } from '@/lib/utils';
-import { extractFileChanges } from '@/lib/workspace-utils';
+import { extractFileChanges,type FileChange } from '@/lib/workspace-utils';
 
 import { MarkdownRenderer } from './markdown-renderer';
 import { ThinkingBlock } from './thinking-block';
@@ -74,6 +74,72 @@ function StreamingIndicator() {
   );
 }
 
+interface WorkspaceToolGroup {
+  readonly startIndex: number;
+  readonly indices: Set<number>;
+  readonly changes: FileChange[];
+  readonly loading: boolean;
+}
+
+/**
+ * Group consecutive workspace tool parts and extract file changes per group.
+ * Text/reasoning parts between tools break the group.
+ */
+function computeWorkspaceGroups(
+  parts: UIMessage['parts']
+): Map<number, WorkspaceToolGroup> {
+  const groups: WorkspaceToolGroup[] = [];
+  let current: {
+    indices: number[];
+    parts: { type: string; [k: string]: unknown }[];
+  } | null = null;
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (isToolPart(part) && isWorkspaceTool(part)) {
+      if (!current) {
+        current = { indices: [], parts: [] };
+      }
+      current.indices.push(i);
+      current.parts.push(part as { type: string; [k: string]: unknown });
+    } else if (current) {
+      // Non-workspace part breaks the group
+      groups.push(finalizeGroup(current));
+      current = null;
+    }
+  }
+  if (current) {
+    groups.push(finalizeGroup(current));
+  }
+
+  // Build a map: startIndex → group, and index → group for quick lookup
+  const byIndex = new Map<number, WorkspaceToolGroup>();
+  for (const group of groups) {
+    for (const idx of group.indices) {
+      byIndex.set(idx, group);
+    }
+  }
+  return byIndex;
+}
+
+function finalizeGroup(current: {
+  indices: number[];
+  parts: { type: string; [k: string]: unknown }[];
+}): WorkspaceToolGroup {
+  const changes = extractFileChanges(current.parts);
+  const loading = current.parts.some(
+    p =>
+      (p as unknown as ToolUIPart).state !== 'output-available' &&
+      (p as unknown as ToolUIPart).state !== 'output-error'
+  );
+  return {
+    startIndex: current.indices[0],
+    indices: new Set(current.indices),
+    changes,
+    loading,
+  };
+}
+
 function AssistantContent({
   parts,
   streaming,
@@ -81,12 +147,7 @@ function AssistantContent({
   readonly parts: UIMessage['parts'];
   readonly streaming?: boolean;
 }) {
-  // Extract file changes from workspace tool calls
-  const fileChanges = useMemo(
-    () =>
-      extractFileChanges(parts as { type: string; [key: string]: unknown }[]),
-    [parts]
-  );
+  const groupMap = useMemo(() => computeWorkspaceGroups(parts), [parts]);
 
   return (
     <div>
@@ -107,30 +168,21 @@ function AssistantContent({
           return <MarkdownRenderer key={`text-${i}`} content={text} />;
         }
         if (isToolPart(part)) {
-          // Render workspace tools as file change cards
+          // Render workspace tools as grouped file change cards
           if (isWorkspaceTool(part)) {
-            // Only render the card once for the group (at the first workspace tool part)
-            const firstWorkspaceToolIdx = parts.findIndex(
-              p => isToolPart(p) && isWorkspaceTool(p as ToolUIPart)
-            );
-            if (i === firstWorkspaceToolIdx) {
-              if (fileChanges.length > 0) {
-                const loading = parts.some(
-                  p =>
-                    isToolPart(p) &&
-                    isWorkspaceTool(p as ToolUIPart) &&
-                    p.state !== 'output-available' &&
-                    p.state !== 'output-error'
-                );
+            const group = groupMap.get(i);
+            if (!group) return null;
+            if (i === group.startIndex) {
+              if (group.changes.length > 0) {
                 return (
                   <FileChangeCard
                     key={`file-changes-${i}`}
-                    changes={fileChanges}
-                    loading={loading}
+                    changes={group.changes}
+                    loading={group.loading}
                   />
                 );
               }
-              // No file changes extracted (e.g. incomplete writeFiles) — fall through to ToolCallBlock
+              // No changes extracted — fall through to ToolCallBlock
             } else {
               return null;
             }
