@@ -59,13 +59,6 @@ const WORKSPACE_TOOLS = new Set([
   'readFileLines',
 ]);
 
-const HIDDEN_TOOLS = new Set([
-  'listFiles',
-  'searchFiles',
-  'fileExists',
-  'fileInfo',
-]);
-
 function isWorkspaceTool(part: ToolUIPart): boolean {
   return WORKSPACE_TOOLS.has(getToolName(part));
 }
@@ -112,19 +105,11 @@ function AssistantContent({
           return <MarkdownRenderer key={`text-${i}`} content={text} />;
         }
         if (isToolPart(part)) {
-          // Hide read-only workspace tools (readFile, listFiles, etc.)
-          if (isWorkspaceTool(part) && HIDDEN_TOOLS.has(getToolName(part))) {
-            return null;
-          }
-
-          // Render write workspace tools as file change cards
+          // Render workspace tools as file change cards
           if (isWorkspaceTool(part)) {
             // Only render the card once for the group (at the first workspace tool part)
             const firstWorkspaceToolIdx = parts.findIndex(
-              p =>
-                isToolPart(p) &&
-                isWorkspaceTool(p as ToolUIPart) &&
-                !HIDDEN_TOOLS.has(getToolName(p as ToolUIPart))
+              p => isToolPart(p) && isWorkspaceTool(p as ToolUIPart)
             );
             if (i === firstWorkspaceToolIdx) {
               if (fileChanges.length > 0) {

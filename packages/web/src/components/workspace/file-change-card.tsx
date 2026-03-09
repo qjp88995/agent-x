@@ -8,8 +8,11 @@ import {
   FileCheck,
   FileMinus,
   FilePlus,
+  FileQuestion,
   FileSearch,
+  FolderOpen,
   Loader2,
+  Search,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -43,6 +46,21 @@ const OPERATION_CONFIG: Record<
     icon: FileSearch,
     colorClass: 'text-muted-foreground',
     labelKey: 'workspace.fileRead',
+  },
+  listed: {
+    icon: FolderOpen,
+    colorClass: 'text-muted-foreground',
+    labelKey: 'workspace.fileListed',
+  },
+  searched: {
+    icon: Search,
+    colorClass: 'text-muted-foreground',
+    labelKey: 'workspace.fileSearched',
+  },
+  checked: {
+    icon: FileQuestion,
+    colorClass: 'text-muted-foreground',
+    labelKey: 'workspace.fileChecked',
   },
 };
 

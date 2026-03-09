@@ -3,7 +3,10 @@ export type FileChangeOperation =
   | 'updated'
   | 'deleted'
   | 'renamed'
-  | 'read';
+  | 'read'
+  | 'listed'
+  | 'searched'
+  | 'checked';
 
 export interface FileChange {
   readonly path: string;
@@ -74,6 +77,21 @@ export function extractFileChanges(
       changes.push({ path: input.path as string, operation: 'read' });
     } else if (toolName === 'readFileLines' && input?.path) {
       changes.push({ path: input.path as string, operation: 'read' });
+    } else if (toolName === 'listFiles') {
+      changes.push({
+        path: (input?.path as string) || '/',
+        operation: 'listed',
+      });
+    } else if (toolName === 'searchFiles' && input?.query) {
+      changes.push({
+        path: (input.path as string) || '/',
+        operation: 'searched',
+      });
+    } else if (
+      (toolName === 'fileExists' || toolName === 'fileInfo') &&
+      input?.path
+    ) {
+      changes.push({ path: input.path as string, operation: 'checked' });
     }
   }
 
