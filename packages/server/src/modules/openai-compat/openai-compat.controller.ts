@@ -11,7 +11,7 @@ import {
 import { Request, Response } from 'express';
 
 import { AgentStatus } from '../../generated/prisma/client';
-import { AgentService } from '../agent/agent.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ApiKeyService } from '../api-key/api-key.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { AgentRuntimeService } from '../chat/agent-runtime.service';
@@ -24,7 +24,7 @@ export class OpenaiCompatController {
   constructor(
     private readonly runtime: AgentRuntimeService,
     private readonly apiKeyService: ApiKeyService,
-    private readonly agentService: AgentService
+    private readonly prisma: PrismaService
   ) {}
 
   @Get('models')
@@ -33,28 +33,32 @@ export class OpenaiCompatController {
     if (!keyData) return;
 
     if (keyData.agentId) {
-      // Key is bound to a specific agent — return only that agent
-      try {
-        const agent = await this.agentService.findOne(
-          keyData.agentId,
-          keyData.userId
-        );
-        res.json({
-          object: 'list',
-          data: [this.agentToModel(agent)],
-        });
-      } catch {
-        res.json({ object: 'list', data: [] });
-      }
-    } else {
-      // Key is not bound — return all active agents
-      const agents = await this.agentService.findAll(
-        keyData.userId,
-        AgentStatus.ACTIVE
-      );
+      // Key is bound to a specific agent — return its published versions
+      const versions = await this.prisma.agentVersion.findMany({
+        where: { agentId: keyData.agentId },
+        include: { agent: { select: { name: true } } },
+        orderBy: { version: 'desc' },
+      });
       res.json({
         object: 'list',
-        data: agents.map(agent => this.agentToModel(agent)),
+        data: versions.map(v => this.versionToModel(v)),
+      });
+    } else {
+      // Key is not bound — return all published versions of active agents
+      const versions = await this.prisma.agentVersion.findMany({
+        where: {
+          agent: {
+            userId: keyData.userId,
+            status: AgentStatus.ACTIVE,
+            deletedAt: null,
+          },
+        },
+        include: { agent: { select: { name: true } } },
+        orderBy: { version: 'desc' },
+      });
+      res.json({
+        object: 'list',
+        data: versions.map(v => this.versionToModel(v)),
       });
     }
   }
@@ -73,13 +77,35 @@ export class OpenaiCompatController {
     const keyData = await this.validateApiKey(req, res);
     if (!keyData) return;
 
-    const agentId = keyData.agentId ?? body.model;
+    const versionId = body.model;
 
-    if (!agentId) {
+    if (!versionId) {
       res.status(400).json({
         error: {
-          message:
-            'model field is required when API key is not bound to an agent',
+          message: 'model field is required (use a version ID from /v1/models)',
+          type: 'invalid_request_error',
+        },
+      });
+      return;
+    }
+
+    // Verify the version exists and belongs to the user's scope
+    const version = await this.prisma.agentVersion.findFirst({
+      where: {
+        id: versionId,
+        agent: {
+          userId: keyData.userId,
+          deletedAt: null,
+          ...(keyData.agentId ? { id: keyData.agentId } : {}),
+        },
+      },
+      select: { id: true },
+    });
+
+    if (!version) {
+      res.status(404).json({
+        error: {
+          message: `Version '${versionId}' not found or not accessible with this API key`,
           type: 'invalid_request_error',
         },
       });
@@ -92,9 +118,11 @@ export class OpenaiCompatController {
     });
 
     try {
-      const result = await this.runtime.createStream(agentId, body.messages, {
-        abortSignal: abortController.signal,
-      });
+      const result = await this.runtime.createStreamFromVersion(
+        versionId,
+        body.messages,
+        { abortSignal: abortController.signal }
+      );
 
       if (body.stream !== false) {
         res.setHeader('Content-Type', 'text/event-stream');
@@ -108,7 +136,7 @@ export class OpenaiCompatController {
               id: `chatcmpl-${Date.now()}`,
               object: 'chat.completion.chunk',
               created: Math.floor(Date.now() / 1000),
-              model: agentId,
+              model: versionId,
               choices: [
                 {
                   index: 0,
@@ -137,7 +165,7 @@ export class OpenaiCompatController {
           id: `chatcmpl-${Date.now()}`,
           object: 'chat.completion',
           created: Math.floor(Date.now() / 1000),
-          model: agentId,
+          model: versionId,
           choices: [
             {
               index: 0,
@@ -209,13 +237,20 @@ export class OpenaiCompatController {
     return keyData;
   }
 
-  private agentToModel(agent: { id: string; name: string; createdAt: Date }) {
+  private versionToModel(version: {
+    id: string;
+    version: number;
+    modelId: string;
+    createdAt: Date;
+    agent: { name: string };
+  }) {
     return {
-      id: agent.id,
+      id: version.id,
       object: 'model',
-      created: Math.floor(agent.createdAt.getTime() / 1000),
+      created: Math.floor(version.createdAt.getTime() / 1000),
       owned_by: 'agent-x',
-      name: agent.name,
+      name: `${version.agent.name}-v${version.version}`,
+      model_id: version.modelId,
     };
   }
 }

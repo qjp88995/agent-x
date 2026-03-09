@@ -411,7 +411,7 @@
     "agent": "Agent",
     "agentOptional": "Agent (optional)",
     "anyAgent": "Any agent (specify in request)",
-    "agentHint": "Bind this key to a specific agent, or leave blank to specify the agent in each request via the model field.",
+    "agentHint": "Bind this key to a specific agent, or leave blank to access all agents. Use a published version ID as the model field in requests.",
     "expiration": "Expiration (optional)",
     "selectExpiration": "Select expiration date",
     "noKeys": "No API keys yet",

@@ -425,7 +425,7 @@ function UsageDocs() {
   -H "Authorization: Bearer sk-agx-..." \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "<agent-id>",
+    "model": "<version-id>",
     "messages": [{"role": "user", "content": "Hello"}],
     "stream": true
   }'`;
@@ -447,7 +447,7 @@ for model in models.data:
 
 # ${t('apiKeys.usageChatStream')}
 stream = client.chat.completions.create(
-    model="<agent-id>",
+    model="<version-id>",
     messages=[{"role": "user", "content": "Hello"}],
     stream=True,
 )
@@ -470,7 +470,7 @@ for (const model of models.data) {
 
 // ${t('apiKeys.usageChatStream')}
 const stream = await client.chat.completions.create({
-  model: "<agent-id>",
+  model: "<version-id>",
   messages: [{ role: "user", content: "Hello" }],
   stream: true,
 });

@@ -411,7 +411,7 @@
     "agent": "智能体",
     "agentOptional": "智能体（可选）",
     "anyAgent": "任意智能体（在请求中指定）",
-    "agentHint": "将此密钥绑定到特定智能体，或留空以在每次请求中通过 model 字段指定。",
+    "agentHint": "将此密钥绑定到特定智能体，或留空以访问所有智能体。请求时在 model 字段中使用已发布的版本 ID。",
     "expiration": "过期时间（可选）",
     "selectExpiration": "选择过期日期",
     "noKeys": "暂无 API 密钥",
