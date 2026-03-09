@@ -15,7 +15,7 @@ import {
   ArchiveRestore,
   Check,
   ClipboardCopy,
-  History,
+  GitBranch,
   Loader2,
   Rocket,
   Save,
@@ -330,7 +330,7 @@ function AgentEditForm({
               variant="outline"
               onClick={() => navigate(`/agents/${agentId}/versions`)}
             >
-              <History className="mr-2 size-4" />
+              <GitBranch className="mr-2 size-4" />
               {t('agents.versionManagement')}
             </Button>
             {agent.status === AgentStatus.ACTIVE && (

@@ -14,7 +14,7 @@ import {
   Bot,
   Check,
   ClipboardCopy,
-  History,
+  GitBranch,
   MessageSquare,
   MoreHorizontal,
   Pencil,
@@ -249,7 +249,7 @@ function AgentCard({
                   asChild
                 >
                   <Link to={`/agents/${agent.id}/versions`}>
-                    <History className="size-3.5" />
+                    <GitBranch className="size-3.5" />
                   </Link>
                 </Button>
               </TooltipTrigger>
