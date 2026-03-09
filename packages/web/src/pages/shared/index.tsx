@@ -16,18 +16,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
 import {
   sharedConversationsKey,
   useCreateSharedConversation,
   useSharedAgentInfo,
   useSharedConversations,
   useSharedMessages,
+  useSharedWorkspaceFiles,
 } from '@/hooks/use-shared-chat';
-import { useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { toUIMessages } from '@/lib/message-utils';
-import { publicApi } from '@/lib/public-api';
 import { SharedChatTransport } from '@/lib/shared-chat-transport';
 import { cn } from '@/lib/utils';
 
@@ -68,7 +66,8 @@ function SharedChatContent({
 
   useWorkspaceSync(conversationId ?? undefined, messages);
 
-  const { data: workspaceFiles } = useWorkspaceFiles(
+  const { data: workspaceFiles } = useSharedWorkspaceFiles(
+    token,
     conversationId ?? undefined
   );
   const hasFiles = workspaceFiles && workspaceFiles.length > 0;
@@ -319,11 +318,6 @@ export default function SharedChatPage() {
   const { token } = useParams<{ token: string }>();
   const { data: agentInfo, isLoading, error } = useSharedAgentInfo(token);
 
-  const filesUrl = useCallback(
-    (id: string) => `/shared/${token}/conversations/${id}/files`,
-    [token]
-  );
-
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -338,9 +332,5 @@ export default function SharedChatPage() {
     return <SharedExpiredPage />;
   }
 
-  return (
-    <WorkspaceApiProvider client={publicApi} filesUrl={filesUrl}>
-      <SharedChatContent token={token} agentInfo={agentInfo} />
-    </WorkspaceApiProvider>
-  );
+  return <SharedChatContent token={token} agentInfo={agentInfo} />;
 }

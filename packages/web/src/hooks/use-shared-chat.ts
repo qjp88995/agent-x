@@ -61,6 +61,22 @@ export function useCreateSharedConversation() {
   });
 }
 
+export function useSharedWorkspaceFiles(
+  token: string | undefined,
+  conversationId: string | undefined
+) {
+  return useQuery({
+    queryKey: ['workspace-files', conversationId ?? ''],
+    queryFn: async () => {
+      const { data } = await publicApi.get(
+        `/shared/${token}/conversations/${conversationId}/files`
+      );
+      return data as Array<{ id: string; path: string }>;
+    },
+    enabled: !!token && !!conversationId,
+  });
+}
+
 export function useSharedMessages(
   token: string | undefined,
   conversationId: string | undefined
