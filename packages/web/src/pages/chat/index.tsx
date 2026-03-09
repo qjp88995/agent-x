@@ -190,7 +190,7 @@ function Sidebar({
   return (
     <div className="flex h-full w-72 flex-col border-r bg-background">
       {/* Back to dashboard + title */}
-      <div className="flex h-14 items-center gap-2 px-4">
+      <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8" asChild>
@@ -205,7 +205,6 @@ function Sidebar({
           {t('chat.title')}
         </span>
       </div>
-      <Separator />
 
       {/* Agent selector */}
       <div className="px-3 pt-3 pb-1">
