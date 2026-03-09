@@ -170,7 +170,7 @@ function MarketplaceCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7 cursor-pointer"
+                    className="size-7"
                     onClick={handleTest}
                     disabled={testMcpServer.isPending}
                   >
@@ -188,7 +188,7 @@ function MarketplaceCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7 cursor-pointer"
+                    className="size-7"
                     asChild
                   >
                     <Link to={`/mcp-servers/${server.id}/edit?type=official`}>
@@ -280,7 +280,7 @@ function McpServerCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-7 cursor-pointer"
+                  className="size-7"
                   onClick={handleTest}
                   disabled={testMcpServer.isPending}
                 >
@@ -295,12 +295,7 @@ function McpServerCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 cursor-pointer"
-                  asChild
-                >
+                <Button variant="ghost" size="icon" className="size-7" asChild>
                   <Link to={`/mcp-servers/${server.id}/edit`}>
                     <Pencil className="size-3.5" />
                   </Link>

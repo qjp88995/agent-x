@@ -188,7 +188,7 @@ function AgentCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7 cursor-pointer"
+                    className="size-7"
                     asChild
                   >
                     <Link to={`/chat?agent=${agent.id}`}>
@@ -201,12 +201,7 @@ function AgentCard({
             )}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 cursor-pointer"
-                  asChild
-                >
+                <Button variant="ghost" size="icon" className="size-7" asChild>
                   <Link to={`/agents/${agent.id}/versions`}>
                     <GitBranch className="size-3.5" />
                   </Link>
@@ -216,12 +211,7 @@ function AgentCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 cursor-pointer"
-                  asChild
-                >
+                <Button variant="ghost" size="icon" className="size-7" asChild>
                   <Link to={`/agents/${agent.id}/edit`}>
                     <Pencil className="size-3.5" />
                   </Link>

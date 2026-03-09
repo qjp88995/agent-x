@@ -132,7 +132,7 @@ function MarketplaceCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-7 cursor-pointer"
+                  className="size-7"
                   onClick={() => onPreview(skill)}
                 >
                   <Eye className="size-3.5" />
@@ -146,7 +146,7 @@ function MarketplaceCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7 cursor-pointer"
+                    className="size-7"
                     asChild
                   >
                     <Link to={`/skills/${skill.id}/edit?type=system`}>
@@ -230,7 +230,7 @@ function SkillCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-7 cursor-pointer"
+                  className="size-7"
                   onClick={() => onPreview(skill)}
                 >
                   <Eye className="size-3.5" />
@@ -240,12 +240,7 @@ function SkillCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 cursor-pointer"
-                  asChild
-                >
+                <Button variant="ghost" size="icon" className="size-7" asChild>
                   <Link to={`/skills/${skill.id}/edit`}>
                     <Pencil className="size-3.5" />
                   </Link>

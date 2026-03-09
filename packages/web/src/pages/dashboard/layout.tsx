@@ -90,7 +90,7 @@ function ThemeToggle() {
           variant="ghost"
           size="icon"
           onClick={() => setTheme(nextTheme)}
-          className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
+          className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8"
           aria-label={t('settings.theme')}
         >
           <Icon className="size-4" />
@@ -183,7 +183,7 @@ function UserSection() {
               variant="ghost"
               size="icon"
               onClick={logout}
-              className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8 cursor-pointer"
+              className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8"
               aria-label={t('auth.signOut')}
             >
               <LogOut className="size-4" />
@@ -260,7 +260,6 @@ export default function DashboardLayout() {
               size="icon"
               onClick={() => setMobileOpen(true)}
               aria-label={t('nav.openMenu')}
-              className="cursor-pointer"
             >
               <Menu className="size-5" />
             </Button>

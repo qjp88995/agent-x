@@ -266,12 +266,7 @@ function SharedChatContent({
           <div className="flex h-10 shrink-0 items-center justify-end border-b px-3">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 cursor-pointer"
-                  asChild
-                >
+                <Button variant="ghost" size="icon" className="size-8" asChild>
                   <Link to={`/s/${token}/workspace/${conversationId}`}>
                     <Code2 className="size-4" />
                   </Link>

@@ -154,7 +154,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="ml-auto size-8 cursor-pointer"
+                className="ml-auto size-8"
                 asChild
               >
                 <Link to={`/chat/${conversationId}/workspace`}>

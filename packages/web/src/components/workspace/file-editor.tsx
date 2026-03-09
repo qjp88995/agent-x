@@ -267,7 +267,7 @@ export function FileEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="size-4 cursor-pointer hover:bg-accent"
+              className="size-4 hover:bg-accent"
               onClick={e => {
                 e.stopPropagation();
                 onCloseTab(tab.file.id);

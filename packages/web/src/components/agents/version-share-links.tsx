@@ -303,7 +303,7 @@ export function VersionShareLinks({
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="size-6 cursor-pointer"
+                          className="size-6"
                           onClick={() =>
                             handleCopy(getShareUrl(token.tokenSlug!), token.id)
                           }

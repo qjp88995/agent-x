@@ -44,7 +44,6 @@ export function PageHeader({
                   : navigate(backTo as To)
               }
               aria-label={backLabel}
-              className="cursor-pointer"
             >
               <ArrowLeft className="size-4" />
             </Button>

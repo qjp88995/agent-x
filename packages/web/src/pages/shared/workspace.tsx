@@ -118,12 +118,7 @@ function SharedWorkspaceContent({
       <div className="flex h-10 shrink-0 items-center gap-2 border-b px-3">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7 cursor-pointer"
-              asChild
-            >
+            <Button variant="ghost" size="icon" className="size-7" asChild>
               <Link to={`/s/${token}?c=${conversationId}`}>
                 <ArrowLeft className="size-4" />
               </Link>
@@ -140,7 +135,7 @@ function SharedWorkspaceContent({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-7 cursor-pointer"
+                className="size-7"
                 onClick={handleDownloadWorkspace}
                 disabled={!workspaceFiles || workspaceFiles.length === 0}
               >

@@ -137,12 +137,7 @@ function Sidebar({
       <div className="flex h-14 items-center gap-2 px-4">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 cursor-pointer"
-              asChild
-            >
+            <Button variant="ghost" size="icon" className="size-8" asChild>
               <Link to="/agents">
                 <ArrowLeft className="size-4" />
               </Link>

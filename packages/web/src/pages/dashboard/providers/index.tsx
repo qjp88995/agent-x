@@ -201,7 +201,7 @@ function ProviderCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-7 cursor-pointer"
+                  className="size-7"
                   onClick={handleSync}
                   disabled={syncModels.isPending}
                 >
@@ -224,7 +224,7 @@ function ProviderCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-7 cursor-pointer"
+                  className="size-7"
                   onClick={handleTest}
                   disabled={testProvider.isPending}
                 >
@@ -239,12 +239,7 @@ function ProviderCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 cursor-pointer"
-                  asChild
-                >
+                <Button variant="ghost" size="icon" className="size-7" asChild>
                   <Link to={`/providers/${provider.id}/edit`}>
                     <Pencil className="size-3.5" />
                   </Link>
