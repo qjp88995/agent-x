@@ -12,7 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { messagesKey, useMessages } from '@/hooks/use-chat';
+import { CONVERSATIONS_KEY, messagesKey, useMessages } from '@/hooks/use-chat';
 import { useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { AgentXChatTransport } from '@/lib/chat-transport';
@@ -86,6 +86,19 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
   const { data: savedMessages } = useMessages(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const historyLoadedRef = useRef<string | null>(null);
+
+  // Refresh conversation list after streaming completes (for auto-generated title)
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = status;
+    if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
+      const timer = setTimeout(() => {
+        void queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status, queryClient]);
 
   // Load saved messages when conversation changes
   useEffect(() => {

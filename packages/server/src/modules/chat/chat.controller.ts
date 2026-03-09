@@ -127,6 +127,14 @@ export class ChatController {
           this.logger.log(
             `[chat] onComplete OK messageId=${messageId} usage=${JSON.stringify(usage)}`
           );
+
+          // Auto-generate title on first conversation round
+          this.maybeGenerateTitle(id, conversation.agentId, content).catch(
+            err =>
+              this.logger.warn(
+                `[chat] title generation failed conversationId=${id}: ${err}`
+              )
+          );
         } catch (err) {
           this.logger.warn(
             `[chat] onComplete steps failed messageId=${messageId}: ${err}`
@@ -242,5 +250,35 @@ export class ChatController {
     @CurrentUser() user: { id: string }
   ) {
     return this.chatService.deleteConversation(id, user.id);
+  }
+
+  private async maybeGenerateTitle(
+    conversationId: string,
+    agentId: string,
+    userMessage: string
+  ): Promise<void> {
+    // Only generate on first round (2 messages: 1 user + 1 assistant)
+    const count = await this.chatService.getMessageCount(conversationId);
+    if (count !== 2) return;
+
+    const title = await this.chatService.getConversationTitle(conversationId);
+    if (title && title !== 'New Chat') return;
+
+    const messages = await this.chatService.getMessagesForAI(conversationId);
+    const assistantMsg = messages.find(m => m.role === 'assistant');
+    if (!assistantMsg) return;
+
+    const generated = await this.runtime.generateTitle(
+      agentId,
+      userMessage,
+      assistantMsg.content
+    );
+
+    if (generated) {
+      await this.chatService.updateTitle(conversationId, generated);
+      this.logger.log(
+        `[chat] title generated conversationId=${conversationId} title="${generated}"`
+      );
+    }
   }
 }

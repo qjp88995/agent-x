@@ -7,7 +7,7 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createMoonshotAI } from '@ai-sdk/moonshotai';
 import { createOpenAI } from '@ai-sdk/openai';
-import { stepCountIs, streamText, type Tool } from 'ai';
+import { generateText, stepCountIs, streamText, type Tool } from 'ai';
 import { createZhipu } from 'zhipu-ai-provider';
 
 import { decrypt } from '../../common/crypto.util';
@@ -239,6 +239,39 @@ export class AgentRuntimeService {
         this.logger.warn(`Failed to cleanup MCP session: ${result.reason}`);
       }
     }
+  }
+
+  async generateTitle(
+    agentId: string,
+    userMessage: string,
+    assistantMessage: string
+  ): Promise<string> {
+    const agent = await this.prisma.agent.findFirstOrThrow({
+      where: { id: agentId, deletedAt: null },
+      include: { provider: true },
+    });
+
+    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
+    const apiKey = decrypt(agent.provider.apiKey, encryptionSecret);
+    const model = this.createModel(
+      agent.provider.protocol,
+      agent.provider.baseUrl,
+      apiKey,
+      agent.modelId
+    );
+
+    const { text } = await generateText({
+      model,
+      system:
+        'Generate a short conversation title (max 20 characters) based on the following conversation. Return ONLY the title text, nothing else. Use the same language as the user message.',
+      messages: [
+        { role: 'user' as const, content: userMessage },
+        { role: 'assistant' as const, content: assistantMessage },
+      ],
+      maxOutputTokens: 50,
+    });
+
+    return text.replace(/^["']+|["']+$/g, '').trim();
   }
 
   private createModel(

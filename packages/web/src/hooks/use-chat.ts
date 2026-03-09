@@ -18,7 +18,7 @@ export interface ConversationWithAgent {
   readonly agent: ConversationAgent;
 }
 
-const CONVERSATIONS_KEY = ['conversations'] as const;
+export const CONVERSATIONS_KEY = ['conversations'] as const;
 
 export function messagesKey(conversationId: string) {
   return ['messages', conversationId] as const;

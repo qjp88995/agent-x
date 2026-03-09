@@ -198,6 +198,25 @@ export class ChatService {
     return conversation;
   }
 
+  async updateTitle(conversationId: string, title: string) {
+    await this.prisma.conversation.update({
+      where: { id: conversationId },
+      data: { title },
+    });
+  }
+
+  async getMessageCount(conversationId: string): Promise<number> {
+    return this.prisma.message.count({ where: { conversationId } });
+  }
+
+  async getConversationTitle(conversationId: string): Promise<string | null> {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      select: { title: true },
+    });
+    return conversation?.title ?? null;
+  }
+
   async deleteConversation(id: string, userId: string) {
     await this.verifyOwnership(id, userId);
 
