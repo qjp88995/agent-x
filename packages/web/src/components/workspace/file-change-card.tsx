@@ -10,7 +10,9 @@ import {
   FilePlus,
   FileQuestion,
   FileSearch,
+  FolderMinus,
   FolderOpen,
+  FolderPlus,
   Loader2,
   Search,
 } from 'lucide-react';
@@ -61,6 +63,21 @@ const OPERATION_CONFIG: Record<
     icon: FileQuestion,
     colorClass: 'text-muted-foreground',
     labelKey: 'workspace.fileChecked',
+  },
+  'dir-created': {
+    icon: FolderPlus,
+    colorClass: 'text-green-500',
+    labelKey: 'workspace.folderCreated',
+  },
+  'dir-deleted': {
+    icon: FolderMinus,
+    colorClass: 'text-red-500',
+    labelKey: 'workspace.folderDeleted',
+  },
+  'dir-renamed': {
+    icon: ArrowRightLeft,
+    colorClass: 'text-orange-500',
+    labelKey: 'workspace.folderRenamed',
   },
 };
 

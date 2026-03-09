@@ -6,7 +6,10 @@ export type FileChangeOperation =
   | 'read'
   | 'listed'
   | 'searched'
-  | 'checked';
+  | 'checked'
+  | 'dir-created'
+  | 'dir-deleted'
+  | 'dir-renamed';
 
 export interface FileChange {
   readonly path: string;
@@ -70,13 +73,13 @@ export function extractFileChanges(
         operation: 'renamed',
       });
     } else if (toolName === 'createDirectory' && input?.path) {
-      changes.push({ path: input.path as string, operation: 'created' });
+      changes.push({ path: input.path as string, operation: 'dir-created' });
     } else if (toolName === 'deleteDirectory' && input?.path) {
-      changes.push({ path: input.path as string, operation: 'deleted' });
+      changes.push({ path: input.path as string, operation: 'dir-deleted' });
     } else if (toolName === 'renameDirectory' && input?.oldPath) {
       changes.push({
         path: `${input.oldPath as string} → ${input.newPath as string}`,
-        operation: 'renamed',
+        operation: 'dir-renamed',
       });
     } else if (toolName === 'readFile' && input?.path) {
       changes.push({ path: input.path as string, operation: 'read' });
