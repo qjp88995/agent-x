@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+  ArrowRightLeft,
   ChevronDown,
   ChevronRight,
   FileCheck,
@@ -31,6 +32,11 @@ const OPERATION_CONFIG: Record<
     icon: FileMinus,
     colorClass: 'text-red-500',
     labelKey: 'workspace.fileDeleted',
+  },
+  renamed: {
+    icon: ArrowRightLeft,
+    colorClass: 'text-orange-500',
+    labelKey: 'workspace.fileRenamed',
   },
 };
 

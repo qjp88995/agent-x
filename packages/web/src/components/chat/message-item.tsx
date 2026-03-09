@@ -47,8 +47,25 @@ const WORKSPACE_TOOLS = new Set([
   'updateFile',
   'deleteFile',
   'writeFiles',
+  'patchFile',
+  'renameFile',
+  'createDirectory',
+  'deleteDirectory',
   'readFile',
   'listFiles',
+  'searchFiles',
+  'fileExists',
+  'fileInfo',
+  'readFileLines',
+]);
+
+const READ_ONLY_TOOLS = new Set([
+  'readFile',
+  'listFiles',
+  'searchFiles',
+  'fileExists',
+  'fileInfo',
+  'readFileLines',
 ]);
 
 function isWorkspaceTool(part: ToolUIPart): boolean {
@@ -97,19 +114,19 @@ function AssistantContent({
           return <MarkdownRenderer key={`text-${i}`} content={text} />;
         }
         if (isToolPart(part)) {
-          // Render workspace tools as file change cards (skip readFile/listFiles)
-          if (
-            isWorkspaceTool(part) &&
-            getToolName(part) !== 'readFile' &&
-            getToolName(part) !== 'listFiles'
-          ) {
+          // Hide read-only workspace tools (readFile, listFiles, etc.)
+          if (isWorkspaceTool(part) && READ_ONLY_TOOLS.has(getToolName(part))) {
+            return null;
+          }
+
+          // Render write workspace tools as file change cards
+          if (isWorkspaceTool(part)) {
             // Only render the card once for the group (at the first workspace tool part)
             const firstWorkspaceToolIdx = parts.findIndex(
               p =>
                 isToolPart(p) &&
                 isWorkspaceTool(p as ToolUIPart) &&
-                getToolName(p as ToolUIPart) !== 'readFile' &&
-                getToolName(p as ToolUIPart) !== 'listFiles'
+                !READ_ONLY_TOOLS.has(getToolName(p as ToolUIPart))
             );
             if (i === firstWorkspaceToolIdx) {
               if (fileChanges.length > 0) {

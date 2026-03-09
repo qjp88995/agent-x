@@ -1,4 +1,4 @@
-export type FileChangeOperation = 'created' | 'updated' | 'deleted';
+export type FileChangeOperation = 'created' | 'updated' | 'deleted' | 'renamed';
 
 export interface FileChange {
   readonly path: string;
@@ -54,6 +54,17 @@ export function extractFileChanges(
       for (const file of files) {
         changes.push({ path: file.path, operation: 'created' });
       }
+    } else if (toolName === 'patchFile' && input?.path) {
+      changes.push({ path: input.path as string, operation: 'updated' });
+    } else if (toolName === 'renameFile' && input?.oldPath) {
+      changes.push({
+        path: `${input.oldPath as string} → ${input.newPath as string}`,
+        operation: 'renamed',
+      });
+    } else if (toolName === 'createDirectory' && input?.path) {
+      changes.push({ path: input.path as string, operation: 'created' });
+    } else if (toolName === 'deleteDirectory' && input?.path) {
+      changes.push({ path: input.path as string, operation: 'deleted' });
     }
   }
 

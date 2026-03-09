@@ -482,6 +482,7 @@
     "fileCreated": "Created",
     "fileUpdated": "Updated",
     "fileDeleted": "Deleted",
+    "fileRenamed": "Renamed",
     "filesChanged": "{{count}} file(s) changed",
     "fileWriting": "Writing...",
     "filesWriting": "Writing {{count}} file(s)...",
