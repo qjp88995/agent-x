@@ -5,7 +5,7 @@ import { Bot, User } from 'lucide-react';
 
 import { FileChangeCard } from '@/components/workspace/file-change-card';
 import { cn } from '@/lib/utils';
-import { extractFileChanges,type FileChange } from '@/lib/workspace-utils';
+import { extractFileChanges, type FileChange } from '@/lib/workspace-utils';
 
 import { MarkdownRenderer } from './markdown-renderer';
 import { ThinkingBlock } from './thinking-block';
@@ -248,7 +248,7 @@ export const MessageItem = memo(function MessageItem({
         className={cn(
           'flex size-8 shrink-0 items-center justify-center rounded-full',
           isUser
-            ? 'bg-primary text-primary-foreground'
+            ? 'bg-primary/15 text-primary dark:bg-primary/20'
             : 'gradient-bg text-white'
         )}
       >
@@ -260,7 +260,7 @@ export const MessageItem = memo(function MessageItem({
         className={cn(
           'max-w-[75%] rounded-2xl px-4 py-2.5',
           isUser
-            ? 'bg-primary text-primary-foreground'
+            ? 'bg-primary/10 text-foreground dark:bg-primary/15'
             : 'bg-card border border-border/50 text-foreground'
         )}
       >
