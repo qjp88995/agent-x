@@ -2,20 +2,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type {
-  McpServerResponse,
-  McpTransport as McpTransportType,
-} from '@agent-x/shared';
-import {
-  AlertTriangle,
-  Pencil,
-  PlugZap,
-  Plus,
-  Server,
-  Trash2,
-} from 'lucide-react';
+import type { McpServerResponse } from '@agent-x/shared';
+import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { MarketplaceCard } from '@/components/mcp/marketplace-card';
+import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
+import { McpServerCard } from '@/components/mcp/mcp-server-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,330 +19,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useDeleteMarketplaceMcpServer,
   useDeleteMcpServer,
   useMcpMarket,
   useMcpServers,
-  useTestMcpServer,
 } from '@/hooks/use-mcp';
-import { cn } from '@/lib/utils';
-
-const TRANSPORT_BADGE_CONFIG: Record<McpTransportType, { className: string }> =
-  {
-    STDIO: {
-      className:
-        'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-    },
-    SSE: {
-      className:
-        'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    },
-    STREAMABLE_HTTP: {
-      className:
-        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    },
-  };
-
-const TRANSPORT_LABEL_KEY: Record<McpTransportType, string> = {
-  STDIO: 'mcp.stdio',
-  SSE: 'mcp.sse',
-  STREAMABLE_HTTP: 'mcp.streamableHttp',
-};
-
-function TransportBadge({
-  transport,
-}: {
-  readonly transport: McpTransportType;
-}) {
-  const { t } = useTranslation();
-  const config = TRANSPORT_BADGE_CONFIG[transport];
-  return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {t(TRANSPORT_LABEL_KEY[transport])}
-    </Badge>
-  );
-}
-
-function MarketplaceCard({
-  server,
-  isAdmin,
-  onDelete,
-}: {
-  readonly server: McpServerResponse;
-  readonly isAdmin: boolean;
-  readonly onDelete: (server: McpServerResponse) => void;
-}) {
-  const { t } = useTranslation();
-  const testMcpServer = useTestMcpServer();
-  const toolCount = server.tools?.length ?? 0;
-
-  function handleTest() {
-    testMcpServer.mutate(server.id, {
-      onSuccess: result => {
-        if (result.success) {
-          toast.success(t('mcp.testSuccess'));
-        } else {
-          toast.error(t('mcp.testFailed'));
-        }
-      },
-      onError: () => {
-        toast.error(t('mcp.testFailed'));
-      },
-    });
-  }
-
-  return (
-    <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
-      <CardHeader
-        className={
-          isAdmin
-            ? 'flex flex-row items-start justify-between gap-2 space-y-0'
-            : undefined
-        }
-      >
-        <div className="flex flex-col gap-1.5">
-          <CardTitle className="text-base">{server.name}</CardTitle>
-          <TransportBadge transport={server.transport} />
-        </div>
-        {isAdmin && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost-destructive"
-                size="icon"
-                className="size-8"
-                onClick={() => onDelete(server)}
-              >
-                <Trash2 className="size-4" />
-                <span className="sr-only">{t('common.delete')}</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t('common.delete')}</TooltipContent>
-          </Tooltip>
-        )}
-      </CardHeader>
-
-      <CardContent className="flex-1">
-        {server.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
-            {server.description}
-          </p>
-        ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
-            {t('common.noDescription')}
-          </p>
-        )}
-      </CardContent>
-
-      <CardFooter className="border-t pt-4">
-        <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-sm">
-            {t('mcp.toolCount', { count: toolCount })}
-          </div>
-          {isAdmin && (
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-7"
-                    onClick={handleTest}
-                    disabled={testMcpServer.isPending}
-                  >
-                    <PlugZap className="size-3.5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {testMcpServer.isPending
-                    ? t('mcp.testing')
-                    : t('mcp.testConnection')}
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-7"
-                    asChild
-                  >
-                    <Link to={`/mcp-servers/${server.id}/edit?type=official`}>
-                      <Pencil className="size-3.5" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t('common.edit')}</TooltipContent>
-              </Tooltip>
-            </div>
-          )}
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function McpServerCard({
-  server,
-  onDelete,
-}: {
-  readonly server: McpServerResponse;
-  readonly onDelete: (server: McpServerResponse) => void;
-}) {
-  const { t } = useTranslation();
-  const testMcpServer = useTestMcpServer();
-  const toolCount = server.tools?.length ?? 0;
-
-  function handleTest() {
-    testMcpServer.mutate(server.id, {
-      onSuccess: result => {
-        if (result.success) {
-          toast.success(t('mcp.testSuccess'));
-        } else {
-          toast.error(t('mcp.testFailed'));
-        }
-      },
-      onError: () => {
-        toast.error(t('mcp.testFailed'));
-      },
-    });
-  }
-
-  return (
-    <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
-      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
-        <div className="flex flex-col gap-1.5">
-          <CardTitle className="text-base">{server.name}</CardTitle>
-          <TransportBadge transport={server.transport} />
-        </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost-destructive"
-              size="icon"
-              className="size-8"
-              onClick={() => onDelete(server)}
-            >
-              <Trash2 className="size-4" />
-              <span className="sr-only">{t('common.delete')}</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('common.delete')}</TooltipContent>
-        </Tooltip>
-      </CardHeader>
-
-      <CardContent className="flex-1">
-        {server.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
-            {server.description}
-          </p>
-        ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
-            {t('common.noDescription')}
-          </p>
-        )}
-      </CardContent>
-
-      <CardFooter className="border-t pt-4">
-        <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-sm">
-            {toolCount > 0
-              ? t('mcp.toolCount', { count: toolCount })
-              : t('mcp.noTools')}
-          </div>
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={handleTest}
-                  disabled={testMcpServer.isPending}
-                >
-                  <PlugZap className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {testMcpServer.isPending
-                  ? t('mcp.testing')
-                  : t('mcp.testConnection')}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-7" asChild>
-                  <Link to={`/mcp-servers/${server.id}/edit`}>
-                    <Pencil className="size-3.5" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('common.edit')}</TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function EmptyState({
-  tab,
-  isAdmin,
-}: {
-  readonly tab: 'marketplace' | 'custom';
-  readonly isAdmin: boolean;
-}) {
-  const { t } = useTranslation();
-  const isMarketplace = tab === 'marketplace';
-
-  return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
-        <Server className="size-8" />
-      </div>
-      <h3 className="mb-1 text-lg font-semibold">
-        {isMarketplace ? t('mcp.noMarketplace') : t('mcp.noCustom')}
-      </h3>
-      <p className="text-muted-foreground mb-6 text-sm">
-        {isMarketplace ? t('mcp.noMarketplaceDesc') : t('mcp.noCustomDesc')}
-      </p>
-      {isMarketplace && isAdmin && (
-        <Button asChild variant="primary">
-          <Link to="/mcp-servers/new?type=official">
-            <Plus className="mr-2 size-4" />
-            {t('mcp.addToMarketplace')}
-          </Link>
-        </Button>
-      )}
-      {!isMarketplace && (
-        <Button asChild variant="primary">
-          <Link to="/mcp-servers/new">
-            <Plus className="mr-2 size-4" />
-            {t('mcp.addServer')}
-          </Link>
-        </Button>
-      )}
-    </div>
-  );
-}
 
 export default function McpPage() {
   const { t } = useTranslation();
@@ -427,7 +105,6 @@ export default function McpPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -453,7 +130,6 @@ export default function McpPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <Tabs defaultValue="marketplace">
         <TabsList>
           <TabsTrigger value="marketplace">{t('mcp.marketplace')}</TabsTrigger>
@@ -462,7 +138,7 @@ export default function McpPage() {
 
         <TabsContent value="marketplace">
           {!marketServers || marketServers.length === 0 ? (
-            <EmptyState tab="marketplace" isAdmin={isAdmin} />
+            <McpEmptyState tab="marketplace" isAdmin={isAdmin} />
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {marketServers.map(server => (
@@ -479,7 +155,7 @@ export default function McpPage() {
 
         <TabsContent value="custom">
           {!customServers || customServers.length === 0 ? (
-            <EmptyState tab="custom" isAdmin={isAdmin} />
+            <McpEmptyState tab="custom" isAdmin={isAdmin} />
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {customServers.map(server => (
@@ -494,7 +170,6 @@ export default function McpPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Delete confirmation dialog */}
       <AlertDialog
         open={deleteTarget !== null}
         onOpenChange={open => {
