@@ -1,6 +1,6 @@
 # Agent-X
 
-Self-hosted intelligent agent publishing platform. Create, configure, and publish AI agents with multi-provider support, MCP tools, custom skills, and an OpenAI-compatible API.
+Self-hosted intelligent agent publishing platform. Create, configure, and publish AI agents with multi-provider support, MCP tools, custom skills, workspace IDE, and an OpenAI-compatible API.
 
 ## Features
 
@@ -9,6 +9,7 @@ Self-hosted intelligent agent publishing platform. Create, configure, and publis
 - **MCP Integration** - Browse marketplace and add custom MCP servers (STDIO/SSE/Streamable HTTP)
 - **Skills Marketplace** - Admin-curated system skills + user custom skills for agents
 - **Streaming Chat UI** - Real-time conversation interface with multi-part message rendering
+- **Workspace IDE** - In-browser file editor with Monaco, file tree, and AI-driven file operations (create, read, update, delete, search, patch)
 - **OpenAI-Compatible API** - Expose agents via `/v1/chat/completions` endpoint with API key auth
 - **Secure by Default** - JWT auth, AES-256-GCM encrypted provider keys, API key management
 
@@ -19,6 +20,7 @@ Self-hosted intelligent agent publishing platform. Create, configure, and publis
 | Backend  | NestJS 11, TypeScript, Prisma v7, PostgreSQL 16               |
 | Frontend | React 19, Vite 6, Tailwind CSS v4, shadcn/ui, React Router v7 |
 | AI       | Vercel AI SDK, 7 provider protocols                           |
+| Editor   | Monaco Editor (50+ language syntax highlighting)              |
 | State    | Zustand v5, TanStack React Query v5, sonner (toast)           |
 | Infra    | Docker, nginx, Turborepo, pnpm                                |
 
@@ -82,12 +84,14 @@ agent-x/
 ├── packages/
 │   ├── server/          # NestJS backend
 │   │   ├── prisma/      # Database schema & migrations
-│   │   └── src/modules/ # auth, provider, agent, skill, mcp, chat, public-chat, api-key, openai-compat
+│   │   └── src/modules/ # auth, provider, agent, skill, mcp, chat, workspace, public-chat, api-key, openai-compat
 │   ├── web/             # React frontend
 │   │   └── src/
-│   │       ├── pages/       # login, register, dashboard/*, chat
-│   │       ├── components/  # chat, auth, ui (shadcn)
+│   │       ├── pages/       # login, register, dashboard/*, chat, shared
+│   │       ├── components/  # chat, workspace, agents, shared, auth, ui (shadcn)
+│   │       ├── contexts/    # React contexts (workspace API switching)
 │   │       ├── hooks/       # React Query hooks
+│   │       ├── lib/         # Utilities, transports, schemas
 │   │       └── stores/      # Zustand stores
 │   └── shared/          # Shared TypeScript types & DTOs
 ├── docker/              # Dockerfiles & nginx config
@@ -110,7 +114,8 @@ All backend routes are prefixed with `/api` except the OpenAI-compatible endpoin
 | Skills         | `GET /api/skills/market`, `POST/PUT/DELETE /api/skills/market(/:id)` (admin), `GET/POST /api/skills`, `GET/PUT/DELETE /api/skills/:id`                                      |
 | MCP Servers    | `GET /api/mcp-servers/market`, `POST/PUT/DELETE /api/mcp-servers/market(/:id)` (admin), `GET/POST /api/mcp-servers`, `GET/PUT/DELETE /api/mcp-servers/:id`, `POST :id/test` |
 | Chat           | `POST/GET /api/conversations`, `GET :id/messages`, `POST :id/chat`, `GET :id/messages/:mid/stream`, `GET :id/active-stream`, `POST :id/messages/:mid/stop`, `DELETE :id`    |
-| Public Chat    | `GET /api/shared/:token/info`, `POST :token/conversations`, `GET :token/conversations/:id/messages`, `POST :token/conversations/:id/chat`, stream endpoints                 |
+| Workspace      | `GET/POST /api/conversations/:id/files`, `POST :id/files/directories`, `GET/PUT/DELETE :id/files/:fid/*`, `PATCH :id/files/:fid/rename`, directory rename/delete            |
+| Public Chat    | `GET /api/shared/:token/info`, `POST :token/conversations`, `GET :token/conversations/:id/messages`, `POST :token/conversations/:id/chat`, stream + workspace endpoints     |
 | API Keys       | `GET/POST /api/api-keys`, `DELETE /api/api-keys/:id`                                                                                                                        |
 | OpenAI Compat  | `POST /v1/chat/completions`                                                                                                                                                 |
 
@@ -133,16 +138,18 @@ curl http://localhost:3000/v1/chat/completions \
 
 ### Local Development (`packages/server/.env`)
 
-| Variable                 | Description                  | Default                 |
-| ------------------------ | ---------------------------- | ----------------------- |
-| `DATABASE_URL`           | PostgreSQL connection string | —                       |
-| `JWT_SECRET`             | JWT signing secret           | —                       |
-| `JWT_EXPIRES_IN`         | Access token expiry          | `7d`                    |
-| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry         | `30d`                   |
-| `ENCRYPTION_SECRET`      | AES-256-GCM key (32 chars)   | —                       |
-| `PORT`                   | Server port                  | `3000`                  |
-| `CORS_ORIGIN`            | Allowed CORS origin          | `http://localhost:5173` |
-| `AI_SDK_TELEMETRY`       | Enable OpenTelemetry tracing | `false`                 |
+| Variable                  | Description                  | Default                 |
+| ------------------------- | ---------------------------- | ----------------------- |
+| `DATABASE_URL`            | PostgreSQL connection string | —                       |
+| `JWT_SECRET`              | JWT signing secret           | —                       |
+| `JWT_EXPIRES_IN`          | Access token expiry          | `7d`                    |
+| `JWT_REFRESH_EXPIRES_IN`  | Refresh token expiry         | `30d`                   |
+| `ENCRYPTION_SECRET`       | AES-256-GCM key (32 chars)   | —                       |
+| `PORT`                    | Server port                  | `3000`                  |
+| `CORS_ORIGIN`             | Allowed CORS origin          | `http://localhost:5173` |
+| `AI_SDK_TELEMETRY`        | Enable OpenTelemetry tracing | `false`                 |
+| `WORKSPACE_BASE_DIR`      | Workspace file storage path  | `data/workspaces`       |
+| `WORKSPACE_MAX_FILE_SIZE` | Max file size in bytes       | `5242880` (5MB)         |
 
 ### Docker Production (`.env`)
 

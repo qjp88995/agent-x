@@ -1,6 +1,6 @@
 # Agent-X
 
-Self-hosted intelligent agent publishing platform with model provider management, MCP/Skills configuration, Chat UI, and OpenAI-compatible API access.
+Self-hosted intelligent agent publishing platform with model provider management, MCP/Skills configuration, Chat UI, Workspace IDE, and OpenAI-compatible API access.
 
 ## Project Structure
 
@@ -23,20 +23,38 @@ packages/
 │           ├── skill/      # Skill marketplace (admin) + custom skills management
 │           ├── mcp/        # MCP server marketplace + custom servers + client
 │           ├── chat/       # Streaming chat (Vercel AI SDK) + AgentRuntimeService + StreamManager
+│           │   └── tools/  # Built-in tools: workspace file ops (14 tools), getCurrentTime
+│           ├── workspace/  # Workspace file management (CRUD, disk storage, path validation)
 │           ├── public-chat/ # Public shared chat via share tokens (@Public endpoints)
 │           ├── api-key/    # API key management (sk-agx-... prefix)
 │           └── openai-compat/  # /v1/chat/completions (OpenAI wire format)
 ├── web/             # React 19 frontend (Vite 6, Tailwind CSS v4, shadcn/ui)
 │   └── src/
-│       ├── components/     # UI components (chat/, agents/, auth/, ui/)
-│       ├── hooks/          # React Query hooks (use-agents, use-chat, use-shared-chat, etc.)
+│       ├── components/     # UI components
+│       │   ├── chat/       # Chat panel, message list, message items, chat input
+│       │   ├── workspace/  # Workspace panel, file tree, file editor, file change card
+│       │   ├── agents/     # Agent forms, cards, test chat panel
+│       │   ├── shared/     # Reusable form components (form-card, page-header, prompt-editor, etc.)
+│       │   ├── auth/       # Protected route, login/register forms
+│       │   └── ui/         # shadcn/ui primitives (button, dialog, input, etc.)
+│       ├── contexts/       # React contexts (workspace-api-context for auth/public API switching)
+│       ├── hooks/          # React Query hooks (use-agents, use-chat, use-workspace, etc.)
 │       ├── i18n.ts         # i18next config (browser language detection + localStorage)
 │       ├── locales/        # Translation files (en.json, zh.json)
 │       ├── pages/          # Route pages (login, register, dashboard/*, chat/, shared/)
 │       ├── stores/         # Zustand v5 stores (auth-store, theme-store)
-│       └── lib/            # Utilities (api.ts with auth interceptor, utils.ts, message-utils.ts)
+│       └── lib/            # Utilities
+│           ├── api.ts              # Axios client with auth interceptor + token refresh
+│           ├── public-api.ts       # Unauthenticated Axios client for public endpoints
+│           ├── chat-transport.ts   # Authenticated chat streaming transport
+│           ├── shared-chat-transport.ts  # Public chat streaming transport
+│           ├── message-utils.ts    # Backend MessageResponse[] → AI SDK UIMessage[] conversion
+│           ├── stream-parser.ts    # SSE stream parsing utilities
+│           ├── workspace-utils.ts  # Extract file changes from AI tool calls
+│           ├── utils.ts            # General utilities (cn, etc.)
+│           └── schemas/            # Zod validation schemas (agent, provider, skill, mcp, api-key)
 ├── shared/          # Shared TypeScript types (DTOs, responses, enums)
-│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token
+│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token, workspace
 └── docker/          # Dockerfile.server, Dockerfile.web, nginx.conf
 ```
 
@@ -115,6 +133,25 @@ pnpm format:check # prettier --check
 - Chat history rendering unified via `MessageList` component (`components/chat/message-list.tsx`)
 - Backend `MessageResponse[]` → AI SDK `UIMessage[]` conversion via `toUIMessages()` (`lib/message-utils.ts`)
 
+### Chat Tools
+
+Built-in tools available to agents during chat (defined in `chat/tools/`):
+
+- **Workspace tools** (14): createFile, readFile, updateFile, deleteFile, writeFiles (atomic batch), fileExists, fileInfo, readFileLines, listFiles, searchFiles, patchFile, renameFile, createDirectory, deleteDirectory, renameDirectory
+- **Utility tools**: getCurrentTime (with timezone support)
+
+### Workspace
+
+- File storage on disk at `data/workspaces/{conversationId}/` (configurable via `WORKSPACE_BASE_DIR`)
+- Database tracks metadata in `WorkspaceFile` model (path, mimeType, size, isDirectory)
+- Path validation prevents directory traversal and illegal characters
+- File size limit: 5MB default (configurable via `WORKSPACE_MAX_FILE_SIZE`)
+- Atomic batch writes via temp directory strategy
+- Text files stored as UTF-8, binary files as base64 in transit
+- Frontend uses Monaco editor with syntax highlighting (50+ languages)
+- `useWorkspaceSync()` hook auto-refreshes file list when AI completes tool calls
+- Public workspace access via `WorkspaceApiProvider` context (switches between auth/public API)
+
 ### Auth
 
 - Global AuthGuard (JWT) applied via APP_GUARD
@@ -159,8 +196,9 @@ pnpm format:check # prettier --check
 - `/api-keys` - API key management
 - `/settings` - theme and language preferences
 - `/chat` - full-screen chat UI (outside dashboard layout)
-- `/chat/:conversationId/workspace` - full-screen IDE workspace view
+- `/chat/:conversationId/workspace` - full-screen IDE workspace view (resizable split: workspace 60% | chat 40%)
 - `/s/:token` - shared chat page (public, no auth required)
+- `/s/:token/workspace/:conversationId` - shared workspace page (public)
 
 ## Docker Deployment
 
@@ -190,6 +228,8 @@ Docker setup:
 - `ENCRYPTION_SECRET` - AES-256-GCM key for provider API keys (32 chars)
 - `AI_SDK_TELEMETRY` - Enable OpenTelemetry tracing (optional, set to `true`)
 - `OTLP_ENDPOINT` - OTLP HTTP endpoint for traces (default: http://localhost:4318/v1/traces)
+- `WORKSPACE_BASE_DIR` - Workspace file storage path (default: data/workspaces)
+- `WORKSPACE_MAX_FILE_SIZE` - Max file size in bytes (default: 5242880 / 5MB)
 
 ### Docker Production (`.env`)
 
