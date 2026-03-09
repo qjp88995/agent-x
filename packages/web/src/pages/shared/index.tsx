@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -47,7 +47,16 @@ function SharedChatContent({
   const { data: conversations } = useSharedConversations(token);
   const createConversation = useCreateSharedConversation();
 
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const conversationId = searchParams.get('c');
+
+  const setConversationId = useCallback(
+    (id: string | null) => {
+      setSearchParams(id ? { c: id } : {}, { replace: true });
+    },
+    [setSearchParams]
+  );
+
   const transportRef = useRef<SharedChatTransport | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pendingMessageRef = useRef<string | null>(null);
@@ -144,7 +153,7 @@ function SharedChatContent({
 
       void sendMessage({ text: content });
     },
-    [token, conversationId, createConversation, sendMessage]
+    [token, conversationId, createConversation, sendMessage, setConversationId]
   );
 
   const handleStop = useCallback(() => {
@@ -156,7 +165,7 @@ function SharedChatContent({
     setConversationId(null);
     setMessages([]);
     historyLoadedRef.current = null;
-  }, [setMessages]);
+  }, [setConversationId, setMessages]);
 
   const handleSelectConversation = useCallback(
     (id: string) => {
@@ -166,7 +175,7 @@ function SharedChatContent({
       historyLoadedRef.current = null;
       setMessages([]);
     },
-    [conversationId, setMessages]
+    [conversationId, setConversationId, setMessages]
   );
 
   return (

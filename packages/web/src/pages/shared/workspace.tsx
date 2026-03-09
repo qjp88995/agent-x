@@ -124,7 +124,7 @@ function SharedWorkspaceContent({
               className="size-7 cursor-pointer"
               asChild
             >
-              <Link to={`/s/${token}`}>
+              <Link to={`/s/${token}?c=${conversationId}`}>
                 <ArrowLeft className="size-4" />
               </Link>
             </Button>
