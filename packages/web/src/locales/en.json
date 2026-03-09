@@ -266,6 +266,8 @@
   "conversations": {
     "title": "Conversations",
     "subtitle": "View conversations from shared links.",
+    "pageDesc": "Conversations for {{name}} v{{version}}.",
+    "selectConversation": "Select a conversation to view messages.",
     "noConversations": "No conversations yet.",
     "noConversationsDesc": "Conversations will appear here when users chat via share links.",
     "untitled": "Untitled conversation",

@@ -18,6 +18,9 @@ const EditAgentPage = lazy(() => import('@/pages/dashboard/agents/edit'));
 const AgentVersionsPage = lazy(
   () => import('@/pages/dashboard/agents/versions')
 );
+const VersionConversationsPage = lazy(
+  () => import('@/pages/dashboard/agents/version-conversations')
+);
 const SkillsPage = lazy(() => import('@/pages/dashboard/skills/index'));
 const SkillEditorPage = lazy(() => import('@/pages/dashboard/skills/editor'));
 const McpPage = lazy(() => import('@/pages/dashboard/mcp/index'));
@@ -63,6 +66,10 @@ export function AppRoutes() {
             <Route
               path="/agents/:id/versions"
               element={<AgentVersionsPage />}
+            />
+            <Route
+              path="/agents/:id/versions/:versionId/conversations"
+              element={<VersionConversationsPage />}
             />
             <Route path="/skills" element={<SkillsPage />} />
             <Route path="/skills/new" element={<SkillEditorPage />} />

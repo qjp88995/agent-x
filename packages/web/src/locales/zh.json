@@ -266,6 +266,8 @@
   "conversations": {
     "title": "会话",
     "subtitle": "查看来自分享链接的会话。",
+    "pageDesc": "{{name}} v{{version}} 的会话记录。",
+    "selectConversation": "选择一个会话查看消息内容。",
     "noConversations": "暂无会话。",
     "noConversationsDesc": "当用户通过分享链接进行对话时，会话将显示在这里。",
     "untitled": "无标题会话",

@@ -1,19 +1,24 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
 import type { AgentVersionResponse } from '@agent-x/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronRight, Link2, MessageSquare } from 'lucide-react';
 
-import { VersionConversations } from '@/components/agents/version-conversations';
 import { VersionShareLinks } from '@/components/agents/version-share-links';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import { cn } from '@/lib/utils';
@@ -116,6 +121,7 @@ function VersionItem({
 }) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
+  const conversationCount = version._count?.conversations ?? 0;
 
   return (
     <Collapsible
@@ -149,48 +155,48 @@ function VersionItem({
             </span>
           )}
         </div>
-        <div className="text-muted-foreground flex items-center gap-4 text-sm">
-          <span className="flex items-center gap-1">
+        <div className="flex items-center gap-3">
+          <span className="text-muted-foreground flex items-center gap-1 text-sm">
             <Link2 className="size-3.5" />
             {version._count?.shareTokens ?? 0}
           </span>
-          <span className="flex items-center gap-1">
-            <MessageSquare className="size-3.5" />
-            {version._count?.conversations ?? 0}
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground h-7 gap-1 px-2"
+                asChild
+                onClick={e => e.stopPropagation()}
+              >
+                <Link
+                  to={`/agents/${agentId}/versions/${version.id}/conversations`}
+                >
+                  <MessageSquare className="size-3.5" />
+                  {conversationCount}
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('conversations.title')}</TooltipContent>
+          </Tooltip>
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border-t px-4 pb-4 pt-3">
-          <Tabs defaultValue="detail">
-            <TabsList>
-              <TabsTrigger value="detail">
-                {t('versions.configSnapshot')}
-              </TabsTrigger>
-              <TabsTrigger value="share-links">
-                {t('agents.shareLinks')}
-              </TabsTrigger>
-              <TabsTrigger value="conversations">
-                {t('agents.conversations')}
-              </TabsTrigger>
-            </TabsList>
+        <div className="flex flex-col gap-6 border-t px-4 pb-4 pt-4">
+          {/* Configuration snapshot */}
+          <VersionDetail version={version} />
 
-            <TabsContent value="detail">
-              <VersionDetail version={version} />
-            </TabsContent>
-
-            <TabsContent value="share-links">
-              <VersionShareLinks
-                agentId={agentId}
-                versionId={version.id}
-                versionNumber={version.version}
-              />
-            </TabsContent>
-
-            <TabsContent value="conversations">
-              <VersionConversations agentId={agentId} versionId={version.id} />
-            </TabsContent>
-          </Tabs>
+          {/* Share links */}
+          <div className="border-t pt-4">
+            <h4 className="mb-3 text-sm font-medium">
+              {t('agents.shareLinks')}
+            </h4>
+            <VersionShareLinks
+              agentId={agentId}
+              versionId={version.id}
+              versionNumber={version.version}
+            />
+          </div>
         </div>
       </CollapsibleContent>
     </Collapsible>
