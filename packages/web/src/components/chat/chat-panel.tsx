@@ -24,6 +24,7 @@ import { MessageList } from './message-list';
 interface ChatPanelProps {
   readonly conversationId: string;
   readonly agentName: string;
+  readonly title?: string;
 }
 
 function EmptyChat({ agentName }: { readonly agentName: string }) {
@@ -41,7 +42,11 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
   );
 }
 
-export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
+export function ChatPanel({
+  conversationId,
+  agentName,
+  title,
+}: ChatPanelProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const transportRef = useRef<AgentXChatTransport | null>(null);
@@ -150,7 +155,7 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
         <MessageSquare className="text-primary size-5" />
-        <h2 className="truncate font-semibold">{agentName}</h2>
+        <h2 className="truncate font-semibold">{title ?? agentName}</h2>
         {hasFiles && (
           <Tooltip>
             <TooltipTrigger asChild>

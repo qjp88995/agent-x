@@ -432,6 +432,7 @@ export default function ChatPage() {
             key={activeConversationId}
             conversationId={activeConversationId}
             agentName={agentName}
+            title={activeConversation?.title ?? undefined}
           />
         ) : (
           <NoChatSelected />
