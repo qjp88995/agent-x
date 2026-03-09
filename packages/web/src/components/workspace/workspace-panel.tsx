@@ -12,6 +12,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
+import { useWorkspaceApi } from '@/contexts/workspace-api-context';
 import {
   useCreateDirectory,
   useCreateFile,
@@ -22,7 +23,6 @@ import {
   useRenameFile,
   useWorkspaceFiles,
 } from '@/hooks/use-workspace';
-import { api } from '@/lib/api';
 
 import { FileEditor, type OpenTab } from './file-editor';
 import { type ClipboardItem, FileTree } from './file-tree';
@@ -34,6 +34,7 @@ interface WorkspacePanelProps {
 export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
   const { t } = useTranslation();
   const { data: files } = useWorkspaceFiles(conversationId);
+  const { client, filesUrl } = useWorkspaceApi();
   const downloadFile = useDownloadFile();
 
   const createFileMutation = useCreateFile();
@@ -248,8 +249,8 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
         } else if (clipboard.operation === 'copy') {
           if (clipboard.type === 'file' && clipboard.fileId) {
             const { data: source } =
-              await api.get<WorkspaceFileContentResponse>(
-                `/conversations/${conversationId}/files/${clipboard.fileId}/content`
+              await client.get<WorkspaceFileContentResponse>(
+                `${filesUrl(conversationId)}/${clipboard.fileId}/content`
               );
             const destPath = deduplicatePath(targetDir, name, false);
             createFileMutation.mutate(
@@ -275,6 +276,8 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
     [
       clipboard,
       conversationId,
+      client,
+      filesUrl,
       deduplicatePath,
       renameFileMutation,
       renameDirMutation,

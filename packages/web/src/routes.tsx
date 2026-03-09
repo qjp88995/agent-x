@@ -24,6 +24,7 @@ const SettingsPage = lazy(() => import('@/pages/dashboard/settings'));
 const ChatPage = lazy(() => import('@/pages/chat/index'));
 const WorkspacePage = lazy(() => import('@/pages/chat/workspace'));
 const SharedChatPage = lazy(() => import('@/pages/shared/index'));
+const SharedWorkspacePage = lazy(() => import('@/pages/shared/workspace'));
 
 function PageLoader() {
   return (
@@ -40,6 +41,10 @@ export function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/s/:token" element={<SharedChatPage />} />
+        <Route
+          path="/s/:token/workspace/:conversationId"
+          element={<SharedWorkspacePage />}
+        />
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route index element={<Navigate to="/providers" replace />} />

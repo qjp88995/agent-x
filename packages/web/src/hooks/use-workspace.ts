@@ -5,7 +5,7 @@ import type {
 } from '@agent-x/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { api } from '@/lib/api';
+import { useWorkspaceApi } from '@/contexts/workspace-api-context';
 
 export const WORKSPACE_FILES_KEY = ['workspace-files'] as const;
 
@@ -18,11 +18,13 @@ export function fileContentKey(conversationId: string, fileId: string) {
 }
 
 export function useWorkspaceFiles(conversationId: string | undefined) {
+  const { client, filesUrl } = useWorkspaceApi();
+
   return useQuery({
     queryKey: workspaceFilesKey(conversationId ?? ''),
     queryFn: async () => {
-      const { data } = await api.get<WorkspaceFileTreeResponse>(
-        `/conversations/${conversationId}/files`
+      const { data } = await client.get<WorkspaceFileTreeResponse>(
+        filesUrl(conversationId!)
       );
       return data;
     },
@@ -34,11 +36,13 @@ export function useFileContent(
   conversationId: string | undefined,
   fileId: string | undefined
 ) {
+  const { client, filesUrl } = useWorkspaceApi();
+
   return useQuery({
     queryKey: fileContentKey(conversationId ?? '', fileId ?? ''),
     queryFn: async () => {
-      const { data } = await api.get<WorkspaceFileContentResponse>(
-        `/conversations/${conversationId}/files/${fileId}/content`
+      const { data } = await client.get<WorkspaceFileContentResponse>(
+        `${filesUrl(conversationId!)}/${fileId}/content`
       );
       return data;
     },
@@ -48,6 +52,7 @@ export function useFileContent(
 
 export function useUpdateFileContent() {
   const queryClient = useQueryClient();
+  const { client, filesUrl } = useWorkspaceApi();
 
   return useMutation({
     mutationFn: async ({
@@ -59,8 +64,8 @@ export function useUpdateFileContent() {
       fileId: string;
       content: string;
     }) => {
-      const { data } = await api.put<WorkspaceFileResponse>(
-        `/conversations/${conversationId}/files/${fileId}/content`,
+      const { data } = await client.put<WorkspaceFileResponse>(
+        `${filesUrl(conversationId)}/${fileId}/content`,
         { content }
       );
       return data;
@@ -77,10 +82,12 @@ export function useUpdateFileContent() {
 }
 
 export function useDownloadWorkspace() {
+  const { client, filesUrl } = useWorkspaceApi();
+
   return useMutation({
     mutationFn: async (conversationId: string) => {
-      const { data } = await api.get<Blob>(
-        `/conversations/${conversationId}/files/download`,
+      const { data } = await client.get<Blob>(
+        `${filesUrl(conversationId)}/download`,
         { responseType: 'blob' }
       );
       const url = URL.createObjectURL(data);
@@ -94,6 +101,8 @@ export function useDownloadWorkspace() {
 }
 
 export function useDownloadFile() {
+  const { client, filesUrl } = useWorkspaceApi();
+
   return useMutation({
     mutationFn: async ({
       conversationId,
@@ -104,8 +113,8 @@ export function useDownloadFile() {
       fileId: string;
       fileName: string;
     }) => {
-      const { data } = await api.get<Blob>(
-        `/conversations/${conversationId}/files/${fileId}/download`,
+      const { data } = await client.get<Blob>(
+        `${filesUrl(conversationId)}/${fileId}/download`,
         { responseType: 'blob' }
       );
       const url = URL.createObjectURL(data);
@@ -120,6 +129,7 @@ export function useDownloadFile() {
 
 export function useCreateFile() {
   const queryClient = useQueryClient();
+  const { client, filesUrl } = useWorkspaceApi();
 
   return useMutation({
     mutationFn: async ({
@@ -131,8 +141,8 @@ export function useCreateFile() {
       path: string;
       content: string;
     }) => {
-      const { data } = await api.post<WorkspaceFileResponse>(
-        `/conversations/${conversationId}/files`,
+      const { data } = await client.post<WorkspaceFileResponse>(
+        filesUrl(conversationId),
         { path, content }
       );
       return data;
@@ -151,6 +161,7 @@ export function useCreateFile() {
 
 export function useDeleteFile() {
   const queryClient = useQueryClient();
+  const { client, filesUrl } = useWorkspaceApi();
 
   return useMutation({
     mutationFn: async ({
@@ -160,7 +171,7 @@ export function useDeleteFile() {
       conversationId: string;
       fileId: string;
     }) => {
-      await api.delete(`/conversations/${conversationId}/files/${fileId}`);
+      await client.delete(`${filesUrl(conversationId)}/${fileId}`);
     },
     onSuccess: (_data, variables) => {
       queryClient.setQueryData<WorkspaceFileResponse[]>(
@@ -176,6 +187,7 @@ export function useDeleteFile() {
 
 export function useRenameFile() {
   const queryClient = useQueryClient();
+  const { client, filesUrl } = useWorkspaceApi();
 
   return useMutation({
     mutationFn: async ({
@@ -187,8 +199,8 @@ export function useRenameFile() {
       fileId: string;
       newPath: string;
     }) => {
-      const { data } = await api.patch<WorkspaceFileResponse>(
-        `/conversations/${conversationId}/files/${fileId}/rename`,
+      const { data } = await client.patch<WorkspaceFileResponse>(
+        `${filesUrl(conversationId)}/${fileId}/rename`,
         { newPath }
       );
       return data;
@@ -207,6 +219,7 @@ export function useRenameFile() {
 
 export function useCreateDirectory() {
   const queryClient = useQueryClient();
+  const { client, filesUrl } = useWorkspaceApi();
 
   return useMutation({
     mutationFn: async ({
@@ -216,8 +229,8 @@ export function useCreateDirectory() {
       conversationId: string;
       path: string;
     }) => {
-      const { data } = await api.post<WorkspaceFileResponse>(
-        `/conversations/${conversationId}/files/directories`,
+      const { data } = await client.post<WorkspaceFileResponse>(
+        `${filesUrl(conversationId)}/directories`,
         { path }
       );
       return data;
@@ -236,6 +249,7 @@ export function useCreateDirectory() {
 
 export function useDeleteDirectory() {
   const queryClient = useQueryClient();
+  const { client, filesUrl } = useWorkspaceApi();
 
   return useMutation({
     mutationFn: async ({
@@ -245,8 +259,8 @@ export function useDeleteDirectory() {
       conversationId: string;
       path: string;
     }) => {
-      const { data } = await api.delete(
-        `/conversations/${conversationId}/files/directories`,
+      const { data } = await client.delete(
+        `${filesUrl(conversationId)}/directories`,
         { data: { path } }
       );
       return data;
@@ -271,6 +285,7 @@ export function useDeleteDirectory() {
 
 export function useRenameDirectory() {
   const queryClient = useQueryClient();
+  const { client, filesUrl } = useWorkspaceApi();
 
   return useMutation({
     mutationFn: async ({
@@ -282,10 +297,10 @@ export function useRenameDirectory() {
       oldPath: string;
       newPath: string;
     }) => {
-      await api.patch(
-        `/conversations/${conversationId}/files/directories/rename`,
-        { oldPath, newPath }
-      );
+      await client.patch(`${filesUrl(conversationId)}/directories/rename`, {
+        oldPath,
+        newPath,
+      });
     },
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({

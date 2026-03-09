@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bot, MessageSquare, Plus } from 'lucide-react';
+import { Bot, Code2, MessageSquare, Plus } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -12,23 +12,40 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
+import {
   sharedConversationsKey,
   useCreateSharedConversation,
   useSharedAgentInfo,
   useSharedConversations,
   useSharedMessages,
 } from '@/hooks/use-shared-chat';
+import { useWorkspaceFiles } from '@/hooks/use-workspace';
+import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { toUIMessages } from '@/lib/message-utils';
+import { publicApi } from '@/lib/public-api';
 import { SharedChatTransport } from '@/lib/shared-chat-transport';
 import { cn } from '@/lib/utils';
 
 import SharedExpiredPage from './expired';
 
-export default function SharedChatPage() {
+function SharedChatContent({
+  token,
+  agentInfo,
+}: {
+  readonly token: string;
+  readonly agentInfo: {
+    agentName: string;
+    agentDescription: string | null;
+    agentAvatar: string | null;
+  };
+}) {
   const { t } = useTranslation();
-  const { token } = useParams<{ token: string }>();
   const queryClient = useQueryClient();
-  const { data: agentInfo, isLoading, error } = useSharedAgentInfo(token);
   const { data: conversations } = useSharedConversations(token);
   const createConversation = useCreateSharedConversation();
 
@@ -48,6 +65,13 @@ export default function SharedChatPage() {
     id: conversationId ?? 'shared-pending',
     transport,
   });
+
+  useWorkspaceSync(conversationId ?? undefined, messages);
+
+  const { data: workspaceFiles } = useWorkspaceFiles(
+    conversationId ?? undefined
+  );
+  const hasFiles = workspaceFiles && workspaceFiles.length > 0;
 
   const { data: savedMessages } = useSharedMessages(
     token,
@@ -146,20 +170,6 @@ export default function SharedChatPage() {
     [conversationId, setMessages]
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !agentInfo) {
-    return <SharedExpiredPage />;
-  }
-
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -243,6 +253,27 @@ export default function SharedChatPage() {
 
       {/* Main chat area */}
       <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Header with workspace button */}
+        {conversationId && hasFiles && (
+          <div className="flex h-10 shrink-0 items-center justify-end border-b px-3">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 cursor-pointer"
+                  asChild
+                >
+                  <Link to={`/s/${token}/workspace/${conversationId}`}>
+                    <Code2 className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('workspace.openIde')}</TooltipContent>
+            </Tooltip>
+          </div>
+        )}
+
         {/* Messages */}
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
@@ -280,5 +311,36 @@ export default function SharedChatPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function SharedChatPage() {
+  const { t } = useTranslation();
+  const { token } = useParams<{ token: string }>();
+  const { data: agentInfo, isLoading, error } = useSharedAgentInfo(token);
+
+  const filesUrl = useCallback(
+    (id: string) => `/shared/${token}/conversations/${id}/files`,
+    [token]
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-muted-foreground text-sm">
+          {t('common.loading')}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !agentInfo || !token) {
+    return <SharedExpiredPage />;
+  }
+
+  return (
+    <WorkspaceApiProvider client={publicApi} filesUrl={filesUrl}>
+      <SharedChatContent token={token} agentInfo={agentInfo} />
+    </WorkspaceApiProvider>
   );
 }

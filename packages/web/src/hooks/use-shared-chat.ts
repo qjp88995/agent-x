@@ -1,10 +1,7 @@
 import type { MessageResponse, SharedAgentInfo } from '@agent-x/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 
-const publicApi = axios.create({
-  baseURL: '/api',
-});
+import { publicApi } from '@/lib/public-api';
 
 export interface SharedConversation {
   readonly id: string;

@@ -7,6 +7,7 @@ import { FileImage, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { useWorkspaceApi } from '@/contexts/workspace-api-context';
 import { useFileContent, useUpdateFileContent } from '@/hooks/use-workspace';
 import { cn } from '@/lib/utils';
 
@@ -138,6 +139,7 @@ export function FileEditor({
   const activeTab = tabs.find(tab => tab.file.id === activeFileId);
   const activeFile = activeTab?.file;
 
+  const { filesUrl } = useWorkspaceApi();
   const { data: fileData, isLoading } = useFileContent(
     conversationId,
     activeFile?.id
@@ -289,7 +291,7 @@ export function FileEditor({
             <p className="text-sm">{t('workspace.binaryFile')}</p>
             {activeFile.mimeType.startsWith('image/') && (
               <img
-                src={`/api/conversations/${conversationId}/files/${activeFile.id}/download`}
+                src={`/api${filesUrl(conversationId)}/${activeFile.id}/download`}
                 alt={activeFile.path}
                 className="max-h-[60%] max-w-[80%] object-contain mt-2"
               />
