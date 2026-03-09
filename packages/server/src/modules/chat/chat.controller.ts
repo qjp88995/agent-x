@@ -6,6 +6,7 @@ import {
   HttpCode,
   Logger,
   Param,
+  Patch,
   Post,
   Res,
 } from '@nestjs/common';
@@ -242,6 +243,17 @@ export class ChatController {
 
     const stopped = this.streamManager.abortStream(messageId);
     return { stopped };
+  }
+
+  @Patch(':id')
+  async renameConversation(
+    @Param('id') id: string,
+    @CurrentUser() user: { id: string },
+    @Body() body: { title: string }
+  ) {
+    await this.chatService.verifyOwnership(id, user.id);
+    await this.chatService.updateTitle(id, body.title);
+    return { message: 'Conversation renamed successfully' };
   }
 
   @Delete(':id')

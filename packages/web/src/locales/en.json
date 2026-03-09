@@ -458,7 +458,8 @@
     "chooseConversation": "Choose an existing conversation or start a new one.",
     "backToDashboard": "Back to Dashboard",
     "failedToLoadConversations": "Failed to load conversations",
-    "deleteConversation": "Delete conversation"
+    "deleteConversation": "Delete conversation",
+    "renameConversation": "Rename conversation"
   },
   "thinking": {
     "viewThinking": "View thinking",

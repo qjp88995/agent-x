@@ -1,4 +1,8 @@
-import type { CreateConversationDto, MessageResponse } from '@agent-x/shared';
+import type {
+  CreateConversationDto,
+  MessageResponse,
+  UpdateConversationDto,
+} from '@agent-x/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
@@ -44,6 +48,22 @@ export function useCreateConversation() {
         dto
       );
       return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
+    },
+  });
+}
+
+export function useRenameConversation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+    }: { id: string } & UpdateConversationDto) => {
+      await api.patch(`/conversations/${id}`, { title });
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
