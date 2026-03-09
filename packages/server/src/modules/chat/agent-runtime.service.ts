@@ -251,14 +251,47 @@ export class AgentRuntimeService {
       include: { provider: true },
     });
 
-    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
-    const apiKey = decrypt(agent.provider.apiKey, encryptionSecret);
-    const model = this.createModel(
+    return this.generateTitleWithModel(
       agent.provider.protocol,
       agent.provider.baseUrl,
-      apiKey,
-      agent.modelId
+      agent.provider.apiKey,
+      agent.modelId,
+      userMessage,
+      assistantMessage
     );
+  }
+
+  async generateTitleFromVersion(
+    agentVersionId: string,
+    userMessage: string,
+    assistantMessage: string
+  ): Promise<string> {
+    const version = await this.prisma.agentVersion.findUniqueOrThrow({
+      where: { id: agentVersionId },
+      include: { provider: true },
+    });
+
+    return this.generateTitleWithModel(
+      version.provider.protocol,
+      version.provider.baseUrl,
+      version.provider.apiKey,
+      version.modelId,
+      userMessage,
+      assistantMessage
+    );
+  }
+
+  private async generateTitleWithModel(
+    protocol: string,
+    baseUrl: string,
+    encryptedApiKey: string,
+    modelId: string,
+    userMessage: string,
+    assistantMessage: string
+  ): Promise<string> {
+    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
+    const apiKey = decrypt(encryptedApiKey, encryptionSecret);
+    const model = this.createModel(protocol, baseUrl, apiKey, modelId);
 
     const { text } = await generateText({
       model,
