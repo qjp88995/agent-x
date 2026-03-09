@@ -9,6 +9,7 @@ import { extractFileChanges } from '@/lib/workspace-utils';
 
 import { MarkdownRenderer } from './markdown-renderer';
 import { ThinkingBlock } from './thinking-block';
+import { TimeCard } from './time-card';
 import { ToolCallBlock } from './tool-call-block';
 
 function TypingIndicator() {
@@ -133,6 +134,16 @@ function AssistantContent({
             } else {
               return null;
             }
+          }
+
+          if (getToolName(part) === 'getCurrentTime') {
+            return (
+              <TimeCard
+                key={part.toolCallId ?? `tool-${i}`}
+                state={part.state}
+                output={part.output as any}
+              />
+            );
           }
 
           return (

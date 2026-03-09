@@ -461,7 +461,8 @@
     "completed": "已完成",
     "error": "错误",
     "input": "输入",
-    "output": "输出"
+    "output": "输出",
+    "gettingTime": "获取当前时间..."
   },
   "shared": {
     "expired": "链接已过期或无效",

@@ -461,7 +461,8 @@
     "completed": "Completed",
     "error": "Error",
     "input": "Input",
-    "output": "Output"
+    "output": "Output",
+    "gettingTime": "Getting current time..."
   },
   "shared": {
     "expired": "Link Expired or Invalid",
