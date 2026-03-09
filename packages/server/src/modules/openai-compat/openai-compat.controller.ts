@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Post,
   Req,
   Res,
@@ -9,6 +10,8 @@ import {
 
 import { Request, Response } from 'express';
 
+import { AgentStatus } from '../../generated/prisma/client';
+import { AgentService } from '../agent/agent.service';
 import { ApiKeyService } from '../api-key/api-key.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { AgentRuntimeService } from '../chat/agent-runtime.service';
@@ -20,8 +23,41 @@ const API_KEY_PREFIX = 'sk-agx-';
 export class OpenaiCompatController {
   constructor(
     private readonly runtime: AgentRuntimeService,
-    private readonly apiKeyService: ApiKeyService
+    private readonly apiKeyService: ApiKeyService,
+    private readonly agentService: AgentService
   ) {}
+
+  @Get('models')
+  async listModels(@Req() req: Request, @Res() res: Response) {
+    const keyData = await this.validateApiKey(req, res);
+    if (!keyData) return;
+
+    if (keyData.agentId) {
+      // Key is bound to a specific agent — return only that agent
+      try {
+        const agent = await this.agentService.findOne(
+          keyData.agentId,
+          keyData.userId
+        );
+        res.json({
+          object: 'list',
+          data: [this.agentToModel(agent)],
+        });
+      } catch {
+        res.json({ object: 'list', data: [] });
+      }
+    } else {
+      // Key is not bound — return all active agents
+      const agents = await this.agentService.findAll(
+        keyData.userId,
+        AgentStatus.ACTIVE
+      );
+      res.json({
+        object: 'list',
+        data: agents.map(agent => this.agentToModel(agent)),
+      });
+    }
+  }
 
   @Post('chat/completions')
   async chatCompletions(
@@ -34,27 +70,8 @@ export class OpenaiCompatController {
     @Req() req: Request,
     @Res() res: Response
   ) {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader?.startsWith(`Bearer ${API_KEY_PREFIX}`)) {
-      res.status(401).json({
-        error: { message: 'Invalid API key', type: 'invalid_request_error' },
-      });
-      return;
-    }
-
-    const rawKey = authHeader.replace('Bearer ', '');
-    const keyData = await this.apiKeyService.validate(rawKey);
-
-    if (!keyData) {
-      res.status(401).json({
-        error: {
-          message: 'Invalid or expired API key',
-          type: 'invalid_request_error',
-        },
-      });
-      return;
-    }
+    const keyData = await this.validateApiKey(req, res);
+    if (!keyData) return;
 
     const agentId = keyData.agentId ?? body.model;
 
@@ -161,5 +178,44 @@ export class OpenaiCompatController {
         });
       }
     }
+  }
+
+  private async validateApiKey(
+    req: Request,
+    res: Response
+  ): Promise<{ userId: string; agentId: string | null } | null> {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader?.startsWith(`Bearer ${API_KEY_PREFIX}`)) {
+      res.status(401).json({
+        error: { message: 'Invalid API key', type: 'invalid_request_error' },
+      });
+      return null;
+    }
+
+    const rawKey = authHeader.replace('Bearer ', '');
+    const keyData = await this.apiKeyService.validate(rawKey);
+
+    if (!keyData) {
+      res.status(401).json({
+        error: {
+          message: 'Invalid or expired API key',
+          type: 'invalid_request_error',
+        },
+      });
+      return null;
+    }
+
+    return keyData;
+  }
+
+  private agentToModel(agent: { id: string; name: string; createdAt: Date }) {
+    return {
+      id: agent.id,
+      object: 'model',
+      created: Math.floor(agent.createdAt.getTime() / 1000),
+      owned_by: 'agent-x',
+      name: agent.name,
+    };
   }
 }
