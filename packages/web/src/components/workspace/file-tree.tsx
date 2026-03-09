@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { WorkspaceFileResponse } from '@agent-x/shared';
@@ -320,7 +320,7 @@ interface TreeNodeItemProps {
   readonly onRenameDirectory: (dirPath: string, newName: string) => void;
 }
 
-function TreeNodeItem({
+const TreeNodeItem = memo(function TreeNodeItem({
   node,
   depth,
   siblingNames,
@@ -623,7 +623,7 @@ function TreeNodeItem({
       </ContextMenuContent>
     </ContextMenu>
   );
-}
+});
 
 interface FileTreeProps {
   readonly files: WorkspaceFileResponse[];

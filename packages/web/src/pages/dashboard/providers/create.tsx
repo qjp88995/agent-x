@@ -9,12 +9,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import {
-  FormCard,
-  LoadingState,
-  NotFoundState,
-  PageHeader,
-} from '@/components/shared';
+import { FormCard } from '@/components/shared/form-card';
+import { PageHeader } from '@/components/shared/page-header';
+import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { Button } from '@/components/ui/button';
 import {
   Form,

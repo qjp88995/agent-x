@@ -152,13 +152,6 @@ export function FileEditor({
     {}
   );
 
-  // Reset pending content when switching files
-  useEffect(() => {
-    if (activeFile && content !== undefined && !pendingContent[activeFile.id]) {
-      // Content loaded fresh, no pending edits
-    }
-  }, [activeFile, content, pendingContent]);
-
   const handleEditorMount: OnMount = useCallback(editor => {
     editorRef.current = editor;
 

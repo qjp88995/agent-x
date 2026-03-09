@@ -130,9 +130,12 @@ export function ChatPanel({ conversationId, agentName }: ChatPanelProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = (content: string) => {
-    void sendMessage({ text: content });
-  };
+  const handleSend = useCallback(
+    (content: string) => {
+      void sendMessage({ text: content });
+    },
+    [sendMessage]
+  );
 
   const handleStop = useCallback(() => {
     stop();

@@ -7,7 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { PageHeader, PromptEditor } from '@/components/shared';
+import { PageHeader } from '@/components/shared/page-header';
+import { PromptEditor } from '@/components/shared/prompt-editor';
 import { Button } from '@/components/ui/button';
 import {
   Card,

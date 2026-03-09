@@ -24,13 +24,10 @@ import { toast } from 'sonner';
 
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
-import {
-  FormFooter,
-  LoadingState,
-  NotFoundState,
-  PageHeader,
-  PromptEditor,
-} from '@/components/shared';
+import { FormFooter } from '@/components/shared/form-footer';
+import { PageHeader } from '@/components/shared/page-header';
+import { PromptEditor } from '@/components/shared/prompt-editor';
+import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import {
   AlertDialog,
   AlertDialogAction,

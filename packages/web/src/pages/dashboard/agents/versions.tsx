@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { Navigate, useParams } from 'react-router';
 
 import { VersionList } from '@/components/agents/version-list';
-import { LoadingState, NotFoundState, PageHeader } from '@/components/shared';
+import { PageHeader } from '@/components/shared/page-header';
+import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useAgent } from '@/hooks/use-agents';
 
 export default function AgentVersionsPage() {

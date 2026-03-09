@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronRight, Link2, MessageSquare } from 'lucide-react';
 
 import { VersionShareLinks } from '@/components/agents/version-share-links';
-import { CopyableId } from '@/components/shared';
+import { CopyableId } from '@/components/shared/copyable-id';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {

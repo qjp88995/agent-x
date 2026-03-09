@@ -7,7 +7,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { MessageSquare } from 'lucide-react';
 
 import { MessageList } from '@/components/chat/message-list';
-import { LoadingState, NotFoundState, PageHeader } from '@/components/shared';
+import { PageHeader } from '@/components/shared/page-header';
+import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useAgent } from '@/hooks/use-agents';
 import { useDateLocale } from '@/hooks/use-date-locale';

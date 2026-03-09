@@ -104,8 +104,9 @@ export function useSyncModels() {
       }>(`/providers/${id}/sync-models`);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       void queryClient.invalidateQueries({ queryKey: PROVIDERS_KEY });
+      void queryClient.invalidateQueries({ queryKey: providerKey(id) });
     },
   });
 }

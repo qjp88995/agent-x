@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { CopyableId } from '@/components/shared';
+import { CopyableId } from '@/components/shared/copyable-id';
 import {
   AlertDialog,
   AlertDialogAction,
