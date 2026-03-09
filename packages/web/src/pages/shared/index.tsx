@@ -181,9 +181,9 @@ function SharedChatContent({
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
-      <div className="flex h-full w-64 flex-col border-r bg-background">
+      <div className="flex h-full w-72 flex-col border-r bg-background">
         {/* Agent info */}
-        <div className="flex h-14 items-center gap-2.5 px-4">
+        <div className="flex h-14 shrink-0 items-center gap-2.5 border-b px-4">
           <div className="gradient-bg flex size-8 shrink-0 items-center justify-center rounded-full">
             {agentInfo.agentAvatar &&
             /^https?:\/\//.test(agentInfo.agentAvatar) ? (
@@ -200,7 +200,6 @@ function SharedChatContent({
             {agentInfo.agentName}
           </span>
         </div>
-        <Separator />
 
         {/* New chat button */}
         <div className="px-3 py-2">
@@ -261,12 +260,19 @@ function SharedChatContent({
 
       {/* Main chat area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header with workspace button */}
-        {conversationId && hasFiles && (
-          <div className="flex h-10 shrink-0 items-center justify-end border-b px-3">
+        {/* Header */}
+        <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+          <MessageSquare className="text-primary size-5" />
+          <h2 className="truncate font-semibold">{agentInfo.agentName}</h2>
+          {conversationId && hasFiles && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8" asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-auto size-8"
+                  asChild
+                >
                   <Link to={`/s/${token}/workspace/${conversationId}`}>
                     <Code2 className="size-4" />
                   </Link>
@@ -274,8 +280,8 @@ function SharedChatContent({
               </TooltipTrigger>
               <TooltipContent>{t('workspace.openIde')}</TooltipContent>
             </Tooltip>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto">
