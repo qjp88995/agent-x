@@ -10,6 +10,10 @@ const WORKSPACE_TOOLS = new Set([
   'updateFile',
   'deleteFile',
   'writeFiles',
+  'patchFile',
+  'renameFile',
+  'createDirectory',
+  'deleteDirectory',
 ]);
 
 function getToolName(part: { type: string; toolName?: string }): string {
