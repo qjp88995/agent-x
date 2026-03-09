@@ -430,7 +430,10 @@
     "revoking": "Revoking...",
     "keyRevoked": "API key revoked",
     "usage": "Usage",
-    "usageDesc": "Use your API key with any OpenAI-compatible client. The endpoint follows the OpenAI Chat Completions API format."
+    "usageDesc": "Use your API key with any OpenAI-compatible client. The endpoint follows the OpenAI Chat Completions API format.",
+    "usageChatCompletion": "Chat Completion",
+    "usageChatStream": "Chat (streaming)",
+    "usageListModels": "List Models"
   },
   "chat": {
     "title": "Chat",

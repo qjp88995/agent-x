@@ -430,7 +430,10 @@
     "revoking": "撤销中...",
     "keyRevoked": "API 密钥已撤销",
     "usage": "使用方法",
-    "usageDesc": "使用你的 API 密钥配合任何 OpenAI 兼容客户端。端点遵循 OpenAI Chat Completions API 格式。"
+    "usageDesc": "使用你的 API 密钥配合任何 OpenAI 兼容客户端。端点遵循 OpenAI Chat Completions API 格式。",
+    "usageChatCompletion": "对话补全",
+    "usageChatStream": "对话（流式）",
+    "usageListModels": "列出模型"
   },
   "chat": {
     "title": "对话",
