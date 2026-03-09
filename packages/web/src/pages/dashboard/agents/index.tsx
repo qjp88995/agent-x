@@ -14,6 +14,7 @@ import {
   Bot,
   Check,
   ClipboardCopy,
+  History,
   MessageSquare,
   MoreHorizontal,
   Pencil,
@@ -239,6 +240,21 @@ function AgentCard({
                 <TooltipContent>{t('agents.chat')}</TooltipContent>
               </Tooltip>
             )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 cursor-pointer"
+                  asChild
+                >
+                  <Link to={`/agents/${agent.id}/versions`}>
+                    <History className="size-3.5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('agents.versionManagement')}</TooltipContent>
+            </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
