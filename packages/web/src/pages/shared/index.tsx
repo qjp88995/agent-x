@@ -263,7 +263,12 @@ function SharedChatContent({
         {/* Header */}
         <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
           <MessageSquare className="text-primary size-5" />
-          <h2 className="truncate font-semibold">{agentInfo.agentName}</h2>
+          <h2 className="truncate font-semibold">
+            {conversationId
+              ? (conversations?.find(c => c.id === conversationId)?.title ??
+                t('chat.newChat'))
+              : agentInfo.agentName}
+          </h2>
           {conversationId && hasFiles && (
             <Tooltip>
               <TooltipTrigger asChild>
