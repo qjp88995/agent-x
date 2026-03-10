@@ -636,6 +636,11 @@
     "polishNotConfigured": "提示词润色功能未配置，请联系管理员启用。",
     "applyPolish": "应用",
     "discardPolish": "放弃",
+    "autoFill": "自动填充",
+    "autoFilling": "生成中...",
+    "autoFillNotConfigured": "自动填充未配置。管理员需要启用 FORM_AUTO_FILL 功能。",
+    "autoFillFailed": "自动填充生成失败",
+    "autoFillEmpty": "请先填写系统提示词",
     "testConnection": "测试连接",
     "testing": "测试中...",
     "testSuccess": "连接成功",
@@ -645,6 +650,10 @@
       "PROMPT_POLISH": {
         "name": "提示词润色",
         "description": "AI 驱动的提示词优化与润色"
+      },
+      "FORM_AUTO_FILL": {
+        "name": "表单自动填充",
+        "description": "基于内容上下文的 AI 表单字段自动填充"
       }
     }
   }

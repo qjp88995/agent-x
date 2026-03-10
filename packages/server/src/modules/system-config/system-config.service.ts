@@ -13,8 +13,9 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createMoonshotAI } from '@ai-sdk/moonshotai';
 import { createOpenAI } from '@ai-sdk/openai';
-import { APICallError, generateText } from 'ai';
+import { APICallError, generateObject, generateText } from 'ai';
 import { createZhipu } from 'zhipu-ai-provider';
+import { z } from 'zod';
 
 import { decrypt, encrypt } from '../../common/crypto.util';
 import { ProviderProtocol } from '../../generated/prisma/client';
@@ -284,6 +285,17 @@ export class SystemConfigService implements OnModuleInit {
       },
       update: {},
     });
+
+    await this.prisma.systemFeatureConfig.upsert({
+      where: { featureKey: 'FORM_AUTO_FILL' },
+      create: {
+        featureKey: 'FORM_AUTO_FILL',
+        isEnabled: false,
+        systemPrompt:
+          'Based on the provided content, generate the requested fields. Be concise and accurate. Use the same language as the input content.',
+      },
+      update: {},
+    });
   }
 
   async getFeatureStatus(featureKey: string): Promise<{ enabled: boolean }> {
@@ -345,6 +357,61 @@ export class SystemConfigService implements OnModuleInit {
     });
 
     return { result: text };
+  }
+
+  // --- Generate (auto-fill) ---
+
+  async generate(
+    content: string,
+    outputSchema: Record<string, { type: string; description: string }>
+  ): Promise<Record<string, string>> {
+    const feature = await this.prisma.systemFeatureConfig.findUnique({
+      where: { featureKey: 'FORM_AUTO_FILL' },
+      include: { systemProvider: true },
+    });
+
+    if (!feature || !feature.isEnabled) {
+      throw new BadRequestException('Form auto-fill feature is not enabled');
+    }
+
+    if (!feature.systemProvider) {
+      throw new BadRequestException(
+        'No provider configured for form auto-fill'
+      );
+    }
+
+    if (!feature.modelId) {
+      throw new BadRequestException('No model configured for form auto-fill');
+    }
+
+    const apiKey = decrypt(
+      feature.systemProvider.apiKey,
+      this.getEncryptionSecret()
+    );
+
+    const model = this.createLanguageModelWithId(
+      feature.systemProvider.protocol,
+      feature.systemProvider.baseUrl,
+      apiKey,
+      feature.modelId
+    );
+
+    // Build Zod schema dynamically from outputSchema
+    const shape: Record<string, z.ZodString> = {};
+    for (const [key, field] of Object.entries(outputSchema)) {
+      shape[key] = z.string().describe(field.description);
+    }
+    const zodSchema = z.object(shape);
+
+    const { object } = await generateObject({
+      model,
+      schema: zodSchema,
+      system: feature.systemPrompt ?? undefined,
+      prompt: content,
+      experimental_telemetry: { isEnabled: true },
+    });
+
+    return object;
   }
 
   // --- Private helpers ---

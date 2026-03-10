@@ -636,6 +636,11 @@
     "polishNotConfigured": "Prompt polish is not configured. Ask your administrator to enable it.",
     "applyPolish": "Apply",
     "discardPolish": "Discard",
+    "autoFill": "Auto-fill",
+    "autoFilling": "Generating...",
+    "autoFillNotConfigured": "Auto-fill is not configured. Admin needs to enable FORM_AUTO_FILL feature.",
+    "autoFillFailed": "Auto-fill generation failed",
+    "autoFillEmpty": "Please fill in the system prompt first",
     "testConnection": "Test Connection",
     "testing": "Testing...",
     "testSuccess": "Connection successful",
@@ -645,6 +650,10 @@
       "PROMPT_POLISH": {
         "name": "Prompt Polish",
         "description": "AI-powered prompt polishing and optimization"
+      },
+      "FORM_AUTO_FILL": {
+        "name": "Form Auto-Fill",
+        "description": "AI-powered form field auto-fill from content context"
       }
     }
   }

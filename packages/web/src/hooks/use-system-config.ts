@@ -1,5 +1,7 @@
 import type {
   CreateSystemProviderDto,
+  GenerateDto,
+  GenerateResponse,
   SystemFeatureConfigResponse,
   SystemProviderResponse,
   UpdateSystemFeatureConfigDto,
@@ -186,6 +188,20 @@ export function usePolishPrompt() {
       const { data } = await api.post<{ result: string }>('/system/polish', {
         content,
       });
+      return data;
+    },
+  });
+}
+
+// Auto-fill hook
+
+export function useAutoFill() {
+  return useMutation({
+    mutationFn: async (dto: GenerateDto) => {
+      const { data } = await api.post<GenerateResponse>(
+        '/system/generate',
+        dto
+      );
       return data;
     },
   });

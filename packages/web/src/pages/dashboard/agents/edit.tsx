@@ -355,6 +355,7 @@ function AgentEditForm({
                   watchedProviderId={watchedProviderId}
                   isBusy={isBusy}
                   isSaving={isSaving}
+                  systemPrompt={form.watch('systemPrompt')}
                 />
               </TabsContent>
 

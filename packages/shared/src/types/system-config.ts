@@ -49,3 +49,18 @@ export interface SystemFeatureConfigResponse {
 export interface PolishPromptDto {
   content: string;
 }
+
+// Generate (auto-fill)
+export interface GenerateFieldSchema {
+  type: 'string';
+  description: string;
+}
+
+export interface GenerateDto {
+  content: string;
+  outputSchema: Record<string, GenerateFieldSchema>;
+}
+
+export interface GenerateResponse {
+  result: Record<string, string>;
+}

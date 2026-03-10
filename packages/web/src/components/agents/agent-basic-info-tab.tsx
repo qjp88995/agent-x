@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router';
 import type { ProviderModelResponse } from '@agent-x/shared';
 import { Save } from 'lucide-react';
 
+import { AutoFillButton } from '@/components/shared/auto-fill-button';
 import { FormFooter } from '@/components/shared/form-footer';
 import {
   Card,
@@ -45,6 +46,7 @@ type AgentBasicInfoTabProps = {
   watchedProviderId: string;
   isBusy: boolean;
   isSaving: boolean;
+  systemPrompt: string;
 };
 
 function AgentBasicInfoTab({
@@ -54,6 +56,7 @@ function AgentBasicInfoTab({
   watchedProviderId,
   isBusy,
   isSaving,
+  systemPrompt,
 }: AgentBasicInfoTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -71,7 +74,20 @@ function AgentBasicInfoTab({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('common.name')}</FormLabel>
+                <FormLabel className="flex items-center gap-1">
+                  {t('common.name')}
+                  <AutoFillButton
+                    content={systemPrompt}
+                    fieldDescription="A short, catchy agent name (max 20 characters). Use the same language as the input content."
+                    onResult={v =>
+                      form.setValue('name', v, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
+                    disabled={isBusy}
+                  />
+                </FormLabel>
                 <FormControl>
                   <Input
                     placeholder={t('agents.namePlaceholder')}
@@ -89,7 +105,20 @@ function AgentBasicInfoTab({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('common.description')}</FormLabel>
+                <FormLabel className="flex items-center gap-1">
+                  {t('common.description')}
+                  <AutoFillButton
+                    content={systemPrompt}
+                    fieldDescription="A concise description of what this agent does (1-2 sentences). Use the same language as the input content."
+                    onResult={v =>
+                      form.setValue('description', v, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
+                    disabled={isBusy}
+                  />
+                </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t('agents.descPlaceholder')}
