@@ -484,6 +484,7 @@
   },
   "workspace": {
     "title": "工作区",
+    "files": "文件",
     "noFiles": "暂无文件",
     "selectFile": "选择一个文件以查看",
     "binaryFile": "不支持二进制文件预览",

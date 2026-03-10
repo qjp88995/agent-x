@@ -484,6 +484,7 @@
   },
   "workspace": {
     "title": "Workspace",
+    "files": "Files",
     "noFiles": "No files yet",
     "selectFile": "Select a file to view",
     "binaryFile": "Binary file preview not supported",

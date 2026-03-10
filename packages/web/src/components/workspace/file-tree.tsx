@@ -105,7 +105,10 @@ export function FileTree({
   }, []);
 
   const toolbar = (
-    <div className="flex h-9 shrink-0 items-center justify-end gap-0.5 border-b px-2">
+    <div className="flex h-9 shrink-0 items-center gap-0.5 border-b px-2">
+      <span className="flex-1 truncate px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {t('workspace.files')}
+      </span>
       <Tooltip>
         <TooltipTrigger asChild>
           <button
