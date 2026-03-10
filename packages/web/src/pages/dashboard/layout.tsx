@@ -15,6 +15,7 @@ import {
   Settings,
   Sparkles,
   Sun,
+  Users,
   Wrench,
 } from 'lucide-react';
 
@@ -51,6 +52,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.prompts', href: '/prompts', icon: MessageSquarePlus },
   { labelKey: 'nav.skills', href: '/skills', icon: Sparkles },
   { labelKey: 'nav.apiKeys', href: '/api-keys', icon: Key },
+  { labelKey: 'nav.users', href: '/users', icon: Users, adminOnly: true },
   { labelKey: 'nav.preferences', href: '/settings', icon: Settings },
   {
     labelKey: 'nav.systemConfig',
