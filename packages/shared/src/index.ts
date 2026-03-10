@@ -8,3 +8,4 @@ export * from './types/api-key';
 export * from './types/agent-version';
 export * from './types/share-token';
 export * from './types/workspace';
+export * from './types/preferences';
