@@ -114,24 +114,26 @@ function SharedConversationItem({
       </div>
       {!isEditing && (
         <div className="hidden shrink-0 items-center gap-0.5 group-hover:flex">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-5"
             onClick={handleStartEdit}
-            className="text-muted-foreground hover:text-foreground rounded p-0.5"
             aria-label={t('chat.renameConversation')}
           >
             <Pencil className="size-3.5" />
-          </button>
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-5 hover:text-destructive"
                 onClick={e => e.stopPropagation()}
-                className="text-muted-foreground hover:text-destructive rounded p-0.5"
                 aria-label={t('chat.deleteConversation')}
               >
                 <Trash2 className="size-3.5" />
-              </button>
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent variant="destructive">
               <AlertDialogHeader>

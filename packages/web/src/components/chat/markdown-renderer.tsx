@@ -6,6 +6,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 import 'highlight.js/styles/github-dark.min.css';
@@ -34,9 +35,11 @@ function CopyButton({ code }: { readonly code: string }) {
   }, [code]);
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-7 gap-1 px-2 text-xs text-muted-foreground"
       onClick={handleCopy}
-      className="text-muted-foreground hover:text-foreground flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors"
     >
       {copied ? (
         <>
@@ -49,7 +52,7 @@ function CopyButton({ code }: { readonly code: string }) {
           <span>Copy</span>
         </>
       )}
-    </button>
+    </Button>
   );
 }
 

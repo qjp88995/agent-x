@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Check, ClipboardCopy } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
@@ -34,10 +35,11 @@ export function CopyableId({ id, label }: CopyableIdProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-auto gap-1 px-1 py-0.5 font-mono text-xs text-muted-foreground"
           onClick={handleCopy}
-          className="text-muted-foreground hover:text-foreground inline-flex cursor-pointer items-center gap-1 font-mono text-xs transition-colors"
         >
           {label && <span>{label}</span>}
           <span>{shortId}</span>
@@ -46,7 +48,7 @@ export function CopyableId({ id, label }: CopyableIdProps) {
           ) : (
             <ClipboardCopy className="size-3" />
           )}
-        </button>
+        </Button>
       </TooltipTrigger>
       <TooltipContent>
         {copied ? t('common.copied') : `${t('common.copy')} ID: ${id}`}

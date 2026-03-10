@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
@@ -39,12 +40,9 @@ class ErrorBoundary extends Component<
           <p className="text-muted-foreground text-sm">
             An unexpected error occurred. Please refresh the page.
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="text-primary text-sm underline"
-          >
+          <Button variant="link" onClick={() => window.location.reload()}>
             Refresh
-          </button>
+          </Button>
         </div>
       );
     }

@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -111,25 +112,27 @@ export function FileTree({
       </span>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
-            type="button"
-            className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6"
             onClick={() => setEditingNode({ type: 'new-file', parentPath: '' })}
           >
             <FilePlus className="size-3.5" />
-          </button>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">{t('workspace.newFile')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
-            type="button"
-            className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6"
             onClick={() => setEditingNode({ type: 'new-dir', parentPath: '' })}
           >
             <FolderPlus className="size-3.5" />
-          </button>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">
           {t('workspace.newFolder')}

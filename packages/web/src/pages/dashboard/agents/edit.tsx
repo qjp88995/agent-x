@@ -254,10 +254,11 @@ function AgentEditForm({
               )}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto gap-1 px-1 py-0.5 font-mono text-xs text-muted-foreground"
                     onClick={handleCopyId}
-                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-mono text-xs transition-colors cursor-pointer"
                   >
                     <span>ID: {agentId.slice(0, 8)}</span>
                     {idCopied ? (
@@ -265,7 +266,7 @@ function AgentEditForm({
                     ) : (
                       <ClipboardCopy className="size-3" />
                     )}
-                  </button>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   {idCopied
