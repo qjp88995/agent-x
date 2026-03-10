@@ -223,6 +223,8 @@
     "maxTokensHint": "模型在一次回复中可生成的最大 Token 数。",
     "tempError": "温度必须是 0 到 2 之间的数字。",
     "maxTokensError": "最大 Token 数必须是正整数。",
+    "thinkingEnabled": "思考模式",
+    "thinkingEnabledHint": "启用深度推理以处理复杂任务。开启后温度参数将被忽略。仅部分模型支持。",
     "versionManagement": "版本管理",
     "versionManagementDesc": "管理 {{name}} 的版本、分享链接和会话。",
     "backToEdit": "返回编辑",

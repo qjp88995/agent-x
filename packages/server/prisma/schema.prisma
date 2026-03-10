@@ -90,9 +90,10 @@ model Agent {
   description  String?
   avatar       String?
   systemPrompt String
-  temperature  Float       @default(0.7)
-  maxTokens    Int         @default(4096)
-  status       AgentStatus @default(ACTIVE)
+  temperature     Float       @default(0.7)
+  maxTokens       Int         @default(4096)
+  thinkingEnabled Boolean     @default(false)
+  status          AgentStatus @default(ACTIVE)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   deletedAt    DateTime?
@@ -256,6 +257,7 @@ model AgentVersion {
   systemPrompt       String
   temperature        Float
   maxTokens          Int
+  thinkingEnabled    Boolean  @default(false)
   skillsSnapshot     Json     @default("[]")
   mcpServersSnapshot Json     @default("[]")
   changelog          String?
@@ -346,6 +348,9 @@ model SystemFeatureConfig {
   systemProviderId String?
   modelId          String?
   systemPrompt     String?
+  temperature      Float?
+  maxTokens        Int?
+  thinkingEnabled  Boolean @default(false)
   isEnabled        Boolean @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

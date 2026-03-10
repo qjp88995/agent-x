@@ -21,6 +21,7 @@ interface AgentWithRelations {
   readonly systemPrompt: string;
   readonly temperature: number;
   readonly maxTokens: number;
+  readonly thinkingEnabled: boolean;
   readonly modelId: string;
   readonly provider: {
     readonly protocol: string;
@@ -40,6 +41,31 @@ interface AgentWithRelations {
 }
 
 type McpToolSet = Record<string, Tool>;
+
+/** Parameters shared between createStream and createStreamFromVersion */
+interface StreamParams {
+  readonly protocol: string;
+  readonly baseUrl: string;
+  readonly encryptedApiKey: string;
+  readonly modelId: string;
+  readonly systemPrompt: string;
+  readonly skillContents: string;
+  readonly temperature: number;
+  readonly maxTokens: number;
+  readonly thinkingEnabled: boolean;
+  readonly mcpServers: AgentWithRelations['mcpServers'];
+  readonly messages: Array<{ role: string; content: string }>;
+  readonly abortSignal?: AbortSignal;
+  readonly conversationId?: string;
+}
+
+/** Max temperature by protocol. Most accept 0–2; Zhipu/Moonshot only 0–1. */
+const MAX_TEMPERATURE: Record<string, number> = {
+  ZHIPU: 1,
+  MOONSHOT: 1,
+};
+
+const DEFAULT_MAX_TEMPERATURE = 2;
 
 @Injectable()
 export class AgentRuntimeService {
@@ -82,55 +108,27 @@ export class AgentRuntimeService {
     const skillContents = agent.skills
       .map(entry => entry.skill.content)
       .join('\n\n---\n\n');
-    const systemPrompt = skillContents
-      ? `${agent.systemPrompt}\n\n## Skills\n\n${skillContents}`
-      : agent.systemPrompt;
-
-    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
-    const apiKey = decrypt(agent.provider.apiKey, encryptionSecret);
-    const model = this.createModel(
-      agent.provider.protocol,
-      agent.provider.baseUrl,
-      apiKey,
-      agent.modelId
-    );
 
     this.logger.log(`[createStream] collecting MCP tools...`);
-    const { tools: mcpTools, cleanups } = await this.collectMcpTools(
-      agent.mcpServers
-    );
-    const built = getBuiltInTools(
-      this.workspaceService,
-      options?.conversationId
-    );
-    const tools: McpToolSet = { ...built, ...mcpTools };
-    const hasTools = Object.keys(tools).length > 0;
-    this.logger.log(
-      `[createStream] tools ready count=${Object.keys(tools).length} (mcp=${Object.keys(mcpTools).length} builtin=${Object.keys(built).length}) +${Date.now() - start}ms`
-    );
-
-    this.logger.log(`[createStream] calling streamText...`);
-    const result = streamText({
-      model,
-      system: systemPrompt,
-      messages: messages as any,
+    const result = await this.buildAndStream({
+      protocol: agent.provider.protocol,
+      baseUrl: agent.provider.baseUrl,
+      encryptedApiKey: agent.provider.apiKey,
+      modelId: agent.modelId,
+      systemPrompt: agent.systemPrompt,
+      skillContents,
       temperature: agent.temperature,
-      maxOutputTokens: agent.maxTokens,
-      experimental_telemetry: { isEnabled: true },
-      ...(hasTools ? { tools, stopWhen: stepCountIs(10) } : {}),
-      ...(options?.abortSignal ? { abortSignal: options.abortSignal } : {}),
-      onFinish: async () => {
-        await this.cleanupMcpSessions(cleanups);
-      },
-      onError: async event => {
-        this.logger.error(`[createStream] streamText error: ${event.error}`);
-        await this.cleanupMcpSessions(cleanups);
-      },
+      maxTokens: agent.maxTokens,
+      thinkingEnabled: agent.thinkingEnabled,
+      mcpServers: agent.mcpServers,
+      messages,
+      abortSignal: options?.abortSignal,
+      conversationId: options?.conversationId,
     });
+
     this.logger.log(
       `[createStream] streamText started +${Date.now() - start}ms`
     );
-
     return result;
   }
 
@@ -146,51 +144,122 @@ export class AgentRuntimeService {
 
     const skills = version.skillsSnapshot as Array<{ content: string }>;
     const skillContents = skills.map(s => s.content).join('\n\n---\n\n');
-    const systemPrompt = skillContents
-      ? `${version.systemPrompt}\n\n## Skills\n\n${skillContents}`
-      : version.systemPrompt;
-
-    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
-    const apiKey = decrypt(version.provider.apiKey, encryptionSecret);
-    const model = this.createModel(
-      version.provider.protocol,
-      version.provider.baseUrl,
-      apiKey,
-      version.modelId
-    );
 
     const mcpSnapshot = version.mcpServersSnapshot as Array<{
       transport: string;
       config: Record<string, unknown>;
       enabledTools: string[];
     }>;
-    const { tools: mcpTools, cleanups } = await this.collectMcpTools(
-      mcpSnapshot.map(s => ({
-        enabledTools: s.enabledTools,
-        mcpServer: { transport: s.transport, config: s.config },
-      }))
+    const mcpServers = mcpSnapshot.map(s => ({
+      enabledTools: s.enabledTools,
+      mcpServer: { transport: s.transport, config: s.config },
+    }));
+
+    return this.buildAndStream({
+      protocol: version.provider.protocol,
+      baseUrl: version.provider.baseUrl,
+      encryptedApiKey: version.provider.apiKey,
+      modelId: version.modelId,
+      systemPrompt: version.systemPrompt,
+      skillContents,
+      temperature: version.temperature,
+      maxTokens: version.maxTokens,
+      thinkingEnabled: version.thinkingEnabled,
+      mcpServers,
+      messages,
+      abortSignal: options?.abortSignal,
+      conversationId: options?.conversationId,
+    });
+  }
+
+  async generateTitle(
+    agentId: string,
+    userMessage: string,
+    assistantMessage: string
+  ): Promise<string> {
+    const agent = await this.prisma.agent.findFirstOrThrow({
+      where: { id: agentId, deletedAt: null },
+      include: { provider: true },
+    });
+
+    return this.generateTitleWithModel(
+      agent.provider.protocol,
+      agent.provider.baseUrl,
+      agent.provider.apiKey,
+      agent.modelId,
+      userMessage,
+      assistantMessage
+    );
+  }
+
+  async generateTitleFromVersion(
+    agentVersionId: string,
+    userMessage: string,
+    assistantMessage: string
+  ): Promise<string> {
+    const version = await this.prisma.agentVersion.findUniqueOrThrow({
+      where: { id: agentVersionId },
+      include: { provider: true },
+    });
+
+    return this.generateTitleWithModel(
+      version.provider.protocol,
+      version.provider.baseUrl,
+      version.provider.apiKey,
+      version.modelId,
+      userMessage,
+      assistantMessage
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  private async buildAndStream(params: StreamParams): Promise<any> {
+    const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
+    const apiKey = decrypt(params.encryptedApiKey, encryptionSecret);
+    const model = this.createModel(
+      params.protocol,
+      params.baseUrl,
+      apiKey,
+      params.modelId
     );
 
-    const built = getBuiltInTools(
-      this.workspaceService,
-      options?.conversationId
+    const fullSystemPrompt = params.skillContents
+      ? `${params.systemPrompt}\n\n## Skills\n\n${params.skillContents}`
+      : params.systemPrompt;
+
+    const { tools: mcpTools, cleanups } = await this.collectMcpTools(
+      params.mcpServers
     );
+    const built = getBuiltInTools(this.workspaceService, params.conversationId);
     const tools: McpToolSet = { ...built, ...mcpTools };
     const hasTools = Object.keys(tools).length > 0;
 
+    const thinkingOptions = this.getThinkingProviderOptions(
+      params.protocol,
+      params.thinkingEnabled,
+      params.maxTokens
+    );
+
     return streamText({
       model,
-      system: systemPrompt,
-      messages: messages as any,
-      temperature: version.temperature,
-      maxOutputTokens: version.maxTokens,
+      system: fullSystemPrompt,
+      messages: params.messages as any,
+      temperature: params.thinkingEnabled
+        ? undefined
+        : this.clampTemperature(params.protocol, params.temperature),
+      maxOutputTokens: params.maxTokens,
       experimental_telemetry: { isEnabled: true },
+      ...thinkingOptions,
       ...(hasTools ? { tools, stopWhen: stepCountIs(10) } : {}),
-      ...(options?.abortSignal ? { abortSignal: options.abortSignal } : {}),
+      ...(params.abortSignal ? { abortSignal: params.abortSignal } : {}),
       onFinish: async () => {
         await this.cleanupMcpSessions(cleanups);
       },
-      onError: async () => {
+      onError: async event => {
+        this.logger.error(`[buildAndStream] streamText error: ${event.error}`);
         await this.cleanupMcpSessions(cleanups);
       },
     });
@@ -241,46 +310,6 @@ export class AgentRuntimeService {
     }
   }
 
-  async generateTitle(
-    agentId: string,
-    userMessage: string,
-    assistantMessage: string
-  ): Promise<string> {
-    const agent = await this.prisma.agent.findFirstOrThrow({
-      where: { id: agentId, deletedAt: null },
-      include: { provider: true },
-    });
-
-    return this.generateTitleWithModel(
-      agent.provider.protocol,
-      agent.provider.baseUrl,
-      agent.provider.apiKey,
-      agent.modelId,
-      userMessage,
-      assistantMessage
-    );
-  }
-
-  async generateTitleFromVersion(
-    agentVersionId: string,
-    userMessage: string,
-    assistantMessage: string
-  ): Promise<string> {
-    const version = await this.prisma.agentVersion.findUniqueOrThrow({
-      where: { id: agentVersionId },
-      include: { provider: true },
-    });
-
-    return this.generateTitleWithModel(
-      version.provider.protocol,
-      version.provider.baseUrl,
-      version.provider.apiKey,
-      version.modelId,
-      userMessage,
-      assistantMessage
-    );
-  }
-
   private async generateTitleWithModel(
     protocol: string,
     baseUrl: string,
@@ -305,6 +334,87 @@ export class AgentRuntimeService {
     });
 
     return text.replace(/^["']+|["']+$/g, '').trim();
+  }
+
+  private clampTemperature(protocol: string, temperature: number): number {
+    const maxTemp = MAX_TEMPERATURE[protocol] ?? DEFAULT_MAX_TEMPERATURE;
+    return Math.min(Math.max(temperature, 0), maxTemp);
+  }
+
+  /**
+   * Build providerOptions for thinking/reasoning based on protocol and toggle.
+   */
+  private getThinkingProviderOptions(
+    protocol: string,
+    enabled: boolean,
+    maxTokens: number
+  ): Record<string, unknown> {
+    switch (protocol) {
+      case 'ANTHROPIC':
+        return {
+          providerOptions: {
+            anthropic: {
+              thinking: enabled
+                ? { type: 'enabled', budgetTokens: maxTokens }
+                : { type: 'disabled' },
+            },
+          },
+        };
+      case 'DEEPSEEK':
+        return {
+          providerOptions: {
+            deepseek: {
+              thinking: enabled ? { type: 'enabled' } : { type: 'disabled' },
+            },
+          },
+        };
+      case 'MOONSHOT':
+        return {
+          providerOptions: {
+            moonshotai: {
+              thinking: enabled
+                ? { type: 'enabled', budgetTokens: maxTokens }
+                : { type: 'disabled' },
+            },
+          },
+        };
+      case 'ZHIPU':
+        return {
+          providerOptions: {
+            zhipu: {
+              thinking: enabled ? { type: 'enabled' } : { type: 'disabled' },
+            },
+          },
+        };
+      case 'QWEN':
+        return enabled
+          ? {
+              providerOptions: {
+                alibaba: { enableThinking: true, thinkingBudget: maxTokens },
+              },
+            }
+          : {
+              providerOptions: {
+                alibaba: { enableThinking: false },
+              },
+            };
+      case 'GEMINI':
+        return enabled
+          ? {
+              providerOptions: {
+                google: {
+                  thinkingConfig: {
+                    includeThoughts: true,
+                    thinkingBudget: maxTokens,
+                  },
+                },
+              },
+            }
+          : {};
+      case 'OPENAI':
+      default:
+        return {};
+    }
   }
 
   private createModel(

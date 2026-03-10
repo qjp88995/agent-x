@@ -122,6 +122,7 @@ function AgentEditForm({
       systemPrompt: agent.systemPrompt,
       temperature: agent.temperature,
       maxTokens: agent.maxTokens,
+      thinkingEnabled: agent.thinkingEnabled,
     },
     mode: 'onChange',
   });
@@ -163,6 +164,7 @@ function AgentEditForm({
           systemPrompt: values.systemPrompt.trim(),
           temperature: values.temperature,
           maxTokens: values.maxTokens,
+          thinkingEnabled: values.thinkingEnabled,
         },
       });
       toast.success(t('agents.updated'));

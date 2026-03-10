@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsNumber,
   IsOptional,
   IsString,
@@ -36,4 +37,8 @@ export class CreateAgentDto {
   @IsNumber()
   @Min(1)
   maxTokens?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  thinkingEnabled?: boolean;
 }

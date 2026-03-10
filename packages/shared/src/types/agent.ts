@@ -13,6 +13,7 @@ export interface CreateAgentDto {
   systemPrompt: string;
   temperature?: number;
   maxTokens?: number;
+  thinkingEnabled?: boolean;
 }
 
 export interface UpdateAgentDto {
@@ -23,6 +24,7 @@ export interface UpdateAgentDto {
   systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
+  thinkingEnabled?: boolean;
   avatar?: string;
 }
 
@@ -36,6 +38,7 @@ export interface AgentResponse {
   systemPrompt: string;
   temperature: number;
   maxTokens: number;
+  thinkingEnabled: boolean;
   status: AgentStatus;
   latestVersion: number | null;
   skills: { id: string; skillId: string; priority: number }[];

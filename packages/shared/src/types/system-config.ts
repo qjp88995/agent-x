@@ -30,6 +30,9 @@ export interface UpdateSystemFeatureConfigDto {
   systemProviderId?: string | null;
   modelId?: string | null;
   systemPrompt?: string | null;
+  temperature?: number | null;
+  maxTokens?: number | null;
+  thinkingEnabled?: boolean;
   isEnabled?: boolean;
 }
 
@@ -39,6 +42,9 @@ export interface SystemFeatureConfigResponse {
   systemProviderId: string | null;
   modelId: string | null;
   systemPrompt: string | null;
+  temperature: number | null;
+  maxTokens: number | null;
+  thinkingEnabled: boolean;
   isEnabled: boolean;
   systemProvider: SystemProviderResponse | null;
   createdAt: string;

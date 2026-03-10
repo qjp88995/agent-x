@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -46,6 +48,11 @@ export function FeatureRow({
   const [providerId, setProviderId] = useState(feature.systemProviderId ?? '');
   const [modelId, setModelId] = useState(feature.modelId ?? '');
   const [systemPrompt, setSystemPrompt] = useState(feature.systemPrompt ?? '');
+  const [temperature, setTemperature] = useState(feature.temperature ?? 0.7);
+  const [maxTokens, setMaxTokens] = useState(feature.maxTokens ?? 4096);
+  const [thinkingEnabled, setThinkingEnabled] = useState(
+    feature.thinkingEnabled
+  );
 
   const { data: models } = useSystemProviderModels(providerId || undefined);
 
@@ -60,7 +67,10 @@ export function FeatureRow({
     isEnabled !== feature.isEnabled ||
     providerId !== (feature.systemProviderId ?? '') ||
     modelId !== (feature.modelId ?? '') ||
-    systemPrompt !== (feature.systemPrompt ?? '');
+    systemPrompt !== (feature.systemPrompt ?? '') ||
+    temperature !== (feature.temperature ?? 0.7) ||
+    maxTokens !== (feature.maxTokens ?? 4096) ||
+    thinkingEnabled !== feature.thinkingEnabled;
 
   async function handleSave() {
     try {
@@ -71,6 +81,9 @@ export function FeatureRow({
           systemProviderId: providerId || null,
           modelId: modelId || null,
           systemPrompt: systemPrompt || null,
+          temperature,
+          maxTokens,
+          thinkingEnabled,
         },
       });
       toast.success(t('systemConfig.featureUpdated'));
@@ -149,6 +162,60 @@ export function FeatureRow({
             value={systemPrompt}
             onChange={e => setSystemPrompt(e.target.value)}
             rows={4}
+          />
+        </div>
+
+        {/* Temperature */}
+        <div className="flex flex-col gap-2">
+          <Label>
+            {t('agents.temperature')}{' '}
+            <span className="text-muted-foreground font-normal">
+              ({temperature})
+            </span>
+          </Label>
+          <div className="flex items-center gap-4">
+            <Slider
+              min={0}
+              max={2}
+              step={0.1}
+              value={[temperature]}
+              onValueChange={([v]) => setTemperature(v)}
+              className="flex-1"
+            />
+            <Input
+              type="number"
+              min="0"
+              max="2"
+              step="0.1"
+              value={temperature}
+              onChange={e => setTemperature(parseFloat(e.target.value) || 0)}
+              className="w-20"
+            />
+          </div>
+        </div>
+
+        {/* Max Tokens */}
+        <div className="flex flex-col gap-2">
+          <Label>{t('agents.maxTokens')}</Label>
+          <Input
+            type="number"
+            min="1"
+            value={maxTokens}
+            onChange={e => setMaxTokens(parseInt(e.target.value, 10) || 0)}
+          />
+        </div>
+
+        {/* Thinking Mode */}
+        <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="space-y-0.5">
+            <Label>{t('agents.thinkingEnabled')}</Label>
+            <p className="text-muted-foreground text-xs">
+              {t('agents.thinkingEnabledHint')}
+            </p>
+          </div>
+          <Switch
+            checked={thinkingEnabled}
+            onCheckedChange={setThinkingEnabled}
           />
         </div>
       </CardContent>

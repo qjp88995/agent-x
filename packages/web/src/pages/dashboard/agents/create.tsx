@@ -64,6 +64,7 @@ export default function CreateAgentPage() {
       systemPrompt: '',
       temperature: 0.7,
       maxTokens: 4096,
+      thinkingEnabled: false,
     },
     mode: 'onChange',
   });
@@ -110,6 +111,7 @@ export default function CreateAgentPage() {
         systemPrompt: values.systemPrompt.trim(),
         temperature: values.temperature,
         maxTokens: values.maxTokens,
+        thinkingEnabled: values.thinkingEnabled,
       });
       toast.success(t('agents.created'));
       await navigate('/agents');

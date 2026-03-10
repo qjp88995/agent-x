@@ -72,6 +72,7 @@ export class AgentVersionService {
         systemPrompt: agent.systemPrompt,
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
+        thinkingEnabled: agent.thinkingEnabled,
         skillsSnapshot: skillsSnapshot as any,
         mcpServersSnapshot: mcpServersSnapshot as any,
         changelog: dto.changelog ?? null,

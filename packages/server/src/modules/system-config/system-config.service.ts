@@ -266,6 +266,15 @@ export class SystemConfigService implements OnModuleInit {
     if (dto.isEnabled !== undefined) {
       data.isEnabled = dto.isEnabled;
     }
+    if (dto.temperature !== undefined) {
+      data.temperature = dto.temperature;
+    }
+    if (dto.maxTokens !== undefined) {
+      data.maxTokens = dto.maxTokens;
+    }
+    if (dto.thinkingEnabled !== undefined) {
+      data.thinkingEnabled = dto.thinkingEnabled;
+    }
 
     return this.prisma.systemFeatureConfig.update({
       where: { featureKey },
@@ -357,7 +366,18 @@ export class SystemConfigService implements OnModuleInit {
       model,
       system: feature.systemPrompt ?? undefined,
       prompt,
+      temperature:
+        feature.temperature != null
+          ? this.clampTemperature(
+              feature.systemProvider.protocol,
+              feature.temperature
+            )
+          : undefined,
+      maxOutputTokens: feature.maxTokens ?? undefined,
       experimental_telemetry: { isEnabled: true },
+      ...(feature.thinkingEnabled
+        ? this.getThinkingOptions(feature.systemProvider.protocol)
+        : {}),
     });
 
     return { result: text };
@@ -424,14 +444,49 @@ export class SystemConfigService implements OnModuleInit {
       schema: zodSchema,
       system: feature.systemPrompt ?? undefined,
       prompt: content,
+      temperature:
+        feature.temperature != null
+          ? this.clampTemperature(
+              feature.systemProvider.protocol,
+              feature.temperature
+            )
+          : undefined,
+      maxOutputTokens: feature.maxTokens ?? undefined,
       experimental_telemetry: { isEnabled: true },
       ...(needsJsonMode ? { mode: 'json' as const } : {}),
+      ...(feature.thinkingEnabled
+        ? this.getThinkingOptions(feature.systemProvider.protocol)
+        : {}),
     });
 
     return object;
   }
 
   // --- Private helpers ---
+
+  private getThinkingOptions(protocol: string): Record<string, unknown> {
+    switch (protocol) {
+      case ProviderProtocol.ANTHROPIC:
+        return {
+          providerOptions: {
+            anthropic: {
+              thinking: { type: 'enabled', budgetTokens: 8192 },
+            },
+          },
+        };
+      default:
+        return {};
+    }
+  }
+
+  private clampTemperature(protocol: string, temperature: number): number {
+    const maxTemp =
+      protocol === ProviderProtocol.ZHIPU ||
+      protocol === ProviderProtocol.MOONSHOT
+        ? 1
+        : 2;
+    return Math.min(Math.max(temperature, 0), maxTemp);
+  }
 
   private createLanguageModel(
     protocol: ProviderProtocol,

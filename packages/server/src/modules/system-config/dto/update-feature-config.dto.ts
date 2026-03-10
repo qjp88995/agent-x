@@ -1,4 +1,11 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class UpdateFeatureConfigDto {
   @IsOptional()
@@ -12,6 +19,21 @@ export class UpdateFeatureConfigDto {
   @IsOptional()
   @IsString()
   systemPrompt?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(2)
+  temperature?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  maxTokens?: number | null;
+
+  @IsOptional()
+  @IsBoolean()
+  thinkingEnabled?: boolean;
 
   @IsOptional()
   @IsBoolean()

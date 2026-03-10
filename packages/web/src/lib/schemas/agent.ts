@@ -11,6 +11,7 @@ export const agentSchema = z.object({
     .min(0, 'validation.temperatureRange')
     .max(2, 'validation.temperatureRange'),
   maxTokens: z.number().int().min(1, 'validation.maxTokensMin'),
+  thinkingEnabled: z.boolean(),
 });
 
 export type AgentFormValues = z.infer<typeof agentSchema>;

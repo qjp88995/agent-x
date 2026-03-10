@@ -26,6 +26,7 @@ export interface AgentVersionResponse {
   systemPrompt: string;
   temperature: number;
   maxTokens: number;
+  thinkingEnabled: boolean;
   skillsSnapshot: SkillSnapshot[];
   mcpServersSnapshot: McpServerSnapshot[];
   changelog: string | null;

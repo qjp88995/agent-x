@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type { AgentFormValues } from '@/lib/schemas';
 
@@ -260,6 +261,28 @@ function AgentBasicInfoTab({
                   />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="thinkingEnabled"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>{t('agents.thinkingEnabled')}</FormLabel>
+                  <FormDescription>
+                    {t('agents.thinkingEnabledHint')}
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isBusy}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
