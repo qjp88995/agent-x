@@ -1,15 +1,13 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { createAlibaba } from '@ai-sdk/alibaba';
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createDeepSeek } from '@ai-sdk/deepseek';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createMoonshotAI } from '@ai-sdk/moonshotai';
-import { createOpenAI } from '@ai-sdk/openai';
 import { generateText, stepCountIs, streamText, type Tool } from 'ai';
-import { createZhipu } from 'zhipu-ai-provider';
 
+import {
+  clampTemperature,
+  createLanguageModel,
+  getThinkingProviderOptions,
+} from '../../common/ai-provider.util';
 import { decrypt } from '../../common/crypto.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { McpClientService } from '../mcp/mcp-client.service';
@@ -58,14 +56,6 @@ interface StreamParams {
   readonly abortSignal?: AbortSignal;
   readonly conversationId?: string;
 }
-
-/** Max temperature by protocol. Most accept 0–2; Zhipu/Moonshot only 0–1. */
-const MAX_TEMPERATURE: Record<string, number> = {
-  ZHIPU: 1,
-  MOONSHOT: 1,
-};
-
-const DEFAULT_MAX_TEMPERATURE = 2;
 
 @Injectable()
 export class AgentRuntimeService {
@@ -219,7 +209,7 @@ export class AgentRuntimeService {
   private async buildAndStream(params: StreamParams): Promise<any> {
     const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
     const apiKey = decrypt(params.encryptedApiKey, encryptionSecret);
-    const model = this.createModel(
+    const model = createLanguageModel(
       params.protocol,
       params.baseUrl,
       apiKey,
@@ -237,7 +227,7 @@ export class AgentRuntimeService {
     const tools: McpToolSet = { ...built, ...mcpTools };
     const hasTools = Object.keys(tools).length > 0;
 
-    const thinkingOptions = this.getThinkingProviderOptions(
+    const thinkingOptions = getThinkingProviderOptions(
       params.protocol,
       params.thinkingEnabled,
       params.maxTokens
@@ -249,7 +239,7 @@ export class AgentRuntimeService {
       messages: params.messages as any,
       temperature: params.thinkingEnabled
         ? undefined
-        : this.clampTemperature(params.protocol, params.temperature),
+        : clampTemperature(params.protocol, params.temperature),
       maxOutputTokens: params.maxTokens,
       experimental_telemetry: { isEnabled: true },
       ...thinkingOptions,
@@ -320,7 +310,7 @@ export class AgentRuntimeService {
   ): Promise<string> {
     const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
     const apiKey = decrypt(encryptedApiKey, encryptionSecret);
-    const model = this.createModel(protocol, baseUrl, apiKey, modelId);
+    const model = createLanguageModel(protocol, baseUrl, apiKey, modelId);
 
     const { text } = await generateText({
       model,
@@ -334,121 +324,5 @@ export class AgentRuntimeService {
     });
 
     return text.replace(/^["']+|["']+$/g, '').trim();
-  }
-
-  private clampTemperature(protocol: string, temperature: number): number {
-    const maxTemp = MAX_TEMPERATURE[protocol] ?? DEFAULT_MAX_TEMPERATURE;
-    return Math.min(Math.max(temperature, 0), maxTemp);
-  }
-
-  /**
-   * Build providerOptions for thinking/reasoning based on protocol and toggle.
-   */
-  private getThinkingProviderOptions(
-    protocol: string,
-    enabled: boolean,
-    maxTokens: number
-  ): Record<string, unknown> {
-    switch (protocol) {
-      case 'ANTHROPIC':
-        return {
-          providerOptions: {
-            anthropic: {
-              thinking: enabled
-                ? { type: 'enabled', budgetTokens: maxTokens }
-                : { type: 'disabled' },
-            },
-          },
-        };
-      case 'DEEPSEEK':
-        return {
-          providerOptions: {
-            deepseek: {
-              thinking: enabled ? { type: 'enabled' } : { type: 'disabled' },
-            },
-          },
-        };
-      case 'MOONSHOT':
-        return {
-          providerOptions: {
-            moonshotai: {
-              thinking: enabled
-                ? { type: 'enabled', budgetTokens: maxTokens }
-                : { type: 'disabled' },
-            },
-          },
-        };
-      case 'ZHIPU':
-        return {
-          providerOptions: {
-            zhipu: {
-              thinking: enabled ? { type: 'enabled' } : { type: 'disabled' },
-            },
-          },
-        };
-      case 'QWEN':
-        return enabled
-          ? {
-              providerOptions: {
-                alibaba: { enableThinking: true, thinkingBudget: maxTokens },
-              },
-            }
-          : {
-              providerOptions: {
-                alibaba: { enableThinking: false },
-              },
-            };
-      case 'GEMINI':
-        return enabled
-          ? {
-              providerOptions: {
-                google: {
-                  thinkingConfig: {
-                    includeThoughts: true,
-                    thinkingBudget: maxTokens,
-                  },
-                },
-              },
-            }
-          : {};
-      case 'OPENAI':
-      default:
-        return {};
-    }
-  }
-
-  private createModel(
-    protocol: string,
-    baseUrl: string,
-    apiKey: string,
-    modelId: string
-  ) {
-    switch (protocol) {
-      case 'OPENAI': {
-        const openai = createOpenAI({ baseURL: baseUrl, apiKey });
-        return openai.chat(modelId);
-      }
-      case 'ANTHROPIC': {
-        const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
-        return anthropic(modelId);
-      }
-      case 'GEMINI': {
-        const google = createGoogleGenerativeAI({
-          baseURL: baseUrl,
-          apiKey,
-        });
-        return google(modelId);
-      }
-      case 'DEEPSEEK':
-        return createDeepSeek({ baseURL: baseUrl, apiKey })(modelId);
-      case 'QWEN':
-        return createAlibaba({ baseURL: baseUrl, apiKey })(modelId);
-      case 'ZHIPU':
-        return createZhipu({ baseURL: baseUrl, apiKey })(modelId);
-      case 'MOONSHOT':
-        return createMoonshotAI({ baseURL: baseUrl, apiKey })(modelId);
-      default:
-        throw new Error(`Unsupported protocol: ${protocol}`);
-    }
   }
 }

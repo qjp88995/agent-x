@@ -7,16 +7,15 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { createAlibaba } from '@ai-sdk/alibaba';
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createDeepSeek } from '@ai-sdk/deepseek';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createMoonshotAI } from '@ai-sdk/moonshotai';
-import { createOpenAI } from '@ai-sdk/openai';
-import { APICallError, generateObject, generateText } from 'ai';
-import { createZhipu } from 'zhipu-ai-provider';
+import { APICallError, generateText, Output } from 'ai';
 import { z } from 'zod';
 
+import {
+  clampTemperature,
+  createLanguageModel,
+  getDefaultModelId,
+  getThinkingProviderOptions,
+} from '../../common/ai-provider.util';
 import { decrypt, encrypt } from '../../common/crypto.util';
 import { ProviderProtocol } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -177,10 +176,11 @@ export class SystemConfigService implements OnModuleInit {
     const apiKey = decrypt(provider.apiKey, this.getEncryptionSecret());
 
     try {
-      const model = this.createLanguageModel(
+      const model = createLanguageModel(
         provider.protocol,
         provider.baseUrl,
-        apiKey
+        apiKey,
+        getDefaultModelId(provider.protocol)
       );
 
       await generateText({
@@ -351,7 +351,7 @@ export class SystemConfigService implements OnModuleInit {
       this.getEncryptionSecret()
     );
 
-    const model = this.createLanguageModelWithId(
+    const model = createLanguageModel(
       feature.systemProvider.protocol,
       feature.systemProvider.baseUrl,
       apiKey,
@@ -368,16 +368,18 @@ export class SystemConfigService implements OnModuleInit {
       prompt,
       temperature:
         feature.temperature != null
-          ? this.clampTemperature(
+          ? clampTemperature(
               feature.systemProvider.protocol,
               feature.temperature
             )
           : undefined,
       maxOutputTokens: feature.maxTokens ?? undefined,
       experimental_telemetry: { isEnabled: true },
-      ...(feature.thinkingEnabled
-        ? this.getThinkingOptions(feature.systemProvider.protocol)
-        : {}),
+      ...getThinkingProviderOptions(
+        feature.systemProvider.protocol,
+        feature.thinkingEnabled ?? false,
+        feature.maxTokens ?? undefined
+      ),
     });
 
     return { result: text };
@@ -413,7 +415,7 @@ export class SystemConfigService implements OnModuleInit {
       this.getEncryptionSecret()
     );
 
-    const model = this.createLanguageModelWithId(
+    const model = createLanguageModel(
       feature.systemProvider.protocol,
       feature.systemProvider.baseUrl,
       apiKey,
@@ -427,133 +429,31 @@ export class SystemConfigService implements OnModuleInit {
     }
     const zodSchema = z.object(shape);
 
-    // Providers that don't support native structured output (responseFormat/toolChoice)
-    // must use 'json' mode which embeds the schema in the prompt instead.
-    const jsonModeProtocols: readonly string[] = [
-      ProviderProtocol.ZHIPU,
-      ProviderProtocol.MOONSHOT,
-      ProviderProtocol.QWEN,
-      ProviderProtocol.DEEPSEEK,
-    ];
-    const needsJsonMode = jsonModeProtocols.includes(
-      feature.systemProvider.protocol
-    );
-
-    const { object } = await generateObject({
+    const { output } = await generateText({
       model,
-      schema: zodSchema,
+      output: Output.object({ schema: zodSchema }),
       system: feature.systemPrompt ?? undefined,
       prompt: content,
       temperature:
         feature.temperature != null
-          ? this.clampTemperature(
+          ? clampTemperature(
               feature.systemProvider.protocol,
               feature.temperature
             )
           : undefined,
       maxOutputTokens: feature.maxTokens ?? undefined,
       experimental_telemetry: { isEnabled: true },
-      ...(needsJsonMode ? { mode: 'json' as const } : {}),
-      ...(feature.thinkingEnabled
-        ? this.getThinkingOptions(feature.systemProvider.protocol)
-        : {}),
+      ...getThinkingProviderOptions(
+        feature.systemProvider.protocol,
+        feature.thinkingEnabled ?? false,
+        feature.maxTokens ?? undefined
+      ),
     });
 
-    return object;
+    return output!;
   }
 
   // --- Private helpers ---
-
-  private getThinkingOptions(protocol: string): Record<string, unknown> {
-    switch (protocol) {
-      case ProviderProtocol.ANTHROPIC:
-        return {
-          providerOptions: {
-            anthropic: {
-              thinking: { type: 'enabled', budgetTokens: 8192 },
-            },
-          },
-        };
-      default:
-        return {};
-    }
-  }
-
-  private clampTemperature(protocol: string, temperature: number): number {
-    const maxTemp =
-      protocol === ProviderProtocol.ZHIPU ||
-      protocol === ProviderProtocol.MOONSHOT
-        ? 1
-        : 2;
-    return Math.min(Math.max(temperature, 0), maxTemp);
-  }
-
-  private createLanguageModel(
-    protocol: ProviderProtocol,
-    baseUrl: string,
-    apiKey: string
-  ) {
-    switch (protocol) {
-      case ProviderProtocol.OPENAI: {
-        const openai = createOpenAI({ baseURL: baseUrl, apiKey });
-        return openai.chat('gpt-4o-mini');
-      }
-      case ProviderProtocol.ANTHROPIC: {
-        const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
-        return anthropic('claude-3-5-haiku-20241022');
-      }
-      case ProviderProtocol.GEMINI: {
-        const google = createGoogleGenerativeAI({ baseURL: baseUrl, apiKey });
-        return google('gemini-2.0-flash');
-      }
-      case ProviderProtocol.DEEPSEEK:
-        return createDeepSeek({ baseURL: baseUrl, apiKey })('deepseek-chat');
-      case ProviderProtocol.QWEN:
-        return createAlibaba({ baseURL: baseUrl, apiKey })('qwen-turbo');
-      case ProviderProtocol.ZHIPU:
-        return createZhipu({ baseURL: baseUrl, apiKey })('glm-4-flash');
-      case ProviderProtocol.MOONSHOT:
-        return createMoonshotAI({ baseURL: baseUrl, apiKey })('moonshot-v1-8k');
-      default:
-        throw new BadRequestException(
-          `Unsupported protocol: ${protocol as string}`
-        );
-    }
-  }
-
-  private createLanguageModelWithId(
-    protocol: ProviderProtocol,
-    baseUrl: string,
-    apiKey: string,
-    modelId: string
-  ) {
-    switch (protocol) {
-      case ProviderProtocol.OPENAI: {
-        const openai = createOpenAI({ baseURL: baseUrl, apiKey });
-        return openai.chat(modelId);
-      }
-      case ProviderProtocol.ANTHROPIC: {
-        const anthropic = createAnthropic({ baseURL: baseUrl, apiKey });
-        return anthropic(modelId);
-      }
-      case ProviderProtocol.GEMINI: {
-        const google = createGoogleGenerativeAI({ baseURL: baseUrl, apiKey });
-        return google(modelId);
-      }
-      case ProviderProtocol.DEEPSEEK:
-        return createDeepSeek({ baseURL: baseUrl, apiKey })(modelId);
-      case ProviderProtocol.QWEN:
-        return createAlibaba({ baseURL: baseUrl, apiKey })(modelId);
-      case ProviderProtocol.ZHIPU:
-        return createZhipu({ baseURL: baseUrl, apiKey })(modelId);
-      case ProviderProtocol.MOONSHOT:
-        return createMoonshotAI({ baseURL: baseUrl, apiKey })(modelId);
-      default:
-        throw new BadRequestException(
-          `Unsupported protocol: ${protocol as string}`
-        );
-    }
-  }
 
   private async fetchOpenAIModels(
     baseUrl: string,
