@@ -13,6 +13,7 @@ import { PromptModule } from './modules/prompt/prompt.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { PublicChatModule } from './modules/public-chat/public-chat.module';
 import { SkillModule } from './modules/skill/skill.module';
+import { SystemConfigModule } from './modules/system-config/system-config.module';
 import { WorkspaceModule } from './modules/workspace/workspace.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -32,6 +33,7 @@ import { PrismaModule } from './prisma/prisma.module';
     OpenaiCompatModule,
     WorkspaceModule,
     PreferencesModule,
+    SystemConfigModule,
   ],
 })
 export class AppModule implements NestModule {
