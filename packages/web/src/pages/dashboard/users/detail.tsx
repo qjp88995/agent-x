@@ -361,8 +361,8 @@ export default function UserDetailPage() {
             <CardDescription>{t('users.subtitle')}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            {/* Role change - only for active users */}
-            {user.status === 'ACTIVE' && (
+            {/* Active user actions - hidden for current user (self-protection) */}
+            {user.status === 'ACTIVE' && !isCurrentUser && (
               <>
                 <ActionButton
                   icon={isAdmin ? ShieldOff : Shield}
@@ -384,12 +384,6 @@ export default function UserDetailPage() {
                   description={t('users.resetPasswordShort')}
                   onClick={() => setResetPasswordOpen(true)}
                 />
-              </>
-            )}
-
-            {/* Status actions */}
-            {user.status === 'ACTIVE' && !isCurrentUser && (
-              <>
                 <ActionButton
                   icon={Ban}
                   label={t('users.disableAccount')}
@@ -407,7 +401,7 @@ export default function UserDetailPage() {
               </>
             )}
 
-            {user.status === 'DISABLED' && (
+            {user.status === 'DISABLED' && !isCurrentUser && (
               <>
                 <ActionButton
                   icon={UserCheck}
@@ -415,17 +409,15 @@ export default function UserDetailPage() {
                   description={t('users.enableAccountDesc')}
                   onClick={() => setEnableOpen(true)}
                 />
-                {!isCurrentUser && (
-                  <ActionButton
-                    icon={Trash2}
-                    label={t('users.deleteUser')}
-                    description={t('users.deleteUserDesc', {
-                      email: user.email,
-                    })}
-                    onClick={() => setDeleteOpen(true)}
-                    variant="destructive"
-                  />
-                )}
+                <ActionButton
+                  icon={Trash2}
+                  label={t('users.deleteUser')}
+                  description={t('users.deleteUserDesc', {
+                    email: user.email,
+                  })}
+                  onClick={() => setDeleteOpen(true)}
+                  variant="destructive"
+                />
               </>
             )}
 
@@ -436,12 +428,6 @@ export default function UserDetailPage() {
                 description={t('users.enableAccountDesc')}
                 onClick={() => setRestoreOpen(true)}
               />
-            )}
-
-            {isCurrentUser && user.status === 'ACTIVE' && (
-              <p className="text-muted-foreground text-sm italic">
-                {t('users.resetPassword')} {t('users.changeRole')}
-              </p>
             )}
           </CardContent>
         </Card>

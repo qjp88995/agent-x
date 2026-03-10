@@ -567,7 +567,7 @@ export default function UserListPage() {
                             </DropdownMenuItem>
 
                             {/* Active user actions */}
-                            {user.status === 'ACTIVE' && (
+                            {user.status === 'ACTIVE' && !isCurrentUser && (
                               <>
                                 <DropdownMenuItem
                                   onClick={() =>
@@ -595,24 +595,20 @@ export default function UserListPage() {
                                   <KeyRound className="mr-2 size-4" />
                                   {t('users.resetPassword')}
                                 </DropdownMenuItem>
-                                {!isCurrentUser && (
-                                  <>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                      onClick={() => setDisableTarget(user)}
-                                    >
-                                      <Ban className="mr-2 size-4" />
-                                      {t('users.disable')}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      variant="destructive"
-                                      onClick={() => setDeleteTarget(user)}
-                                    >
-                                      <Trash2 className="mr-2 size-4" />
-                                      {t('common.delete')}
-                                    </DropdownMenuItem>
-                                  </>
-                                )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => setDisableTarget(user)}
+                                >
+                                  <Ban className="mr-2 size-4" />
+                                  {t('users.disable')}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onClick={() => setDeleteTarget(user)}
+                                >
+                                  <Trash2 className="mr-2 size-4" />
+                                  {t('common.delete')}
+                                </DropdownMenuItem>
                               </>
                             )}
 
