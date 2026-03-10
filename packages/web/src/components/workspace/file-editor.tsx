@@ -2,13 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { WorkspaceFileResponse } from '@agent-x/shared';
-import Editor, { type OnMount } from '@monaco-editor/react';
+import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import { FileImage, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { useWorkspaceApi } from '@/contexts/workspace-api-context';
 import { useFileContent, useUpdateFileContent } from '@/hooks/use-workspace';
+import { agentxDark, agentxLight } from '@/lib/monaco-themes';
 import { cn } from '@/lib/utils';
 
 const LANGUAGE_MAP: Record<string, string> = {
@@ -222,9 +223,14 @@ export function FileEditor({
     [activeFile, content, onTabModified]
   );
 
+  const handleBeforeMount: BeforeMount = useCallback(monaco => {
+    monaco.editor.defineTheme('agentx-light', agentxLight);
+    monaco.editor.defineTheme('agentx-dark', agentxDark);
+  }, []);
+
   const editorTheme = document.documentElement.classList.contains('dark')
-    ? 'vs-dark'
-    : 'light';
+    ? 'agentx-dark'
+    : 'agentx-light';
 
   if (tabs.length === 0) {
     return (
@@ -298,6 +304,7 @@ export function FileEditor({
               activeFile ? (pendingContent[activeFile.id] ?? content ?? '') : ''
             }
             theme={editorTheme}
+            beforeMount={handleBeforeMount}
             onMount={handleEditorMount}
             onChange={handleEditorChange}
             options={{
