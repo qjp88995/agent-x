@@ -94,11 +94,9 @@ export function useUpdateMarketplacePrompt() {
       );
       return data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(promptKey(variables.id), data);
       void queryClient.invalidateQueries({ queryKey: PROMPTS_MARKET_KEY });
-      void queryClient.invalidateQueries({
-        queryKey: promptKey(variables.id),
-      });
     },
   });
 }
@@ -159,11 +157,9 @@ export function useUpdatePrompt() {
       const { data } = await api.put<PromptResponse>(`/prompts/${id}`, dto);
       return data;
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(promptKey(variables.id), data);
       void queryClient.invalidateQueries({ queryKey: PROMPTS_KEY });
-      void queryClient.invalidateQueries({
-        queryKey: promptKey(variables.id),
-      });
     },
   });
 }
