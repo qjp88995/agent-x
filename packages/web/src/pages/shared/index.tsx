@@ -393,7 +393,6 @@ function SharedChatContent({
         </ScrollArea>
 
         {/* Footer */}
-        <Separator />
         <div className="py-2 text-center text-xs">
           <span className="text-muted-foreground">
             {t('common.poweredBy')}{' '}
