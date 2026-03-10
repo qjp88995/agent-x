@@ -11,8 +11,7 @@ function Toaster({ ...props }: ToasterProps) {
   return (
     <Sonner
       className="toaster group"
-      position="top-right"
-      richColors
+      position="top-center"
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,
@@ -23,14 +22,14 @@ function Toaster({ ...props }: ToasterProps) {
       toastOptions={{
         classNames: {
           toast:
-            'group-[.toaster]:bg-popover group-[.toaster]:text-popover-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:rounded-lg',
+            'group-[.toaster]:!bg-background group-[.toaster]:!text-foreground group-[.toaster]:!border-border group-[.toaster]:!shadow-lg group-[.toaster]:rounded-lg',
           title: 'group-[.toaster]:text-sm group-[.toaster]:font-semibold',
           description:
-            'group-[.toaster]:text-muted-foreground group-[.toaster]:text-xs',
+            'group-[.toaster]:!text-muted-foreground group-[.toaster]:text-xs',
           actionButton:
-            'group-[.toaster]:bg-primary group-[.toaster]:text-primary-foreground',
+            'group-[.toaster]:!bg-primary group-[.toaster]:!text-primary-foreground',
           cancelButton:
-            'group-[.toaster]:bg-muted group-[.toaster]:text-muted-foreground',
+            'group-[.toaster]:!bg-muted group-[.toaster]:!text-muted-foreground',
         },
       }}
       {...props}

@@ -197,6 +197,52 @@
   animation: alert-icon-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
 }
 
+/* Sonner toast theme overrides */
+[data-sonner-toaster][data-theme] [data-sonner-toast][data-type='success'] {
+  --normal-bg: oklch(0.96 0.04 155);
+  --normal-border: oklch(0.8 0.12 155);
+  --normal-text: oklch(0.4 0.15 155);
+}
+[data-sonner-toaster][data-theme] [data-sonner-toast][data-type='error'] {
+  --normal-bg: oklch(0.96 0.03 25);
+  --normal-border: oklch(0.75 0.15 25);
+  --normal-text: oklch(0.5 0.2 25);
+}
+[data-sonner-toaster][data-theme] [data-sonner-toast][data-type='info'] {
+  --normal-bg: oklch(0.96 0.03 293);
+  --normal-border: oklch(0.75 0.15 293);
+  --normal-text: oklch(0.5 0.2 293);
+}
+[data-sonner-toaster][data-theme] [data-sonner-toast][data-type='warning'] {
+  --normal-bg: oklch(0.96 0.05 85);
+  --normal-border: oklch(0.8 0.14 85);
+  --normal-text: oklch(0.5 0.15 85);
+}
+.dark
+  [data-sonner-toaster][data-theme]
+  [data-sonner-toast][data-type='success'] {
+  --normal-bg: oklch(0.22 0.04 155);
+  --normal-border: oklch(0.35 0.08 155);
+  --normal-text: oklch(0.75 0.14 155);
+}
+.dark [data-sonner-toaster][data-theme] [data-sonner-toast][data-type='error'] {
+  --normal-bg: oklch(0.22 0.04 25);
+  --normal-border: oklch(0.35 0.08 25);
+  --normal-text: oklch(0.7 0.16 25);
+}
+.dark [data-sonner-toaster][data-theme] [data-sonner-toast][data-type='info'] {
+  --normal-bg: oklch(0.22 0.04 293);
+  --normal-border: oklch(0.35 0.08 293);
+  --normal-text: oklch(0.75 0.15 293);
+}
+.dark
+  [data-sonner-toaster][data-theme]
+  [data-sonner-toast][data-type='warning'] {
+  --normal-bg: oklch(0.22 0.04 85);
+  --normal-border: oklch(0.38 0.08 85);
+  --normal-text: oklch(0.78 0.12 85);
+}
+
 /* Tiptap chat input */
 .chat-input-editor p {
   margin: 0;
