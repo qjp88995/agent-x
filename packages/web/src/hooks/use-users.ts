@@ -25,7 +25,7 @@ export function useUsers(params: UseUsersParams = {}) {
   return useQuery<UserListResponse>({
     queryKey: ['users', params],
     queryFn: async () => {
-      const { data } = await api.get<UserListResponse>('/api/users', {
+      const { data } = await api.get<UserListResponse>('/users', {
         params,
       });
       return data;
@@ -37,7 +37,7 @@ export function useUser(id: string | undefined) {
   return useQuery<UserDetailResponse>({
     queryKey: ['users', id],
     queryFn: async () => {
-      const { data } = await api.get<UserDetailResponse>(`/api/users/${id}`);
+      const { data } = await api.get<UserDetailResponse>(`/users/${id}`);
       return data;
     },
     enabled: !!id,
@@ -49,7 +49,7 @@ export function useCreateUser() {
 
   return useMutation<UserResponse, Error, CreateUserRequest>({
     mutationFn: async dto => {
-      const { data } = await api.post<UserResponse>('/api/users', dto);
+      const { data } = await api.post<UserResponse>('/users', dto);
       return data;
     },
     onSuccess: () => {
@@ -63,7 +63,7 @@ export function useUpdateUserRole() {
 
   return useMutation<UserResponse, Error, { id: string; role: string }>({
     mutationFn: async ({ id, role }) => {
-      const { data } = await api.patch<UserResponse>(`/api/users/${id}/role`, {
+      const { data } = await api.patch<UserResponse>(`/users/${id}/role`, {
         role,
       });
       return data;
@@ -79,10 +79,9 @@ export function useUpdateUserStatus() {
 
   return useMutation<UserResponse, Error, { id: string; status: string }>({
     mutationFn: async ({ id, status }) => {
-      const { data } = await api.patch<UserResponse>(
-        `/api/users/${id}/status`,
-        { status }
-      );
+      const { data } = await api.patch<UserResponse>(`/users/${id}/status`, {
+        status,
+      });
       return data;
     },
     onSuccess: () => {
@@ -95,7 +94,7 @@ export function useResetUserPassword() {
   return useMutation<ResetPasswordResponse, Error, string>({
     mutationFn: async id => {
       const { data } = await api.post<ResetPasswordResponse>(
-        `/api/users/${id}/reset-password`
+        `/users/${id}/reset-password`
       );
       return data;
     },
