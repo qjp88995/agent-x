@@ -864,10 +864,10 @@ export default function SystemConfigPage() {
             {t('systemConfig.features')}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="providers" className="mt-6">
+        <TabsContent value="providers">
           <ProvidersTab />
         </TabsContent>
-        <TabsContent value="features" className="mt-6">
+        <TabsContent value="features">
           <FeaturesTab />
         </TabsContent>
       </Tabs>
