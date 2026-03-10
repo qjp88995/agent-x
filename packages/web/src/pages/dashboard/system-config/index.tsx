@@ -9,7 +9,6 @@ import type {
 import { ProviderProtocol } from '@agent-x/shared';
 import {
   AlertTriangle,
-  Database,
   Loader2,
   Pencil,
   PlugZap,
@@ -578,41 +577,28 @@ function ProvidersTab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-end">
-        <Button variant="primary" onClick={handleAdd}>
-          <Plus className="mr-2 size-4" />
-          {t('systemConfig.addProvider')}
-        </Button>
-      </div>
-
-      {!providers || providers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-          <div className="gradient-bg mb-4 flex size-16 items-center justify-center rounded-full text-white">
-            <Database className="size-8" />
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors hover:border-primary/40 hover:bg-accent/50"
+        >
+          <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Plus className="size-5" />
           </div>
-          <h3 className="mb-1 text-lg font-semibold">
-            {t('systemConfig.noProviders')}
-          </h3>
-          <p className="text-muted-foreground mb-6 text-sm">
-            {t('systemConfig.noProvidersDesc')}
-          </p>
-          <Button variant="primary" onClick={handleAdd}>
-            <Plus className="mr-2 size-4" />
+          <span className="text-muted-foreground text-sm font-medium">
             {t('systemConfig.addProvider')}
-          </Button>
-        </div>
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {providers.map(provider => (
-            <ProviderCard
-              key={provider.id}
-              provider={provider}
-              onEdit={handleEdit}
-              onDelete={setDeleteTarget}
-            />
-          ))}
-        </div>
-      )}
+          </span>
+        </button>
+        {providers?.map(provider => (
+          <ProviderCard
+            key={provider.id}
+            provider={provider}
+            onEdit={handleEdit}
+            onDelete={setDeleteTarget}
+          />
+        ))}
+      </div>
 
       <ProviderFormDialog
         open={dialogOpen}
