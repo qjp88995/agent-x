@@ -47,3 +47,16 @@ window
       applyTheme('system');
     }
   });
+
+// Sync theme across browser tabs via storage event
+window.addEventListener('storage', e => {
+  if (e.key === 'theme' && e.newValue) {
+    try {
+      const { state } = JSON.parse(e.newValue) as { state: ThemeState };
+      applyTheme(state.theme);
+      useThemeStore.setState({ theme: state.theme });
+    } catch {
+      // ignore malformed storage data
+    }
+  }
+});
