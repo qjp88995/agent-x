@@ -352,7 +352,7 @@
     "categoryPlaceholder": "Select a category",
     "categoryHint": "Organize prompts by category",
     "newCategory": "New Category",
-    "newCategoryName": "Enter category name:",
+    "newCategoryName": "Category name",
     "categoryCreated": "Category created",
     "categoryCreateFailed": "Failed to create category",
     "tags": "Tags",

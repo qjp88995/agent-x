@@ -96,7 +96,7 @@ export function PromptPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>{t('prompts.selectPrompt')}</DialogTitle>
           <DialogDescription>{t('prompts.selectPromptDesc')}</DialogDescription>

@@ -12,10 +12,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { FormCard } from '@/components/shared/form-card';
 import { PageHeader } from '@/components/shared/page-header';
+import { PromptEditor } from '@/components/shared/prompt-editor';
 import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -151,124 +158,146 @@ export default function SkillEditorPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        backTo="/skills"
-        backLabel={t('skills.backToSkills')}
-        title={pageTitle}
-        description={pageDescription}
-      />
+    <div className="-m-6 flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 p-6">
+        <PageHeader
+          backTo="/skills"
+          backLabel={t('skills.backToSkills')}
+          title={pageTitle}
+          description={pageDescription}
+        />
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-6"
-        >
-          <FormCard
-            title={t('skills.skillDetails')}
-            description={t('skills.skillDetailsDesc')}
-            footer={
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/skills')}
-                  disabled={isSaving}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!form.formState.isValid || isSaving}
-                  variant="primary"
-                >
-                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-                  {isEditMode ? t('common.save') : t('skills.createSkill')}
-                </Button>
-              </>
-            }
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex min-h-0 flex-1 flex-col gap-6"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('common.name')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t('skills.namePlaceholder')}
-                      disabled={isSaving}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>{t('skills.nameHint')}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex min-h-0 flex-1 gap-6">
+              {/* Left: Basic Info */}
+              <Card className="flex w-1/2 flex-col">
+                <CardHeader>
+                  <CardTitle>{t('skills.skillDetails')}</CardTitle>
+                  <CardDescription>
+                    {t('skills.skillDetailsDesc')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col gap-6 overflow-y-auto">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('common.name')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t('skills.namePlaceholder')}
+                            disabled={isSaving}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t('skills.nameHint')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('common.description')}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={t('skills.descPlaceholder')}
-                      disabled={isSaving}
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>{t('skills.descHint')}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('common.description')}</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder={t('skills.descPlaceholder')}
+                            disabled={isSaving}
+                            rows={3}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t('skills.descHint')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('skills.tags')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t('skills.tagsPlaceholder')}
-                      disabled={isSaving}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>{t('skills.tagsHint')}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <FormField
+                    control={form.control}
+                    name="tags"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('skills.tags')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t('skills.tagsPlaceholder')}
+                            disabled={isSaving}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {t('skills.tagsHint')}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('skills.content')}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={t('skills.contentPlaceholder')}
-                      disabled={isSaving}
-                      rows={16}
-                      className="font-mono text-sm"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>{t('skills.contentHint')}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </FormCard>
-        </form>
-      </Form>
+              {/* Right: Skill Content */}
+              <Card className="flex w-1/2 flex-col">
+                <CardHeader>
+                  <CardTitle>{t('skills.content')}</CardTitle>
+                  <CardDescription>{t('skills.contentHint')}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex min-h-0 flex-1 flex-col">
+                  <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem className="flex min-h-0 flex-1 flex-col">
+                        <FormControl>
+                          <PromptEditor
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder={t('skills.contentPlaceholder')}
+                            disabled={isSaving}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t pt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/skills')}
+                disabled={isSaving}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="submit"
+                disabled={!form.formState.isValid || isSaving}
+                variant="primary"
+              >
+                {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                {isEditMode ? t('common.save') : t('skills.createSkill')}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }

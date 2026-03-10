@@ -92,7 +92,7 @@ export function CreateKeyDialog({ open, onOpenChange }: CreateKeyDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>
             {createdKey ? t('apiKeys.keyCreated') : t('apiKeys.createTitle')}

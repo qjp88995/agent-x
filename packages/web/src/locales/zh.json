@@ -352,7 +352,7 @@
     "categoryPlaceholder": "选择分类",
     "categoryHint": "按分类组织提示词",
     "newCategory": "新建分类",
-    "newCategoryName": "输入分类名称：",
+    "newCategoryName": "分类名称",
     "categoryCreated": "分类创建成功",
     "categoryCreateFailed": "分类创建失败",
     "tags": "标签",
