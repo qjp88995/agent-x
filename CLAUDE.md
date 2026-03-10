@@ -22,6 +22,7 @@ packages/
 │           ├── agent/      # Agent lifecycle (ACTIVE→ARCHIVED), skill/mcp binding, versions, share tokens
 │           ├── skill/      # Skill marketplace (admin) + custom skills management
 │           ├── mcp/        # MCP server marketplace + custom servers + client
+│           ├── prompt/     # Prompt template library (marketplace + custom CRUD, categories)
 │           ├── chat/       # Streaming chat (Vercel AI SDK) + AgentRuntimeService + StreamManager
 │           │   └── tools/  # Built-in tools: workspace file ops (14 tools), getCurrentTime
 │           ├── workspace/  # Workspace file management (CRUD, disk storage, path validation)
@@ -172,6 +173,14 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - Both accept `{ sync: false }` option to skip backend write (used for server sync and cross-tab sync)
 - Unauthenticated users still use localStorage only; `persistPreference()` checks for access token before calling API
 
+### Prompt Management
+
+- `PromptCategory` table with SYSTEM (predefined) and CUSTOM (user-created) categories
+- `Prompt` table with marketplace (SYSTEM, admin-managed) and custom (CUSTOM, user-owned) prompts
+- Backend: `GET/POST /prompts/categories`, `GET/POST/PUT/DELETE /prompts/market` (admin), `GET/POST/PUT/DELETE /prompts` (user)
+- Frontend: Prompts list page with marketplace/custom tabs, prompt editor with inline category creation
+- Agent integration: PromptPickerDialog in agent edit page lets users browse prompt library and fill system prompt; "Save to My Prompts" saves current system prompt to user's library
+
 ### Provider API Keys
 
 - Encrypted with AES-256-GCM via `src/common/crypto.util.ts`
@@ -204,6 +213,7 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - `/agents` - agent list, `/agents/new`, `/agents/:id/edit`, `/agents/:id/versions` (version management)
 - `/skills` - skills list, `/skills/new`, `/skills/:id/edit`
 - `/mcp-servers` - MCP server list, `/mcp-servers/new`, `/mcp-servers/:id/edit`
+- `/prompts` - prompts list, `/prompts/new`, `/prompts/:id/edit`
 - `/api-keys` - API key management
 - `/settings` - theme and language preferences
 - `/chat` - full-screen chat UI (outside dashboard layout)
