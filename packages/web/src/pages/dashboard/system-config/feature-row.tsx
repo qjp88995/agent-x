@@ -84,10 +84,12 @@ export function FeatureRow({
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
-            <CardTitle className="text-base">{feature.name}</CardTitle>
-            {feature.description && (
-              <CardDescription>{feature.description}</CardDescription>
-            )}
+            <CardTitle className="text-base">
+              {t(`systemConfig.features.${feature.featureKey}.name`)}
+            </CardTitle>
+            <CardDescription>
+              {t(`systemConfig.features.${feature.featureKey}.description`)}
+            </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground text-sm">

@@ -335,8 +335,6 @@ model SystemProvider {
 model SystemFeatureConfig {
   id               String  @id @default(cuid())
   featureKey       String  @unique
-  name             String
-  description      String?
   systemProviderId String?
   modelId          String?
   systemPrompt     String?

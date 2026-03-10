@@ -607,8 +607,7 @@
     "subtitle": "配置系统级 AI 功能。",
     "providers": "系统供应商",
     "providersDesc": "管理平台功能使用的系统级 AI 供应商。",
-    "features": "功能配置",
-    "featuresDesc": "配置 AI 驱动的平台功能。",
+    "featuresTab": "功能配置",
     "addProvider": "添加系统供应商",
     "editProvider": "编辑系统供应商",
     "deleteProvider": "删除系统供应商",
@@ -641,6 +640,12 @@
     "testing": "测试中...",
     "testSuccess": "连接成功",
     "testFailed": "连接测试失败",
-    "providerInUse": "供应商正在被功能使用"
+    "providerInUse": "供应商正在被功能使用",
+    "features": {
+      "PROMPT_POLISH": {
+        "name": "提示词润色",
+        "description": "AI 驱动的提示词优化与润色"
+      }
+    }
   }
 }

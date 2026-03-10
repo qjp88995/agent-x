@@ -30,7 +30,7 @@ export function FeaturesTab() {
         <AlertTriangle className="text-destructive mb-4 size-10" />
         <h3 className="mb-1 font-semibold">
           {t('common.failedToLoad', {
-            resource: t('systemConfig.features').toLowerCase(),
+            resource: t('systemConfig.featuresTab').toLowerCase(),
           })}
         </h3>
         <p className="text-muted-foreground text-sm">

@@ -25,7 +25,7 @@ export default function SystemConfigPage() {
             {t('systemConfig.providers')}
           </TabsTrigger>
           <TabsTrigger value="features">
-            {t('systemConfig.features')}
+            {t('systemConfig.featuresTab')}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="providers">

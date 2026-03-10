@@ -278,8 +278,6 @@ export class SystemConfigService implements OnModuleInit {
       where: { featureKey: 'PROMPT_POLISH' },
       create: {
         featureKey: 'PROMPT_POLISH',
-        name: 'Prompt Polish',
-        description: 'AI-powered prompt polishing and optimization',
         isEnabled: false,
         systemPrompt:
           'You are a prompt engineering expert. Your task is to improve and polish the given system prompt. Make it clearer, more specific, and more effective while preserving the original intent. Output ONLY the improved prompt text, with no explanations or commentary.',

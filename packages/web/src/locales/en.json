@@ -607,8 +607,7 @@
     "subtitle": "Configure system-level AI features.",
     "providers": "System Providers",
     "providersDesc": "Manage system-level AI provider connections for platform features.",
-    "features": "Feature Config",
-    "featuresDesc": "Configure AI-powered platform features.",
+    "featuresTab": "Feature Config",
     "addProvider": "Add System Provider",
     "editProvider": "Edit System Provider",
     "deleteProvider": "Delete System Provider",
@@ -641,6 +640,12 @@
     "testing": "Testing...",
     "testSuccess": "Connection successful",
     "testFailed": "Connection test failed",
-    "providerInUse": "Provider is in use by features"
+    "providerInUse": "Provider is in use by features",
+    "features": {
+      "PROMPT_POLISH": {
+        "name": "Prompt Polish",
+        "description": "AI-powered prompt polishing and optimization"
+      }
+    }
   }
 }

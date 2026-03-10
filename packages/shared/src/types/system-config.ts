@@ -36,8 +36,6 @@ export interface UpdateSystemFeatureConfigDto {
 export interface SystemFeatureConfigResponse {
   id: string;
   featureKey: string;
-  name: string;
-  description: string | null;
   systemProviderId: string | null;
   modelId: string | null;
   systemPrompt: string | null;
