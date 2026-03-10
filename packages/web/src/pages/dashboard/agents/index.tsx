@@ -20,7 +20,6 @@ import {
 import { toast } from 'sonner';
 
 import { AddCard } from '@/components/shared/add-card';
-import { CopyableId } from '@/components/shared/copyable-id';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -175,11 +174,7 @@ function AgentCard({
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground flex items-center gap-2 text-xs">
-            <CopyableId id={agent.id} />
-            <span className="text-muted-foreground/30">|</span>
-            <span>{agent.modelId}</span>
-          </div>
+          <div className="text-muted-foreground text-xs">{agent.modelId}</div>
           <div className="flex items-center gap-1">
             {agent.status === AgentStatus.ACTIVE && (
               <Tooltip>
