@@ -578,15 +578,7 @@ function ProvidersTab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">
-            {t('systemConfig.providers')}
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            {t('systemConfig.providersDesc')}
-          </p>
-        </div>
+      <div className="flex justify-end">
         <Button variant="primary" onClick={handleAdd}>
           <Plus className="mr-2 size-4" />
           {t('systemConfig.addProvider')}
@@ -837,13 +829,6 @@ function FeaturesTab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h2 className="text-lg font-semibold">{t('systemConfig.features')}</h2>
-        <p className="text-muted-foreground text-sm">
-          {t('systemConfig.featuresDesc')}
-        </p>
-      </div>
-
       {!features || features.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <div className="gradient-bg mb-4 flex size-16 items-center justify-center rounded-full text-white">
