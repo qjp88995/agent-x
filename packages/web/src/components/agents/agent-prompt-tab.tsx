@@ -255,6 +255,7 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
               {t('common.cancel')}
             </Button>
             <Button
+              variant="primary"
               onClick={handleSaveConfirm}
               disabled={!saveName.trim() || createPrompt.isPending}
             >
@@ -286,7 +287,7 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
             <Button variant="outline" onClick={handleDiscardPolish}>
               {t('systemConfig.discardPolish')}
             </Button>
-            <Button onClick={handleApplyPolish}>
+            <Button variant="primary" onClick={handleApplyPolish}>
               {t('systemConfig.applyPolish')}
             </Button>
           </DialogFooter>

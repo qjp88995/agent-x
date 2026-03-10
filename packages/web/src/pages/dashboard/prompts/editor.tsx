@@ -421,6 +421,7 @@ export default function PromptEditorPage() {
               {t('common.cancel')}
             </Button>
             <Button
+              variant="primary"
               onClick={() => void handleCreateCategory()}
               disabled={!newCategoryName.trim() || createCategory.isPending}
             >

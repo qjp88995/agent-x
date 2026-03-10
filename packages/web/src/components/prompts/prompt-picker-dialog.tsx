@@ -137,6 +137,7 @@ export function PromptPickerDialog({
             <div className="flex justify-end">
               <Button
                 type="button"
+                variant="primary"
                 onClick={() => handleSelect(preview.content)}
               >
                 {t('prompts.useThisPrompt')}
@@ -212,7 +213,7 @@ export function PromptPickerDialog({
                         </Button>
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="primary"
                           size="sm"
                           onClick={() => handleSelect(prompt.content)}
                         >
