@@ -15,7 +15,7 @@ function ScrollArea({
       className={cn('relative overflow-hidden', className)}
       {...props}
     >
-      <ScrollAreaPrimitive.Viewport className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-0.75 focus-visible:outline-1">
+      <ScrollAreaPrimitive.Viewport className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-0.75 focus-visible:outline-1 [&>div]:!block">
         {children}
       </ScrollAreaPrimitive.Viewport>
       <ScrollBar />

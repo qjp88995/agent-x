@@ -111,7 +111,7 @@ function ConversationItem({
       type="button"
       onClick={onSelect}
       className={cn(
-        'group flex w-full items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5 text-left transition-colors',
+        'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
         isActive
           ? 'bg-accent text-accent-foreground'
           : 'hover:bg-accent/50 text-foreground/80'
