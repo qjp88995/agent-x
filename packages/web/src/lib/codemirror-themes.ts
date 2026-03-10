@@ -99,7 +99,7 @@ const lightHighlightStyle = HighlightStyle.define([
 const darkEditorTheme = EditorView.theme(
   {
     '&': {
-      backgroundColor: '#1A1730',
+      backgroundColor: '#0F101C',
       color: '#E2E0F0',
     },
     '.cm-content': {
@@ -116,7 +116,7 @@ const darkEditorTheme = EditorView.theme(
       backgroundColor: '#1E1B4B',
     },
     '.cm-gutters': {
-      backgroundColor: '#1A1730',
+      backgroundColor: '#0F101C',
       color: '#4C4A6D',
       borderRight: '1px solid #2A2750',
     },
