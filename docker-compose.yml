@@ -13,6 +13,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   server:
     build:
@@ -28,6 +30,9 @@ services:
     environment:
       DATABASE_URL: postgresql://${DB_USER:-agent_x}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-agent_x}
       PORT: 3000
+    networks:
+      - frontend
+      - backend
 
   web:
     build:
@@ -36,7 +41,13 @@ services:
     restart: unless-stopped
     depends_on:
       - server
+    networks:
+      - frontend
 
 volumes:
   pgdata:
   workspaces:
+
+networks:
+  frontend:
+  backend:
