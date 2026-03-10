@@ -5,7 +5,12 @@ import type {
   UserListResponse,
   UserResponse,
 } from '@agent-x/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
@@ -30,6 +35,7 @@ export function useUsers(params: UseUsersParams = {}) {
       });
       return data;
     },
+    placeholderData: keepPreviousData,
   });
 }
 

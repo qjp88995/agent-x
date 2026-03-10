@@ -52,6 +52,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useResetUserPassword,
@@ -245,10 +246,26 @@ export default function UserDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('common.loading')}
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-4">
+          <Skeleton className="size-8 rounded-full" />
+          <div>
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="mt-1 h-4 w-48" />
+          </div>
         </div>
+        <div className="flex items-center gap-4">
+          <Skeleton className="size-14 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-36" />
+          </div>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Skeleton className="h-64 rounded-lg" />
+          <Skeleton className="h-64 rounded-lg" />
+        </div>
+        <Skeleton className="h-32 rounded-lg" />
       </div>
     );
   }
