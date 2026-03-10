@@ -234,4 +234,10 @@ export class ChatService {
 
     return { message: 'Conversation deleted successfully' };
   }
+
+  async deletePublicConversation(id: string, shareTokenId: string) {
+    await this.verifyPublicAccess(id, shareTokenId);
+
+    await this.prisma.conversation.delete({ where: { id } });
+  }
 }

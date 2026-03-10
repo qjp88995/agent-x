@@ -61,6 +61,21 @@ export function useCreateSharedConversation() {
   });
 }
 
+export function useDeleteSharedConversation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ token, id }: { token: string; id: string }) => {
+      await publicApi.delete(`/shared/${token}/conversations/${id}`);
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: sharedConversationsKey(variables.token),
+      });
+    },
+  });
+}
+
 export function useRenameSharedConversation() {
   const queryClient = useQueryClient();
 

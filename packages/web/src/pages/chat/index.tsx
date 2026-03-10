@@ -16,6 +16,17 @@ import {
 } from 'lucide-react';
 
 import { ChatPanel } from '@/components/chat/chat-panel';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -138,17 +149,34 @@ function ConversationItem({
           >
             <Pencil className="size-3.5" />
           </button>
-          <button
-            type="button"
-            onClick={e => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="text-muted-foreground hover:text-destructive rounded p-0.5"
-            aria-label={t('chat.deleteConversation')}
-          >
-            <Trash2 className="size-3.5" />
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                onClick={e => e.stopPropagation()}
+                className="text-muted-foreground hover:text-destructive rounded p-0.5"
+                aria-label={t('chat.deleteConversation')}
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent variant="destructive" size="sm">
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {t('chat.confirmDeleteConversation')}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('chat.confirmDeleteConversationDesc')}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                <AlertDialogAction onClick={onDelete}>
+                  {t('common.delete')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </button>

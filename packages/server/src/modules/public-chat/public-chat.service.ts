@@ -69,6 +69,15 @@ export class PublicChatService {
     return this.chatService.verifyPublicAccess(conversationId, shareTokenId);
   }
 
+  async deleteConversation(rawToken: string, conversationId: string) {
+    const { shareTokenId } = await this.validateToken(rawToken);
+
+    await this.chatService.deletePublicConversation(
+      conversationId,
+      shareTokenId
+    );
+  }
+
   async renameConversation(
     rawToken: string,
     conversationId: string,

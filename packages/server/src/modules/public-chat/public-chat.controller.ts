@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Logger,
@@ -59,6 +60,15 @@ export class PublicChatController {
   @Get(':token/conversations/:id/messages')
   getMessages(@Param('token') token: string, @Param('id') id: string) {
     return this.publicChatService.getMessages(token, id);
+  }
+
+  @Delete(':token/conversations/:id')
+  async deleteConversation(
+    @Param('token') token: string,
+    @Param('id') id: string
+  ) {
+    await this.publicChatService.deleteConversation(token, id);
+    return { success: true };
   }
 
   @Patch(':token/conversations/:id')

@@ -4,10 +4,21 @@ import { Link, useParams, useSearchParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bot, Code2, MessageSquare, Pencil, Plus } from 'lucide-react';
+import { Bot, Code2, MessageSquare, Pencil, Plus, Trash2 } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -19,6 +30,7 @@ import {
 import {
   sharedConversationsKey,
   useCreateSharedConversation,
+  useDeleteSharedConversation,
   useRenameSharedConversation,
   useSharedAgentInfo,
   useSharedConversations,
@@ -37,11 +49,13 @@ function SharedConversationItem({
   isActive,
   onSelect,
   onRename,
+  onDelete,
 }: {
   readonly title: string;
   readonly isActive: boolean;
   readonly onSelect: () => void;
   readonly onRename: (title: string) => void;
+  readonly onDelete: () => void;
 }) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
@@ -108,6 +122,34 @@ function SharedConversationItem({
           >
             <Pencil className="size-3.5" />
           </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                onClick={e => e.stopPropagation()}
+                className="text-muted-foreground hover:text-destructive rounded p-0.5"
+                aria-label={t('chat.deleteConversation')}
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent variant="destructive" size="sm">
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {t('chat.confirmDeleteConversation')}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('chat.confirmDeleteConversationDesc')}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                <AlertDialogAction onClick={onDelete}>
+                  {t('common.delete')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </button>
@@ -129,6 +171,7 @@ function SharedChatContent({
   const queryClient = useQueryClient();
   const { data: conversations } = useSharedConversations(token);
   const createConversation = useCreateSharedConversation();
+  const deleteConversation = useDeleteSharedConversation();
   const renameConversation = useRenameSharedConversation();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -269,6 +312,24 @@ function SharedChatContent({
     [renameConversation, token]
   );
 
+  const handleDeleteConversation = useCallback(
+    (id: string) => {
+      deleteConversation.mutate(
+        { token, id },
+        {
+          onSuccess: () => {
+            if (conversationId === id) {
+              setConversationId(null);
+              setMessages([]);
+              historyLoadedRef.current = null;
+            }
+          },
+        }
+      );
+    },
+    [deleteConversation, token, conversationId, setConversationId, setMessages]
+  );
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -325,6 +386,7 @@ function SharedChatContent({
                 isActive={conv.id === conversationId}
                 onSelect={() => handleSelectConversation(conv.id)}
                 onRename={title => handleRenameConversation(conv.id, title)}
+                onDelete={() => handleDeleteConversation(conv.id)}
               />
             ))}
           </div>
