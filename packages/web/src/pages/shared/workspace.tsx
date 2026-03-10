@@ -115,10 +115,10 @@ function SharedWorkspaceContent({
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex h-10 shrink-0 items-center gap-2 border-b px-3">
+      <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-7" asChild>
+            <Button variant="ghost" size="icon" className="size-8" asChild>
               <Link to={`/s/${token}?c=${conversationId}`}>
                 <ArrowLeft className="size-4" />
               </Link>
@@ -126,7 +126,7 @@ function SharedWorkspaceContent({
           </TooltipTrigger>
           <TooltipContent>{t('workspace.backToChat')}</TooltipContent>
         </Tooltip>
-        <span className="gradient-text text-sm font-semibold">
+        <span className="gradient-text font-semibold">
           {t('workspace.title')}
         </span>
         <div className="ml-auto">
@@ -135,11 +135,11 @@ function SharedWorkspaceContent({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-7"
+                className="size-8"
                 onClick={handleDownloadWorkspace}
                 disabled={!workspaceFiles || workspaceFiles.length === 0}
               >
-                <Download className="size-3.5" />
+                <Download className="size-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>{t('workspace.downloadZip')}</TooltipContent>

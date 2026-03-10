@@ -34,6 +34,16 @@ Defined in `src/index.css` `@layer utilities`:
 - Font: **Plus Jakarta Sans** (loaded via Google Fonts in `index.html`)
 - Configured as `--font-sans` in `@theme inline`
 
+### Header Height
+
+All full-screen page headers (chat, workspace, shared) use a consistent height:
+
+| Token  | Value | Class  | Usage                                                         |
+| ------ | ----- | ------ | ------------------------------------------------------------- |
+| Header | 56px  | `h-14` | Chat sidebar header, chat panel header, workspace page header |
+
+Standard header structure: `flex h-14 shrink-0 items-center border-b px-4`
+
 ### Layout Widths
 
 #### Dashboard (`pages/dashboard/layout.tsx`)
