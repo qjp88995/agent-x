@@ -30,6 +30,7 @@ export class AgentService {
         systemPrompt: dto.systemPrompt,
         temperature: dto.temperature,
         maxTokens: dto.maxTokens,
+        thinkingEnabled: dto.thinkingEnabled,
         status: AgentStatus.ACTIVE,
       },
     });
@@ -130,6 +131,8 @@ export class AgentService {
     if (dto.temperature !== undefined) data.temperature = dto.temperature;
     if (dto.maxTokens !== undefined) data.maxTokens = dto.maxTokens;
     if (dto.avatar !== undefined) data.avatar = dto.avatar;
+    if (dto.thinkingEnabled !== undefined)
+      data.thinkingEnabled = dto.thinkingEnabled;
 
     return this.prisma.agent.update({
       where: { id },
