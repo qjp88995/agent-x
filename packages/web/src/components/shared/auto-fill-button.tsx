@@ -31,6 +31,9 @@ export function AutoFillButton({
   const autoFill = useAutoFill();
   const { data: featureStatus } = useFeatureStatus('FORM_AUTO_FILL');
   const isAvailable = featureStatus?.enabled ?? false;
+  const hasContent = !!content?.trim();
+  const isDisabled =
+    !isAvailable || disabled || autoFill.isPending || !hasContent;
 
   async function handleClick() {
     const trimmed = content?.trim();
@@ -55,16 +58,14 @@ export function AutoFillButton({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span>
+        <span className={isDisabled ? 'cursor-not-allowed' : ''}>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="size-7"
             onClick={handleClick}
-            disabled={
-              !isAvailable || disabled || autoFill.isPending || !content?.trim()
-            }
+            disabled={isDisabled}
           >
             {autoFill.isPending ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -77,9 +78,11 @@ export function AutoFillButton({
       <TooltipContent>
         {!isAvailable
           ? t('systemConfig.autoFillNotConfigured')
-          : autoFill.isPending
-            ? t('systemConfig.autoFilling')
-            : t('systemConfig.autoFill')}
+          : !hasContent
+            ? t('systemConfig.autoFillEmpty')
+            : autoFill.isPending
+              ? t('systemConfig.autoFilling')
+              : t('systemConfig.autoFill')}
       </TooltipContent>
     </Tooltip>
   );
