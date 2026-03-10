@@ -319,7 +319,7 @@ export class SystemConfigService implements OnModuleInit {
 
   // --- Polish ---
 
-  async polishPrompt(content: string) {
+  async polishPrompt(content: string, description?: string) {
     const feature = await this.prisma.systemFeatureConfig.findUnique({
       where: { featureKey: 'PROMPT_POLISH' },
       include: { systemProvider: true },
@@ -349,10 +349,14 @@ export class SystemConfigService implements OnModuleInit {
       feature.modelId
     );
 
+    const prompt = description?.trim()
+      ? `User's polish instructions: ${description.trim()}\n\n---\n\n${content}`
+      : content;
+
     const { text } = await generateText({
       model,
       system: feature.systemPrompt ?? undefined,
-      prompt: content,
+      prompt,
       experimental_telemetry: { isEnabled: true },
     });
 

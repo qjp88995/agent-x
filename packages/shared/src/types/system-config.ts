@@ -48,6 +48,7 @@ export interface SystemFeatureConfigResponse {
 // Polish
 export interface PolishPromptDto {
   content: string;
+  description?: string;
 }
 
 // Generate (auto-fill)

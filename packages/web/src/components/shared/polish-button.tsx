@@ -15,11 +15,25 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useFeatureStatus, usePolishPrompt } from '@/hooks/use-system-config';
+
+const PRESET_KEYS = [
+  'polishPresetConcise',
+  'polishPresetDetailed',
+  'polishPresetProfessional',
+  'polishPresetFriendly',
+  'polishPresetStructured',
+] as const;
 
 interface PolishButtonProps {
   readonly content: string;
@@ -36,7 +50,12 @@ export function PolishButton({
   const polishPrompt = usePolishPrompt();
   const { data: polishStatus } = useFeatureStatus('PROMPT_POLISH');
   const isPolishAvailable = polishStatus?.enabled ?? false;
+  const hasContent = !!content?.trim();
+  const isDisabled =
+    !isPolishAvailable || disabled || polishPrompt.isPending || !hasContent;
 
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [description, setDescription] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [polishedContent, setPolishedContent] = useState('');
 
@@ -44,8 +63,13 @@ export function PolishButton({
     const trimmed = content?.trim();
     if (!trimmed) return;
 
+    setPopoverOpen(false);
+
     try {
-      const result = await polishPrompt.mutateAsync(trimmed);
+      const result = await polishPrompt.mutateAsync({
+        content: trimmed,
+        description: description.trim() || undefined,
+      });
       setPolishedContent(result.result);
       setDialogOpen(true);
     } catch {
@@ -57,6 +81,7 @@ export function PolishButton({
     onApply(polishedContent);
     setDialogOpen(false);
     setPolishedContent('');
+    setDescription('');
     toast.success(t('systemConfig.polishDone'));
   }
 
@@ -67,38 +92,100 @@ export function PolishButton({
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handlePolish}
-              disabled={
-                !isPolishAvailable ||
-                disabled ||
-                polishPrompt.isPending ||
-                !content?.trim()
-              }
-            >
-              {polishPrompt.isPending ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 size-4" />
-              )}
-              {polishPrompt.isPending
-                ? t('systemConfig.polishing')
-                : t('systemConfig.polish')}
-            </Button>
-          </span>
-        </TooltipTrigger>
-        {!isPolishAvailable && (
+      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className={isDisabled ? 'cursor-not-allowed' : ''}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isDisabled}
+                >
+                  {polishPrompt.isPending ? (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="mr-2 size-4" />
+                  )}
+                  {polishPrompt.isPending
+                    ? t('systemConfig.polishing')
+                    : t('systemConfig.polish')}
+                </Button>
+              </PopoverTrigger>
+            </span>
+          </TooltipTrigger>
           <TooltipContent>
-            {t('systemConfig.polishNotConfigured')}
+            {!isPolishAvailable
+              ? t('systemConfig.polishNotConfigured')
+              : !hasContent
+                ? t('systemConfig.polishEmpty')
+                : polishPrompt.isPending
+                  ? t('systemConfig.polishing')
+                  : t('systemConfig.polish')}
           </TooltipContent>
-        )}
-      </Tooltip>
+        </Tooltip>
+        <PopoverContent className="w-80" align="end">
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-medium">
+              {t('systemConfig.polishDescriptionLabel')}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {PRESET_KEYS.map(key => {
+                const label = t(`systemConfig.${key}`);
+                const isActive = description === label;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                      isActive
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border bg-muted/50 text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                    }`}
+                    onClick={() =>
+                      setDescription(prev => (prev === label ? '' : label))
+                    }
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            <Textarea
+              placeholder={t('systemConfig.polishDescriptionPlaceholder')}
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                  e.preventDefault();
+                  void handlePolish();
+                }
+              }}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPopoverOpen(false)}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => void handlePolish()}
+              >
+                <Sparkles className="mr-2 size-3.5" />
+                {t('systemConfig.startPolish')}
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[80vh] max-w-3xl flex flex-col">

@@ -184,10 +184,11 @@ export function useFeatureStatus(featureKey: string) {
 
 export function usePolishPrompt() {
   return useMutation({
-    mutationFn: async (content: string) => {
-      const { data } = await api.post<{ result: string }>('/system/polish', {
-        content,
-      });
+    mutationFn: async (params: { content: string; description?: string }) => {
+      const { data } = await api.post<{ result: string }>(
+        '/system/polish',
+        params
+      );
       return data;
     },
   });

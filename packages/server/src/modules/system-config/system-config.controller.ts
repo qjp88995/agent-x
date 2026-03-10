@@ -93,7 +93,7 @@ export class SystemConfigController {
 
   @Post('polish')
   polishPrompt(@Body() dto: PolishPromptDto) {
-    return this.systemConfigService.polishPrompt(dto.content);
+    return this.systemConfigService.polishPrompt(dto.content, dto.description);
   }
 
   // --- Generate (auto-fill) ---
