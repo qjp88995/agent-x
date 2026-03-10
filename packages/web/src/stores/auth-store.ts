@@ -2,10 +2,10 @@ import type { AuthResponse, UserPreferencesResponse } from '@agent-x/shared';
 import { AxiosError } from 'axios';
 import { create } from 'zustand';
 
-import i18n from '@/i18n';
+import { changeLanguage } from '@/i18n';
 import { api } from '@/lib/api';
 
-import { applyTheme, type Theme, useThemeStore } from './theme-store';
+import { type Theme, useThemeStore } from './theme-store';
 
 type AuthUser = AuthResponse['user'];
 
@@ -50,11 +50,10 @@ async function syncPreferencesFromServer(): Promise<void> {
   try {
     const { data } = await api.get<UserPreferencesResponse>('/preferences');
     if (data.theme) {
-      useThemeStore.setState({ theme: data.theme as Theme });
-      applyTheme(data.theme as Theme);
+      useThemeStore.getState().setTheme(data.theme as Theme, { sync: false });
     }
     if (data.language) {
-      void i18n.changeLanguage(data.language);
+      changeLanguage(data.language, { sync: false });
     }
   } catch {
     // Preferences fetch failed — keep local defaults

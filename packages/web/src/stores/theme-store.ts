@@ -1,11 +1,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { persistPreference } from '@/lib/sync-preferences';
+
 export type Theme = 'system' | 'light' | 'dark';
+
+interface SetThemeOptions {
+  sync?: boolean;
+}
 
 interface ThemeState {
   theme: Theme;
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: Theme, options?: SetThemeOptions) => void;
 }
 
 export function applyTheme(theme: Theme) {
@@ -22,9 +28,12 @@ export const useThemeStore = create<ThemeState>()(
   persist(
     set => ({
       theme: 'system',
-      setTheme: theme => {
+      setTheme: (theme, { sync = true } = {}) => {
         applyTheme(theme);
         set({ theme });
+        if (sync) {
+          persistPreference({ theme });
+        }
       },
     }),
     {

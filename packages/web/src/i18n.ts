@@ -25,6 +25,22 @@ void i18n
     },
   });
 
+import { persistPreference } from '@/lib/sync-preferences';
+
+interface ChangeLanguageOptions {
+  sync?: boolean;
+}
+
+export function changeLanguage(
+  lng: string,
+  { sync = true }: ChangeLanguageOptions = {}
+): void {
+  void i18n.changeLanguage(lng);
+  if (sync) {
+    persistPreference({ language: lng });
+  }
+}
+
 // Sync <html lang="..."> with current language
 const syncHtmlLang = (lng: string) => {
   document.documentElement.lang = lng;
@@ -35,7 +51,7 @@ i18n.on('languageChanged', syncHtmlLang);
 // Sync language across browser tabs via storage event
 window.addEventListener('storage', e => {
   if (e.key === 'language' && e.newValue && e.newValue !== i18n.language) {
-    void i18n.changeLanguage(e.newValue);
+    changeLanguage(e.newValue, { sync: false });
   }
 });
 
