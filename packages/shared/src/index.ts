@@ -11,3 +11,4 @@ export * from './types/workspace';
 export * from './types/preferences';
 export * from './types/prompt';
 export * from './types/system-config';
+export * from './types/user';
