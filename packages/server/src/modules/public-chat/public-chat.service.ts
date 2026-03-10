@@ -69,6 +69,18 @@ export class PublicChatService {
     return this.chatService.verifyPublicAccess(conversationId, shareTokenId);
   }
 
+  async renameConversation(
+    rawToken: string,
+    conversationId: string,
+    title: string
+  ) {
+    const { shareTokenId } = await this.validateToken(rawToken);
+
+    await this.chatService.verifyPublicAccess(conversationId, shareTokenId);
+
+    await this.chatService.updateTitle(conversationId, title);
+  }
+
   private async validateToken(rawToken: string) {
     const result = await this.shareTokenService.validate(rawToken);
 

@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams, useSearchParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bot, Code2, MessageSquare, Plus } from 'lucide-react';
+import { Bot, Code2, MessageSquare, Pencil, Plus } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -19,6 +19,7 @@ import {
 import {
   sharedConversationsKey,
   useCreateSharedConversation,
+  useRenameSharedConversation,
   useSharedAgentInfo,
   useSharedConversations,
   useSharedMessages,
@@ -30,6 +31,88 @@ import { SharedChatTransport } from '@/lib/shared-chat-transport';
 import { cn } from '@/lib/utils';
 
 import SharedExpiredPage from './expired';
+
+function SharedConversationItem({
+  title,
+  isActive,
+  onSelect,
+  onRename,
+}: {
+  readonly title: string;
+  readonly isActive: boolean;
+  readonly onSelect: () => void;
+  readonly onRename: (title: string) => void;
+}) {
+  const { t } = useTranslation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleStartEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditTitle(title);
+    setIsEditing(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const handleConfirm = () => {
+    const trimmed = editTitle.trim();
+    if (trimmed && trimmed !== title) {
+      onRename(trimmed);
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleConfirm();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
+        isActive
+          ? 'bg-accent text-accent-foreground'
+          : 'hover:bg-accent/50 text-foreground/80'
+      )}
+    >
+      <MessageSquare className="mt-0.5 size-4 shrink-0 opacity-60" />
+      <div className="min-w-0 flex-1">
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            value={editTitle}
+            onChange={e => setEditTitle(e.target.value)}
+            onBlur={handleConfirm}
+            onKeyDown={handleKeyDown}
+            onClick={e => e.stopPropagation()}
+            className="bg-background w-full rounded border px-1.5 py-0.5 text-sm font-medium outline-none focus:ring-1 focus:ring-ring"
+          />
+        ) : (
+          <p className="truncate text-sm font-medium">{title}</p>
+        )}
+      </div>
+      {!isEditing && (
+        <div className="mt-0.5 hidden shrink-0 items-center gap-0.5 group-hover:flex">
+          <button
+            type="button"
+            onClick={handleStartEdit}
+            className="text-muted-foreground hover:text-foreground rounded p-0.5"
+            aria-label={t('chat.renameConversation')}
+          >
+            <Pencil className="size-3.5" />
+          </button>
+        </div>
+      )}
+    </button>
+  );
+}
 
 function SharedChatContent({
   token,
@@ -46,6 +129,7 @@ function SharedChatContent({
   const queryClient = useQueryClient();
   const { data: conversations } = useSharedConversations(token);
   const createConversation = useCreateSharedConversation();
+  const renameConversation = useRenameSharedConversation();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const conversationId = searchParams.get('c');
@@ -178,6 +262,13 @@ function SharedChatContent({
     [conversationId, setConversationId, setMessages]
   );
 
+  const handleRenameConversation = useCallback(
+    (id: string, title: string) => {
+      renameConversation.mutate({ token, id, title });
+    },
+    [renameConversation, token]
+  );
+
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -228,22 +319,13 @@ function SharedChatContent({
               </div>
             )}
             {conversations?.map(conv => (
-              <button
+              <SharedConversationItem
                 key={conv.id}
-                type="button"
-                onClick={() => handleSelectConversation(conv.id)}
-                className={cn(
-                  'flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
-                  conv.id === conversationId
-                    ? 'bg-accent text-accent-foreground'
-                    : 'hover:bg-accent/50 text-foreground/80'
-                )}
-              >
-                <MessageSquare className="mt-0.5 size-4 shrink-0 opacity-60" />
-                <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                  {conv.title ?? t('chat.newChat')}
-                </p>
-              </button>
+                title={conv.title ?? t('chat.newChat')}
+                isActive={conv.id === conversationId}
+                onSelect={() => handleSelectConversation(conv.id)}
+                onRename={title => handleRenameConversation(conv.id, title)}
+              />
             ))}
           </div>
         </ScrollArea>

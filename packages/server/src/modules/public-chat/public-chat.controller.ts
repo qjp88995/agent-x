@@ -5,6 +5,7 @@ import {
   HttpCode,
   Logger,
   Param,
+  Patch,
   Post,
   Res,
 } from '@nestjs/common';
@@ -58,6 +59,16 @@ export class PublicChatController {
   @Get(':token/conversations/:id/messages')
   getMessages(@Param('token') token: string, @Param('id') id: string) {
     return this.publicChatService.getMessages(token, id);
+  }
+
+  @Patch(':token/conversations/:id')
+  async renameConversation(
+    @Param('token') token: string,
+    @Param('id') id: string,
+    @Body() body: { title: string }
+  ) {
+    await this.publicChatService.renameConversation(token, id, body.title);
+    return { success: true };
   }
 
   @Post(':token/conversations/:id/chat')

@@ -61,6 +61,29 @@ export function useCreateSharedConversation() {
   });
 }
 
+export function useRenameSharedConversation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      token,
+      id,
+      title,
+    }: {
+      token: string;
+      id: string;
+      title: string;
+    }) => {
+      await publicApi.patch(`/shared/${token}/conversations/${id}`, { title });
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: sharedConversationsKey(variables.token),
+      });
+    },
+  });
+}
+
 export function useSharedWorkspaceFiles(
   token: string | undefined,
   conversationId: string | undefined
