@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { AutoFillButton } from '@/components/shared/auto-fill-button';
 import { PageHeader } from '@/components/shared/page-header';
 import { PolishButton } from '@/components/shared/polish-button';
 import { PromptEditor } from '@/components/shared/prompt-editor';
@@ -196,7 +197,20 @@ export default function SkillEditorPage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('common.name')}</FormLabel>
+                        <FormLabel className="flex items-center gap-1">
+                          {t('common.name')}
+                          <AutoFillButton
+                            content={form.watch('content')}
+                            fieldDescription="A short, descriptive skill name (max 30 characters). Use the same language as the input content."
+                            onResult={v =>
+                              form.setValue('name', v, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              })
+                            }
+                            disabled={isSaving}
+                          />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             placeholder={t('skills.namePlaceholder')}
@@ -217,7 +231,20 @@ export default function SkillEditorPage() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('common.description')}</FormLabel>
+                        <FormLabel className="flex items-center gap-1">
+                          {t('common.description')}
+                          <AutoFillButton
+                            content={form.watch('content')}
+                            fieldDescription="A concise description of what this skill does (1-2 sentences). Use the same language as the input content."
+                            onResult={v =>
+                              form.setValue('description', v, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              })
+                            }
+                            disabled={isSaving}
+                          />
+                        </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder={t('skills.descPlaceholder')}
