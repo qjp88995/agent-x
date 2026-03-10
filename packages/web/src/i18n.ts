@@ -32,4 +32,11 @@ const syncHtmlLang = (lng: string) => {
 syncHtmlLang(i18n.language);
 i18n.on('languageChanged', syncHtmlLang);
 
+// Sync language across browser tabs via storage event
+window.addEventListener('storage', e => {
+  if (e.key === 'language' && e.newValue && e.newValue !== i18n.language) {
+    void i18n.changeLanguage(e.newValue);
+  }
+});
+
 export default i18n;
