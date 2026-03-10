@@ -9,7 +9,6 @@ import {
   Ban,
   Check,
   Copy,
-  Eye,
   KeyRound,
   MoreHorizontal,
   Plus,
@@ -516,7 +515,10 @@ export default function UserListPage() {
                               {getUserInitial(user.name, user.email)}
                             </AvatarFallback>
                           </Avatar>
-                          <div className="flex flex-col">
+                          <Link
+                            to={`/users/${user.id}`}
+                            className="flex flex-col hover:underline"
+                          >
                             <span
                               className={cn(
                                 'text-sm font-medium',
@@ -528,7 +530,7 @@ export default function UserListPage() {
                             <span className="text-muted-foreground text-xs">
                               {user.email}
                             </span>
-                          </div>
+                          </Link>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -558,14 +560,6 @@ export default function UserListPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {/* View Details - always available */}
-                            <DropdownMenuItem asChild>
-                              <Link to={`/users/${user.id}`}>
-                                <Eye className="mr-2 size-4" />
-                                {t('users.viewDetails')}
-                              </Link>
-                            </DropdownMenuItem>
-
                             {/* Active user actions */}
                             {user.status === 'ACTIVE' && !isCurrentUser && (
                               <>
