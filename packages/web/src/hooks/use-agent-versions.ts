@@ -1,7 +1,7 @@
 import type { AgentVersionResponse, CreateVersionDto } from '@agent-x/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { agentKey,AGENTS_KEY } from '@/hooks/use-agents';
+import { agentKey, AGENTS_KEY } from '@/hooks/use-agents';
 import { api } from '@/lib/api';
 
 function versionsKey(agentId: string) {
