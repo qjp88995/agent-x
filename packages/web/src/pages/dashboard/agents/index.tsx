@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { AgentEmptyState } from '@/components/agents/agent-empty-state';
 import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
@@ -325,18 +326,22 @@ export default function AgentListPage() {
       </Tabs>
 
       {/* Agent grid */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <AddCard to="/agents/new" label={t('agents.createAgent')} />
-        {agents?.map(agent => (
-          <AgentCard
-            key={agent.id}
-            agent={agent}
-            onDelete={setDeleteTarget}
-            onArchive={setArchiveTarget}
-            onUnarchive={handleUnarchive}
-          />
-        ))}
-      </div>
+      {!agents?.length ? (
+        <AgentEmptyState />
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <AddCard to="/agents/new" label={t('agents.createAgent')} />
+          {agents.map(agent => (
+            <AgentCard
+              key={agent.id}
+              agent={agent}
+              onDelete={setDeleteTarget}
+              onArchive={setArchiveTarget}
+              onUnarchive={handleUnarchive}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Delete confirmation dialog */}
       <AlertDialog

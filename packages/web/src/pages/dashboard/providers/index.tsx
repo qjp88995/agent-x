@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { ProviderEmptyState } from '@/components/providers/provider-empty-state';
 import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
@@ -272,16 +273,20 @@ export default function ProviderListPage() {
       </div>
 
       {/* Provider grid */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <AddCard to="/providers/new" label={t('providers.addProvider')} />
-        {providers?.map(provider => (
-          <ProviderCard
-            key={provider.id}
-            provider={provider}
-            onDelete={setDeleteTarget}
-          />
-        ))}
-      </div>
+      {!providers?.length ? (
+        <ProviderEmptyState />
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <AddCard to="/providers/new" label={t('providers.addProvider')} />
+          {providers.map(provider => (
+            <ProviderCard
+              key={provider.id}
+              provider={provider}
+              onDelete={setDeleteTarget}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Delete confirmation dialog */}
       <AlertDialog
