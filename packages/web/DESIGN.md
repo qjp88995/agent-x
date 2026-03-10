@@ -208,6 +208,21 @@ z.string().min(1, 'validation.required'); // 对应 locales/{en,zh}.json 中的 
 - 脏状态（修改未保存）追踪
 - 失去焦点时自动保存
 - 支持文本文件编辑和图片文件预览
+- 自定义主题 `agentx-light` / `agentx-dark`（定义在 `lib/monaco-themes.ts`），跟随系统明暗模式切换
+
+##### Editor Theme Palette
+
+| Token      | Light            | Dark             | Usage          |
+| ---------- | ---------------- | ---------------- | -------------- |
+| keyword    | `#7C3AED` 紫     | `#A78BFA` 浅紫   | 关键字、标签   |
+| string     | `#0891B2` 青     | `#22D3EE` 亮青   | 字符串         |
+| function   | `#6D28D9` 深紫   | `#C084FC` 淡紫   | 函数声明/调用  |
+| type       | `#2563EB` 蓝     | `#60A5FA` 亮蓝   | 类型、类、接口 |
+| property   | `#0D9488` 青绿   | `#2DD4BF` 亮青绿 | 属性           |
+| number     | `#D97706` 琥珀   | `#FBBF24` 金色   | 数字、常量     |
+| comment    | `#8E8EA0` 灰     | `#6B6B8D` 暗灰   | 注释（斜体）   |
+| background | `#F8F7FC` 薰衣草 | `#161332` 深靛   | 编辑器背景     |
+| cursor     | `#7C3AED`        | `#A78BFA`        | 光标、活动行号 |
 
 #### File Change Card (`components/workspace/file-change-card.tsx`)
 
