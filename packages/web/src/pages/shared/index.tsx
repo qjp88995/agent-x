@@ -90,13 +90,13 @@ function SharedConversationItem({
       type="button"
       onClick={onSelect}
       className={cn(
-        'group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
+        'group flex w-full items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5 text-left transition-colors',
         isActive
           ? 'bg-accent text-accent-foreground'
           : 'hover:bg-accent/50 text-foreground/80'
       )}
     >
-      <MessageSquare className="mt-0.5 size-4 shrink-0 opacity-60" />
+      <MessageSquare className="size-4 shrink-0 opacity-60" />
       <div className="min-w-0 flex-1">
         {isEditing ? (
           <input
@@ -113,7 +113,7 @@ function SharedConversationItem({
         )}
       </div>
       {!isEditing && (
-        <div className="mt-0.5 hidden shrink-0 items-center gap-0.5 group-hover:flex">
+        <div className="hidden shrink-0 items-center gap-0.5 group-hover:flex">
           <button
             type="button"
             onClick={handleStartEdit}
