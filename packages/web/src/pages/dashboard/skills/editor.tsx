@@ -13,7 +13,9 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { PageHeader } from '@/components/shared/page-header';
+import { PolishButton } from '@/components/shared/polish-button';
 import { PromptEditor } from '@/components/shared/prompt-editor';
+import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
 import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,6 +87,13 @@ export default function SkillEditorPage() {
       .split(',')
       .map(tag => tag.trim())
       .filter(tag => tag.length > 0);
+  }
+
+  function handleContentChange(content: string) {
+    form.setValue('content', content, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   }
 
   const isSaving =
@@ -250,9 +259,22 @@ export default function SkillEditorPage() {
 
               {/* Right: Skill Content */}
               <Card className="flex w-1/2 flex-col">
-                <CardHeader>
-                  <CardTitle>{t('skills.content')}</CardTitle>
-                  <CardDescription>{t('skills.contentHint')}</CardDescription>
+                <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                  <div className="flex flex-col gap-1.5">
+                    <CardTitle>{t('skills.content')}</CardTitle>
+                    <CardDescription>{t('skills.contentHint')}</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <PolishButton
+                      content={form.watch('content') ?? ''}
+                      onApply={handleContentChange}
+                      disabled={isSaving}
+                    />
+                    <PromptPickerButton
+                      onSelect={handleContentChange}
+                      disabled={isSaving}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent className="flex min-h-0 flex-1 flex-col">
                   <FormField

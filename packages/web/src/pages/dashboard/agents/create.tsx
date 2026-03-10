@@ -8,7 +8,10 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { PageHeader } from '@/components/shared/page-header';
+import { PolishButton } from '@/components/shared/polish-button';
 import { PromptEditor } from '@/components/shared/prompt-editor';
+import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
+import { SavePromptButton } from '@/components/shared/save-prompt-button';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -86,6 +89,13 @@ export default function CreateAgentPage() {
   }, [watchedProviderId, form]);
 
   const isSaving = createAgent.isPending;
+
+  function handlePromptChange(content: string) {
+    form.setValue('systemPrompt', content, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
 
   async function onSubmit(values: AgentFormValues) {
     if (isSaving) return;
@@ -343,11 +353,29 @@ export default function CreateAgentPage() {
 
               {/* Right: System Prompt */}
               <Card className="flex w-1/2 flex-col">
-                <CardHeader>
-                  <CardTitle>{t('agents.systemPrompt')}</CardTitle>
-                  <CardDescription>
-                    {t('agents.systemPromptHint')}
-                  </CardDescription>
+                <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                  <div className="flex flex-col gap-1.5">
+                    <CardTitle>{t('agents.systemPrompt')}</CardTitle>
+                    <CardDescription>
+                      {t('agents.systemPromptHint')}
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <PolishButton
+                      content={form.watch('systemPrompt') ?? ''}
+                      onApply={handlePromptChange}
+                      disabled={isSaving}
+                    />
+                    <PromptPickerButton
+                      onSelect={handlePromptChange}
+                      disabled={isSaving}
+                    />
+                    <SavePromptButton
+                      content={form.watch('systemPrompt') ?? ''}
+                      defaultName={form.watch('name')}
+                      disabled={isSaving}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent className="flex min-h-0 flex-1 flex-col">
                   <FormField
