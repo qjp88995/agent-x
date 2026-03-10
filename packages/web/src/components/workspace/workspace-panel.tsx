@@ -121,7 +121,7 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
         { conversationId, fileId: file.id },
         {
           onSuccess: () => {
-            toast.success(t('workspace.fileDeleted'));
+            toast.success(t('workspace.fileDeletedToast'));
             handleCloseTab(file.id);
           },
         }
@@ -158,7 +158,7 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
         { conversationId, fileId: file.id, newPath },
         {
           onSuccess: data => {
-            toast.success(t('workspace.fileRenamed'));
+            toast.success(t('workspace.fileRenamedToast'));
             setOpenTabs(prev =>
               prev.map(tab =>
                 tab.file.id === file.id ? { ...tab, file: data } : tab
