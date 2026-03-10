@@ -1,20 +1,38 @@
-import { Type } from 'class-transformer';
 import {
-  IsNotEmpty,
   IsObject,
   IsString,
   MinLength,
-  ValidateNested,
+  registerDecorator,
+  type ValidationArguments,
+  type ValidationOptions,
 } from 'class-validator';
 
-class FieldSchema {
-  @IsString()
-  @IsNotEmpty()
-  type!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  description!: string;
+function IsFieldSchemaRecord(validationOptions?: ValidationOptions) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'isFieldSchemaRecord',
+      target: object.constructor,
+      propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: unknown, _args: ValidationArguments) {
+          if (typeof value !== 'object' || value === null) return false;
+          return Object.values(value).every(
+            (v: unknown) =>
+              typeof v === 'object' &&
+              v !== null &&
+              typeof (v as Record<string, unknown>).type === 'string' &&
+              (v as Record<string, unknown>).type !== '' &&
+              typeof (v as Record<string, unknown>).description === 'string' &&
+              (v as Record<string, unknown>).description !== ''
+          );
+        },
+        defaultMessage() {
+          return 'Each field in outputSchema must have non-empty "type" and "description" strings';
+        },
+      },
+    });
+  };
 }
 
 export class GenerateDto {
@@ -23,7 +41,6 @@ export class GenerateDto {
   content!: string;
 
   @IsObject()
-  @ValidateNested({ each: true })
-  @Type(() => FieldSchema)
-  outputSchema!: Record<string, FieldSchema>;
+  @IsFieldSchemaRecord()
+  outputSchema!: Record<string, { type: string; description: string }>;
 }
