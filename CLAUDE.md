@@ -29,7 +29,8 @@ packages/
 │           ├── public-chat/ # Public shared chat via share tokens (@Public endpoints)
 │           ├── preferences/ # User preferences (theme, language) CRUD
 │           ├── api-key/    # API key management (sk-agx-... prefix)
-│           └── openai-compat/  # /v1/chat/completions (OpenAI wire format)
+│           ├── openai-compat/  # /v1/chat/completions (OpenAI wire format)
+│           └── system-config/  # System-level provider management + feature config + AI-powered features (admin)
 ├── web/             # React 19 frontend (Vite 6, Tailwind CSS v4, shadcn/ui)
 │   └── src/
 │       ├── components/     # UI components
@@ -57,7 +58,7 @@ packages/
 │           ├── utils.ts            # General utilities (cn, etc.)
 │           └── schemas/            # Zod validation schemas (agent, provider, skill, mcp, api-key)
 ├── shared/          # Shared TypeScript types (DTOs, responses, enums)
-│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token, workspace, preferences
+│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token, workspace, preferences, system-config
 └── docker/          # Dockerfile.server, Dockerfile.web, nginx.conf
 ```
 
@@ -160,7 +161,7 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - Global AuthGuard (JWT) applied via APP_GUARD
 - Use `@Public()` decorator to bypass auth on specific endpoints
 - Use `@CurrentUser()` decorator to get `{ id, email }` from request
-- Use `@Roles('ADMIN')` decorator for admin-only endpoints (skill/mcp marketplace management)
+- Use `@Roles('ADMIN')` decorator for admin-only endpoints (skill/mcp marketplace, system config)
 - API keys (sk-agx-...) use separate ApiKeyGuard for /v1/ endpoints
 - Tokens stored in localStorage, auto-refresh on 401 via Axios interceptor
 
@@ -180,6 +181,18 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - Backend: `GET/POST /prompts/categories`, `GET/POST/PUT/DELETE /prompts/market` (admin), `GET/POST/PUT/DELETE /prompts` (user)
 - Frontend: Prompts list page with marketplace/custom tabs, prompt editor with inline category creation
 - Agent integration: PromptPickerDialog in agent edit page lets users browse prompt library and fill system prompt; "Save to My Prompts" saves current system prompt to user's library
+
+### System Configuration
+
+- `SystemProvider` table — system-level AI providers independent from user providers (same encryption, same 7 protocols)
+- `SystemFeatureConfig` table — per-feature AI configuration (featureKey unique, links to SystemProvider, stores modelId + systemPrompt + isEnabled)
+- Backend: `system-config` module at `/api/system/*`
+  - Provider CRUD: `GET/POST /system/providers`, `GET/PUT/DELETE /system/providers/:id`, `POST /system/providers/:id/test`, `GET /system/providers/:id/models` (all @Roles('ADMIN'))
+  - Feature config: `GET /system/features`, `PUT /system/features/:featureKey` (@Roles('ADMIN'))
+  - Polish endpoint: `POST /system/polish` (any authenticated user) — calls AI with configured provider/model/prompt
+- Default feature `PROMPT_POLISH` is seeded on module init (isEnabled: false until admin configures provider)
+- Frontend: `/system-config` page (admin-only sidebar entry with Wrench icon), tabs for providers and features
+- Agent edit page: "Polish" button in system prompt editor calls `/api/system/polish`, shows result in dialog for user to apply or discard
 
 ### Provider API Keys
 
@@ -215,7 +228,8 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - `/mcp-servers` - MCP server list, `/mcp-servers/new`, `/mcp-servers/:id/edit`
 - `/prompts` - prompts list, `/prompts/new`, `/prompts/:id/edit`
 - `/api-keys` - API key management
-- `/settings` - theme and language preferences
+- `/settings` - user preferences (theme, language)
+- `/system-config` - system configuration (admin-only: system providers, feature config)
 - `/chat` - full-screen chat UI (outside dashboard layout)
 - `/chat/:conversationId/workspace` - full-screen IDE workspace view (resizable split: workspace 60% | chat 40%)
 - `/s/:token` - shared chat page (public, no auth required)
