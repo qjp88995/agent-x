@@ -286,6 +286,25 @@ export class SystemConfigService implements OnModuleInit {
     });
   }
 
+  async getFeatureStatus(featureKey: string): Promise<{ enabled: boolean }> {
+    const feature = await this.prisma.systemFeatureConfig.findUnique({
+      where: { featureKey },
+      select: {
+        isEnabled: true,
+        systemProviderId: true,
+        modelId: true,
+      },
+    });
+
+    const enabled = !!(
+      feature?.isEnabled &&
+      feature.systemProviderId &&
+      feature.modelId
+    );
+
+    return { enabled };
+  }
+
   // --- Polish ---
 
   async polishPrompt(content: string) {

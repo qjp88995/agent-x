@@ -83,6 +83,11 @@ export class SystemConfigController {
     return this.systemConfigService.updateFeature(featureKey, dto);
   }
 
+  @Get('features/:featureKey/status')
+  getFeatureStatus(@Param('featureKey') featureKey: string) {
+    return this.systemConfigService.getFeatureStatus(featureKey);
+  }
+
   // --- Polish ---
 
   @Post('polish')

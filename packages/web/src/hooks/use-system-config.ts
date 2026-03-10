@@ -164,6 +164,20 @@ export function useUpdateSystemFeature() {
   });
 }
 
+// Feature status hook
+
+export function useFeatureStatus(featureKey: string) {
+  return useQuery({
+    queryKey: ['system-feature-status', featureKey] as const,
+    queryFn: async () => {
+      const { data } = await api.get<{ enabled: boolean }>(
+        `/system/features/${featureKey}/status`
+      );
+      return data;
+    },
+  });
+}
+
 // Polish hook
 
 export function usePolishPrompt() {

@@ -24,8 +24,13 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useCreatePrompt } from '@/hooks/use-prompts';
-import { usePolishPrompt } from '@/hooks/use-system-config';
+import { useFeatureStatus, usePolishPrompt } from '@/hooks/use-system-config';
 import type { AgentFormValues } from '@/lib/schemas';
 
 type AgentPromptTabProps = {
@@ -39,6 +44,8 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
   const navigate = useNavigate();
   const createPrompt = useCreatePrompt();
   const polishPrompt = usePolishPrompt();
+  const { data: polishStatus } = useFeatureStatus('PROMPT_POLISH');
+  const isPolishAvailable = polishStatus?.enabled ?? false;
   const [pickerOpen, setPickerOpen] = useState(false);
   const [polishDialogOpen, setPolishDialogOpen] = useState(false);
   const [polishedContent, setPolishedContent] = useState('');
@@ -104,26 +111,38 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handlePolish}
-            disabled={
-              isBusy ||
-              polishPrompt.isPending ||
-              !form.getValues('systemPrompt')?.trim()
-            }
-          >
-            {polishPrompt.isPending ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <Sparkles className="mr-2 size-4" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePolish}
+                  disabled={
+                    !isPolishAvailable ||
+                    isBusy ||
+                    polishPrompt.isPending ||
+                    !form.getValues('systemPrompt')?.trim()
+                  }
+                >
+                  {polishPrompt.isPending ? (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="mr-2 size-4" />
+                  )}
+                  {polishPrompt.isPending
+                    ? t('systemConfig.polishing')
+                    : t('systemConfig.polish')}
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!isPolishAvailable && (
+              <TooltipContent>
+                {t('systemConfig.polishNotConfigured')}
+              </TooltipContent>
             )}
-            {polishPrompt.isPending
-              ? t('systemConfig.polishing')
-              : t('systemConfig.polish')}
-          </Button>
+          </Tooltip>
           <Button
             type="button"
             variant="outline"
