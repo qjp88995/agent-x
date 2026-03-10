@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
 import type { UserResponse } from '@agent-x/shared';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
   AlertTriangle,
   Ban,
@@ -35,6 +35,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
   Dialog,
   DialogContent,
@@ -171,8 +172,8 @@ export default function UserListPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [sortOption, setSortOption] = useState<SortOption>('newest');
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -199,8 +200,8 @@ export default function UserListPage() {
     if (debouncedSearch) params.search = debouncedSearch;
     if (roleFilter !== 'all') params.role = roleFilter;
     if (statusFilter !== 'all') params.status = statusFilter;
-    if (dateFrom) params.registeredFrom = dateFrom;
-    if (dateTo) params.registeredTo = dateTo;
+    if (dateFrom) params.registeredFrom = format(dateFrom, 'yyyy-MM-dd');
+    if (dateTo) params.registeredTo = format(dateTo, 'yyyy-MM-dd');
 
     switch (sortOption) {
       case 'newest':
@@ -444,19 +445,18 @@ export default function UserListPage() {
             <SelectItem value="DELETED">{t('users.statusDeleted')}</SelectItem>
           </SelectContent>
         </Select>
-        <Input
-          type="date"
+        <DatePicker
           value={dateFrom}
-          onChange={e => setDateFrom(e.target.value)}
-          placeholder={t('users.dateFrom')}
-          className="w-[150px]"
+          onChange={setDateFrom}
+          placeholder={t('users.registeredFrom')}
+          clearable
         />
-        <Input
-          type="date"
+        <DatePicker
           value={dateTo}
-          onChange={e => setDateTo(e.target.value)}
-          placeholder={t('users.dateTo')}
-          className="w-[150px]"
+          onChange={setDateTo}
+          placeholder={t('users.registeredTo')}
+          fromDate={dateFrom}
+          clearable
         />
         <Select
           value={sortOption}
