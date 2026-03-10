@@ -15,6 +15,7 @@ import {
   Settings,
   Sparkles,
   Sun,
+  Wrench,
 } from 'lucide-react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -31,6 +32,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useIsAdmin } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
@@ -39,6 +41,7 @@ interface NavItem {
   readonly labelKey: string;
   readonly href: string;
   readonly icon: React.ComponentType<{ className?: string }>;
+  readonly adminOnly?: boolean;
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
@@ -48,6 +51,12 @@ const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.prompts', href: '/prompts', icon: MessageSquarePlus },
   { labelKey: 'nav.skills', href: '/skills', icon: Sparkles },
   { labelKey: 'nav.apiKeys', href: '/api-keys', icon: Key },
+  {
+    labelKey: 'nav.systemConfig',
+    href: '/system-config',
+    icon: Wrench,
+    adminOnly: true,
+  },
   { labelKey: 'nav.settings', href: '/settings', icon: Settings },
 ] as const;
 
@@ -119,10 +128,13 @@ function BrandLogo() {
 function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
   const location = useLocation();
   const { t } = useTranslation();
+  const isAdmin = useIsAdmin();
+
+  const filteredItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
 
   return (
     <nav className="flex flex-col gap-1 px-3">
-      {NAV_ITEMS.map(item => {
+      {filteredItems.map(item => {
         const isActive =
           location.pathname === item.href ||
           location.pathname.startsWith(`${item.href}/`);

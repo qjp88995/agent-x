@@ -28,6 +28,9 @@ const PromptEditorPage = lazy(() => import('@/pages/dashboard/prompts/editor'));
 const McpPage = lazy(() => import('@/pages/dashboard/mcp/index'));
 const McpEditorPage = lazy(() => import('@/pages/dashboard/mcp/editor'));
 const ApiKeysPage = lazy(() => import('@/pages/dashboard/api-keys/index'));
+const SystemConfigPage = lazy(
+  () => import('@/pages/dashboard/system-config/index')
+);
 const SettingsPage = lazy(() => import('@/pages/dashboard/settings'));
 const ChatPage = lazy(() => import('@/pages/chat/index'));
 const WorkspacePage = lazy(() => import('@/pages/chat/workspace'));
@@ -83,6 +86,7 @@ export function AppRoutes() {
             <Route path="/mcp-servers/new" element={<McpEditorPage />} />
             <Route path="/mcp-servers/:id/edit" element={<McpEditorPage />} />
             <Route path="/api-keys" element={<ApiKeysPage />} />
+            <Route path="/system-config" element={<SystemConfigPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
           <Route path="/chat" element={<ChatPage />} />
