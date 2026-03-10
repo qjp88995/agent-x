@@ -110,9 +110,16 @@ export const useAuthStore = create<AuthStore>(set => ({
       const { data } = await api.get<AuthUser>('/auth/me');
       set({ user: data, isAuthenticated: true, isLoading: false });
       await syncPreferencesFromServer();
-    } catch {
-      clearTokens();
-      set({ user: null, isAuthenticated: false, isLoading: false });
+    } catch (error) {
+      const status =
+        error instanceof AxiosError ? error.response?.status : undefined;
+      if (status === 401) {
+        clearTokens();
+        set({ user: null, isAuthenticated: false, isLoading: false });
+      } else {
+        // Network error or server unavailable — keep tokens, treat as authenticated
+        set({ isLoading: false });
+      }
     }
   },
 }));
