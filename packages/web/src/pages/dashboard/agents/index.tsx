@@ -11,16 +11,15 @@ import {
   AlertTriangle,
   Archive,
   ArchiveRestore,
-  Bot,
   GitBranch,
   MessageSquare,
   MoreHorizontal,
   Pencil,
-  Plus,
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { AddCard } from '@/components/shared/add-card';
 import { CopyableId } from '@/components/shared/copyable-id';
 import {
   AlertDialog,
@@ -226,34 +225,6 @@ function AgentCard({
   );
 }
 
-function EmptyState({ filter }: { readonly filter: FilterTab }) {
-  const { t } = useTranslation();
-  const message =
-    filter === 'all'
-      ? t('agents.noAgentsDesc')
-      : t('agents.noFilteredAgents', {
-          filter: t(STATUS_BADGE_CONFIG[filter as AgentStatusType].labelKey),
-        });
-
-  return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
-        <Bot className="size-8" />
-      </div>
-      <h3 className="mb-1 text-lg font-semibold">{t('agents.noAgents')}</h3>
-      <p className="text-muted-foreground mb-6 text-sm">{message}</p>
-      {filter === 'all' && (
-        <Button asChild variant="primary">
-          <Link to="/agents/new">
-            <Plus className="mr-2 size-4" />
-            {t('agents.createAgent')}
-          </Link>
-        </Button>
-      )}
-    </div>
-  );
-}
-
 export default function AgentListPage() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
@@ -340,12 +311,6 @@ export default function AgentListPage() {
             {t('agents.subtitle')}
           </p>
         </div>
-        <Button asChild variant="primary">
-          <Link to="/agents/new">
-            <Plus className="mr-2 size-4" />
-            {t('agents.createAgent')}
-          </Link>
-        </Button>
       </div>
 
       {/* Filter tabs */}
@@ -364,22 +329,19 @@ export default function AgentListPage() {
         </TabsList>
       </Tabs>
 
-      {/* Agent grid or empty state */}
-      {!agents || agents.length === 0 ? (
-        <EmptyState filter={activeTab} />
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {agents.map(agent => (
-            <AgentCard
-              key={agent.id}
-              agent={agent}
-              onDelete={setDeleteTarget}
-              onArchive={setArchiveTarget}
-              onUnarchive={handleUnarchive}
-            />
-          ))}
-        </div>
-      )}
+      {/* Agent grid */}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <AddCard to="/agents/new" label={t('agents.createAgent')} />
+        {agents?.map(agent => (
+          <AgentCard
+            key={agent.id}
+            agent={agent}
+            onDelete={setDeleteTarget}
+            onArchive={setArchiveTarget}
+            onUnarchive={handleUnarchive}
+          />
+        ))}
+      </div>
 
       {/* Delete confirmation dialog */}
       <AlertDialog

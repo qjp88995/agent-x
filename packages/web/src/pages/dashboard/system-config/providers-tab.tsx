@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { SystemProviderResponse } from '@agent-x/shared';
-import { AlertTriangle, Plus } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,18 +84,7 @@ export function ProvidersTab() {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="flex min-h-35 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors hover:border-primary/40 hover:bg-accent/50"
-        >
-          <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Plus className="size-5" />
-          </div>
-          <span className="text-muted-foreground text-sm font-medium">
-            {t('systemConfig.addProvider')}
-          </span>
-        </button>
+        <AddCard label={t('systemConfig.addProvider')} onClick={handleAdd} />
         {providers?.map(provider => (
           <ProviderCard
             key={provider.id}

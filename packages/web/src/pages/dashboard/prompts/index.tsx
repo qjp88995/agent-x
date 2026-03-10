@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
 
 import type { PromptResponse } from '@agent-x/shared';
-import { AlertTriangle, Plus } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DeleteDialog } from '@/components/prompts/delete-dialog';
 import { MarketplaceCard } from '@/components/prompts/marketplace-card';
 import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
-import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
-import { Button } from '@/components/ui/button';
+import { AddCard } from '@/components/shared/add-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
@@ -105,22 +103,6 @@ export default function PromptsPage() {
             {t('prompts.subtitle')}
           </p>
         </div>
-        <div className="flex gap-2">
-          {isAdmin && (
-            <Button variant="outline" asChild>
-              <Link to="/prompts/new?type=system">
-                <Plus className="mr-2 size-4" />
-                {t('prompts.addToMarketplace')}
-              </Link>
-            </Button>
-          )}
-          <Button asChild variant="primary">
-            <Link to="/prompts/new">
-              <Plus className="mr-2 size-4" />
-              {t('prompts.createPrompt')}
-            </Link>
-          </Button>
-        </div>
       </div>
 
       <Tabs defaultValue="marketplace">
@@ -132,38 +114,37 @@ export default function PromptsPage() {
         </TabsList>
 
         <TabsContent value="marketplace">
-          {!marketPrompts || marketPrompts.length === 0 ? (
-            <PromptEmptyState tab="marketplace" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {marketPrompts.map(prompt => (
-                <MarketplaceCard
-                  key={prompt.id}
-                  prompt={prompt}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteMarketplace}
-                  onPreview={setPreviewTarget}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {isAdmin && (
+              <AddCard
+                to="/prompts/new?type=system"
+                label={t('prompts.addToMarketplace')}
+              />
+            )}
+            {marketPrompts?.map(prompt => (
+              <MarketplaceCard
+                key={prompt.id}
+                prompt={prompt}
+                isAdmin={isAdmin}
+                onDelete={handleDeleteMarketplace}
+                onPreview={setPreviewTarget}
+              />
+            ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="custom">
-          {!customPrompts || customPrompts.length === 0 ? (
-            <PromptEmptyState tab="custom" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {customPrompts.map(prompt => (
-                <PromptCard
-                  key={prompt.id}
-                  prompt={prompt}
-                  onDelete={handleDeleteCustom}
-                  onPreview={setPreviewTarget}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <AddCard to="/prompts/new" label={t('prompts.createPrompt')} />
+            {customPrompts?.map(prompt => (
+              <PromptCard
+                key={prompt.id}
+                prompt={prompt}
+                onDelete={handleDeleteCustom}
+                onPreview={setPreviewTarget}
+              />
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
 

@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
 
 import type { McpServerResponse } from '@agent-x/shared';
-import { AlertTriangle, Plus } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { MarketplaceCard } from '@/components/mcp/marketplace-card';
-import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
 import { McpServerCard } from '@/components/mcp/mcp-server-card';
+import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +18,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
@@ -112,22 +110,6 @@ export default function McpPage() {
           </h1>
           <p className="text-muted-foreground text-sm">{t('mcp.subtitle')}</p>
         </div>
-        <div className="flex gap-2">
-          {isAdmin && (
-            <Button variant="outline" asChild>
-              <Link to="/mcp-servers/new?type=official">
-                <Plus className="mr-2 size-4" />
-                {t('mcp.addToMarketplace')}
-              </Link>
-            </Button>
-          )}
-          <Button asChild variant="primary">
-            <Link to="/mcp-servers/new">
-              <Plus className="mr-2 size-4" />
-              {t('mcp.addServer')}
-            </Link>
-          </Button>
-        </div>
       </div>
 
       <Tabs defaultValue="marketplace">
@@ -137,36 +119,35 @@ export default function McpPage() {
         </TabsList>
 
         <TabsContent value="marketplace">
-          {!marketServers || marketServers.length === 0 ? (
-            <McpEmptyState tab="marketplace" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {marketServers.map(server => (
-                <MarketplaceCard
-                  key={server.id}
-                  server={server}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteMarketplace}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {isAdmin && (
+              <AddCard
+                to="/mcp-servers/new?type=official"
+                label={t('mcp.addToMarketplace')}
+              />
+            )}
+            {marketServers?.map(server => (
+              <MarketplaceCard
+                key={server.id}
+                server={server}
+                isAdmin={isAdmin}
+                onDelete={handleDeleteMarketplace}
+              />
+            ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="custom">
-          {!customServers || customServers.length === 0 ? (
-            <McpEmptyState tab="custom" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {customServers.map(server => (
-                <McpServerCard
-                  key={server.id}
-                  server={server}
-                  onDelete={handleDeleteCustom}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <AddCard to="/mcp-servers/new" label={t('mcp.addServer')} />
+            {customServers?.map(server => (
+              <McpServerCard
+                key={server.id}
+                server={server}
+                onDelete={handleDeleteCustom}
+              />
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
 

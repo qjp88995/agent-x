@@ -5,16 +5,15 @@ import { Link } from 'react-router';
 import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
 import {
   AlertTriangle,
-  Database,
   ExternalLink,
   Pencil,
   PlugZap,
-  Plus,
   RefreshCw,
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -214,29 +213,6 @@ function ProviderCard({
   );
 }
 
-function EmptyState() {
-  const { t } = useTranslation();
-  return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
-        <Database className="size-8" />
-      </div>
-      <h3 className="mb-1 text-lg font-semibold">
-        {t('providers.noProviders')}
-      </h3>
-      <p className="text-muted-foreground mb-6 text-sm">
-        {t('providers.noProvidersDesc')}
-      </p>
-      <Button asChild variant="primary">
-        <Link to="/providers/new">
-          <Plus className="mr-2 size-4" />
-          {t('providers.addProvider')}
-        </Link>
-      </Button>
-    </div>
-  );
-}
-
 export default function ProviderListPage() {
   const { t } = useTranslation();
   const { data: providers, isLoading, error } = useProviders();
@@ -293,28 +269,19 @@ export default function ProviderListPage() {
             {t('providers.subtitle')}
           </p>
         </div>
-        <Button asChild variant="primary">
-          <Link to="/providers/new">
-            <Plus className="mr-2 size-4" />
-            {t('providers.addProvider')}
-          </Link>
-        </Button>
       </div>
 
-      {/* Provider grid or empty state */}
-      {!providers || providers.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {providers.map(provider => (
-            <ProviderCard
-              key={provider.id}
-              provider={provider}
-              onDelete={setDeleteTarget}
-            />
-          ))}
-        </div>
-      )}
+      {/* Provider grid */}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <AddCard to="/providers/new" label={t('providers.addProvider')} />
+        {providers?.map(provider => (
+          <ProviderCard
+            key={provider.id}
+            provider={provider}
+            onDelete={setDeleteTarget}
+          />
+        ))}
+      </div>
 
       {/* Delete confirmation dialog */}
       <AlertDialog
