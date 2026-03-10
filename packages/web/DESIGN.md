@@ -16,6 +16,8 @@ OKLCH color space, defined in `src/index.css`. Key tokens:
 | `--background` | `oklch(0.98 0.005 290)` near-white  | `oklch(0.145 0.02 280)`  | Page background             |
 | `--sidebar`    | `oklch(0.195 0.05 280)` dark indigo | `oklch(0.145 0.025 280)` | Sidebar background          |
 
+> **永久深色侧边栏**：Sidebar 在明暗模式下均保持深色，形成与内容区的视觉层次对比，同时强化品牌识别。
+
 Gradient: `oklch(0.541 0.25 293)` purple -> `oklch(0.715 0.143 215)` cyan, 135deg angle.
 
 ### Custom Utility Classes
