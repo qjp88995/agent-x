@@ -1,0 +1,15 @@
+node_modules
+.git
+.gitignore
+*.md
+dist
+.env
+.env.*
+!.env.example
+.vscode
+.idea
+.claude
+.superpowers
+.worktrees
+data
+coverage

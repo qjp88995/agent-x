@@ -1,4 +1,5 @@
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 FROM base AS deps
@@ -15,14 +16,24 @@ COPY packages/shared/ packages/shared/
 COPY packages/server/ packages/server/
 RUN cd packages/server && npx prisma generate
 RUN pnpm --filter @agent-x/server build
+RUN pnpm deploy --filter @agent-x/server --prod /app/deployed
 
-FROM base AS production
+FROM node:22-slim AS production
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+ENV NODE_ENV=production
 WORKDIR /app
-COPY --from=build /app/packages/server/dist ./dist
-COPY --from=build /app/packages/server/node_modules ./node_modules
-COPY --from=build /app/packages/server/prisma ./prisma
-COPY --from=build /app/packages/server/prisma.config.ts ./prisma.config.ts
-COPY --from=build /app/packages/server/src/generated ./src/generated
-COPY --from=build /app/packages/server/package.json ./package.json
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nestjs
+RUN mkdir -p /app/data/workspaces && chown -R nestjs:nodejs /app/data
+
+COPY --from=build --chown=nestjs:nodejs /app/deployed ./
+COPY --from=build --chown=nestjs:nodejs /app/packages/server/dist ./dist
+COPY --from=build --chown=nestjs:nodejs /app/packages/server/prisma ./prisma
+COPY --from=build --chown=nestjs:nodejs /app/packages/server/prisma.config.ts ./prisma.config.ts
+COPY --from=build --chown=nestjs:nodejs /app/packages/server/src/generated ./src/generated
+COPY --chown=nestjs:nodejs docker/entrypoint.sh ./entrypoint.sh
+
+USER nestjs
 EXPOSE 3000
-CMD ["node", "dist/main.js"]
+ENTRYPOINT ["./entrypoint.sh"]
