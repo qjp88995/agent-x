@@ -51,13 +51,13 @@ const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.prompts', href: '/prompts', icon: MessageSquarePlus },
   { labelKey: 'nav.skills', href: '/skills', icon: Sparkles },
   { labelKey: 'nav.apiKeys', href: '/api-keys', icon: Key },
+  { labelKey: 'nav.preferences', href: '/settings', icon: Settings },
   {
     labelKey: 'nav.systemConfig',
     href: '/system-config',
     icon: Wrench,
     adminOnly: true,
   },
-  { labelKey: 'nav.settings', href: '/settings', icon: Settings },
 ] as const;
 
 function getInitials(
