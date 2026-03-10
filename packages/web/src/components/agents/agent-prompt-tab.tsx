@@ -3,7 +3,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
-import { Bookmark, BookOpen, Save } from 'lucide-react';
+import { Bookmark, BookOpen, Loader2, Save, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { PromptPickerDialog } from '@/components/prompts/prompt-picker-dialog';
@@ -11,12 +11,21 @@ import { FormFooter } from '@/components/shared/form-footer';
 import { PromptEditor } from '@/components/shared/prompt-editor';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
 import { useCreatePrompt } from '@/hooks/use-prompts';
+import { usePolishPrompt } from '@/hooks/use-system-config';
 import type { AgentFormValues } from '@/lib/schemas';
 
 type AgentPromptTabProps = {
@@ -29,7 +38,10 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const createPrompt = useCreatePrompt();
+  const polishPrompt = usePolishPrompt();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [polishDialogOpen, setPolishDialogOpen] = useState(false);
+  const [polishedContent, setPolishedContent] = useState('');
 
   function handleSelectPrompt(content: string) {
     form.setValue('systemPrompt', content, {
@@ -54,6 +66,34 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
     }
   }
 
+  async function handlePolish() {
+    const content = form.getValues('systemPrompt')?.trim();
+    if (!content) return;
+
+    try {
+      const result = await polishPrompt.mutateAsync(content);
+      setPolishedContent(result.result);
+      setPolishDialogOpen(true);
+    } catch {
+      toast.error(t('systemConfig.polishFailed'));
+    }
+  }
+
+  function handleApplyPolish() {
+    form.setValue('systemPrompt', polishedContent, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setPolishDialogOpen(false);
+    setPolishedContent('');
+    toast.success(t('systemConfig.polishDone'));
+  }
+
+  function handleDiscardPolish() {
+    setPolishDialogOpen(false);
+    setPolishedContent('');
+  }
+
   return (
     <div className="flex min-h-0 max-w-4xl flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -64,6 +104,26 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handlePolish}
+            disabled={
+              isBusy ||
+              polishPrompt.isPending ||
+              !form.getValues('systemPrompt')?.trim()
+            }
+          >
+            {polishPrompt.isPending ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <Sparkles className="mr-2 size-4" />
+            )}
+            {polishPrompt.isPending
+              ? t('systemConfig.polishing')
+              : t('systemConfig.polish')}
+          </Button>
           <Button
             type="button"
             variant="outline"
@@ -123,6 +183,32 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
         onOpenChange={setPickerOpen}
         onSelect={handleSelectPrompt}
       />
+
+      <Dialog open={polishDialogOpen} onOpenChange={setPolishDialogOpen}>
+        <DialogContent className="max-h-[80vh] max-w-3xl flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{t('systemConfig.promptPolish')}</DialogTitle>
+            <DialogDescription>
+              {t('systemConfig.promptPolishDesc')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="min-h-0 flex-1 overflow-auto">
+            <PromptEditor
+              value={polishedContent}
+              disabled
+              className="max-h-[50vh]"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleDiscardPolish}>
+              {t('systemConfig.discardPolish')}
+            </Button>
+            <Button onClick={handleApplyPolish}>
+              {t('systemConfig.applyPolish')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
