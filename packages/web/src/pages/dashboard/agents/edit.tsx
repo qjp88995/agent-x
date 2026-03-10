@@ -308,7 +308,10 @@ function AgentEditForm({
                 <TabsTrigger value="mcp">{t('agents.mcpServers')}</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="basic">
+              <TabsContent
+                value="basic"
+                className="flex min-h-0 flex-1 flex-col"
+              >
                 <AgentBasicInfoTab
                   form={form}
                   activeProviders={activeProviders}
@@ -331,7 +334,7 @@ function AgentEditForm({
                 />
               </TabsContent>
 
-              <TabsContent value="mcp">
+              <TabsContent value="mcp" className="flex min-h-0 flex-1 flex-col">
                 <AgentMcpTab
                   agentId={agentId}
                   currentMcpServers={agent.mcpServers}

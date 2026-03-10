@@ -64,7 +64,7 @@ function AgentBasicInfoTab({
 
   return (
     <>
-      <Card className="max-w-4xl">
+      <Card className="min-h-0 max-w-4xl overflow-y-auto">
         <CardHeader>
           <CardTitle>{t('agents.basicInfoTitle')}</CardTitle>
           <CardDescription>{t('agents.basicInfoDesc')}</CardDescription>

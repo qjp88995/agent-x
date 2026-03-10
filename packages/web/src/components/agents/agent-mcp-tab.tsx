@@ -88,7 +88,7 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl">
+    <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-6 max-w-4xl">
       {/* Bound MCP servers */}
       <Card>
         <CardHeader>
