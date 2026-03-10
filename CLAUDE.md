@@ -12,7 +12,7 @@ packages/
 │   ├── prisma/      # Schema and migrations
 │   ├── prisma.config.ts  # Prisma v7 CLI config (datasource URL, PrismaPg adapter)
 │   └── src/
-│       ├── common/         # Shared utilities (crypto.util.ts, request-logger.middleware.ts)
+│       ├── common/         # Shared utilities (crypto.util.ts, ai-provider.util.ts, request-logger.middleware.ts)
 │       ├── generated/prisma/  # Generated Prisma client (gitignored)
 │       ├── prisma/         # PrismaModule (global)
 │       ├── telemetry.ts    # OpenTelemetry SDK (opt-in via AI_SDK_TELEMETRY=true)
@@ -131,6 +131,17 @@ pnpm format:check # prettier --check
 
 - `AgentRuntimeService` (`chat/agent-runtime.service.ts`) uses Vercel AI SDK `streamText`
 - Supports 7 provider protocols: OpenAI, Anthropic, Gemini, DeepSeek, Qwen (Alibaba), Zhipu, Moonshot
+- Common AI provider utilities in `src/common/ai-provider.util.ts`:
+  - `createLanguageModel(protocol, baseUrl, apiKey, modelId)` — unified model creation for all 7 protocols
+  - `getThinkingProviderOptions(protocol, enabled, maxTokens)` — per-provider thinking/reasoning config
+  - `clampTemperature(protocol, temperature)` — clamp to provider limits (Zhipu/Moonshot: 0-1, others: 0-2)
+  - `getDefaultModelId(protocol)` — default lightweight model per protocol (for connection tests)
+- Thinking/reasoning support per provider:
+  - Anthropic/DeepSeek/Moonshot/Zhipu: `thinking: { type: 'enabled'|'disabled' }` (with `budgetTokens` for Anthropic/Moonshot)
+  - Qwen (Alibaba): `enableThinking: true|false` + `thinkingBudget`
+  - Gemini: `thinkingConfig: { includeThoughts, thinkingBudget }` (enabled only; no explicit disable needed)
+  - OpenAI: no explicit thinking config (reasoning models handle it natively)
+- Use `generateText` + `Output.object()` for structured output (NOT deprecated `generateObject`)
 - Skills content is concatenated into the system prompt
 - Chat streaming uses `pipeUIMessageStreamToResponse()` server-side with `StreamManagerService` for buffered replay
 - Client-side streaming via native `fetch` + `ReadableStream` in `use-chat` and `use-shared-chat` hooks
@@ -185,7 +196,7 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 ### System Configuration
 
 - `SystemProvider` table — system-level AI providers independent from user providers (same encryption, same 7 protocols)
-- `SystemFeatureConfig` table — per-feature AI configuration (featureKey unique, links to SystemProvider, stores modelId + systemPrompt + isEnabled)
+- `SystemFeatureConfig` table — per-feature AI configuration (featureKey unique, links to SystemProvider, stores modelId + systemPrompt + temperature + maxTokens + thinkingEnabled + isEnabled)
 - Backend: `system-config` module at `/api/system/*`
   - Provider CRUD: `GET/POST /system/providers`, `GET/PUT/DELETE /system/providers/:id`, `POST /system/providers/:id/test`, `GET /system/providers/:id/models` (all @Roles('ADMIN'))
   - Feature config: `GET /system/features`, `PUT /system/features/:featureKey` (@Roles('ADMIN'))
