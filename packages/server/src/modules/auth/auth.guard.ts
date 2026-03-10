@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,13 +10,15 @@ import { JwtService } from '@nestjs/jwt';
 
 import { Request } from 'express';
 
+import { PrismaService } from '../../prisma/prisma.service';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly reflector: Reflector
+    private readonly reflector: Reflector,
+    private readonly prisma: PrismaService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -42,12 +45,24 @@ export class AuthGuard implements CanActivate {
         role: string;
       }>(token);
 
+      const dbUser = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+        select: { status: true },
+      });
+
+      if (!dbUser || dbUser.status !== 'ACTIVE') {
+        throw new ForbiddenException('Account has been disabled');
+      }
+
       (request as unknown as Record<string, unknown>)['user'] = {
         id: payload.sub,
         email: payload.email,
         role: payload.role,
       };
-    } catch {
+    } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
       throw new UnauthorizedException('Invalid or expired token');
     }
 

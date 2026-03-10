@@ -14,6 +14,7 @@ import { ProviderModule } from './modules/provider/provider.module';
 import { PublicChatModule } from './modules/public-chat/public-chat.module';
 import { SkillModule } from './modules/skill/skill.module';
 import { SystemConfigModule } from './modules/system-config/system-config.module';
+import { UserModule } from './modules/user/user.module';
 import { WorkspaceModule } from './modules/workspace/workspace.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -34,6 +35,7 @@ import { PrismaModule } from './prisma/prisma.module';
     WorkspaceModule,
     PreferencesModule,
     SystemConfigModule,
+    UserModule,
   ],
 })
 export class AppModule implements NestModule {
