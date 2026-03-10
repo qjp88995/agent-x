@@ -407,12 +407,25 @@ export class SystemConfigService implements OnModuleInit {
     }
     const zodSchema = z.object(shape);
 
+    // Providers that don't support native structured output (responseFormat/toolChoice)
+    // must use 'json' mode which embeds the schema in the prompt instead.
+    const jsonModeProtocols: readonly string[] = [
+      ProviderProtocol.ZHIPU,
+      ProviderProtocol.MOONSHOT,
+      ProviderProtocol.QWEN,
+      ProviderProtocol.DEEPSEEK,
+    ];
+    const needsJsonMode = jsonModeProtocols.includes(
+      feature.systemProvider.protocol
+    );
+
     const { object } = await generateObject({
       model,
       schema: zodSchema,
       system: feature.systemPrompt ?? undefined,
       prompt: content,
       experimental_telemetry: { isEnabled: true },
+      ...(needsJsonMode ? { mode: 'json' as const } : {}),
     });
 
     return object;
