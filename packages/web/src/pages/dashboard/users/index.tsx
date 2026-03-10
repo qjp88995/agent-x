@@ -546,76 +546,57 @@ export default function UserListPage() {
                         })}
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8"
-                            >
-                              <MoreHorizontal className="size-4" />
-                              <span className="sr-only">
-                                {t('common.actions')}
-                              </span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {/* Active user actions */}
-                            {user.status === 'ACTIVE' && !isCurrentUser && (
-                              <>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    setRoleChangeTarget({
-                                      user,
-                                      newRole: isAdmin ? 'USER' : 'ADMIN',
-                                    })
-                                  }
-                                >
-                                  {isAdmin ? (
-                                    <>
-                                      <ShieldOff className="mr-2 size-4" />
-                                      {t('users.changeToUser')}
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Shield className="mr-2 size-4" />
-                                      {t('users.changeToAdmin')}
-                                    </>
-                                  )}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => setResetPasswordTarget(user)}
-                                >
-                                  <KeyRound className="mr-2 size-4" />
-                                  {t('users.resetPassword')}
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => setDisableTarget(user)}
-                                >
-                                  <Ban className="mr-2 size-4" />
-                                  {t('users.disable')}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  variant="destructive"
-                                  onClick={() => setDeleteTarget(user)}
-                                >
-                                  <Trash2 className="mr-2 size-4" />
-                                  {t('common.delete')}
-                                </DropdownMenuItem>
-                              </>
-                            )}
-
-                            {/* Disabled user actions */}
-                            {user.status === 'DISABLED' && (
-                              <>
-                                <DropdownMenuItem
-                                  onClick={() => setEnableTarget(user)}
-                                >
-                                  <UserCheck className="mr-2 size-4" />
-                                  {t('users.enable')}
-                                </DropdownMenuItem>
-                                {!isCurrentUser && (
+                        {!isCurrentUser && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                              >
+                                <MoreHorizontal className="size-4" />
+                                <span className="sr-only">
+                                  {t('common.actions')}
+                                </span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {/* Active user actions */}
+                              {user.status === 'ACTIVE' && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setRoleChangeTarget({
+                                        user,
+                                        newRole: isAdmin ? 'USER' : 'ADMIN',
+                                      })
+                                    }
+                                  >
+                                    {isAdmin ? (
+                                      <>
+                                        <ShieldOff className="mr-2 size-4" />
+                                        {t('users.changeToUser')}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Shield className="mr-2 size-4" />
+                                        {t('users.changeToAdmin')}
+                                      </>
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => setResetPasswordTarget(user)}
+                                  >
+                                    <KeyRound className="mr-2 size-4" />
+                                    {t('users.resetPassword')}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => setDisableTarget(user)}
+                                  >
+                                    <Ban className="mr-2 size-4" />
+                                    {t('users.disable')}
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem
                                     variant="destructive"
                                     onClick={() => setDeleteTarget(user)}
@@ -623,21 +604,40 @@ export default function UserListPage() {
                                     <Trash2 className="mr-2 size-4" />
                                     {t('common.delete')}
                                   </DropdownMenuItem>
-                                )}
-                              </>
-                            )}
+                                </>
+                              )}
 
-                            {/* Deleted user actions */}
-                            {user.status === 'DELETED' && (
-                              <DropdownMenuItem
-                                onClick={() => setRestoreTarget(user)}
-                              >
-                                <RotateCcw className="mr-2 size-4" />
-                                {t('users.restore')}
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                              {/* Disabled user actions */}
+                              {user.status === 'DISABLED' && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => setEnableTarget(user)}
+                                  >
+                                    <UserCheck className="mr-2 size-4" />
+                                    {t('users.enable')}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    variant="destructive"
+                                    onClick={() => setDeleteTarget(user)}
+                                  >
+                                    <Trash2 className="mr-2 size-4" />
+                                    {t('common.delete')}
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+
+                              {/* Deleted user actions */}
+                              {user.status === 'DELETED' && (
+                                <DropdownMenuItem
+                                  onClick={() => setRestoreTarget(user)}
+                                >
+                                  <RotateCcw className="mr-2 size-4" />
+                                  {t('users.restore')}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
