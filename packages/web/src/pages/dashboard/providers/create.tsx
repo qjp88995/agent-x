@@ -29,6 +29,7 @@ import {
   useTestProvider,
   useUpdateProvider,
 } from '@/hooks/use-providers';
+import { DEFAULT_BASE_URLS, PROTOCOL_OPTIONS } from '@/lib/provider-constants';
 import {
   type CreateProviderFormValues,
   createProviderSchema,
@@ -36,58 +37,6 @@ import {
   updateProviderSchema,
 } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
-
-const DEFAULT_BASE_URLS: Record<ProviderProtocolType, string> = {
-  OPENAI: 'https://api.openai.com/v1',
-  ANTHROPIC: 'https://api.anthropic.com',
-  GEMINI: 'https://generativelanguage.googleapis.com/v1beta',
-  DEEPSEEK: 'https://api.deepseek.com',
-  QWEN: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-  ZHIPU: 'https://open.bigmodel.cn/api/paas/v4/',
-  MOONSHOT: 'https://api.moonshot.ai/v1',
-};
-
-const PROTOCOL_OPTIONS: readonly {
-  value: ProviderProtocolType;
-  labelKey: string;
-  descKey: string;
-}[] = [
-  {
-    value: ProviderProtocol.OPENAI,
-    labelKey: 'providers.openai',
-    descKey: 'providers.openaiDesc',
-  },
-  {
-    value: ProviderProtocol.ANTHROPIC,
-    labelKey: 'providers.anthropic',
-    descKey: 'providers.anthropicDesc',
-  },
-  {
-    value: ProviderProtocol.GEMINI,
-    labelKey: 'providers.gemini',
-    descKey: 'providers.geminiDesc',
-  },
-  {
-    value: ProviderProtocol.DEEPSEEK,
-    labelKey: 'providers.deepseek',
-    descKey: 'providers.deepseekDesc',
-  },
-  {
-    value: ProviderProtocol.QWEN,
-    labelKey: 'providers.qwen',
-    descKey: 'providers.qwenDesc',
-  },
-  {
-    value: ProviderProtocol.ZHIPU,
-    labelKey: 'providers.zhipu',
-    descKey: 'providers.zhipuDesc',
-  },
-  {
-    value: ProviderProtocol.MOONSHOT,
-    labelKey: 'providers.moonshot',
-    descKey: 'providers.moonshotDesc',
-  },
-] as const;
 
 export default function CreateProviderPage() {
   const { t } = useTranslation();

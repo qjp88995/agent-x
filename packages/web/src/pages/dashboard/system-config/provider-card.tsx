@@ -19,9 +19,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useTestSystemProvider } from '@/hooks/use-system-config';
+import { PROTOCOL_CONFIG } from '@/lib/provider-constants';
 import { cn } from '@/lib/utils';
-
-import { PROTOCOL_CONFIG } from './constants';
 
 export function ProviderCard({
   provider,

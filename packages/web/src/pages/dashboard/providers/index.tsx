@@ -45,48 +45,8 @@ import {
   useSyncModels,
   useTestProvider,
 } from '@/hooks/use-providers';
+import { PROTOCOL_CONFIG } from '@/lib/provider-constants';
 import { cn } from '@/lib/utils';
-
-const PROTOCOL_CONFIG: Record<
-  ProviderProtocol,
-  { labelKey: string; className: string }
-> = {
-  OPENAI: {
-    labelKey: 'providers.openai',
-    className:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  },
-  ANTHROPIC: {
-    labelKey: 'providers.anthropic',
-    className:
-      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  },
-  GEMINI: {
-    labelKey: 'providers.gemini',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  },
-  DEEPSEEK: {
-    labelKey: 'providers.deepseek',
-    className:
-      'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400',
-  },
-  QWEN: {
-    labelKey: 'providers.qwen',
-    className:
-      'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-  },
-  ZHIPU: {
-    labelKey: 'providers.zhipu',
-    className:
-      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
-  },
-  MOONSHOT: {
-    labelKey: 'providers.moonshot',
-    className:
-      'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400',
-  },
-};
 
 function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
   const { t } = useTranslation();

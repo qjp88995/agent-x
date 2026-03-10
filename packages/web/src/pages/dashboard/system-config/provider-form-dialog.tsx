@@ -25,13 +25,12 @@ import {
   useCreateSystemProvider,
   useUpdateSystemProvider,
 } from '@/hooks/use-system-config';
-import { cn } from '@/lib/utils';
-
 import {
   DEFAULT_BASE_URLS,
   PROTOCOL_CONFIG,
   PROTOCOL_OPTIONS,
-} from './constants';
+} from '@/lib/provider-constants';
+import { cn } from '@/lib/utils';
 
 interface ProviderFormState {
   name: string;
