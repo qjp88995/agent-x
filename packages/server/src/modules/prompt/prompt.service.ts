@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 
 import { PromptType } from '../../generated/prisma/client';
@@ -10,9 +11,40 @@ import { CreatePromptDto } from './dto/create-prompt.dto';
 import { CreatePromptCategoryDto } from './dto/create-prompt-category.dto';
 import { UpdatePromptDto } from './dto/update-prompt.dto';
 
+const SYSTEM_CATEGORIES = [
+  'Role Playing',
+  'Code Assistant',
+  'Writing',
+  'Translation',
+  'Analysis',
+  'Education',
+  'Creative',
+  'Business',
+  'Other',
+];
+
 @Injectable()
-export class PromptService {
+export class PromptService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
+
+  async onModuleInit() {
+    const existing = await this.prisma.promptCategory.findMany({
+      where: { type: PromptType.SYSTEM, createdBy: null },
+      select: { name: true },
+    });
+    const existingNames = new Set(existing.map(c => c.name));
+    const toCreate = SYSTEM_CATEGORIES.filter(name => !existingNames.has(name));
+
+    if (toCreate.length > 0) {
+      await this.prisma.promptCategory.createMany({
+        data: toCreate.map(name => ({
+          name,
+          type: PromptType.SYSTEM,
+          createdBy: null,
+        })),
+      });
+    }
+  }
 
   // ── Categories ──────────────────────────────────────────────
 
