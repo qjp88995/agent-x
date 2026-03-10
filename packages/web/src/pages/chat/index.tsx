@@ -160,7 +160,7 @@ function ConversationItem({
                 <Trash2 className="size-3.5" />
               </button>
             </AlertDialogTrigger>
-            <AlertDialogContent variant="destructive" size="sm">
+            <AlertDialogContent variant="destructive">
               <AlertDialogHeader>
                 <AlertDialogTitle>
                   {t('chat.confirmDeleteConversation')}
