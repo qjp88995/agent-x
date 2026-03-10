@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useUpdatePreferences } from '@/hooks/use-preferences';
 import { cn } from '@/lib/utils';
 import { useThemeStore } from '@/stores/theme-store';
 
@@ -57,6 +58,7 @@ export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const theme = useThemeStore(s => s.theme);
   const setTheme = useThemeStore(s => s.setTheme);
+  const updatePreferences = useUpdatePreferences();
   const currentLang = i18n.language?.startsWith('zh') ? 'zh' : 'en';
 
   return (
@@ -85,7 +87,10 @@ export default function SettingsPage() {
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setTheme(option.value)}
+                  onClick={() => {
+                    setTheme(option.value);
+                    updatePreferences.mutate({ theme: option.value });
+                  }}
                   className={cn(
                     'relative flex flex-col items-center gap-2 rounded-lg border p-4 transition-all duration-200 cursor-pointer',
                     isActive
@@ -138,7 +143,10 @@ export default function SettingsPage() {
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => void i18n.changeLanguage(option.value)}
+                  onClick={() => {
+                    void i18n.changeLanguage(option.value);
+                    updatePreferences.mutate({ language: option.value });
+                  }}
                   className={cn(
                     'relative flex flex-col items-center gap-1.5 rounded-lg border p-4 transition-all duration-200 cursor-pointer',
                     isActive

@@ -30,6 +30,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useUpdatePreferences } from '@/hooks/use-preferences';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
@@ -78,6 +79,7 @@ function ThemeToggle() {
   const { t } = useTranslation();
   const theme = useThemeStore(s => s.theme);
   const setTheme = useThemeStore(s => s.setTheme);
+  const updatePreferences = useUpdatePreferences();
 
   const nextTheme =
     THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % THEME_CYCLE.length];
@@ -89,7 +91,10 @@ function ThemeToggle() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setTheme(nextTheme)}
+          onClick={() => {
+            setTheme(nextTheme);
+            updatePreferences.mutate({ theme: nextTheme });
+          }}
           className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8"
           aria-label={t('settings.theme')}
         >

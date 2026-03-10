@@ -1,8 +1,11 @@
-import type { AuthResponse } from '@agent-x/shared';
+import type { AuthResponse, UserPreferencesResponse } from '@agent-x/shared';
 import { AxiosError } from 'axios';
 import { create } from 'zustand';
 
+import i18n from '@/i18n';
 import { api } from '@/lib/api';
+
+import { applyTheme, type Theme, useThemeStore } from './theme-store';
 
 type AuthUser = AuthResponse['user'];
 
@@ -43,6 +46,21 @@ function extractErrorMessage(error: unknown): string {
   return 'An unexpected error occurred';
 }
 
+async function syncPreferencesFromServer(): Promise<void> {
+  try {
+    const { data } = await api.get<UserPreferencesResponse>('/preferences');
+    if (data.theme) {
+      useThemeStore.setState({ theme: data.theme as Theme });
+      applyTheme(data.theme as Theme);
+    }
+    if (data.language) {
+      void i18n.changeLanguage(data.language);
+    }
+  } catch {
+    // Preferences fetch failed — keep local defaults
+  }
+}
+
 export const useAuthStore = create<AuthStore>(set => ({
   user: null,
   isAuthenticated: false,
@@ -56,6 +74,7 @@ export const useAuthStore = create<AuthStore>(set => ({
       });
       storeTokens(data);
       set({ user: data.user, isAuthenticated: true });
+      await syncPreferencesFromServer();
     } catch (error) {
       throw new Error(extractErrorMessage(error));
     }
@@ -70,6 +89,7 @@ export const useAuthStore = create<AuthStore>(set => ({
       });
       storeTokens(data);
       set({ user: data.user, isAuthenticated: true });
+      await syncPreferencesFromServer();
     } catch (error) {
       throw new Error(extractErrorMessage(error));
     }
@@ -90,6 +110,7 @@ export const useAuthStore = create<AuthStore>(set => ({
     try {
       const { data } = await api.get<AuthUser>('/auth/me');
       set({ user: data, isAuthenticated: true, isLoading: false });
+      await syncPreferencesFromServer();
     } catch {
       clearTokens();
       set({ user: null, isAuthenticated: false, isLoading: false });

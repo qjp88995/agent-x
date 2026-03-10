@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { OpenaiCompatModule } from './modules/openai-compat/openai-compat.module';
+import { PreferencesModule } from './modules/preferences/preferences.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { PublicChatModule } from './modules/public-chat/public-chat.module';
 import { SkillModule } from './modules/skill/skill.module';
@@ -28,6 +29,7 @@ import { PrismaModule } from './prisma/prisma.module';
     ApiKeyModule,
     OpenaiCompatModule,
     WorkspaceModule,
+    PreferencesModule,
   ],
 })
 export class AppModule implements NestModule {
