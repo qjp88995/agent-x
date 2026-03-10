@@ -10,6 +10,7 @@ import { DeleteDialog } from '@/components/skills/delete-dialog';
 import { MarketplaceCard } from '@/components/skills/marketplace-card';
 import { PreviewDialog } from '@/components/skills/preview-dialog';
 import { SkillCard } from '@/components/skills/skill-card';
+import { SkillEmptyState } from '@/components/skills/skill-empty-state';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
@@ -113,37 +114,45 @@ export default function SkillsPage() {
         </TabsList>
 
         <TabsContent value="marketplace">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {isAdmin && (
-              <AddCard
-                to="/skills/new?type=system"
-                label={t('skills.addToMarketplace')}
-              />
-            )}
-            {marketSkills?.map(skill => (
-              <MarketplaceCard
-                key={skill.id}
-                skill={skill}
-                isAdmin={isAdmin}
-                onDelete={handleDeleteMarketplace}
-                onPreview={setPreviewTarget}
-              />
-            ))}
-          </div>
+          {!marketSkills?.length ? (
+            <SkillEmptyState tab="marketplace" isAdmin={isAdmin} />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {isAdmin && (
+                <AddCard
+                  to="/skills/new?type=system"
+                  label={t('skills.addToMarketplace')}
+                />
+              )}
+              {marketSkills.map(skill => (
+                <MarketplaceCard
+                  key={skill.id}
+                  skill={skill}
+                  isAdmin={isAdmin}
+                  onDelete={handleDeleteMarketplace}
+                  onPreview={setPreviewTarget}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="custom">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <AddCard to="/skills/new" label={t('skills.createSkill')} />
-            {customSkills?.map(skill => (
-              <SkillCard
-                key={skill.id}
-                skill={skill}
-                onDelete={handleDeleteCustom}
-                onPreview={setPreviewTarget}
-              />
-            ))}
-          </div>
+          {!customSkills?.length ? (
+            <SkillEmptyState tab="custom" isAdmin={isAdmin} />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <AddCard to="/skills/new" label={t('skills.createSkill')} />
+              {customSkills.map(skill => (
+                <SkillCard
+                  key={skill.id}
+                  skill={skill}
+                  onDelete={handleDeleteCustom}
+                  onPreview={setPreviewTarget}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

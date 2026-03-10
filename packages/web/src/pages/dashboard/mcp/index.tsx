@@ -6,6 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { MarketplaceCard } from '@/components/mcp/marketplace-card';
+import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
 import { McpServerCard } from '@/components/mcp/mcp-server-card';
 import { AddCard } from '@/components/shared/add-card';
 import {
@@ -119,35 +120,43 @@ export default function McpPage() {
         </TabsList>
 
         <TabsContent value="marketplace">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {isAdmin && (
-              <AddCard
-                to="/mcp-servers/new?type=official"
-                label={t('mcp.addToMarketplace')}
-              />
-            )}
-            {marketServers?.map(server => (
-              <MarketplaceCard
-                key={server.id}
-                server={server}
-                isAdmin={isAdmin}
-                onDelete={handleDeleteMarketplace}
-              />
-            ))}
-          </div>
+          {!marketServers?.length ? (
+            <McpEmptyState tab="marketplace" isAdmin={isAdmin} />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {isAdmin && (
+                <AddCard
+                  to="/mcp-servers/new?type=official"
+                  label={t('mcp.addToMarketplace')}
+                />
+              )}
+              {marketServers.map(server => (
+                <MarketplaceCard
+                  key={server.id}
+                  server={server}
+                  isAdmin={isAdmin}
+                  onDelete={handleDeleteMarketplace}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="custom">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <AddCard to="/mcp-servers/new" label={t('mcp.addServer')} />
-            {customServers?.map(server => (
-              <McpServerCard
-                key={server.id}
-                server={server}
-                onDelete={handleDeleteCustom}
-              />
-            ))}
-          </div>
+          {!customServers?.length ? (
+            <McpEmptyState tab="custom" isAdmin={isAdmin} />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <AddCard to="/mcp-servers/new" label={t('mcp.addServer')} />
+              {customServers.map(server => (
+                <McpServerCard
+                  key={server.id}
+                  server={server}
+                  onDelete={handleDeleteCustom}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

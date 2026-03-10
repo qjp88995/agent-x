@@ -9,6 +9,7 @@ import { DeleteDialog } from '@/components/prompts/delete-dialog';
 import { MarketplaceCard } from '@/components/prompts/marketplace-card';
 import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
+import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
 import { AddCard } from '@/components/shared/add-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsAdmin } from '@/hooks/use-auth';
@@ -114,37 +115,45 @@ export default function PromptsPage() {
         </TabsList>
 
         <TabsContent value="marketplace">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {isAdmin && (
-              <AddCard
-                to="/prompts/new?type=system"
-                label={t('prompts.addToMarketplace')}
-              />
-            )}
-            {marketPrompts?.map(prompt => (
-              <MarketplaceCard
-                key={prompt.id}
-                prompt={prompt}
-                isAdmin={isAdmin}
-                onDelete={handleDeleteMarketplace}
-                onPreview={setPreviewTarget}
-              />
-            ))}
-          </div>
+          {!marketPrompts?.length ? (
+            <PromptEmptyState tab="marketplace" isAdmin={isAdmin} />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {isAdmin && (
+                <AddCard
+                  to="/prompts/new?type=system"
+                  label={t('prompts.addToMarketplace')}
+                />
+              )}
+              {marketPrompts.map(prompt => (
+                <MarketplaceCard
+                  key={prompt.id}
+                  prompt={prompt}
+                  isAdmin={isAdmin}
+                  onDelete={handleDeleteMarketplace}
+                  onPreview={setPreviewTarget}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="custom">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <AddCard to="/prompts/new" label={t('prompts.createPrompt')} />
-            {customPrompts?.map(prompt => (
-              <PromptCard
-                key={prompt.id}
-                prompt={prompt}
-                onDelete={handleDeleteCustom}
-                onPreview={setPreviewTarget}
-              />
-            ))}
-          </div>
+          {!customPrompts?.length ? (
+            <PromptEmptyState tab="custom" isAdmin={isAdmin} />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <AddCard to="/prompts/new" label={t('prompts.createPrompt')} />
+              {customPrompts.map(prompt => (
+                <PromptCard
+                  key={prompt.id}
+                  prompt={prompt}
+                  onDelete={handleDeleteCustom}
+                  onPreview={setPreviewTarget}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
