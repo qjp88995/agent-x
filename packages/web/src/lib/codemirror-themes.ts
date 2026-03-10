@@ -11,7 +11,7 @@ import { tags as t } from '@lezer/highlight';
 const lightEditorTheme = EditorView.theme(
   {
     '&': {
-      backgroundColor: '#F8F7FC',
+      backgroundColor: '#FDFDFF',
       color: '#1E1B4B',
     },
     '.cm-content': {
@@ -28,7 +28,7 @@ const lightEditorTheme = EditorView.theme(
       backgroundColor: '#F0EEFA',
     },
     '.cm-gutters': {
-      backgroundColor: '#F8F7FC',
+      backgroundColor: '#FDFDFF',
       color: '#A5A3C0',
       borderRight: '1px solid #E8E5F0',
     },
@@ -99,7 +99,7 @@ const lightHighlightStyle = HighlightStyle.define([
 const darkEditorTheme = EditorView.theme(
   {
     '&': {
-      backgroundColor: '#161332',
+      backgroundColor: '#1A1730',
       color: '#E2E0F0',
     },
     '.cm-content': {
@@ -116,7 +116,7 @@ const darkEditorTheme = EditorView.theme(
       backgroundColor: '#1E1B4B',
     },
     '.cm-gutters': {
-      backgroundColor: '#161332',
+      backgroundColor: '#1A1730',
       color: '#4C4A6D',
       borderRight: '1px solid #2A2750',
     },
