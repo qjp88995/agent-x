@@ -10,3 +10,4 @@ export * from './types/share-token';
 export * from './types/workspace';
 export * from './types/preferences';
 export * from './types/prompt';
+export * from './types/system-config';
