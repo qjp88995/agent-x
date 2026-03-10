@@ -318,3 +318,31 @@ model UserPreferences {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model SystemProvider {
+  id        String           @id @default(cuid())
+  name      String
+  protocol  ProviderProtocol
+  baseUrl   String
+  apiKey    String
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  featureConfigs SystemFeatureConfig[]
+}
+
+model SystemFeatureConfig {
+  id               String  @id @default(cuid())
+  featureKey       String  @unique
+  name             String
+  description      String?
+  systemProviderId String?
+  modelId          String?
+  systemPrompt     String?
+  isEnabled        Boolean @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  systemProvider SystemProvider? @relation(fields: [systemProviderId], references: [id], onDelete: SetNull)
+}
