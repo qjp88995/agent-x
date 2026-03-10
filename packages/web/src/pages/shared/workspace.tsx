@@ -20,7 +20,10 @@ import {
 } from '@/components/ui/tooltip';
 import { WorkspacePanel } from '@/components/workspace/workspace-panel';
 import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
-import { useSharedMessages } from '@/hooks/use-shared-chat';
+import {
+  useSharedConversations,
+  useSharedMessages,
+} from '@/hooks/use-shared-chat';
 import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { toUIMessages } from '@/lib/message-utils';
@@ -52,6 +55,11 @@ function SharedWorkspaceContent({
   });
 
   useWorkspaceSync(conversationId, messages);
+
+  const { data: conversations } = useSharedConversations(token);
+  const conversationTitle = conversations?.find(
+    c => c.id === conversationId
+  )?.title;
 
   const { data: workspaceFiles } = useWorkspaceFiles(conversationId);
   const downloadWorkspace = useDownloadWorkspace();
@@ -126,10 +134,18 @@ function SharedWorkspaceContent({
           </TooltipTrigger>
           <TooltipContent>{t('workspace.backToChat')}</TooltipContent>
         </Tooltip>
-        <span className="gradient-text font-semibold">
+        <span className="gradient-text shrink-0 font-semibold">
           {t('workspace.title')}
         </span>
-        <div className="ml-auto">
+        {conversationTitle && (
+          <>
+            <span className="text-muted-foreground">·</span>
+            <span className="truncate text-sm text-muted-foreground">
+              {conversationTitle}
+            </span>
+          </>
+        )}
+        <div className="ml-auto shrink-0">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
