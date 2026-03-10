@@ -4,6 +4,7 @@ import { markdown } from '@codemirror/lang-markdown';
 import { EditorView } from '@codemirror/view';
 import CodeMirror from '@uiw/react-codemirror';
 
+import { cmAgentxDark, cmAgentxLight } from '@/lib/codemirror-themes';
 import { cn } from '@/lib/utils';
 
 interface PromptEditorProps {
@@ -56,7 +57,7 @@ export function PromptEditor({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      theme={isDark ? 'dark' : 'light'}
+      theme={isDark ? cmAgentxDark : cmAgentxLight}
       extensions={extensions}
       basicSetup={{
         lineNumbers: true,

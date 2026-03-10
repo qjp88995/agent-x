@@ -1,5 +1,3 @@
-import type { editor } from 'monaco-editor';
-
 /**
  * Custom Monaco editor themes matching the Agent-X purple/cyan OKLCH palette.
  *
@@ -7,7 +5,20 @@ import type { editor } from 'monaco-editor';
  * Dark:  "agentx-dark"  — deep indigo background with vibrant purple/cyan accents
  */
 
-export const agentxLight: editor.IStandaloneThemeData = {
+interface MonacoThemeRule {
+  readonly token: string;
+  readonly foreground?: string;
+  readonly fontStyle?: string;
+}
+
+interface MonacoThemeData {
+  readonly base: 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
+  readonly inherit: boolean;
+  readonly rules: MonacoThemeRule[];
+  readonly colors: Record<string, string>;
+}
+
+export const agentxLight: MonacoThemeData = {
   base: 'vs',
   inherit: true,
   rules: [
@@ -64,7 +75,7 @@ export const agentxLight: editor.IStandaloneThemeData = {
   },
 };
 
-export const agentxDark: editor.IStandaloneThemeData = {
+export const agentxDark: MonacoThemeData = {
   base: 'vs-dark',
   inherit: true,
   rules: [
