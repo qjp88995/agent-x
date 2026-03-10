@@ -26,6 +26,7 @@ packages/
 │           │   └── tools/  # Built-in tools: workspace file ops (14 tools), getCurrentTime
 │           ├── workspace/  # Workspace file management (CRUD, disk storage, path validation)
 │           ├── public-chat/ # Public shared chat via share tokens (@Public endpoints)
+│           ├── preferences/ # User preferences (theme, language) CRUD
 │           ├── api-key/    # API key management (sk-agx-... prefix)
 │           └── openai-compat/  # /v1/chat/completions (OpenAI wire format)
 ├── web/             # React 19 frontend (Vite 6, Tailwind CSS v4, shadcn/ui)
@@ -39,7 +40,7 @@ packages/
 │       │   └── ui/         # shadcn/ui primitives (button, dialog, input, etc.)
 │       ├── contexts/       # React contexts (workspace-api-context for auth/public API switching)
 │       ├── hooks/          # React Query hooks (use-agents, use-chat, use-workspace, etc.)
-│       ├── i18n.ts         # i18next config (browser language detection + localStorage)
+│       ├── i18n.ts         # i18next config + changeLanguage() wrapper with sync option
 │       ├── locales/        # Translation files (en.json, zh.json)
 │       ├── pages/          # Route pages (login, register, dashboard/*, chat/, shared/)
 │       ├── stores/         # Zustand v5 stores (auth-store, theme-store)
@@ -51,10 +52,11 @@ packages/
 │           ├── message-utils.ts    # Backend MessageResponse[] → AI SDK UIMessage[] conversion
 │           ├── stream-parser.ts    # SSE stream parsing utilities
 │           ├── workspace-utils.ts  # Extract file changes from AI tool calls
+│           ├── sync-preferences.ts # Centralized backend preference sync (persistPreference)
 │           ├── utils.ts            # General utilities (cn, etc.)
 │           └── schemas/            # Zod validation schemas (agent, provider, skill, mcp, api-key)
 ├── shared/          # Shared TypeScript types (DTOs, responses, enums)
-│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token, workspace
+│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token, workspace, preferences
 └── docker/          # Dockerfile.server, Dockerfile.web, nginx.conf
 ```
 
@@ -161,6 +163,15 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - API keys (sk-agx-...) use separate ApiKeyGuard for /v1/ endpoints
 - Tokens stored in localStorage, auto-refresh on 401 via Axios interceptor
 
+### User Preferences
+
+- `UserPreferences` table with 1:1 relation to `User` (theme, language — both nullable)
+- Backend: `GET /api/preferences` + `PATCH /api/preferences` (upsert semantics)
+- Sync strategy: **database-first** — on login/checkAuth, server preferences override local
+- Store-layer auto-sync: `setTheme()` and `changeLanguage()` automatically call `persistPreference()` via `lib/sync-preferences.ts`
+- Both accept `{ sync: false }` option to skip backend write (used for server sync and cross-tab sync)
+- Unauthenticated users still use localStorage only; `persistPreference()` checks for access token before calling API
+
 ### Provider API Keys
 
 - Encrypted with AES-256-GCM via `src/common/crypto.util.ts`
@@ -172,8 +183,8 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - React Router v7 for routing
 - All dashboard pages lazy-loaded via `React.lazy()`
 - React Query v5 hooks in `src/hooks/` for all API calls
-- Zustand v5 stores: `auth-store.ts` (auth state), `theme-store.ts` (system/light/dark theme with persist)
-- i18n via `react-i18next` + `i18next-browser-languagedetector`: auto-detects browser language, falls back to English, persists preference in localStorage. Translation files in `src/locales/{en,zh}.json`. All UI strings use `t()` calls.
+- Zustand v5 stores: `auth-store.ts` (auth state + server preference sync), `theme-store.ts` (system/light/dark theme with persist + auto backend sync)
+- i18n via `react-i18next` + `i18next-browser-languagedetector`: auto-detects browser language, falls back to English, persists preference in localStorage. Use exported `changeLanguage(lng, opts?)` from `@/i18n` (not `i18n.changeLanguage()` directly) to ensure backend sync. Translation files in `src/locales/{en,zh}.json`. All UI strings use `t()` calls.
 - Toast notifications via `sonner` (`@/components/ui/sonner`). Use `toast.success()` / `toast.error()` for mutation feedback.
 - shadcn/ui components (Radix UI) in `src/components/ui/`
 - Axios client at `src/lib/api.ts` with auth interceptors + token refresh

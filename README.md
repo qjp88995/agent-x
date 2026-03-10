@@ -11,6 +11,7 @@ Self-hosted intelligent agent publishing platform. Create, configure, and publis
 - **Streaming Chat UI** - Real-time conversation interface with multi-part message rendering
 - **Workspace IDE** - In-browser file editor with Monaco, file tree, and AI-driven file operations (create, read, update, delete, search, patch)
 - **OpenAI-Compatible API** - Expose agents via `/v1/chat/completions` endpoint with API key auth
+- **User Preferences** - Theme and language preferences persisted in database, synced across devices on login
 - **Secure by Default** - JWT auth, AES-256-GCM encrypted provider keys, API key management
 
 ## Tech Stack
@@ -84,7 +85,7 @@ agent-x/
 ├── packages/
 │   ├── server/          # NestJS backend
 │   │   ├── prisma/      # Database schema & migrations
-│   │   └── src/modules/ # auth, provider, agent, skill, mcp, chat, workspace, public-chat, api-key, openai-compat
+│   │   └── src/modules/ # auth, provider, agent, skill, mcp, chat, workspace, public-chat, preferences, api-key, openai-compat
 │   ├── web/             # React frontend
 │   │   └── src/
 │   │       ├── pages/       # login, register, dashboard/*, chat, shared
@@ -116,6 +117,7 @@ All backend routes are prefixed with `/api` except the OpenAI-compatible endpoin
 | Chat           | `POST/GET /api/conversations`, `GET :id/messages`, `POST :id/chat`, `GET :id/messages/:mid/stream`, `GET :id/active-stream`, `POST :id/messages/:mid/stop`, `DELETE :id`    |
 | Workspace      | `GET/POST /api/conversations/:id/files`, `POST :id/files/directories`, `GET/PUT/DELETE :id/files/:fid/*`, `PATCH :id/files/:fid/rename`, directory rename/delete            |
 | Public Chat    | `GET /api/shared/:token/info`, `POST :token/conversations`, `GET :token/conversations/:id/messages`, `POST :token/conversations/:id/chat`, stream + workspace endpoints     |
+| Preferences    | `GET /api/preferences`, `PATCH /api/preferences`                                                                                                                            |
 | API Keys       | `GET/POST /api/api-keys`, `DELETE /api/api-keys/:id`                                                                                                                        |
 | OpenAI Compat  | `POST /v1/chat/completions`                                                                                                                                                 |
 
