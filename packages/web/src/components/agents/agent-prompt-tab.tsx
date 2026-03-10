@@ -24,6 +24,9 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
   TooltipContent,
@@ -47,6 +50,9 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
   const { data: polishStatus } = useFeatureStatus('PROMPT_POLISH');
   const isPolishAvailable = polishStatus?.enabled ?? false;
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveName, setSaveName] = useState('');
+  const [saveDescription, setSaveDescription] = useState('');
   const [polishDialogOpen, setPolishDialogOpen] = useState(false);
   const [polishedContent, setPolishedContent] = useState('');
 
@@ -57,16 +63,26 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
     });
   }
 
-  async function handleSaveToMyPrompts() {
-    const content = form.getValues('systemPrompt')?.trim();
-    if (!content) return;
+  function openSaveDialog() {
+    const agentName = form.getValues('name') || '';
+    setSaveName(agentName ? `${agentName} - System Prompt` : '');
+    setSaveDescription('');
+    setSaveDialogOpen(true);
+  }
 
-    const agentName = form.getValues('name') || 'Untitled';
+  async function handleSaveConfirm() {
+    const content = form.getValues('systemPrompt')?.trim();
+    if (!content || !saveName.trim()) return;
+
     try {
       await createPrompt.mutateAsync({
-        name: `${agentName} - System Prompt`,
+        name: saveName.trim(),
+        ...(saveDescription.trim()
+          ? { description: saveDescription.trim() }
+          : {}),
         content,
       });
+      setSaveDialogOpen(false);
       toast.success(t('prompts.savedToMyPrompts'));
     } catch {
       toast.error(t('prompts.saveToMyPromptsFailed'));
@@ -157,12 +173,8 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleSaveToMyPrompts}
-            disabled={
-              isBusy ||
-              createPrompt.isPending ||
-              !form.getValues('systemPrompt')?.trim()
-            }
+            onClick={openSaveDialog}
+            disabled={isBusy || !form.getValues('systemPrompt')?.trim()}
           >
             <Bookmark className="mr-2 size-4" />
             {t('prompts.saveToMyPrompts')}
@@ -202,6 +214,58 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
         onOpenChange={setPickerOpen}
         onSelect={handleSelectPrompt}
       />
+
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('prompts.saveToMyPrompts')}</DialogTitle>
+            <DialogDescription>
+              {t('prompts.promptDetailsDesc')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-2">
+              <Label>{t('common.name')}</Label>
+              <Input
+                placeholder={t('prompts.namePlaceholder')}
+                value={saveName}
+                onChange={e => setSaveName(e.target.value)}
+                disabled={createPrompt.isPending}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>
+                {t('common.description')} {t('common.optional')}
+              </Label>
+              <Textarea
+                placeholder={t('prompts.descPlaceholder')}
+                value={saveDescription}
+                onChange={e => setSaveDescription(e.target.value)}
+                disabled={createPrompt.isPending}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setSaveDialogOpen(false)}
+              disabled={createPrompt.isPending}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={handleSaveConfirm}
+              disabled={!saveName.trim() || createPrompt.isPending}
+            >
+              {createPrompt.isPending && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              {t('common.save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={polishDialogOpen} onOpenChange={setPolishDialogOpen}>
         <DialogContent className="max-h-[80vh] max-w-3xl flex flex-col">
