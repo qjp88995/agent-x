@@ -8,6 +8,7 @@ import {
   Key,
   LogOut,
   Menu,
+  MessageSquarePlus,
   Monitor,
   Moon,
   Server,
@@ -45,6 +46,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.agents', href: '/agents', icon: Bot },
   { labelKey: 'nav.mcpServers', href: '/mcp-servers', icon: Server },
   { labelKey: 'nav.skills', href: '/skills', icon: Sparkles },
+  { labelKey: 'nav.prompts', href: '/prompts', icon: MessageSquarePlus },
   { labelKey: 'nav.apiKeys', href: '/api-keys', icon: Key },
   { labelKey: 'nav.settings', href: '/settings', icon: Settings },
 ] as const;

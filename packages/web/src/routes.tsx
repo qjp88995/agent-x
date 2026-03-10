@@ -23,6 +23,8 @@ const VersionConversationsPage = lazy(
 );
 const SkillsPage = lazy(() => import('@/pages/dashboard/skills/index'));
 const SkillEditorPage = lazy(() => import('@/pages/dashboard/skills/editor'));
+const PromptsPage = lazy(() => import('@/pages/dashboard/prompts/index'));
+const PromptEditorPage = lazy(() => import('@/pages/dashboard/prompts/editor'));
 const McpPage = lazy(() => import('@/pages/dashboard/mcp/index'));
 const McpEditorPage = lazy(() => import('@/pages/dashboard/mcp/editor'));
 const ApiKeysPage = lazy(() => import('@/pages/dashboard/api-keys/index'));
@@ -74,6 +76,9 @@ export function AppRoutes() {
             <Route path="/skills" element={<SkillsPage />} />
             <Route path="/skills/new" element={<SkillEditorPage />} />
             <Route path="/skills/:id/edit" element={<SkillEditorPage />} />
+            <Route path="/prompts" element={<PromptsPage />} />
+            <Route path="/prompts/new" element={<PromptEditorPage />} />
+            <Route path="/prompts/:id/edit" element={<PromptEditorPage />} />
             <Route path="/mcp-servers" element={<McpPage />} />
             <Route path="/mcp-servers/new" element={<McpEditorPage />} />
             <Route path="/mcp-servers/:id/edit" element={<McpEditorPage />} />
