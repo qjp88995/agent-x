@@ -9,6 +9,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { OpenaiCompatModule } from './modules/openai-compat/openai-compat.module';
 import { PreferencesModule } from './modules/preferences/preferences.module';
+import { PromptModule } from './modules/prompt/prompt.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { PublicChatModule } from './modules/public-chat/public-chat.module';
 import { SkillModule } from './modules/skill/skill.module';
@@ -23,6 +24,7 @@ import { PrismaModule } from './prisma/prisma.module';
     ProviderModule,
     AgentModule,
     SkillModule,
+    PromptModule,
     McpModule,
     ChatModule,
     PublicChatModule,

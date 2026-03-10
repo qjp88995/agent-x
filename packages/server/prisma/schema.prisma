@@ -169,6 +169,39 @@ model AgentSkill {
   @@unique([agentId, skillId])
 }
 
+enum PromptType {
+  SYSTEM
+  CUSTOM
+}
+
+model PromptCategory {
+  id        String     @id @default(cuid())
+  name      String
+  type      PromptType
+  createdBy String?
+  createdAt DateTime   @default(now())
+
+  prompts Prompt[]
+
+  @@unique([name, createdBy])
+}
+
+model Prompt {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  content     String
+  type        PromptType
+  categoryId  String?
+  tags        String[]
+  isPublic    Boolean    @default(false)
+  createdBy   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  category PromptCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
 model Conversation {
   id             String   @id @default(cuid())
   userId         String?
