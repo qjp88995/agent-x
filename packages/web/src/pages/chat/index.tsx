@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 
 import { ChatPanel } from '@/components/chat/chat-panel';
+import { AppCommandPalette } from '@/components/shared/app-command-palette';
 import { useAgents } from '@/hooks/use-agents';
 import {
   type ConversationWithAgent,
@@ -437,6 +438,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
+      <AppCommandPalette />
       {/* Sidebar：手机端根据 mobileView 显示/隐藏 */}
       <div
         className={cn(

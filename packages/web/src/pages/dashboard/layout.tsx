@@ -35,6 +35,7 @@ import {
   Wrench,
 } from 'lucide-react';
 
+import { AppCommandPalette } from '@/components/shared/app-command-palette';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
@@ -265,6 +266,7 @@ export default function DashboardLayout() {
           </AnimatePresence>
         </main>
       </div>
+      <AppCommandPalette />
     </div>
   );
 }
