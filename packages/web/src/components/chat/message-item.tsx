@@ -1,10 +1,9 @@
 import { memo, useMemo } from 'react';
 
+import { MessageBubble } from '@agent-x/design';
 import type { ReasoningUIPart, UIMessage } from 'ai';
-import { Bot, User } from 'lucide-react';
 
 import { FileChangeCard } from '@/components/workspace/file-change-card';
-import { cn } from '@/lib/utils';
 import { extractFileChanges, type FileChange } from '@/lib/workspace-utils';
 
 import { MarkdownRenderer } from './markdown-renderer';
@@ -240,45 +239,26 @@ export const MessageItem = memo(function MessageItem({
   const showTyping = !isUser && !hasContent;
 
   return (
-    <div
-      className={cn('flex gap-3 px-4 py-3', isUser ? 'flex-row-reverse' : '')}
+    <MessageBubble
+      role={isUser ? 'user' : 'assistant'}
+      avatar={isUser ? undefined : { name: 'Agent-X' }}
+      streaming={streaming && !isUser}
+      className="px-4 py-3"
     >
-      {/* Avatar */}
-      <div
-        className={cn(
-          'flex size-8 shrink-0 items-center justify-center rounded-full',
-          isUser
-            ? 'bg-primary/15 text-primary dark:bg-primary/20'
-            : 'bg-primary text-white'
-        )}
-      >
-        {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
-      </div>
-
-      {/* Message bubble */}
-      <div
-        className={cn(
-          'max-w-[75%] rounded-2xl px-4 py-2.5',
-          isUser
-            ? 'bg-primary/10 text-foreground dark:bg-primary/15'
-            : 'bg-card border border-border/50 text-foreground'
-        )}
-      >
-        {showTyping ? (
-          <TypingIndicator />
-        ) : isUser ? (
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">
-            {message.parts
-              .filter(
-                (p): p is { type: 'text'; text: string } => p.type === 'text'
-              )
-              .map(p => p.text)
-              .join('')}
-          </p>
-        ) : (
-          <AssistantContent parts={message.parts} streaming={streaming} />
-        )}
-      </div>
-    </div>
+      {showTyping ? (
+        <TypingIndicator />
+      ) : isUser ? (
+        <p className="whitespace-pre-wrap">
+          {message.parts
+            .filter(
+              (p): p is { type: 'text'; text: string } => p.type === 'text'
+            )
+            .map(p => p.text)
+            .join('')}
+        </p>
+      ) : (
+        <AssistantContent parts={message.parts} streaming={streaming} />
+      )}
+    </MessageBubble>
   );
 });
