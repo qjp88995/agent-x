@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   type FilterTab,
   FilterTabs,
+  PageHeader,
   StaggerItem,
   StaggerList,
   ViewToggle,
@@ -14,7 +15,6 @@ import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AddCard } from '@/components/shared/add-card';
-import { ListPageHeader } from '@/components/shared/list-page-header';
 import { DeleteDialog } from '@/components/skills/delete-dialog';
 import { MarketplaceCard } from '@/components/skills/marketplace-card';
 import { PreviewDialog } from '@/components/skills/preview-dialog';
@@ -67,11 +67,13 @@ export default function SkillsPage() {
     [marketSkills, customSkills]
   );
 
-  const { search, setSearch, filter, setFilter, filtered } =
-    useFilteredSearch<SkillResponse>(allSkills, {
+  const { filter, setFilter, filtered } = useFilteredSearch<SkillResponse>(
+    allSkills,
+    {
       searchKeys: ['name', 'description'],
       filterKey: 'type',
-    });
+    }
+  );
 
   const systemCount = allSkills.filter(s => s.type === SkillType.SYSTEM).length;
   const customCount = allSkills.filter(s => s.type === SkillType.CUSTOM).length;
@@ -158,17 +160,11 @@ export default function SkillsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ListPageHeader
+      <PageHeader
         title={t('skills.title')}
-        subtitle={t('skills.subtitle')}
-        search={{
-          value: search,
-          onChange: setSearch,
-          placeholder: t('skills.searchPlaceholder', {
-            defaultValue: 'Search skills...',
-          }),
-        }}
-        trailing={<ViewToggle value={view} onChange={setView} />}
+        description={t('skills.subtitle')}
+        search
+        actions={<ViewToggle value={view} onChange={setView} />}
       />
 
       <FilterTabs

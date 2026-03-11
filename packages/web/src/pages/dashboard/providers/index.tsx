@@ -20,6 +20,7 @@ import {
   CardTitle,
   type FilterTab,
   FilterTabs,
+  PageHeader,
   StaggerItem,
   StaggerList,
   Tooltip,
@@ -40,7 +41,6 @@ import { toast } from 'sonner';
 
 import { ProviderEmptyState } from '@/components/providers/provider-empty-state';
 import { AddCard } from '@/components/shared/add-card';
-import { ListPageHeader } from '@/components/shared/list-page-header';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
   useDeleteProvider,
@@ -229,13 +229,10 @@ export default function ProviderListPage() {
     null
   );
 
-  const { search, setSearch, filter, setFilter, filtered } = useFilteredSearch(
-    allProviders,
-    {
-      searchKeys: ['name'],
-      filterKey: 'isActive',
-    }
-  );
+  const { filter, setFilter, filtered } = useFilteredSearch(allProviders, {
+    searchKeys: ['name'],
+    filterKey: 'isActive',
+  });
 
   const activeCount = allProviders?.filter(p => p.isActive).length;
   const inactiveCount = allProviders?.filter(p => !p.isActive).length;
@@ -297,17 +294,11 @@ export default function ProviderListPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <ListPageHeader
+      <PageHeader
         title={t('providers.title')}
-        subtitle={t('providers.subtitle')}
-        search={{
-          value: search,
-          onChange: setSearch,
-          placeholder: t('providers.searchPlaceholder', {
-            defaultValue: 'Search providers...',
-          }),
-        }}
-        trailing={
+        description={t('providers.subtitle')}
+        search
+        actions={
           <>
             <ViewToggle value={view} onChange={setView} />
             <Button asChild>

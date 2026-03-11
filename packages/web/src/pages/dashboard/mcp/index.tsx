@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   type FilterTab,
   FilterTabs,
+  PageHeader,
   StaggerItem,
   StaggerList,
   ViewToggle,
@@ -25,7 +26,6 @@ import { MarketplaceCard } from '@/components/mcp/marketplace-card';
 import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
 import { McpServerCard } from '@/components/mcp/mcp-server-card';
 import { AddCard } from '@/components/shared/add-card';
-import { ListPageHeader } from '@/components/shared/list-page-header';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
@@ -73,11 +73,13 @@ export default function McpPage() {
     [marketServers, customServers]
   );
 
-  const { search, setSearch, filter, setFilter, filtered } =
-    useFilteredSearch<McpServerResponse>(allServers, {
+  const { filter, setFilter, filtered } = useFilteredSearch<McpServerResponse>(
+    allServers,
+    {
       searchKeys: ['name', 'description'],
       filterKey: 'type',
-    });
+    }
+  );
 
   const officialCount = allServers.filter(
     s => s.type === McpType.OFFICIAL
@@ -167,17 +169,11 @@ export default function McpPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ListPageHeader
+      <PageHeader
         title={t('mcp.title')}
-        subtitle={t('mcp.subtitle')}
-        search={{
-          value: search,
-          onChange: setSearch,
-          placeholder: t('mcp.searchPlaceholder', {
-            defaultValue: 'Search MCP servers...',
-          }),
-        }}
-        trailing={<ViewToggle value={view} onChange={setView} />}
+        description={t('mcp.subtitle')}
+        search
+        actions={<ViewToggle value={view} onChange={setView} />}
       />
 
       <FilterTabs

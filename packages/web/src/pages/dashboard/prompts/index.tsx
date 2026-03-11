@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   type FilterTab,
   FilterTabs,
+  PageHeader,
   StaggerItem,
   StaggerList,
   ViewToggle,
@@ -19,7 +20,6 @@ import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
 import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
 import { AddCard } from '@/components/shared/add-card';
-import { ListPageHeader } from '@/components/shared/list-page-header';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
@@ -68,11 +68,13 @@ export default function PromptsPage() {
     [marketPrompts, customPrompts]
   );
 
-  const { search, setSearch, filter, setFilter, filtered } =
-    useFilteredSearch<PromptResponse>(allPrompts, {
+  const { filter, setFilter, filtered } = useFilteredSearch<PromptResponse>(
+    allPrompts,
+    {
       searchKeys: ['name', 'description'],
       filterKey: 'type',
-    });
+    }
+  );
 
   const systemCount = allPrompts.filter(
     p => p.type === PromptType.SYSTEM
@@ -167,17 +169,11 @@ export default function PromptsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ListPageHeader
+      <PageHeader
         title={t('prompts.title')}
-        subtitle={t('prompts.subtitle')}
-        search={{
-          value: search,
-          onChange: setSearch,
-          placeholder: t('prompts.searchPlaceholder', {
-            defaultValue: 'Search prompts...',
-          }),
-        }}
-        trailing={<ViewToggle value={view} onChange={setView} />}
+        description={t('prompts.subtitle')}
+        search
+        actions={<ViewToggle value={view} onChange={setView} />}
       />
 
       <FilterTabs

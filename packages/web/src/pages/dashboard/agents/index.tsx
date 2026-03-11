@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
   type FilterTab,
   FilterTabs,
+  PageHeader,
   StaggerItem,
   StaggerList,
   Tooltip,
@@ -52,7 +53,6 @@ import { toast } from 'sonner';
 
 import { AgentEmptyState } from '@/components/agents/agent-empty-state';
 import { AddCard } from '@/components/shared/add-card';
-import { ListPageHeader } from '@/components/shared/list-page-header';
 import {
   useAgents,
   useArchiveAgent,
@@ -219,13 +219,10 @@ export default function AgentListPage() {
   const { data: allAgents, isLoading, error } = useAgents();
   const [view, setView] = useViewMode('agents');
 
-  const { search, setSearch, filter, setFilter, filtered } = useFilteredSearch(
-    allAgents,
-    {
-      searchKeys: ['name', 'description', 'modelId'],
-      filterKey: 'status',
-    }
-  );
+  const { filter, setFilter, filtered } = useFilteredSearch(allAgents, {
+    searchKeys: ['name', 'description', 'modelId'],
+    filterKey: 'status',
+  });
 
   const activeCount = allAgents?.filter(
     a => a.status === AgentStatus.ACTIVE
@@ -313,17 +310,11 @@ export default function AgentListPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <ListPageHeader
+      <PageHeader
         title={t('agents.title')}
-        subtitle={t('agents.subtitle')}
-        search={{
-          value: search,
-          onChange: setSearch,
-          placeholder: t('agents.searchPlaceholder', {
-            defaultValue: 'Search agents...',
-          }),
-        }}
-        trailing={
+        description={t('agents.subtitle')}
+        search
+        actions={
           <>
             <ViewToggle value={view} onChange={setView} />
             <Button asChild>
