@@ -33,6 +33,8 @@ export { ScrollArea, ScrollBar } from './primitives/scroll-area';
 
 // Data
 export { DataTable, type Column } from './data/data-table';
+export { ViewToggle, type ViewMode } from './data/view-toggle';
+export { FilterTabs, type FilterTab } from './data/filter-tabs';
 
 // Feedback
 export { Toaster, toast } from './feedback/toast';
