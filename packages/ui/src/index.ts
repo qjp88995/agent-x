@@ -12,3 +12,7 @@ export { Button, buttonVariants } from './primitives/button';
 export { Input } from './primitives/input';
 export { Label } from './primitives/label';
 export { Textarea } from './primitives/textarea';
+export { Badge, badgeVariants } from './primitives/badge';
+export { Avatar } from './primitives/avatar';
+export { Separator } from './primitives/separator';
+export { Skeleton } from './primitives/skeleton';
