@@ -76,7 +76,7 @@ function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
 
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
+      <div className="bg-primary text-white flex size-16 items-center justify-center rounded-full mb-4">
         <Key className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">{t('apiKeys.noKeys')}</h3>

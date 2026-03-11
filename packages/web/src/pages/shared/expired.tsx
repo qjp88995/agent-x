@@ -8,7 +8,7 @@ export default function SharedExpiredPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-4">
-      <div className="gradient-bg flex size-16 items-center justify-center rounded-full glow-sm opacity-80">
+      <div className="bg-primary flex size-16 items-center justify-center rounded-full opacity-80">
         <LinkIcon className="text-white size-8" />
       </div>
       <h1 className="text-xl font-semibold">{t('shared.expired')}</h1>

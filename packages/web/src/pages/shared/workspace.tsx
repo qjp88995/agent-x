@@ -136,7 +136,7 @@ function SharedWorkspaceContent({
           </TooltipTrigger>
           <TooltipContent>{t('workspace.backToChat')}</TooltipContent>
         </Tooltip>
-        <span className="gradient-text shrink-0 font-semibold">
+        <span className="text-primary shrink-0 font-semibold">
           {t('workspace.title')}
         </span>
         {conversationTitle && (

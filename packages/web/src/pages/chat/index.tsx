@@ -227,7 +227,7 @@ function Sidebar({
           </TooltipTrigger>
           <TooltipContent>{t('chat.backToDashboard')}</TooltipContent>
         </Tooltip>
-        <span className="gradient-text text-lg font-bold tracking-tight">
+        <span className="text-primary text-lg font-bold tracking-tight">
           {t('chat.title')}
         </span>
       </div>
@@ -322,7 +322,7 @@ function NoChatSelected() {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center">
-      <div className="gradient-bg glow-primary mb-4 flex size-16 items-center justify-center rounded-full">
+      <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full">
         <MessageSquare className="size-8 text-white" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">

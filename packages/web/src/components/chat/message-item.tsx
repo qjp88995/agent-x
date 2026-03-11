@@ -15,9 +15,9 @@ import { ToolCallBlock } from './tool-call-block';
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1">
-      <span className="bg-muted-foreground/60 size-1.5 animate-bounce rounded-full [animation-delay:0ms]" />
-      <span className="bg-muted-foreground/60 size-1.5 animate-bounce rounded-full [animation-delay:150ms]" />
-      <span className="bg-muted-foreground/60 size-1.5 animate-bounce rounded-full [animation-delay:300ms]" />
+      <span className="bg-foreground-muted/60 size-1.5 animate-bounce rounded-full [animation-delay:0ms]" />
+      <span className="bg-foreground-muted/60 size-1.5 animate-bounce rounded-full [animation-delay:150ms]" />
+      <span className="bg-foreground-muted/60 size-1.5 animate-bounce rounded-full [animation-delay:300ms]" />
     </div>
   );
 }
@@ -249,7 +249,7 @@ export const MessageItem = memo(function MessageItem({
           'flex size-8 shrink-0 items-center justify-center rounded-full',
           isUser
             ? 'bg-primary/15 text-primary dark:bg-primary/20'
-            : 'gradient-bg text-white'
+            : 'bg-primary text-white'
         )}
       >
         {isUser ? <User className="size-4" /> : <Bot className="size-4" />}

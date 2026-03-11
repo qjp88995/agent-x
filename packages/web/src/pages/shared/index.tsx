@@ -355,7 +355,7 @@ function SharedChatContent({
         <div className="flex h-full w-full flex-col border-r bg-background md:w-72">
           {/* Agent info header */}
           <div className="flex h-14 shrink-0 items-center gap-2.5 border-b px-4">
-            <div className="gradient-bg flex size-8 shrink-0 items-center justify-center rounded-full">
+            <div className="bg-primary flex size-8 shrink-0 items-center justify-center rounded-full">
               {agentInfo.agentAvatar &&
               /^https?:\/\//.test(agentInfo.agentAvatar) ? (
                 <img
@@ -416,7 +416,7 @@ function SharedChatContent({
             <span className="text-foreground-muted">
               {t('common.poweredBy')}{' '}
             </span>
-            <span className="gradient-text font-semibold">Agent-X</span>
+            <span className="text-primary font-semibold">Agent-X</span>
           </div>
         </div>
       </div>
@@ -469,7 +469,7 @@ function SharedChatContent({
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center px-4">
-              <div className="gradient-bg glow-primary mb-4 flex size-16 items-center justify-center rounded-full">
+              <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full">
                 <Bot className="size-8 text-white" />
               </div>
               <h3 className="mb-1 text-lg font-semibold">

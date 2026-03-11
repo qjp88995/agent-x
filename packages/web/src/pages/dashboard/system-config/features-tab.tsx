@@ -44,7 +44,7 @@ export function FeaturesTab() {
     <div className="flex flex-col gap-6">
       {!features || features.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-          <div className="gradient-bg mb-4 flex size-16 items-center justify-center rounded-full text-white">
+          <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full text-white">
             <Wrench className="size-8" />
           </div>
           <h3 className="mb-1 text-lg font-semibold">

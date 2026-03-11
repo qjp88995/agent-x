@@ -47,16 +47,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4">
-      {/* Background gradient orbs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-[oklch(0.541_0.25_293/0.08)] blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-[oklch(0.715_0.143_215/0.08)] blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-sm">
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="gradient-bg mb-4 flex size-12 items-center justify-center rounded-xl shadow-lg">
+          <div className="bg-primary mb-4 flex size-12 items-center justify-center rounded-xl shadow-lg">
             <Bot className="size-6 text-white" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Agent-X</h1>
@@ -65,7 +59,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <Card className="glow-sm border-border/50 backdrop-blur-sm">
+        <Card>
           <CardHeader>
             <CardTitle>{t('auth.signIn')}</CardTitle>
             <CardDescription>{t('auth.signInDesc')}</CardDescription>
