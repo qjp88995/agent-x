@@ -32,7 +32,7 @@ export { Slider } from './primitives/slider';
 export { ScrollArea, ScrollBar } from './primitives/scroll-area';
 
 // Data
-export { DataTable, type Column } from './data/data-table';
+export { DataTable, type Column, type DataTableProps } from './data/data-table';
 export { ViewToggle, type ViewMode } from './data/view-toggle';
 export { FilterTabs, type FilterTab } from './data/filter-tabs';
 
@@ -117,5 +117,5 @@ export { MessageBubble, CodeBlock } from './chat/message-bubble';
 export { ThinkingBlock } from './chat/thinking-block';
 export { FileChip } from './chat/file-chip';
 export { SlashCommandMenu, type SlashCommand } from './chat/slash-command-menu';
-export { VoiceRecorder } from './chat/voice-recorder';
+export { VoiceRecorder, type VoiceRecorderState } from './chat/voice-recorder';
 export { ChatInput, type FileAttachment } from './chat/chat-input';
