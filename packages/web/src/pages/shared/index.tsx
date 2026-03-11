@@ -483,7 +483,7 @@ function SharedChatContent({
             <MessageList
               ref={messagesEndRef}
               messages={messages}
-              className="mx-auto max-w-3xl"
+              className="mx-auto max-w-[640px]"
               isStreaming={isStreaming}
               showTyping={
                 isStreaming &&
