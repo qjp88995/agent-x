@@ -28,32 +28,6 @@
   --radius-md: 8px;
   --radius-lg: 10px;
   --radius-xl: 12px;
-
-  /* Compat aliases for Tailwind color classes using old token names */
-  --color-card-foreground: var(--foreground-secondary);
-  --color-popover: var(--card);
-  --color-popover-foreground: var(--foreground-secondary);
-  --color-muted: var(--surface);
-  --color-muted-foreground: var(--foreground-muted);
-  --color-accent: var(--card);
-  --color-accent-foreground: var(--foreground-secondary);
-  --color-secondary: var(--surface);
-  --color-secondary-foreground: var(--foreground-secondary);
-  --color-input: var(--border);
-}
-
-:root {
-  /* Temporary compat aliases — remove after full migration */
-  --card-foreground: var(--foreground-secondary);
-  --popover: var(--card);
-  --popover-foreground: var(--foreground-secondary);
-  --muted: var(--surface);
-  --muted-foreground: var(--foreground-muted);
-  --accent: var(--card);
-  --accent-foreground: var(--foreground-secondary);
-  --secondary: var(--surface);
-  --secondary-foreground: var(--foreground-secondary);
-  --input: var(--border);
 }
 
 @layer base {

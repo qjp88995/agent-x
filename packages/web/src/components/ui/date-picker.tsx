@@ -41,12 +41,12 @@ export function DatePicker({
             type="button"
             disabled={disabled}
             className={cn(
-              'flex h-9 w-full items-center gap-2 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 dark:hover:bg-input/50',
-              !value && 'text-muted-foreground',
+              'flex h-9 w-full items-center gap-2 rounded-md border border-border bg-transparent px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 bg-card/30 hover:bg-card/50',
+              !value && 'text-foreground-muted',
               clearable && value && 'pr-8'
             )}
           >
-            <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
+            <CalendarIcon className="size-4 shrink-0 text-foreground-muted" />
             <span className="truncate">
               {value ? format(value, 'PPP', { locale }) : placeholder}
             </span>
@@ -56,7 +56,7 @@ export function DatePicker({
           <button
             type="button"
             onClick={() => onChange(undefined)}
-            className="absolute right-2 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+            className="absolute right-2 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-sm text-foreground-muted hover:text-foreground"
           >
             <X className="size-3.5" />
           </button>
