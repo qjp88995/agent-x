@@ -114,3 +114,4 @@ export { ThinkingBlock } from './chat/thinking-block';
 export { FileChip } from './chat/file-chip';
 export { SlashCommandMenu, type SlashCommand } from './chat/slash-command-menu';
 export { VoiceRecorder } from './chat/voice-recorder';
+export { ChatInput, type FileAttachment } from './chat/chat-input';
