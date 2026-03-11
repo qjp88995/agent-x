@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
@@ -24,12 +24,14 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Tabs,
-  TabsList,
-  TabsTrigger,
+  type FilterTab,
+  FilterTabs,
+  StaggerItem,
+  StaggerList,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  ViewToggle,
 } from '@agent-x/design';
 import type {
   AgentResponse,
@@ -50,13 +52,18 @@ import { toast } from 'sonner';
 
 import { AgentEmptyState } from '@/components/agents/agent-empty-state';
 import { AddCard } from '@/components/shared/add-card';
+import { ListPageHeader } from '@/components/shared/list-page-header';
 import {
   useAgents,
   useArchiveAgent,
   useDeleteAgent,
   useUnarchiveAgent,
 } from '@/hooks/use-agents';
+import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
+import { useViewMode } from '@/hooks/use-view-mode';
 import { cn } from '@/lib/utils';
+
+import { AgentTable } from './agent-table';
 
 const STATUS_BADGE_CONFIG: Record<
   AgentStatusType,
@@ -73,8 +80,6 @@ const STATUS_BADGE_CONFIG: Record<
       'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
   },
 };
-
-type FilterTab = 'all' | AgentStatusType;
 
 function StatusBadge({ status }: { readonly status: AgentStatusType }) {
   const { t } = useTranslation();
@@ -211,16 +216,38 @@ function AgentCard({
 
 export default function AgentListPage() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const { data: allAgents, isLoading, error } = useAgents();
+  const [view, setView] = useViewMode('agents');
 
-  const agents = useMemo(
-    () =>
-      activeTab === 'all'
-        ? allAgents
-        : allAgents?.filter(a => a.status === activeTab),
-    [allAgents, activeTab]
+  const { search, setSearch, filter, setFilter, filtered } = useFilteredSearch(
+    allAgents,
+    {
+      searchKeys: ['name', 'description', 'modelId'],
+      filterKey: 'status',
+    }
   );
+
+  const activeCount = allAgents?.filter(
+    a => a.status === AgentStatus.ACTIVE
+  ).length;
+  const archivedCount = allAgents?.filter(
+    a => a.status === AgentStatus.ARCHIVED
+  ).length;
+
+  const filterTabs: FilterTab[] = [
+    { key: FILTER_ALL, label: t('agents.all'), count: allAgents?.length },
+    {
+      key: AgentStatus.ACTIVE,
+      label: t('agents.active'),
+      count: activeCount,
+    },
+    {
+      key: AgentStatus.ARCHIVED,
+      label: t('agents.archived'),
+      count: archivedCount,
+    },
+  ];
+
   const deleteAgent = useDeleteAgent();
   const archiveAgent = useArchiveAgent();
   const unarchiveAgent = useUnarchiveAgent();
@@ -286,49 +313,60 @@ export default function AgentListPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('agents.title')}
-          </h1>
-          <p className="text-foreground-muted text-sm">
-            {t('agents.subtitle')}
-          </p>
-        </div>
-      </div>
+      <ListPageHeader
+        title={t('agents.title')}
+        subtitle={t('agents.subtitle')}
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t('agents.searchPlaceholder', {
+            defaultValue: 'Search agents...',
+          }),
+        }}
+        trailing={
+          <>
+            <ViewToggle value={view} onChange={setView} />
+            <Button asChild>
+              <Link to="/agents/new">{t('agents.createAgent')}</Link>
+            </Button>
+          </>
+        }
+      />
 
       {/* Filter tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={value => setActiveTab(value as FilterTab)}
-      >
-        <TabsList>
-          <TabsTrigger value="all">{t('agents.all')}</TabsTrigger>
-          <TabsTrigger value={AgentStatus.ACTIVE}>
-            {t('agents.active')}
-          </TabsTrigger>
-          <TabsTrigger value={AgentStatus.ARCHIVED}>
-            {t('agents.archived')}
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <FilterTabs
+        tabs={filterTabs}
+        value={filter}
+        onChange={setFilter}
+        className="px-1"
+      />
 
-      {/* Agent grid */}
-      {!agents?.length ? (
+      {/* Agent list */}
+      {!filtered.length ? (
         <AgentEmptyState />
+      ) : view === 'table' ? (
+        <AgentTable
+          agents={filtered}
+          onDelete={setDeleteTarget}
+          onArchive={setArchiveTarget}
+          onUnarchive={handleUnarchive}
+        />
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <AddCard to="/agents/new" label={t('agents.createAgent')} />
-          {agents.map(agent => (
-            <AgentCard
-              key={agent.id}
-              agent={agent}
-              onDelete={setDeleteTarget}
-              onArchive={setArchiveTarget}
-              onUnarchive={handleUnarchive}
-            />
+        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <StaggerItem>
+            <AddCard to="/agents/new" label={t('agents.createAgent')} />
+          </StaggerItem>
+          {filtered.map(agent => (
+            <StaggerItem key={agent.id}>
+              <AgentCard
+                agent={agent}
+                onDelete={setDeleteTarget}
+                onArchive={setArchiveTarget}
+                onUnarchive={handleUnarchive}
+              />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       )}
 
       {/* Delete confirmation dialog */}

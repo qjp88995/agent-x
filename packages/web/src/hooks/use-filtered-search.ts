@@ -25,7 +25,7 @@ export function useFilteredSearch<T>(
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [filter, setFilter] = useState(FILTER_ALL);
+  const [filter, setFilter] = useState<string>(FILTER_ALL);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
