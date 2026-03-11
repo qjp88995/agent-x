@@ -16,6 +16,7 @@ import {
 } from '@agent-x/design';
 import type { Locale } from 'date-fns';
 import { format } from 'date-fns';
+import { motion } from 'framer-motion';
 import { AlertTriangle, Key, Plus, Trash2 } from 'lucide-react';
 
 import { CreateKeyDialog } from '@/components/api-keys/create-key-dialog';
@@ -146,7 +147,12 @@ export default function ApiKeysPage() {
       </div>
 
       {hasKeys ? (
-        <div className="overflow-x-auto rounded-lg border">
+        <motion.div
+          className="overflow-x-auto rounded-lg border"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        >
           <Table>
             <TableHeader>
               <TableRow>
@@ -216,7 +222,7 @@ export default function ApiKeysPage() {
               ))}
             </TableBody>
           </Table>
-        </div>
+        </motion.div>
       ) : (
         <EmptyState onCreateClick={() => setCreateOpen(true)} />
       )}

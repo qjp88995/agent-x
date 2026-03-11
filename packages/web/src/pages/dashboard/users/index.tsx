@@ -41,6 +41,7 @@ import {
 } from '@agent-x/design';
 import type { UserResponse } from '@agent-x/shared';
 import { format, formatDistanceToNow } from 'date-fns';
+import { motion } from 'framer-motion';
 import {
   AlertTriangle,
   Ban,
@@ -494,7 +495,12 @@ export default function UserListPage() {
       {/* Table */}
       {hasUsers ? (
         <>
-          <div className="overflow-x-auto rounded-lg border">
+          <motion.div
+            className="overflow-x-auto rounded-lg border"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -654,7 +660,7 @@ export default function UserListPage() {
                 })}
               </TableBody>
             </Table>
-          </div>
+          </motion.div>
 
           {/* Pagination */}
           {totalPages > 1 && (
