@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useRef,useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+/** Pass this value to `setFilter` to clear the active filter (show all items). */
+export const FILTER_ALL = 'all' as const;
 
 interface UseFilteredSearchOptions<T> {
   readonly searchKeys: ReadonlyArray<keyof T & string>;
@@ -22,7 +25,7 @@ export function useFilteredSearch<T>(
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(FILTER_ALL);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -46,7 +49,7 @@ export function useFilteredSearch<T>(
 
     let result = source;
 
-    if (filterKey && filter !== 'all') {
+    if (filterKey && filter !== FILTER_ALL) {
       result = result.filter(item => String(item[filterKey]) === filter);
     }
 
