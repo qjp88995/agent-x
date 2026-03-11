@@ -218,7 +218,7 @@ function Sidebar({
     : conversations;
 
   return (
-    <div className="flex h-full w-72 flex-col border-r bg-background">
+    <div className="flex h-full w-full flex-col border-r bg-background md:w-72">
       {/* Back to dashboard + title */}
       <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
         <Tooltip>
@@ -351,6 +351,7 @@ export default function ChatPage() {
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(conversationParam);
+  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>('sidebar');
 
   const {
     data: conversations,
@@ -377,6 +378,7 @@ export default function ChatPage() {
 
   const handleSelectConversation = useCallback((id: string) => {
     setActiveConversationId(id);
+    setMobileView('chat');
   }, []);
 
   const handleRenameConversation = useCallback(
@@ -407,6 +409,7 @@ export default function ChatPage() {
       {
         onSuccess: data => {
           setActiveConversationId(data.id);
+          setMobileView('chat');
         },
       }
     );
@@ -436,21 +439,33 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar
-        conversations={conversations ?? []}
-        activeConversationId={activeConversationId}
-        selectedAgentId={selectedAgentId}
-        agents={agents ?? []}
-        onSelectConversation={handleSelectConversation}
-        onDeleteConversation={handleDeleteConversation}
-        onRenameConversation={handleRenameConversation}
-        onNewChat={handleNewChat}
-        onSelectAgent={handleSelectAgent}
-      />
+      {/* Sidebar：手机端根据 mobileView 显示/隐藏 */}
+      <div
+        className={cn(
+          'md:flex',
+          mobileView === 'sidebar' ? 'flex w-full' : 'hidden'
+        )}
+      >
+        <Sidebar
+          conversations={conversations ?? []}
+          activeConversationId={activeConversationId}
+          selectedAgentId={selectedAgentId}
+          agents={agents ?? []}
+          onSelectConversation={handleSelectConversation}
+          onDeleteConversation={handleDeleteConversation}
+          onRenameConversation={handleRenameConversation}
+          onNewChat={handleNewChat}
+          onSelectAgent={handleSelectAgent}
+        />
+      </div>
 
-      {/* Main chat area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* Main chat area：手机端根据 mobileView 显示/隐藏 */}
+      <div
+        className={cn(
+          'flex flex-1 flex-col overflow-hidden',
+          mobileView === 'chat' ? 'flex' : 'hidden md:flex'
+        )}
+      >
         {conversationsLoading ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-muted-foreground text-sm">
@@ -463,6 +478,7 @@ export default function ChatPage() {
             conversationId={activeConversationId}
             agentName={agentName}
             title={activeConversation?.title ?? undefined}
+            onBack={() => setMobileView('sidebar')}
           />
         ) : (
           <NoChatSelected />
