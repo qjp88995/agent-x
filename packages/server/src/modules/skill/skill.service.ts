@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { DeleteResponse } from '@agent-x/shared';
+
 import { pickDefined } from '../../common/pick-defined.util';
 import { SkillType } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -81,7 +83,7 @@ export class SkillService {
     });
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<DeleteResponse> {
     const skill = await this.prisma.skill.findUnique({
       where: { id },
     });
@@ -136,7 +138,7 @@ export class SkillService {
     });
   }
 
-  async removeSystem(id: string) {
+  async removeSystem(id: string): Promise<DeleteResponse> {
     const skill = await this.prisma.skill.findUnique({
       where: { id },
     });

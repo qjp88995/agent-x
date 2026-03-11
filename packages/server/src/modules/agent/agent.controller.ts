@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 
+import { CurrentUserPayload } from '../../common/types';
 import { AgentStatus } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -32,43 +33,43 @@ export class AgentController {
 
   @Get()
   findAll(
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Query('status') status?: AgentStatus
   ) {
     return this.agentService.findAll(user.id, status);
   }
 
   @Post()
-  create(@CurrentUser() user: { id: string }, @Body() dto: CreateAgentDto) {
+  create(@CurrentUser() user: CurrentUserPayload, @Body() dto: CreateAgentDto) {
     return this.agentService.create(user.id, dto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  findOne(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.agentService.findOne(id, user.id);
   }
 
   @Put(':id')
   update(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() dto: UpdateAgentDto
   ) {
     return this.agentService.update(id, user.id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  remove(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.agentService.remove(id, user.id);
   }
 
   @Post(':id/archive')
-  archive(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  archive(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.agentService.archive(id, user.id);
   }
 
   @Post(':id/unarchive')
-  unarchive(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  unarchive(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.agentService.unarchive(id, user.id);
   }
 
@@ -77,7 +78,7 @@ export class AgentController {
   @Post(':id/versions')
   publishVersion(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() dto: CreateVersionDto
   ) {
     return this.agentVersionService.publishVersion(id, user.id, dto);
@@ -86,7 +87,7 @@ export class AgentController {
   @Get(':id/versions')
   findAllVersions(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.agentVersionService.findAllVersions(id, user.id);
   }
@@ -95,7 +96,7 @@ export class AgentController {
   findOneVersion(
     @Param('id') id: string,
     @Param('versionId') versionId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.agentVersionService.findOneVersion(id, versionId, user.id);
   }
@@ -106,7 +107,7 @@ export class AgentController {
   createShareToken(
     @Param('id') _id: string,
     @Param('versionId') versionId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() dto: CreateShareTokenDto
   ) {
     return this.shareTokenService.create(versionId, user.id, dto);
@@ -116,7 +117,7 @@ export class AgentController {
   findAllShareTokens(
     @Param('id') _id: string,
     @Param('versionId') versionId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.shareTokenService.findAll(versionId, user.id);
   }
@@ -126,7 +127,7 @@ export class AgentController {
     @Param('id') _id: string,
     @Param('versionId') _versionId: string,
     @Param('tokenId') tokenId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.shareTokenService.deactivate(tokenId, user.id);
   }
@@ -136,7 +137,7 @@ export class AgentController {
   @Get(':id/shared-conversations')
   async findSharedConversations(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     const agent = await this.prisma.agent.findFirst({
       where: { id, userId: user.id, deletedAt: null },
@@ -164,7 +165,7 @@ export class AgentController {
   async findSharedConversationMessages(
     @Param('id') id: string,
     @Param('cid') cid: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     const agent = await this.prisma.agent.findFirst({
       where: { id, userId: user.id, deletedAt: null },
@@ -188,7 +189,7 @@ export class AgentController {
   @Post(':id/skills')
   addSkill(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { skillId: string; priority?: number }
   ) {
     return this.agentService.addSkill(id, user.id, body.skillId, body.priority);
@@ -198,7 +199,7 @@ export class AgentController {
   removeSkill(
     @Param('id') id: string,
     @Param('skillId') skillId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.agentService.removeSkill(id, user.id, skillId);
   }
@@ -208,7 +209,7 @@ export class AgentController {
   @Post(':id/mcp-servers')
   addMcpServer(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { mcpServerId: string; enabledTools?: string[] }
   ) {
     return this.agentService.addMcpServer(
@@ -223,7 +224,7 @@ export class AgentController {
   updateMcpServer(
     @Param('id') id: string,
     @Param('mcpServerId') mcpServerId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { enabledTools: string[] }
   ) {
     return this.agentService.updateMcpServer(
@@ -238,7 +239,7 @@ export class AgentController {
   removeMcpServer(
     @Param('id') id: string,
     @Param('mcpServerId') mcpServerId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.agentService.removeMcpServer(id, user.id, mcpServerId);
   }

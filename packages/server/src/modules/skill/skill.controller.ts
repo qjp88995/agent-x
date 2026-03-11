@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 
+import { CurrentUserPayload } from '../../common/types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -42,12 +43,12 @@ export class SkillController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: { id: string }) {
+  findAll(@CurrentUser() user: CurrentUserPayload) {
     return this.skillService.findAll(user.id);
   }
 
   @Post()
-  create(@CurrentUser() user: { id: string }, @Body() dto: CreateSkillDto) {
+  create(@CurrentUser() user: CurrentUserPayload, @Body() dto: CreateSkillDto) {
     return this.skillService.create(user.id, dto);
   }
 
@@ -59,14 +60,14 @@ export class SkillController {
   @Put(':id')
   update(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() dto: UpdateSkillDto
   ) {
     return this.skillService.update(id, user.id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  remove(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.skillService.remove(id, user.id);
   }
 }

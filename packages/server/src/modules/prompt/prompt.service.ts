@@ -5,6 +5,8 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 
+import { DeleteResponse } from '@agent-x/shared';
+
 import { pickDefined } from '../../common/pick-defined.util';
 import { PromptType } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -68,7 +70,7 @@ export class PromptService implements OnModuleInit {
     });
   }
 
-  async deleteCategory(id: string, userId: string) {
+  async deleteCategory(id: string, userId: string): Promise<DeleteResponse> {
     const category = await this.prisma.promptCategory.findUnique({
       where: { id },
     });
@@ -138,7 +140,7 @@ export class PromptService implements OnModuleInit {
     });
   }
 
-  async removeSystem(id: string) {
+  async removeSystem(id: string): Promise<DeleteResponse> {
     const prompt = await this.prisma.prompt.findUnique({
       where: { id },
     });
@@ -221,7 +223,7 @@ export class PromptService implements OnModuleInit {
     });
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<DeleteResponse> {
     const prompt = await this.prisma.prompt.findUnique({
       where: { id },
     });

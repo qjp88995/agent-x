@@ -13,6 +13,7 @@ import {
 
 import { Response } from 'express';
 
+import { CurrentUserPayload } from '../../common/types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ChatService } from '../chat/chat.service';
 import { WorkspaceService } from './workspace.service';
@@ -27,7 +28,7 @@ export class WorkspaceController {
   @Get()
   async getFileTree(
     @Param('conversationId') conversationId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
     return this.workspaceService.listFiles(conversationId);
@@ -36,7 +37,7 @@ export class WorkspaceController {
   @Get('download')
   async downloadWorkspace(
     @Param('conversationId') conversationId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Res() res: Response
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
@@ -46,7 +47,7 @@ export class WorkspaceController {
   @Post()
   async createFile(
     @Param('conversationId') conversationId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { path: string; content: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
@@ -60,7 +61,7 @@ export class WorkspaceController {
   @Post('directories')
   async createDirectory(
     @Param('conversationId') conversationId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { path: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
@@ -70,7 +71,7 @@ export class WorkspaceController {
   @Delete('directories')
   async deleteDirectory(
     @Param('conversationId') conversationId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { path: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
@@ -84,7 +85,7 @@ export class WorkspaceController {
   @Patch('directories/rename')
   async renameDirectory(
     @Param('conversationId') conversationId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { oldPath: string; newPath: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
@@ -100,7 +101,7 @@ export class WorkspaceController {
   async getFileContent(
     @Param('conversationId') conversationId: string,
     @Param('fileId') fileId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
     return this.workspaceService.getFileContentById(conversationId, fileId);
@@ -110,7 +111,7 @@ export class WorkspaceController {
   async updateFileContent(
     @Param('conversationId') conversationId: string,
     @Param('fileId') fileId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { content: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
@@ -125,7 +126,7 @@ export class WorkspaceController {
   async deleteFile(
     @Param('conversationId') conversationId: string,
     @Param('fileId') fileId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
     const file = await this.workspaceService.getFileById(
@@ -140,7 +141,7 @@ export class WorkspaceController {
   async renameFile(
     @Param('conversationId') conversationId: string,
     @Param('fileId') fileId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { newPath: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
@@ -159,7 +160,7 @@ export class WorkspaceController {
   async downloadFile(
     @Param('conversationId') conversationId: string,
     @Param('fileId') fileId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Res({ passthrough: true }) res: Response
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);

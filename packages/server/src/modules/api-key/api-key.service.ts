@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { DeleteResponse } from '@agent-x/shared';
+
 import { generateToken, hashToken } from '../../common/token.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
@@ -48,7 +50,7 @@ export class ApiKeyService {
     }));
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<DeleteResponse> {
     const apiKey = await this.prisma.apiKey.findUnique({
       where: { id },
     });

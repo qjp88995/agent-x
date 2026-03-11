@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { DeleteResponse } from '@agent-x/shared';
 import { generateText, Output } from 'ai';
 import { z } from 'zod';
 
@@ -111,7 +112,7 @@ export class SystemConfigService implements OnModuleInit {
     });
   }
 
-  async removeProvider(id: string) {
+  async removeProvider(id: string): Promise<DeleteResponse> {
     const provider = await this.prisma.systemProvider.findUnique({
       where: { id },
       include: {

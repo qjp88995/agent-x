@@ -15,6 +15,7 @@ import { type UIMessage } from 'ai';
 import { randomUUID } from 'crypto';
 import { Response } from 'express';
 
+import { CurrentUserPayload } from '../../common/types';
 import { MessageRole } from '../../generated/prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AgentRuntimeService } from './agent-runtime.service';
@@ -38,7 +39,7 @@ export class ChatController {
 
   @Post()
   createConversation(
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { agentId: string; title?: string }
   ) {
     return this.chatService.createConversation(
@@ -49,12 +50,15 @@ export class ChatController {
   }
 
   @Get()
-  getConversations(@CurrentUser() user: { id: string }) {
+  getConversations(@CurrentUser() user: CurrentUserPayload) {
     return this.chatService.getConversations(user.id);
   }
 
   @Get(':id/messages')
-  getMessages(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  getMessages(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserPayload
+  ) {
     return this.chatService.getMessages(id, user.id);
   }
 
@@ -62,7 +66,7 @@ export class ChatController {
   @HttpCode(202)
   async chat(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { messages: UIMessage[] }
   ) {
     const start = Date.now();
@@ -123,12 +127,26 @@ export class ChatController {
           );
 
           // Auto-generate title on first conversation round
-          this.maybeGenerateTitle(id, conversation.agentId, content).catch(
-            err =>
+          this.chatService
+            .maybeGenerateTitle(id, content, (userMsg, assistantMsg) =>
+              this.runtime.generateTitle(
+                conversation.agentId,
+                userMsg,
+                assistantMsg
+              )
+            )
+            .then(title => {
+              if (title) {
+                this.logger.log(
+                  `[chat] title generated conversationId=${id} title="${title}"`
+                );
+              }
+            })
+            .catch(err =>
               this.logger.warn(
                 `[chat] title generation failed conversationId=${id}: ${err}`
               )
-          );
+            );
         } catch (err) {
           this.logger.warn(
             `[chat] onComplete steps failed messageId=${messageId}: ${err}`
@@ -161,7 +179,7 @@ export class ChatController {
   async streamMessage(
     @Param('id') id: string,
     @Param('messageId') messageId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Res() res: Response
   ) {
     await this.chatService.verifyOwnership(id, user.id);
@@ -178,7 +196,7 @@ export class ChatController {
   @Get(':id/active-stream')
   async getActiveStream(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     await this.chatService.verifyOwnership(id, user.id);
 
@@ -191,7 +209,7 @@ export class ChatController {
   async stopStream(
     @Param('id') id: string,
     @Param('messageId') messageId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     await this.chatService.verifyOwnership(id, user.id);
 
@@ -202,7 +220,7 @@ export class ChatController {
   @Patch(':id')
   async renameConversation(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { title: string }
   ) {
     await this.chatService.verifyOwnership(id, user.id);
@@ -213,38 +231,8 @@ export class ChatController {
   @Delete(':id')
   deleteConversation(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.chatService.deleteConversation(id, user.id);
-  }
-
-  private async maybeGenerateTitle(
-    conversationId: string,
-    agentId: string,
-    userMessage: string
-  ): Promise<void> {
-    // Only generate on first round (2 messages: 1 user + 1 assistant)
-    const count = await this.chatService.getMessageCount(conversationId);
-    if (count !== 2) return;
-
-    const title = await this.chatService.getConversationTitle(conversationId);
-    if (title && title !== 'New Chat') return;
-
-    const messages = await this.chatService.getMessagesForAI(conversationId);
-    const assistantMsg = messages.find(m => m.role === 'assistant');
-    if (!assistantMsg) return;
-
-    const generated = await this.runtime.generateTitle(
-      agentId,
-      userMessage,
-      assistantMsg.content
-    );
-
-    if (generated) {
-      await this.chatService.updateTitle(conversationId, generated);
-      this.logger.log(
-        `[chat] title generated conversationId=${conversationId} title="${generated}"`
-      );
-    }
   }
 }

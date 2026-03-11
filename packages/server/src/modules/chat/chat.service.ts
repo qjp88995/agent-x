@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { DeleteResponse } from '@agent-x/shared';
+
 import { MessageRole } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -204,7 +206,32 @@ export class ChatService {
     return conversation?.title ?? null;
   }
 
-  async deleteConversation(id: string, userId: string) {
+  async maybeGenerateTitle(
+    conversationId: string,
+    userMessage: string,
+    generateFn: (userMsg: string, assistantMsg: string) => Promise<string>
+  ): Promise<string | undefined> {
+    const count = await this.getMessageCount(conversationId);
+    if (count !== 2) return;
+
+    const title = await this.getConversationTitle(conversationId);
+    if (title && title !== 'New Chat') return;
+
+    const messages = await this.getMessagesForAI(conversationId);
+    const assistantMsg = messages.find(m => m.role === 'assistant');
+    if (!assistantMsg) return;
+
+    const generated = await generateFn(userMessage, assistantMsg.content);
+    if (generated) {
+      await this.updateTitle(conversationId, generated);
+      return generated;
+    }
+  }
+
+  async deleteConversation(
+    id: string,
+    userId: string
+  ): Promise<DeleteResponse> {
     await this.verifyOwnership(id, userId);
 
     await this.prisma.conversation.delete({ where: { id } });

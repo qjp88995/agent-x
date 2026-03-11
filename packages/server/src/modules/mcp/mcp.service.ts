@@ -5,6 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { DeleteResponse } from '@agent-x/shared';
+
 import { pickDefined } from '../../common/pick-defined.util';
 import { McpTransport, McpType, Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -99,7 +101,7 @@ export class McpService {
     });
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<DeleteResponse> {
     const mcpServer = await this.prisma.mcpServer.findUnique({
       where: { id },
     });
@@ -161,7 +163,7 @@ export class McpService {
     });
   }
 
-  async removeOfficial(id: string) {
+  async removeOfficial(id: string): Promise<DeleteResponse> {
     const mcpServer = await this.prisma.mcpServer.findUnique({
       where: { id },
     });

@@ -125,11 +125,26 @@ export class PublicChatController {
             messageId
           );
 
-          this.maybeGenerateTitle(id, agentVersionId, content).catch(err =>
-            this.logger.warn(
-              `[shared-chat] title generation failed conversationId=${id}: ${err}`
+          this.chatService
+            .maybeGenerateTitle(id, content, (userMsg, assistantMsg) =>
+              this.runtime.generateTitleFromVersion(
+                agentVersionId,
+                userMsg,
+                assistantMsg
+              )
             )
-          );
+            .then(title => {
+              if (title) {
+                this.logger.log(
+                  `[shared-chat] title generated conversationId=${id} title="${title}"`
+                );
+              }
+            })
+            .catch(err =>
+              this.logger.warn(
+                `[shared-chat] title generation failed conversationId=${id}: ${err}`
+              )
+            );
         } catch {
           // If steps fail (e.g. aborted), extract parts from buffered chunks
           const session = this.streamManager.getSession(messageId);
@@ -192,34 +207,5 @@ export class PublicChatController {
 
     const stopped = this.streamManager.abortStream(messageId);
     return { stopped };
-  }
-
-  private async maybeGenerateTitle(
-    conversationId: string,
-    agentVersionId: string,
-    userMessage: string
-  ): Promise<void> {
-    const count = await this.chatService.getMessageCount(conversationId);
-    if (count !== 2) return;
-
-    const title = await this.chatService.getConversationTitle(conversationId);
-    if (title && title !== 'New Chat') return;
-
-    const messages = await this.chatService.getMessagesForAI(conversationId);
-    const assistantMsg = messages.find(m => m.role === 'assistant');
-    if (!assistantMsg) return;
-
-    const generated = await this.runtime.generateTitleFromVersion(
-      agentVersionId,
-      userMessage,
-      assistantMsg.content
-    );
-
-    if (generated) {
-      await this.chatService.updateTitle(conversationId, generated);
-      this.logger.log(
-        `[shared-chat] title generated conversationId=${conversationId} title="${generated}"`
-      );
-    }
   }
 }

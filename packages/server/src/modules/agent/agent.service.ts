@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { DeleteResponse } from '@agent-x/shared';
+
 import { pickDefined } from '../../common/pick-defined.util';
 import { AgentStatus } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -102,13 +104,7 @@ export class AgentService {
   }
 
   async update(id: string, userId: string, dto: UpdateAgentDto) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+    await this.requireAgent(id, userId);
 
     if (dto.providerId !== undefined) {
       const provider = await this.prisma.provider.findFirst({
@@ -129,13 +125,7 @@ export class AgentService {
   }
 
   async archive(id: string, userId: string) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+    await this.requireAgent(id, userId);
 
     return this.prisma.agent.update({
       where: { id },
@@ -144,13 +134,7 @@ export class AgentService {
   }
 
   async unarchive(id: string, userId: string) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+    await this.requireAgent(id, userId);
 
     return this.prisma.agent.update({
       where: { id },
@@ -158,14 +142,8 @@ export class AgentService {
     });
   }
 
-  async remove(id: string, userId: string) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+  async remove(id: string, userId: string): Promise<DeleteResponse> {
+    await this.requireAgent(id, userId);
 
     await this.prisma.agent.update({
       where: { id },
@@ -181,13 +159,7 @@ export class AgentService {
     skillId: string,
     priority?: number
   ) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+    await this.requireAgent(agentId, userId);
 
     return this.prisma.agentSkill.create({
       data: {
@@ -199,14 +171,12 @@ export class AgentService {
     });
   }
 
-  async removeSkill(agentId: string, userId: string, skillId: string) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+  async removeSkill(
+    agentId: string,
+    userId: string,
+    skillId: string
+  ): Promise<DeleteResponse> {
+    await this.requireAgent(agentId, userId);
 
     const agentSkill = await this.prisma.agentSkill.findFirst({
       where: { agentId, skillId },
@@ -229,13 +199,7 @@ export class AgentService {
     mcpServerId: string,
     enabledTools?: string[]
   ) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+    await this.requireAgent(agentId, userId);
 
     return this.prisma.agentMcp.create({
       data: {
@@ -253,13 +217,7 @@ export class AgentService {
     mcpServerId: string,
     enabledTools: string[]
   ) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+    await this.requireAgent(agentId, userId);
 
     const agentMcp = await this.prisma.agentMcp.findFirst({
       where: { agentId, mcpServerId },
@@ -276,14 +234,12 @@ export class AgentService {
     });
   }
 
-  async removeMcpServer(agentId: string, userId: string, mcpServerId: string) {
-    const agent = await this.prisma.agent.findFirst({
-      where: { id: agentId, userId, deletedAt: null },
-    });
-
-    if (!agent) {
-      throw new NotFoundException('Agent not found');
-    }
+  async removeMcpServer(
+    agentId: string,
+    userId: string,
+    mcpServerId: string
+  ): Promise<DeleteResponse> {
+    await this.requireAgent(agentId, userId);
 
     const agentMcp = await this.prisma.agentMcp.findFirst({
       where: { agentId, mcpServerId },
@@ -298,5 +254,15 @@ export class AgentService {
     });
 
     return { message: 'MCP server removed from agent successfully' };
+  }
+
+  private async requireAgent(id: string, userId: string) {
+    const agent = await this.prisma.agent.findFirst({
+      where: { id, userId, deletedAt: null },
+    });
+    if (!agent) {
+      throw new NotFoundException('Agent not found');
+    }
+    return agent;
   }
 }

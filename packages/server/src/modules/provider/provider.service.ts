@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { DeleteResponse } from '@agent-x/shared';
+
 import {
   type ModelInfo,
   resolveModels,
@@ -110,7 +112,7 @@ export class ProviderService {
     });
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<DeleteResponse> {
     const provider = await this.prisma.provider.findFirst({
       where: { id, userId },
       include: {

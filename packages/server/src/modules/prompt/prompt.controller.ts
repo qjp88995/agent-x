@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 
+import { CurrentUserPayload } from '../../common/types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreatePromptDto } from './dto/create-prompt.dto';
@@ -22,20 +23,23 @@ export class PromptController {
   // ── Categories ──────────────────────────────────────────────
 
   @Get('categories')
-  findCategories(@CurrentUser() user: { id: string }) {
+  findCategories(@CurrentUser() user: CurrentUserPayload) {
     return this.promptService.findCategories(user.id);
   }
 
   @Post('categories')
   createCategory(
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() dto: CreatePromptCategoryDto
   ) {
     return this.promptService.createCategory(user.id, dto);
   }
 
   @Delete('categories/:id')
-  deleteCategory(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  deleteCategory(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserPayload
+  ) {
     return this.promptService.deleteCategory(id, user.id);
   }
 
@@ -67,12 +71,15 @@ export class PromptController {
   // ── User Custom ─────────────────────────────────────────────
 
   @Get()
-  findAll(@CurrentUser() user: { id: string }) {
+  findAll(@CurrentUser() user: CurrentUserPayload) {
     return this.promptService.findAll(user.id);
   }
 
   @Post()
-  create(@CurrentUser() user: { id: string }, @Body() dto: CreatePromptDto) {
+  create(
+    @CurrentUser() user: CurrentUserPayload,
+    @Body() dto: CreatePromptDto
+  ) {
     return this.promptService.create(user.id, dto);
   }
 
@@ -84,14 +91,14 @@ export class PromptController {
   @Put(':id')
   update(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() dto: UpdatePromptDto
   ) {
     return this.promptService.update(id, user.id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  remove(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.promptService.remove(id, user.id);
   }
 }

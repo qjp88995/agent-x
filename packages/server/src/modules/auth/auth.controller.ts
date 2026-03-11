@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 
+import { CurrentUserPayload } from '../../common/types';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
@@ -29,7 +30,7 @@ export class AuthController {
   }
 
   @Get('me')
-  getMe(@CurrentUser() user: { id: string; email: string }) {
+  getMe(@CurrentUser() user: CurrentUserPayload) {
     return this.authService.getMe(user.id);
   }
 }
