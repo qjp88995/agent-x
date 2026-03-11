@@ -48,13 +48,13 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+      <div className="w-[320px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="bg-primary mb-4 flex size-12 items-center justify-center rounded-xl shadow-lg">
-            <Bot className="size-6 text-white" />
+          <div className="bg-primary mb-4 flex size-10 items-center justify-center rounded-[10px] shadow-lg">
+            <Bot className="size-5 text-white" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Agent-X</h1>
-          <p className="text-foreground-muted mt-2 text-sm">
+          <h1 className="text-[22px] font-bold tracking-[-0.5px]">Agent-X</h1>
+          <p className="text-foreground-ghost mt-1 text-[12px]">
             {t('auth.platformDesc')}
           </p>
         </div>
@@ -66,7 +66,7 @@ export default function LoginPage() {
           </CardHeader>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <CardContent className="flex flex-col gap-4">
+            <CardContent className="flex flex-col gap-3">
               {error && (
                 <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
                   {error}
