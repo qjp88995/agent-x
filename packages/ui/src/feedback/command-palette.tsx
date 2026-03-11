@@ -1,0 +1,226 @@
+import * as React from 'react';
+import {
+  Command,
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandGroup,
+  CommandItem,
+  CommandEmpty,
+  CommandSeparator,
+} from 'cmdk';
+import { Search } from 'lucide-react';
+import { cn } from '../lib/utils';
+
+// ── Root ────────────────────────────────────────────────────────────────────
+
+type CommandPaletteProps = React.ComponentPropsWithoutRef<typeof CommandDialog> & {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+const CommandPalette = React.forwardRef<HTMLDivElement, CommandPaletteProps>(
+  ({ className, children, open, onOpenChange, ...props }, ref) => (
+    <CommandDialog
+      ref={ref}
+      open={open}
+      onOpenChange={onOpenChange}
+      overlayClassName="fixed inset-0 z-50 bg-black/60 animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
+      contentClassName={cn(
+        'fixed top-[20%] left-1/2 z-50 -translate-x-1/2',
+        'w-[480px] max-w-[calc(100%-2rem)]',
+        'bg-card border border-border rounded-[var(--radius-lg)] shadow-lg overflow-hidden',
+        'animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
+        '[&_[cmdk-root]]:flex [&_[cmdk-root]]:flex-col',
+        className,
+      )}
+      loop
+      {...props}
+    >
+      {children}
+    </CommandDialog>
+  ),
+);
+CommandPalette.displayName = 'CommandPalette';
+
+// ── Input ───────────────────────────────────────────────────────────────────
+
+type CommandPaletteInputProps = React.ComponentPropsWithoutRef<typeof CommandInput>;
+
+const CommandPaletteInput = React.forwardRef<HTMLInputElement, CommandPaletteInputProps>(
+  ({ className, ...props }, ref) => (
+    <div className="flex items-center gap-2 px-3 border-b border-border">
+      <Search className="size-3.5 shrink-0 text-foreground-ghost" aria-hidden />
+      <CommandInput
+        ref={ref}
+        className={cn(
+          'flex-1 bg-transparent border-0 outline-none ring-0',
+          'h-10 py-0',
+          'text-[13px] text-foreground-secondary placeholder:text-foreground-ghost',
+          'focus:outline-none focus:ring-0',
+          className,
+        )}
+        {...props}
+      />
+    </div>
+  ),
+);
+CommandPaletteInput.displayName = 'CommandPaletteInput';
+
+// ── List ────────────────────────────────────────────────────────────────────
+
+type CommandPaletteListProps = React.ComponentPropsWithoutRef<typeof CommandList>;
+
+const CommandPaletteList = React.forwardRef<HTMLDivElement, CommandPaletteListProps>(
+  ({ className, ...props }, ref) => (
+    <CommandList
+      ref={ref}
+      className={cn('max-h-[300px] overflow-y-auto p-1', className)}
+      {...props}
+    />
+  ),
+);
+CommandPaletteList.displayName = 'CommandPaletteList';
+
+// ── Group ───────────────────────────────────────────────────────────────────
+
+type CommandPaletteGroupProps = React.ComponentPropsWithoutRef<typeof CommandGroup>;
+
+const CommandPaletteGroup = React.forwardRef<HTMLDivElement, CommandPaletteGroupProps>(
+  ({ className, ...props }, ref) => (
+    <CommandGroup
+      ref={ref}
+      className={cn(
+        '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5',
+        '[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-medium',
+        '[&_[cmdk-group-heading]]:text-foreground-dim [&_[cmdk-group-heading]]:uppercase',
+        '[&_[cmdk-group-heading]]:tracking-wide',
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+CommandPaletteGroup.displayName = 'CommandPaletteGroup';
+
+// ── Item ────────────────────────────────────────────────────────────────────
+
+type CommandPaletteItemProps = React.ComponentPropsWithoutRef<typeof CommandItem>;
+
+const CommandPaletteItem = React.forwardRef<HTMLDivElement, CommandPaletteItemProps>(
+  ({ className, ...props }, ref) => (
+    <CommandItem
+      ref={ref}
+      className={cn(
+        'flex items-center px-2 py-1.5 mx-1',
+        'rounded-[var(--radius-sm)]',
+        'text-[12px] text-foreground-secondary',
+        'cursor-pointer select-none outline-none',
+        'transition-colors duration-75',
+        'data-[selected=true]:bg-primary-muted data-[selected=true]:text-foreground',
+        'aria-selected:bg-primary-muted aria-selected:text-foreground',
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+CommandPaletteItem.displayName = 'CommandPaletteItem';
+
+// ── Empty ───────────────────────────────────────────────────────────────────
+
+type CommandPaletteEmptyProps = React.ComponentPropsWithoutRef<typeof CommandEmpty>;
+
+const CommandPaletteEmpty = React.forwardRef<HTMLDivElement, CommandPaletteEmptyProps>(
+  ({ className, ...props }, ref) => (
+    <CommandEmpty
+      ref={ref}
+      className={cn(
+        'py-8 text-center text-[12px] text-foreground-ghost',
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+CommandPaletteEmpty.displayName = 'CommandPaletteEmpty';
+
+// ── Separator ───────────────────────────────────────────────────────────────
+
+type CommandPaletteSeparatorProps = React.ComponentPropsWithoutRef<typeof CommandSeparator>;
+
+const CommandPaletteSeparator = React.forwardRef<HTMLDivElement, CommandPaletteSeparatorProps>(
+  ({ className, ...props }, ref) => (
+    <CommandSeparator
+      ref={ref}
+      className={cn('h-px bg-border my-1', className)}
+      {...props}
+    />
+  ),
+);
+CommandPaletteSeparator.displayName = 'CommandPaletteSeparator';
+
+// ── Kbd hint ─────────────────────────────────────────────────────────────────
+
+type KbdProps = React.HTMLAttributes<HTMLElement>;
+
+const Kbd = ({ className, ...props }: KbdProps) => (
+  <kbd
+    className={cn(
+      'ml-auto text-[10px] text-foreground-ghost',
+      'bg-background border border-border',
+      'px-1 rounded',
+      'font-sans',
+      className,
+    )}
+    {...props}
+  />
+);
+Kbd.displayName = 'Kbd';
+
+// ── Item icon wrapper ─────────────────────────────────────────────────────────
+
+type CommandPaletteItemIconProps = React.HTMLAttributes<HTMLSpanElement>;
+
+const CommandPaletteItemIcon = ({ className, ...props }: CommandPaletteItemIconProps) => (
+  <span
+    className={cn('mr-2 size-[14px] text-foreground-ghost flex items-center justify-center', className)}
+    aria-hidden
+    {...props}
+  />
+);
+CommandPaletteItemIcon.displayName = 'CommandPaletteItemIcon';
+
+// ── Hook: useCommandPalette ───────────────────────────────────────────────────
+
+function useCommandPalette() {
+  const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
+  return { open, setOpen };
+}
+
+export {
+  CommandPalette,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPaletteGroup,
+  CommandPaletteItem,
+  CommandPaletteEmpty,
+  CommandPaletteSeparator,
+  CommandPaletteItemIcon,
+  Kbd,
+  useCommandPalette,
+  // Re-export cmdk primitives for advanced composition
+  Command as CommandPaletteRoot,
+};

@@ -71,6 +71,19 @@ export {
   PopoverTrigger,
 } from './feedback/popover';
 export {
+  CommandPalette,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPaletteGroup,
+  CommandPaletteItem,
+  CommandPaletteEmpty,
+  CommandPaletteSeparator,
+  CommandPaletteItemIcon,
+  CommandPaletteRoot,
+  Kbd,
+  useCommandPalette,
+} from './feedback/command-palette';
+export {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
