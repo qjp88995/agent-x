@@ -351,7 +351,9 @@ export default function ChatPage() {
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(conversationParam);
-  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>('sidebar');
+  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>(
+    conversationParam ? 'chat' : 'sidebar'
+  );
 
   const {
     data: conversations,
@@ -462,7 +464,7 @@ export default function ChatPage() {
       {/* Main chat area：手机端根据 mobileView 显示/隐藏 */}
       <div
         className={cn(
-          'flex flex-1 flex-col overflow-hidden',
+          'flex-1 flex-col overflow-hidden',
           mobileView === 'chat' ? 'flex' : 'hidden md:flex'
         )}
       >

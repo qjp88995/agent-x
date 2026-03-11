@@ -186,7 +186,9 @@ function SharedChatContent({
 
   const [searchParams, setSearchParams] = useSearchParams();
   const conversationId = searchParams.get('c');
-  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>('sidebar');
+  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>(
+    conversationId ? 'chat' : 'sidebar'
+  );
 
   const setConversationId = useCallback(
     (id: string | null) => {
@@ -424,7 +426,7 @@ function SharedChatContent({
       {/* Main chat area */}
       <div
         className={cn(
-          'flex flex-1 flex-col overflow-hidden',
+          'flex-1 flex-col overflow-hidden',
           mobileView === 'chat' ? 'flex' : 'hidden md:flex'
         )}
       >
