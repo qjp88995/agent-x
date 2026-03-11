@@ -24,7 +24,7 @@ const DropdownMenuContent = React.forwardRef<
         'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
         'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
         'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-        className,
+        className
       )}
       {...props}
     />
@@ -32,8 +32,9 @@ const DropdownMenuContent = React.forwardRef<
 ));
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
-interface DropdownMenuItemProps
-  extends React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> {
+interface DropdownMenuItemProps extends React.ComponentPropsWithoutRef<
+  typeof DropdownMenuPrimitive.Item
+> {
   inset?: boolean;
   variant?: 'default' | 'destructive';
 }
@@ -49,10 +50,11 @@ const DropdownMenuItem = React.forwardRef<
       'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 focus:text-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      '[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-foreground-ghost',
+      '**:[svg]:size-3.5 **:[svg]:shrink-0 **:[svg]:text-foreground-ghost',
       inset && 'pl-8',
-      variant === 'destructive' && 'text-destructive focus:bg-destructive/10 focus:text-destructive [&_svg]:text-destructive',
-      className,
+      variant === 'destructive' &&
+        'text-destructive focus:bg-destructive/10 focus:text-destructive **:[svg]:text-destructive',
+      className
     )}
     {...props}
   />
@@ -70,7 +72,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
       'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 focus:text-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      className,
+      className
     )}
     checked={checked}
     {...props}
@@ -83,7 +85,8 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     {children}
   </DropdownMenuPrimitive.CheckboxItem>
 ));
-DropdownMenuCheckboxItem.displayName = DropdownMenuPrimitive.CheckboxItem.displayName;
+DropdownMenuCheckboxItem.displayName =
+  DropdownMenuPrimitive.CheckboxItem.displayName;
 
 const DropdownMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
@@ -96,7 +99,7 @@ const DropdownMenuRadioItem = React.forwardRef<
       'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 focus:text-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      className,
+      className
     )}
     {...props}
   >
@@ -121,7 +124,7 @@ const DropdownMenuLabel = React.forwardRef<
     className={cn(
       'px-2 py-1.5 text-[10px] font-medium text-foreground-dim',
       inset && 'pl-8',
-      className,
+      className
     )}
     {...props}
   />
@@ -152,9 +155,9 @@ const DropdownMenuSubTrigger = React.forwardRef<
       'flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5',
       'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 data-[state=open]:bg-primary/10',
-      '[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-foreground-ghost',
+      '**:[svg]:size-3.5 **:[svg]:shrink-0 **:[svg]:text-foreground-ghost',
       inset && 'pl-8',
-      className,
+      className
     )}
     {...props}
   >
@@ -162,7 +165,8 @@ const DropdownMenuSubTrigger = React.forwardRef<
     <ChevronRight className="ml-auto" />
   </DropdownMenuPrimitive.SubTrigger>
 ));
-DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName;
+DropdownMenuSubTrigger.displayName =
+  DropdownMenuPrimitive.SubTrigger.displayName;
 
 const DropdownMenuSubContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubContent>,
@@ -176,12 +180,13 @@ const DropdownMenuSubContent = React.forwardRef<
       'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
       'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
       'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-      className,
+      className
     )}
     {...props}
   />
 ));
-DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
+DropdownMenuSubContent.displayName =
+  DropdownMenuPrimitive.SubContent.displayName;
 
 export {
   DropdownMenu,

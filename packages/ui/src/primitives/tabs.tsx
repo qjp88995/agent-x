@@ -48,7 +48,7 @@ function TabsTrigger({
         'data-[state=active]:text-foreground',
         'after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:rounded-full after:bg-primary',
         'after:opacity-0 data-[state=active]:after:opacity-100 after:transition-opacity after:duration-200',
-        '[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*="size-"])]:size-4',
+        '**:[svg]:pointer-events-none **:[svg]:shrink-0 **:[svg:not([class*="size-"])]:size-4',
         className
       )}
       {...props}

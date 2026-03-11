@@ -71,7 +71,7 @@ function SlashCommandMenu({
         'absolute bottom-full mb-1 left-0 right-0 z-50',
         'bg-card border border-border rounded-md shadow-lg overflow-hidden',
         'animate-in fade-in-0 slide-in-from-bottom-2 duration-150',
-        className,
+        className
       )}
     >
       <Command
@@ -87,7 +87,7 @@ function SlashCommandMenu({
         <div className="hidden">
           <input
             value={search}
-            onChange={(e) => onSearchChange?.(e.target.value)}
+            onChange={e => onSearchChange?.(e.target.value)}
             readOnly={!onSearchChange}
           />
         </div>
@@ -103,10 +103,10 @@ function SlashCommandMenu({
               heading={group || undefined}
               className={cn(
                 group &&
-                  '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-foreground-dim [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide',
+                  '**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1 **:[[cmdk-group-heading]]:text-[10px] **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-foreground-dim **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-wide'
               )}
             >
-              {items.map((cmd) => (
+              {items.map(cmd => (
                 <CommandItem
                   key={cmd.id}
                   value={`${cmd.label} ${cmd.description ?? ''}`}
@@ -121,7 +121,7 @@ function SlashCommandMenu({
                     'cursor-pointer select-none outline-none',
                     'transition-colors duration-75',
                     'data-[selected=true]:bg-primary-muted data-[selected=true]:text-foreground',
-                    'aria-selected:bg-primary-muted aria-selected:text-foreground',
+                    'aria-selected:bg-primary-muted aria-selected:text-foreground'
                   )}
                 >
                   {cmd.icon && (
@@ -131,7 +131,9 @@ function SlashCommandMenu({
                   )}
                   <span className="font-medium">{cmd.label}</span>
                   {cmd.description && (
-                    <span className="ml-1 text-foreground-ghost truncate">{cmd.description}</span>
+                    <span className="ml-1 text-foreground-ghost truncate">
+                      {cmd.description}
+                    </span>
                   )}
                 </CommandItem>
               ))}

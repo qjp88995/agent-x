@@ -91,7 +91,7 @@ function MessageBubble({
   if (role === 'user') {
     return (
       <div className={cn('flex justify-end', className)}>
-        <div className="max-w-3/4 rounded-xl rounded-br-[2px] bg-surface border border-border px-3.5 py-2.5 text-[13px] text-foreground-secondary leading-relaxed">
+        <div className="max-w-3/4 rounded-xl rounded-br-xs bg-surface border border-border px-3.5 py-2.5 text-[13px] text-foreground-secondary leading-relaxed">
           {children}
         </div>
       </div>
