@@ -30,9 +30,44 @@ export {
 } from './primitives/select';
 export { Slider } from './primitives/slider';
 export { ScrollArea, ScrollBar } from './primitives/scroll-area';
+export {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from './primitives/card';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './primitives/tabs';
+export {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from './primitives/collapsible';
+export {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useFormField,
+} from './primitives/form';
 
 // Data
 export { DataTable, type Column, type DataTableProps } from './data/data-table';
+export {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './data/table';
 export { ViewToggle, type ViewMode } from './data/view-toggle';
 export { FilterTabs, type FilterTab } from './data/filter-tabs';
 
@@ -89,6 +124,16 @@ export {
   useCommandPalette,
 } from './feedback/command-palette';
 export {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './feedback/sheet';
+export {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -107,6 +152,24 @@ export {
 // Navigation
 export { IconSidebar, type SidebarItem } from './navigation/icon-sidebar';
 export { PageHeader } from './navigation/page-header';
+export {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from './navigation/breadcrumb';
+export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from './navigation/pagination';
 
 // Layout
 export { PageTransition } from './layout/page-transition';
