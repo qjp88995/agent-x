@@ -1,16 +1,11 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
-  Button,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
+  ChatInput as DesignChatInput,
+  type FileAttachment,
+  type SlashCommand,
 } from '@agent-x/design';
-import Placeholder from '@tiptap/extension-placeholder';
-import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { Send, Square } from 'lucide-react';
 
 interface ChatInputProps {
   readonly onSend: (content: string) => void;
@@ -19,6 +14,11 @@ interface ChatInputProps {
   readonly disabled?: boolean;
 }
 
+const PLACEHOLDER_COMMANDS: SlashCommand[] = [
+  { id: 'help', label: 'help', description: 'Show help' },
+  { id: 'clear', label: 'clear', description: 'Clear conversation' },
+];
+
 export function ChatInput({
   onSend,
   onStop,
@@ -26,95 +26,79 @@ export function ChatInput({
   disabled = false,
 }: ChatInputProps) {
   const { t } = useTranslation();
-  const onSendRef = useRef(onSend);
-  onSendRef.current = onSend;
-  const isLoadingRef = useRef(isLoading);
-  isLoadingRef.current = isLoading;
+  const [value, setValue] = useState('');
+  const [files, setFiles] = useState<FileAttachment[]>([]);
+  const [slashMenuOpen, setSlashMenuOpen] = useState(false);
+  const [slashSearch, setSlashSearch] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        // Disable features we don't need for chat input
-        heading: false,
-        blockquote: false,
-        codeBlock: false,
-        horizontalRule: false,
-        listItem: false,
-        bulletList: false,
-        orderedList: false,
-      }),
-      Placeholder.configure({
-        placeholder: t('common.typeMessage'),
-      }),
-    ],
-    editorProps: {
-      attributes: {
-        class:
-          'chat-input-editor outline-none text-sm leading-relaxed min-h-11 max-h-50 overflow-y-auto px-4 py-3',
-      },
-      handleKeyDown: (_view, event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-          event.preventDefault();
-          handleSubmitFromEditor();
-          return true;
-        }
-        return false;
-      },
-    },
-    editable: !disabled && !isLoading,
-  });
+  const handleSubmit = () => {
+    const trimmed = value.trim();
+    if (!trimmed || isLoading) return;
+    onSend(trimmed);
+    setValue('');
+  };
 
-  const handleSubmitFromEditor = useCallback(() => {
-    if (!editor || isLoadingRef.current) return;
-    const text = editor.getText().trim();
-    if (!text) return;
-    onSendRef.current(text);
-    editor.commands.clearContent();
-  }, [editor]);
+  const handleFileUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
-  // Sync editable state
-  useEffect(() => {
-    if (editor) {
-      editor.setEditable(!disabled && !isLoading);
-    }
-  }, [editor, disabled, isLoading]);
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files;
+    if (!selected) return;
+    const newFiles: FileAttachment[] = Array.from(selected).map(file => ({
+      id: `${file.name}-${Date.now()}-${Math.random()}`,
+      name: file.name,
+      size:
+        file.size < 1024
+          ? `${file.size} B`
+          : file.size < 1024 * 1024
+            ? `${(file.size / 1024).toFixed(1)} KB`
+            : `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+      type: file.type.startsWith('image/') ? 'image' : 'file',
+    }));
+    setFiles(prev => [...prev, ...newFiles]);
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+
+  const handleFileRemove = (id: string) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const handleSlashSelect = (command: SlashCommand) => {
+    setValue(prev => `${prev}/${command.label} `);
+    setSlashMenuOpen(false);
+  };
 
   return (
     <div className="border-t bg-background p-4">
-      <div className="mx-auto flex max-w-3xl items-end gap-2">
-        <div className="border-border/50 focus-within:ring-primary/30 focus-within:border-primary/50 w-full rounded-xl border shadow-sm focus-within:ring-1">
-          <EditorContent editor={editor} />
-        </div>
-        {isLoading ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="destructive"
-                className="size-11 shrink-0 rounded-xl"
-                onClick={onStop}
-              >
-                <Square className="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t('common.stop')}</TooltipContent>
-          </Tooltip>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="primary"
-                className="size-11 shrink-0 rounded-xl"
-                onClick={handleSubmitFromEditor}
-                disabled={disabled}
-              >
-                <Send className="size-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t('common.send')}</TooltipContent>
-          </Tooltip>
-        )}
+      <div className="mx-auto max-w-3xl">
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileInputChange}
+        />
+        <DesignChatInput
+          value={value}
+          onChange={setValue}
+          onSubmit={handleSubmit}
+          placeholder={t('common.typeMessage')}
+          files={files}
+          onFileRemove={handleFileRemove}
+          onFileUploadClick={handleFileUploadClick}
+          commands={PLACEHOLDER_COMMANDS}
+          slashMenuOpen={slashMenuOpen}
+          onSlashMenuOpenChange={setSlashMenuOpen}
+          onSlashSelect={handleSlashSelect}
+          slashSearch={slashSearch}
+          onSlashSearchChange={setSlashSearch}
+          streaming={isLoading}
+          onStop={onStop}
+          disabled={disabled}
+        />
       </div>
     </div>
   );

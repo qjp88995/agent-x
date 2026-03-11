@@ -67,15 +67,3 @@
     transition-duration: 0.01ms !important;
   }
 }
-
-/* Tiptap chat input (temporary — remove when ChatInput migrates) */
-.chat-input-editor p {
-  margin: 0;
-}
-.chat-input-editor p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  float: left;
-  color: var(--foreground-muted);
-  pointer-events: none;
-  height: 0;
-}
