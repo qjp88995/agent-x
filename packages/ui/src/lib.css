@@ -1,0 +1,112 @@
+/*
+ * @agent-x/design — Library CSS
+ * Contains design tokens and base styles only.
+ * Utility classes are NOT included — consumers must configure
+ * their Tailwind to scan this package's dist/ for class detection.
+ */
+
+/* Dark theme (default) */
+:root {
+  --background: #09090b;
+  --card: #111111;
+  --surface: #161616;
+  --border: #1a1a1a;
+  --border-subtle: #111111;
+  --foreground: #fafafa;
+  --foreground-secondary: #e4e4e7;
+  --foreground-muted: #a1a1aa;
+  --foreground-subtle: #71717a;
+  --foreground-ghost: #52525b;
+  --foreground-dim: #3f3f46;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --primary-muted: rgba(16, 185, 129, 0.1);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --ring: #10b981;
+
+  /* Motion tokens */
+  --duration-fast: 100ms;
+  --duration-normal: 150ms;
+  --duration-slow: 200ms;
+  --duration-slower: 300ms;
+  --ease-out: ease-out;
+  --ease-in: ease-in;
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Sizing tokens */
+  --header-height: 48px;
+  --sidebar-collapsed: 52px;
+  --sidebar-expanded: 200px;
+  --chat-sidebar: 260px;
+}
+
+/* Light theme */
+.light {
+  --background: #fafafa;
+  --card: #ffffff;
+  --surface: #f4f4f5;
+  --border: #e4e4e7;
+  --border-subtle: #f4f4f5;
+  --foreground: #09090b;
+  --foreground-secondary: #18181b;
+  --foreground-muted: #52525b;
+  --foreground-subtle: #71717a;
+  --foreground-ghost: #a1a1aa;
+  --foreground-dim: #d4d4d8;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --primary-muted: rgba(16, 185, 129, 0.1);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --ring: #10b981;
+}
+
+/* Base styles */
+* {
+  border-color: var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Webkit scrollbar */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--foreground-ghost);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
