@@ -441,7 +441,7 @@ export default function PromptEditorPage() {
 
       {/* Create Category Dialog */}
       <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-        <DialogContent size="sm">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{t('prompts.newCategory')}</DialogTitle>
           </DialogHeader>

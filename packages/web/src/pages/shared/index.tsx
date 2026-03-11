@@ -98,8 +98,8 @@ function SharedConversationItem({
       className={cn(
         'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
         isActive
-          ? 'bg-accent text-accent-foreground'
-          : 'hover:bg-accent/50 text-foreground/80'
+          ? 'bg-card text-foreground-secondary'
+          : 'hover:bg-card/50 text-foreground/80'
       )}
     >
       <MessageSquare className="size-4 shrink-0 opacity-60" />
@@ -392,8 +392,8 @@ function SharedChatContent({
             <div className="flex flex-col gap-1 p-2">
               {(!conversations || conversations.length === 0) && (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <MessageSquare className="text-muted-foreground mb-2 size-8 opacity-40" />
-                  <p className="text-muted-foreground text-xs">
+                  <MessageSquare className="text-foreground-muted mb-2 size-8 opacity-40" />
+                  <p className="text-foreground-muted text-xs">
                     {t('chat.noConversationsYet')}
                   </p>
                 </div>
@@ -413,7 +413,7 @@ function SharedChatContent({
 
           {/* Footer */}
           <div className="py-2 text-center text-xs">
-            <span className="text-muted-foreground">
+            <span className="text-foreground-muted">
               {t('common.poweredBy')}{' '}
             </span>
             <span className="gradient-text font-semibold">Agent-X</span>
@@ -475,7 +475,7 @@ function SharedChatContent({
               <h3 className="mb-1 text-lg font-semibold">
                 {agentInfo.agentName}
               </h3>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-foreground-muted text-sm">
                 {t('chat.startConversation')}
               </p>
             </div>
@@ -513,7 +513,7 @@ export default function SharedChatPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground text-sm">
+        <div className="text-foreground-muted text-sm">
           {t('common.loading')}
         </div>
       </div>

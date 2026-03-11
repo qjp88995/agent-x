@@ -58,7 +58,7 @@ export function ProvidersTab() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
+        <div className="text-foreground-muted text-sm">
           {t('common.loading')}
         </div>
       </div>
@@ -74,7 +74,7 @@ export function ProvidersTab() {
             resource: t('systemConfig.providers').toLowerCase(),
           })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>

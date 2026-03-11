@@ -102,7 +102,7 @@ export function ToolCallBlock({
     >
       <CollapsibleTrigger
         aria-controls={regionId}
-        className="bg-muted/20 hover:bg-muted/40 text-muted-foreground flex w-full items-center gap-2 px-3 py-2 transition-colors"
+        className="bg-surface/20 hover:bg-surface/40 text-foreground-muted flex w-full items-center gap-2 px-3 py-2 transition-colors"
       >
         {open ? (
           <ChevronDown aria-hidden="true" className="size-3 shrink-0" />
@@ -111,7 +111,7 @@ export function ToolCallBlock({
         )}
         <Wrench aria-hidden="true" className="size-3 shrink-0" />
         <span className="text-[10px] uppercase tracking-wider">{toolName}</span>
-        <span className="text-muted-foreground/60 text-[10px]">
+        <span className="text-foreground-muted/60 text-[10px]">
           {t(statusLabelKeys[state])}
         </span>
         <StatusIndicator state={state} />
@@ -121,11 +121,11 @@ export function ToolCallBlock({
           id={regionId}
           role="region"
           aria-label={`Tool call: ${toolName}`}
-          className="bg-muted/10 text-muted-foreground/80 max-h-64 space-y-2 overflow-y-auto px-3 py-2"
+          className="bg-surface/10 text-foreground-muted/80 max-h-64 space-y-2 overflow-y-auto px-3 py-2"
         >
           {input != null && (
             <div>
-              <div className="text-muted-foreground/50 mb-1 text-[10px] uppercase tracking-wider">
+              <div className="text-foreground-muted/50 mb-1 text-[10px] uppercase tracking-wider">
                 {t('toolCall.input')}
               </div>
               <JsonBlock data={input} />
@@ -133,7 +133,7 @@ export function ToolCallBlock({
           )}
           {state === 'output-available' && output != null && (
             <div>
-              <div className="text-muted-foreground/50 mb-1 text-[10px] uppercase tracking-wider">
+              <div className="text-foreground-muted/50 mb-1 text-[10px] uppercase tracking-wider">
                 {t('toolCall.output')}
               </div>
               <JsonBlock data={output} />

@@ -70,11 +70,11 @@ export function McpServerCard({ server, onDelete }: McpServerCardProps) {
 
       <CardContent className="flex-1">
         {server.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-foreground-muted line-clamp-2 text-sm">
             {server.description}
           </p>
         ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
+          <p className="text-foreground-muted/50 text-sm italic">
             {t('common.noDescription')}
           </p>
         )}
@@ -82,7 +82,7 @@ export function McpServerCard({ server, onDelete }: McpServerCardProps) {
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-sm">
+          <div className="text-foreground-muted text-sm">
             {toolCount > 0
               ? t('mcp.toolCount', { count: toolCount })
               : t('mcp.noTools')}

@@ -28,7 +28,7 @@ export function PreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>{skill?.name}</DialogTitle>
           <DialogDescription>
@@ -36,7 +36,7 @@ export function PreviewDialog({
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh]">
-          <pre className="whitespace-pre-wrap rounded-md bg-muted p-4 font-mono text-sm">
+          <pre className="whitespace-pre-wrap rounded-md bg-surface p-4 font-mono text-sm">
             {skill?.content}
           </pre>
         </ScrollArea>

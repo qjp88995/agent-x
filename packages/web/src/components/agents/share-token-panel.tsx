@@ -101,7 +101,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground py-4 text-center text-sm">
+      <div className="text-foreground-muted py-4 text-center text-sm">
         {t('shareLinks.loading')}
       </div>
     );
@@ -222,7 +222,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
       </div>
 
       {!tokens?.length ? (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('shareLinks.noLinks')}
         </p>
       ) : (
@@ -234,10 +234,10 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
             >
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium">{token.name}</span>
-                <Badge variant={token.isActive ? 'default' : 'secondary'}>
+                <Badge variant={token.isActive ? 'default' : 'muted'}>
                   {token.isActive ? t('common.active') : t('common.inactive')}
                 </Badge>
-                <span className="text-muted-foreground text-xs">
+                <span className="text-foreground-muted text-xs">
                   {token.usedConversations}
                   {token.maxConversations !== null
                     ? `/${token.maxConversations}`
@@ -245,7 +245,7 @@ export function ShareTokenPanel({ agentId, versionId }: ShareTokenPanelProps) {
                   {t('shareLinks.conversations')}
                 </span>
                 {token.expiresAt && (
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-foreground-muted text-xs">
                     {t('shareLinks.expires')}{' '}
                     {formatDistanceToNow(new Date(token.expiresAt), {
                       addSuffix: true,

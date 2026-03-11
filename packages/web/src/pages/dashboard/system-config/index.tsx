@@ -14,7 +14,7 @@ export default function SystemConfigPage() {
         <h1 className="text-2xl font-bold tracking-tight">
           {t('systemConfig.title')}
         </h1>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('systemConfig.subtitle')}
         </p>
       </div>

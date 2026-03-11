@@ -63,11 +63,11 @@ export function MarketplaceCard({
 
       <CardContent className="flex-1">
         {skill.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-foreground-muted line-clamp-2 text-sm">
             {skill.description}
           </p>
         ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
+          <p className="text-foreground-muted/50 text-sm italic">
             {t('common.noDescription')}
           </p>
         )}
@@ -78,12 +78,12 @@ export function MarketplaceCard({
           <div className="flex flex-wrap gap-1.5">
             {skill.tags.length > 0 ? (
               skill.tags.map(tag => (
-                <Badge key={tag} variant="secondary" className="text-xs">
+                <Badge key={tag} variant="muted" className="text-xs">
                   {tag}
                 </Badge>
               ))
             ) : (
-              <span className="text-muted-foreground text-xs">
+              <span className="text-foreground-muted text-xs">
                 {t('skills.noTags')}
               </span>
             )}

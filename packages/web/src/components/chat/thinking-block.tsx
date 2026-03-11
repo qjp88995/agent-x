@@ -25,7 +25,7 @@ export function ThinkingBlock({ content, done }: ThinkingBlockProps) {
           setUserToggled(true);
           setManualOpen(v => !v);
         }}
-        className="bg-muted/20 hover:bg-primary/10 text-muted-foreground flex w-full items-center gap-2 px-3 py-2 transition-colors"
+        className="bg-surface/20 hover:bg-primary/10 text-foreground-muted flex w-full items-center gap-2 px-3 py-2 transition-colors"
       >
         {open ? (
           <ChevronDown aria-hidden="true" className="size-3 shrink-0" />
@@ -45,7 +45,7 @@ export function ThinkingBlock({ content, done }: ThinkingBlockProps) {
           id={regionId}
           role="region"
           aria-label={t('thinking.thinkingProcess')}
-          className="bg-muted/10 text-muted-foreground/80 max-h-64 overflow-y-auto px-3 py-2 leading-relaxed whitespace-pre-wrap"
+          className="bg-surface/10 text-foreground-muted/80 max-h-64 overflow-y-auto px-3 py-2 leading-relaxed whitespace-pre-wrap"
         >
           {content || '...'}
         </div>

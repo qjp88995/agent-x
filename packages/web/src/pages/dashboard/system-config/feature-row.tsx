@@ -103,7 +103,7 @@ export function FeatureRow({
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm">
+            <span className="text-foreground-muted text-sm">
               {isEnabled
                 ? t('systemConfig.enabled')
                 : t('systemConfig.disabled')}
@@ -167,7 +167,7 @@ export function FeatureRow({
         <div className="flex flex-col gap-2">
           <Label>
             {t('agents.temperature')}{' '}
-            <span className="text-muted-foreground font-normal">
+            <span className="text-foreground-muted font-normal">
               ({temperature})
             </span>
           </Label>
@@ -207,7 +207,7 @@ export function FeatureRow({
         <div className="flex items-center justify-between rounded-lg border p-3">
           <div className="space-y-0.5">
             <Label>{t('agents.thinkingEnabled')}</Label>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-foreground-muted text-xs">
               {t('agents.thinkingEnabledHint')}
             </p>
           </div>

@@ -123,7 +123,7 @@ export default function CreateAgentPage() {
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
         <h3 className="mb-1 font-semibold">{t('agents.providersFailed')}</h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('agents.providersRequired')}
         </p>
       </div>
@@ -312,7 +312,7 @@ export default function CreateAgentPage() {
                       <FormItem>
                         <FormLabel>
                           {t('agents.temperature')}{' '}
-                          <span className="text-muted-foreground font-normal">
+                          <span className="text-foreground-muted font-normal">
                             ({field.value})
                           </span>
                         </FormLabel>

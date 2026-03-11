@@ -93,7 +93,7 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
         </CardHeader>
         <CardContent>
           {currentMcpServers.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
+            <p className="text-foreground-muted text-sm">
               {t('agentMcp.noBound')}
             </p>
           ) : (
@@ -125,7 +125,7 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
         </CardHeader>
         <CardContent>
           {availableServers.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
+            <p className="text-foreground-muted text-sm">
               {t('agentMcp.noAvailable')}
             </p>
           ) : (
@@ -142,13 +142,13 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
                         {server.transport}
                       </Badge>
                       {server.tools && (
-                        <span className="text-muted-foreground text-xs">
+                        <span className="text-foreground-muted text-xs">
                           {server.tools.length} {t('agentMcp.tools')}
                         </span>
                       )}
                     </div>
                     {server.description && (
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-foreground-muted text-xs">
                         {server.description}
                       </p>
                     )}
@@ -244,15 +244,15 @@ function BoundServerItem({
       <div className="flex items-center justify-between px-4 py-3">
         <CollapsibleTrigger className="flex items-center gap-2 text-left">
           {open ? (
-            <ChevronDown className="text-muted-foreground size-4" />
+            <ChevronDown className="text-foreground-muted size-4" />
           ) : (
-            <ChevronRight className="text-muted-foreground size-4" />
+            <ChevronRight className="text-foreground-muted size-4" />
           )}
           <span className="text-sm font-medium">{entry.mcpServer.name}</span>
           <Badge variant="outline" className="text-xs">
             {entry.mcpServer.transport}
           </Badge>
-          <span className="text-muted-foreground text-xs">
+          <span className="text-foreground-muted text-xs">
             {entry.enabledTools.length > 0
               ? `${entry.enabledTools.length} / ${serverTools.length} ${t('agentMcp.tools')}`
               : serverTools.length > 0
@@ -285,7 +285,7 @@ function BoundServerItem({
             <Separator />
             <div className="px-4 py-3">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-muted-foreground text-xs">
+                <p className="text-foreground-muted text-xs">
                   {t('agentMcp.toolsDesc')}
                 </p>
                 <div className="flex gap-2">
@@ -313,7 +313,7 @@ function BoundServerItem({
                 {serverTools.map(tool => (
                   <label
                     key={tool.name}
-                    className="flex items-start gap-3 rounded-md px-2 py-1.5 hover:bg-muted/50 cursor-pointer"
+                    className="flex items-start gap-3 rounded-md px-2 py-1.5 hover:bg-surface/50 cursor-pointer"
                   >
                     <Checkbox
                       checked={selectedTools.includes(tool.name)}
@@ -323,7 +323,7 @@ function BoundServerItem({
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium">{tool.name}</span>
                       {tool.description && (
-                        <span className="text-muted-foreground text-xs">
+                        <span className="text-foreground-muted text-xs">
                           {tool.description}
                         </span>
                       )}
@@ -354,7 +354,7 @@ function BoundServerItem({
           <>
             <Separator />
             <div className="px-4 py-3">
-              <p className="text-muted-foreground text-xs">
+              <p className="text-foreground-muted text-xs">
                 {t('agentMcp.noTools')}
               </p>
             </div>

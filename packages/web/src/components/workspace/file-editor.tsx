@@ -234,7 +234,7 @@ export function FileEditor({
 
   if (tabs.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
+      <div className="flex h-full flex-col items-center justify-center text-foreground-muted">
         <FileImage className="mb-2 size-8 opacity-40" />
         <p className="text-sm">{t('workspace.selectFile')}</p>
       </div>
@@ -244,7 +244,7 @@ export function FileEditor({
   return (
     <div className="flex h-full flex-col">
       {/* Tab bar */}
-      <div className="flex h-9 shrink-0 items-center border-b bg-muted/20 overflow-x-auto">
+      <div className="flex h-9 shrink-0 items-center border-b bg-surface/20 overflow-x-auto">
         {tabs.map(tab => (
           <button
             key={tab.file.id}
@@ -253,7 +253,7 @@ export function FileEditor({
               'flex items-center gap-1.5 border-r px-3 py-1.5 text-xs transition-colors shrink-0',
               tab.file.id === activeFileId
                 ? 'bg-background text-foreground'
-                : 'text-muted-foreground hover:bg-background/50'
+                : 'text-foreground-muted hover:bg-background/50'
             )}
             onClick={() => onSelectTab(tab.file.id)}
           >
@@ -266,7 +266,7 @@ export function FileEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="size-4 hover:bg-accent"
+              className="size-4 hover:bg-card"
               onClick={e => {
                 e.stopPropagation();
                 onCloseTab(tab.file.id);
@@ -282,10 +282,10 @@ export function FileEditor({
       <div className="flex-1 overflow-hidden">
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
-            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            <Loader2 className="size-6 animate-spin text-foreground-muted" />
           </div>
         ) : activeFile && !isTextFile(activeFile.mimeType) ? (
-          <div className="flex h-full flex-col items-center justify-center text-muted-foreground gap-2">
+          <div className="flex h-full flex-col items-center justify-center text-foreground-muted gap-2">
             <FileImage className="size-8 opacity-40" />
             <p className="text-sm">{t('workspace.binaryFile')}</p>
             {activeFile.mimeType.startsWith('image/') && (

@@ -84,7 +84,7 @@ export default function McpPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
+        <div className="text-foreground-muted text-sm">
           {t('common.loading')}
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function McpPage() {
         <h3 className="mb-1 font-semibold">
           {t('common.failedToLoad', { resource: t('nav.mcpServers') })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -112,7 +112,7 @@ export default function McpPage() {
           <h1 className="text-2xl font-bold tracking-tight">
             {t('mcp.title')}
           </h1>
-          <p className="text-muted-foreground text-sm">{t('mcp.subtitle')}</p>
+          <p className="text-foreground-muted text-sm">{t('mcp.subtitle')}</p>
         </div>
       </div>
 

@@ -145,8 +145,8 @@ export default function WorkspacePage() {
         </span>
         {conversationTitle && (
           <>
-            <span className="text-muted-foreground hidden md:inline">·</span>
-            <span className="hidden truncate text-sm text-muted-foreground md:inline">
+            <span className="text-foreground-muted hidden md:inline">·</span>
+            <span className="hidden truncate text-sm text-foreground-muted md:inline">
               {conversationTitle}
             </span>
           </>
@@ -178,7 +178,7 @@ export default function WorkspacePage() {
             'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
             activeTab === 'workspace'
               ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-foreground-muted hover:text-foreground'
           )}
         >
           <FileCode2 className="size-4" />
@@ -191,7 +191,7 @@ export default function WorkspacePage() {
             'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
             activeTab === 'chat'
               ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-foreground-muted hover:text-foreground'
           )}
         >
           <MessageSquare className="size-4" />

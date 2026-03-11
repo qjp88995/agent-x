@@ -139,7 +139,7 @@ export function PolishButton({
                     className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
                       isActive
                         ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border bg-muted/50 text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                        : 'border-border bg-surface/50 text-foreground-muted hover:border-primary/50 hover:text-foreground'
                     }`}
                     onClick={() =>
                       setDescription(prev => (prev === label ? '' : label))

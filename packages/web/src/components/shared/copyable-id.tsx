@@ -37,7 +37,7 @@ export function CopyableId({ id, label }: CopyableIdProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="h-auto gap-1 px-1 py-0.5 font-mono text-xs text-muted-foreground"
+          className="h-auto gap-1 px-1 py-0.5 font-mono text-xs text-foreground-muted"
           onClick={handleCopy}
         >
           {label && <span>{label}</span>}

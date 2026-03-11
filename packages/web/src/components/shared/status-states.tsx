@@ -10,7 +10,7 @@ interface LoadingStateProps {
 export function LoadingState({ message }: LoadingStateProps) {
   return (
     <div className="flex items-center justify-center py-16">
-      <div className="text-muted-foreground text-sm">{message}</div>
+      <div className="text-foreground-muted text-sm">{message}</div>
     </div>
   );
 }
@@ -34,7 +34,7 @@ export function NotFoundState({
     <div className="flex flex-col items-center justify-center py-16">
       <AlertTriangle className="text-destructive mb-4 size-10" />
       <h3 className="mb-1 font-semibold">{title}</h3>
-      <p className="text-muted-foreground mb-4 text-sm">{description}</p>
+      <p className="text-foreground-muted mb-4 text-sm">{description}</p>
       <Button variant="outline" onClick={() => navigate(backTo)}>
         {backLabel}
       </Button>

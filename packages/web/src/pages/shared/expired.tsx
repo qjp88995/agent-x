@@ -12,7 +12,7 @@ export default function SharedExpiredPage() {
         <LinkIcon className="text-white size-8" />
       </div>
       <h1 className="text-xl font-semibold">{t('shared.expired')}</h1>
-      <p className="text-muted-foreground max-w-md text-center text-sm">
+      <p className="text-foreground-muted max-w-md text-center text-sm">
         {t('shared.expiredDesc')}
       </p>
       <Button variant="outline" asChild>

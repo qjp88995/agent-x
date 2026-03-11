@@ -236,7 +236,7 @@ function AgentEditForm({
                 {t(statusConfig.labelKey)}
               </Badge>
               {agent.latestVersion !== null && (
-                <span className="text-muted-foreground text-sm">
+                <span className="text-foreground-muted text-sm">
                   v{agent.latestVersion}
                 </span>
               )}

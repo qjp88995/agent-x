@@ -29,7 +29,7 @@ function CodeBlock({ code }: { readonly code: string }) {
 
   return (
     <div className="relative">
-      <pre className="bg-muted overflow-x-auto rounded-md p-4 font-mono text-sm leading-relaxed">
+      <pre className="bg-surface overflow-x-auto rounded-md p-4 font-mono text-sm leading-relaxed">
         {code}
       </pre>
       <Tooltip>
@@ -118,7 +118,7 @@ for await (const chunk of stream) {
   return (
     <div className="rounded-lg border p-6">
       <h3 className="mb-2 text-lg font-semibold">{t('apiKeys.usage')}</h3>
-      <p className="text-muted-foreground mb-4 text-sm">
+      <p className="text-foreground-muted mb-4 text-sm">
         {t('apiKeys.usageDesc')}
       </p>
 
@@ -145,14 +145,14 @@ for await (const chunk of stream) {
         </TabsContent>
 
         <TabsContent value="python">
-          <p className="text-muted-foreground mb-3 text-xs">
+          <p className="text-foreground-muted mb-3 text-xs">
             pip install openai
           </p>
           <CodeBlock code={pythonExample} />
         </TabsContent>
 
         <TabsContent value="node">
-          <p className="text-muted-foreground mb-3 text-xs">
+          <p className="text-foreground-muted mb-3 text-xs">
             npm install openai
           </p>
           <CodeBlock code={nodeExample} />

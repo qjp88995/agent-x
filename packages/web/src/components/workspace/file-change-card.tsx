@@ -46,22 +46,22 @@ const OPERATION_CONFIG: Record<
   },
   read: {
     icon: FileSearch,
-    colorClass: 'text-muted-foreground',
+    colorClass: 'text-foreground-muted',
     labelKey: 'workspace.fileRead',
   },
   listed: {
     icon: FolderOpen,
-    colorClass: 'text-muted-foreground',
+    colorClass: 'text-foreground-muted',
     labelKey: 'workspace.fileListed',
   },
   searched: {
     icon: Search,
-    colorClass: 'text-muted-foreground',
+    colorClass: 'text-foreground-muted',
     labelKey: 'workspace.fileSearched',
   },
   checked: {
     icon: FileQuestion,
-    colorClass: 'text-muted-foreground',
+    colorClass: 'text-foreground-muted',
     labelKey: 'workspace.fileChecked',
   },
   'dir-created': {
@@ -106,7 +106,7 @@ export function FileChangeCard({
     return (
       <button
         type="button"
-        className="my-1 max-w-full flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-sm transition-colors hover:bg-accent/30"
+        className="my-1 max-w-full flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-sm transition-colors hover:bg-card/30"
         onClick={() => onClickFile?.(change.path)}
       >
         {loading ? (
@@ -115,7 +115,7 @@ export function FileChangeCard({
           <Icon className={cn('size-4 shrink-0', config.colorClass)} />
         )}
         <span className="truncate font-mono text-xs">{change.path}</span>
-        <span className="text-muted-foreground text-[10px] shrink-0">
+        <span className="text-foreground-muted text-[10px] shrink-0">
           {loading ? t('workspace.fileWriting') : t(config.labelKey)}
         </span>
       </button>
@@ -127,18 +127,18 @@ export function FileChangeCard({
     <div className="my-1 overflow-hidden rounded-lg border border-border/50 bg-card text-sm">
       <button
         type="button"
-        className="flex w-full items-center gap-2 px-3 py-2 transition-colors hover:bg-accent/30"
+        className="flex w-full items-center gap-2 px-3 py-2 transition-colors hover:bg-card/30"
         onClick={() => setExpanded(prev => !prev)}
       >
         {expanded ? (
-          <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
+          <ChevronDown className="size-3.5 shrink-0 text-foreground-muted" />
         ) : (
-          <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
+          <ChevronRight className="size-3.5 shrink-0 text-foreground-muted" />
         )}
         {loading && (
           <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />
         )}
-        <span className="text-muted-foreground text-xs">
+        <span className="text-foreground-muted text-xs">
           {loading
             ? t('workspace.filesWriting', { count: changes.length })
             : t('workspace.filesChanged', { count: changes.length })}
@@ -154,12 +154,12 @@ export function FileChangeCard({
               <button
                 key={change.path}
                 type="button"
-                className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs transition-colors hover:bg-accent/30"
+                className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs transition-colors hover:bg-card/30"
                 onClick={() => onClickFile?.(change.path)}
               >
                 <Icon className={cn('size-3.5 shrink-0', config.colorClass)} />
                 <span className="truncate font-mono">{change.path}</span>
-                <span className="text-muted-foreground text-[10px] ml-auto shrink-0">
+                <span className="text-foreground-muted text-[10px] ml-auto shrink-0">
                   {t(config.labelKey)}
                 </span>
               </button>

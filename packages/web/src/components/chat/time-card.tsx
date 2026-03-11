@@ -19,7 +19,7 @@ export function TimeCard({ state, output }: TimeCardProps) {
     return (
       <div className="my-1 flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-sm">
         <Loader2 className="text-primary size-4 shrink-0 animate-spin" />
-        <span className="text-muted-foreground text-xs">
+        <span className="text-foreground-muted text-xs">
           {t('toolCall.gettingTime')}
         </span>
       </div>
@@ -30,7 +30,7 @@ export function TimeCard({ state, output }: TimeCardProps) {
     return (
       <div className="my-1 flex items-center gap-2 rounded-lg border border-red-300/40 bg-card px-3 py-2 text-sm">
         <Clock className="size-4 shrink-0 text-red-500" />
-        <span className="text-muted-foreground text-xs">
+        <span className="text-foreground-muted text-xs">
           {output?.error ?? t('toolCall.error')}
         </span>
       </div>
@@ -39,12 +39,12 @@ export function TimeCard({ state, output }: TimeCardProps) {
 
   return (
     <div className="my-1 flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-sm">
-      <Clock className="text-muted-foreground size-4 shrink-0" />
+      <Clock className="text-foreground-muted size-4 shrink-0" />
       <span className="font-mono text-xs">{output?.localTime}</span>
       {output?.timezone && (
         <>
-          <Globe className="text-muted-foreground/60 size-3 shrink-0" />
-          <span className="text-muted-foreground text-[10px]">
+          <Globe className="text-foreground-muted/60 size-3 shrink-0" />
+          <span className="text-foreground-muted text-[10px]">
             {output.timezone}
           </span>
         </>

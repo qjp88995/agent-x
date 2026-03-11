@@ -108,7 +108,7 @@ function AgentCard({
             <div className="flex items-center gap-2">
               <StatusBadge status={agent.status} />
               {agent.latestVersion !== null && (
-                <span className="text-muted-foreground text-xs">
+                <span className="text-foreground-muted text-xs">
                   v{agent.latestVersion}
                 </span>
               )}
@@ -151,11 +151,11 @@ function AgentCard({
 
       <CardContent className="flex-1">
         {agent.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-foreground-muted line-clamp-2 text-sm">
             {agent.description}
           </p>
         ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
+          <p className="text-foreground-muted/50 text-sm italic">
             {t('common.noDescription')}
           </p>
         )}
@@ -163,7 +163,7 @@ function AgentCard({
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-xs">{agent.modelId}</div>
+          <div className="text-foreground-muted text-xs">{agent.modelId}</div>
           <div className="flex items-center gap-1">
             {agent.status === AgentStatus.ACTIVE && (
               <Tooltip>
@@ -260,7 +260,7 @@ export default function AgentListPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
+        <div className="text-foreground-muted text-sm">
           {t('agents.loadingAgents')}
         </div>
       </div>
@@ -276,7 +276,7 @@ export default function AgentListPage() {
             resource: t('agents.title').toLowerCase(),
           })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -291,7 +291,7 @@ export default function AgentListPage() {
           <h1 className="text-2xl font-bold tracking-tight">
             {t('agents.title')}
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             {t('agents.subtitle')}
           </p>
         </div>

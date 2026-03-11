@@ -105,7 +105,7 @@ export function FileTree({
 
   const toolbar = (
     <div className="flex h-9 shrink-0 items-center gap-0.5 border-b px-2">
-      <span className="flex-1 truncate px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <span className="flex-1 truncate px-1 text-xs font-medium uppercase tracking-wide text-foreground-muted">
         {t('workspace.files')}
       </span>
       <Tooltip>
@@ -143,7 +143,7 @@ export function FileTree({
     return (
       <div className="flex h-full flex-col overflow-hidden">
         {toolbar}
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-8 text-muted-foreground">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-8 text-foreground-muted">
           <Folder className="mb-2 size-8 opacity-40" />
           <p className="text-xs">{t('workspace.noFiles')}</p>
         </div>
@@ -154,7 +154,7 @@ export function FileTree({
             style={{ paddingLeft: '8px' }}
           >
             <span className="size-3.5" />
-            <FilePlus className="size-4 text-muted-foreground" />
+            <FilePlus className="size-4 text-foreground-muted" />
             <InlineInput
               placeholder={t('workspace.enterFileName')}
               onSubmit={name => {
@@ -171,7 +171,7 @@ export function FileTree({
             style={{ paddingLeft: '8px' }}
           >
             <span className="size-3.5" />
-            <FolderPlus className="size-4 text-muted-foreground" />
+            <FolderPlus className="size-4 text-foreground-muted" />
             <InlineInput
               placeholder={t('workspace.enterFolderName')}
               onSubmit={name => {
@@ -226,7 +226,7 @@ export function FileTree({
                       style={{ paddingLeft: '8px' }}
                     >
                       <span className="size-3.5" />
-                      <FilePlus className="size-4 text-muted-foreground" />
+                      <FilePlus className="size-4 text-foreground-muted" />
                       <InlineInput
                         placeholder={t('workspace.enterFileName')}
                         existingNames={tree.map(n => n.name)}
@@ -245,7 +245,7 @@ export function FileTree({
                       style={{ paddingLeft: '8px' }}
                     >
                       <span className="size-3.5" />
-                      <FolderPlus className="size-4 text-muted-foreground" />
+                      <FolderPlus className="size-4 text-foreground-muted" />
                       <InlineInput
                         placeholder={t('workspace.enterFolderName')}
                         existingNames={tree.map(n => n.name)}

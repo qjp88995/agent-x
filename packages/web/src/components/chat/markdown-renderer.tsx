@@ -38,7 +38,7 @@ function CopyButton({ code }: { readonly code: string }) {
     <Button
       variant="ghost"
       size="sm"
-      className="h-7 gap-1 px-2 text-xs text-muted-foreground"
+      className="h-7 gap-1 px-2 text-xs text-foreground-muted"
       onClick={handleCopy}
     >
       {copied ? (
@@ -83,7 +83,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
 
             return (
               <div className="group relative my-3">
-                <div className="bg-muted/50 flex items-center justify-end border-b px-2 py-1">
+                <div className="bg-surface/50 flex items-center justify-end border-b px-2 py-1">
                   <CopyButton code={codeString} />
                 </div>
                 <pre
@@ -106,7 +106,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
             }
             return (
               <code
-                className="bg-muted rounded px-1.5 py-0.5 text-[13px]"
+                className="bg-surface rounded px-1.5 py-0.5 text-[13px]"
                 {...props}
               >
                 {children}
@@ -141,7 +141,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
           th({ children, ...props }) {
             return (
               <th
-                className="bg-muted border-border border px-3 py-2 text-left font-semibold"
+                className="bg-surface border-border border px-3 py-2 text-left font-semibold"
                 {...props}
               >
                 {children}
@@ -172,7 +172,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
           blockquote({ children, ...props }) {
             return (
               <blockquote
-                className="border-muted-foreground/30 text-muted-foreground my-3 border-l-4 pl-4 italic"
+                className="border-muted-foreground/30 text-foreground-muted my-3 border-l-4 pl-4 italic"
                 {...props}
               >
                 {children}

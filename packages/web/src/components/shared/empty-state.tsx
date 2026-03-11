@@ -25,7 +25,7 @@ export function EmptyState({
         <Icon className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">{title}</h3>
-      <p className="text-muted-foreground mb-6 text-sm">{description}</p>
+      <p className="text-foreground-muted mb-6 text-sm">{description}</p>
       {actionLabel && actionTo && (
         <Button asChild variant="primary">
           <Link to={actionTo}>

@@ -68,7 +68,7 @@ export function ProviderCard({
                   provider.isActive ? 'bg-green-500' : 'bg-gray-400'
                 )}
               />
-              <span className="text-muted-foreground text-xs">
+              <span className="text-foreground-muted text-xs">
                 {provider.isActive ? t('common.active') : t('common.inactive')}
               </span>
             </div>
@@ -91,7 +91,7 @@ export function ProviderCard({
       </CardHeader>
 
       <CardContent className="flex-1">
-        <p className="text-muted-foreground truncate text-sm">
+        <p className="text-foreground-muted truncate text-sm">
           {provider.baseUrl}
         </p>
       </CardContent>

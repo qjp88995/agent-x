@@ -39,7 +39,7 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold">{t('agents.systemPrompt')}</h3>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             {t('agents.systemPromptDesc')}
           </p>
         </div>

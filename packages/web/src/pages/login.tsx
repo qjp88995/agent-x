@@ -60,7 +60,7 @@ export default function LoginPage() {
             <Bot className="size-6 text-white" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Agent-X</h1>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <p className="text-foreground-muted mt-2 text-sm">
             {t('auth.platformDesc')}
           </p>
         </div>
@@ -118,7 +118,7 @@ export default function LoginPage() {
                 {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
               </Button>
 
-              <p className="text-muted-foreground text-center text-sm">
+              <p className="text-foreground-muted text-center text-sm">
                 {t('auth.noAccount')}{' '}
                 <Link
                   to="/register"

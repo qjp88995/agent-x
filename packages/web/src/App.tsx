@@ -34,10 +34,10 @@ class ErrorBoundary extends Component<
       return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4">
           <h1 className="text-2xl font-bold">Something went wrong</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             An unexpected error occurred. Please refresh the page.
           </p>
-          <Button variant="link" onClick={() => window.location.reload()}>
+          <Button variant="ghost" onClick={() => window.location.reload()}>
             Refresh
           </Button>
         </div>

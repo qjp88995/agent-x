@@ -31,7 +31,7 @@ export function PromptCard({ prompt, onDelete, onPreview }: PromptCardProps) {
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{prompt.name}</CardTitle>
           {prompt.category && (
-            <Badge variant="secondary" className="w-fit text-xs">
+            <Badge variant="muted" className="w-fit text-xs">
               {prompt.category.name}
             </Badge>
           )}
@@ -54,11 +54,11 @@ export function PromptCard({ prompt, onDelete, onPreview }: PromptCardProps) {
 
       <CardContent className="flex-1">
         {prompt.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-foreground-muted line-clamp-2 text-sm">
             {prompt.description}
           </p>
         ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
+          <p className="text-foreground-muted/50 text-sm italic">
             {t('common.noDescription')}
           </p>
         )}
@@ -74,7 +74,7 @@ export function PromptCard({ prompt, onDelete, onPreview }: PromptCardProps) {
                 </Badge>
               ))
             ) : (
-              <span className="text-muted-foreground text-xs">
+              <span className="text-foreground-muted text-xs">
                 {t('prompts.noTags')}
               </span>
             )}

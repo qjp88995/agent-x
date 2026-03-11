@@ -64,7 +64,7 @@ function StatusDot({ active }: { readonly active: boolean }) {
           active ? 'bg-green-500' : 'bg-gray-400'
         )}
       />
-      <span className="text-muted-foreground text-xs">
+      <span className="text-foreground-muted text-xs">
         {active ? t('common.active') : t('common.inactive')}
       </span>
     </div>
@@ -140,7 +140,7 @@ function ProviderCard({
       </CardHeader>
 
       <CardContent className="flex-1">
-        <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+        <div className="text-foreground-muted flex items-center gap-1.5 text-sm">
           <ExternalLink className="size-3.5 shrink-0" />
           <span className="truncate">{truncateUrl(provider.baseUrl)}</span>
         </div>
@@ -148,7 +148,7 @@ function ProviderCard({
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-sm">
+          <div className="text-foreground-muted text-sm">
             {t('providers.modelCount', { count: provider.models.length })}
           </div>
           <div className="flex items-center gap-1">
@@ -231,7 +231,7 @@ export default function ProviderListPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
+        <div className="text-foreground-muted text-sm">
           {t('common.loading')}
         </div>
       </div>
@@ -247,7 +247,7 @@ export default function ProviderListPage() {
             resource: t('providers.title').toLowerCase(),
           })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -262,7 +262,7 @@ export default function ProviderListPage() {
           <h1 className="text-2xl font-bold tracking-tight">
             {t('providers.title')}
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             {t('providers.subtitle')}
           </p>
         </div>

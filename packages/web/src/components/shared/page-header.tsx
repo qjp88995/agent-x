@@ -54,7 +54,7 @@ export function PageHeader({
             <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
             {titleExtra}
           </div>
-          <p className="text-muted-foreground text-sm">{description}</p>
+          <p className="text-foreground-muted text-sm">{description}</p>
         </div>
       </div>
       {children}

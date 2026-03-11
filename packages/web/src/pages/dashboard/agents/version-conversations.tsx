@@ -39,7 +39,7 @@ function ConversationMessages({
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+      <div className="text-foreground-muted flex flex-1 items-center justify-center text-sm">
         {t('conversations.loadingMessages')}
       </div>
     );
@@ -47,7 +47,7 @@ function ConversationMessages({
 
   if (!uiMessages.length) {
     return (
-      <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+      <div className="text-foreground-muted flex flex-1 items-center justify-center text-sm">
         {t('conversations.noMessages')}
       </div>
     );
@@ -74,8 +74,8 @@ function ConversationList({
 
   if (!conversations.length) {
     return (
-      <div className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-2 p-4">
-        <MessageSquare className="text-muted-foreground/50 size-8" />
+      <div className="text-foreground-muted flex flex-1 flex-col items-center justify-center gap-2 p-4">
+        <MessageSquare className="text-foreground-muted/50 size-8" />
         <p className="text-sm">{t('conversations.noConversations')}</p>
         <p className="text-xs">{t('conversations.noConversationsDesc')}</p>
       </div>
@@ -90,15 +90,15 @@ function ConversationList({
           type="button"
           className={cn(
             'flex flex-col gap-1 border-b px-4 py-3 text-left transition-colors',
-            'hover:bg-muted/50 cursor-pointer',
-            selectedId === conv.id && 'bg-muted/70'
+            'hover:bg-surface/50 cursor-pointer',
+            selectedId === conv.id && 'bg-surface/70'
           )}
           onClick={() => onSelect(conv)}
         >
           <span className="line-clamp-1 text-sm font-medium">
             {conv.title ?? t('conversations.untitled')}
           </span>
-          <div className="text-muted-foreground flex items-center gap-2 text-xs">
+          <div className="text-foreground-muted flex items-center gap-2 text-xs">
             {conv.shareToken && <span>via {conv.shareToken.name}</span>}
             <span>
               {formatDistanceToNow(new Date(conv.updatedAt), {
@@ -175,7 +175,7 @@ export default function VersionConversationsPage() {
         {/* Left: conversation list */}
         <div className="flex w-80 shrink-0 flex-col overflow-y-auto border-r">
           {isLoadingConversations ? (
-            <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+            <div className="text-foreground-muted flex flex-1 items-center justify-center text-sm">
               {t('common.loading')}
             </div>
           ) : (
@@ -195,7 +195,7 @@ export default function VersionConversationsPage() {
               conversationId={selectedConv.id}
             />
           ) : (
-            <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+            <div className="text-foreground-muted flex flex-1 items-center justify-center text-sm">
               {t('conversations.selectConversation')}
             </div>
           )}

@@ -338,7 +338,7 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
 
       {/* Mobile: toolbar + editor */}
       <div className="flex flex-1 flex-col overflow-hidden md:hidden">
-        <div className="flex h-9 shrink-0 items-center gap-2 border-b bg-muted/20 px-2">
+        <div className="flex h-9 shrink-0 items-center gap-2 border-b bg-surface/20 px-2">
           <Button
             variant="ghost"
             size="icon"
@@ -349,7 +349,7 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
             <PanelLeft className="size-4" />
           </Button>
           {activeFile && (
-            <span className="truncate text-xs text-muted-foreground">
+            <span className="truncate text-xs text-foreground-muted">
               {activeFile.path}
             </span>
           )}

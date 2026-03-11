@@ -101,14 +101,14 @@ export const TreeNodeItem = memo(function TreeNodeItem({
           <ContextMenuTrigger asChild>
             <button
               type="button"
-              className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-sm hover:bg-accent/50 transition-colors"
+              className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-sm hover:bg-card/50 transition-colors"
               style={{ paddingLeft: `${depth * 16 + 8}px` }}
               onClick={() => onToggleDir(node.path)}
             >
               {isExpanded ? (
-                <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
+                <ChevronDown className="size-3.5 shrink-0 text-foreground-muted" />
               ) : (
-                <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
+                <ChevronRight className="size-3.5 shrink-0 text-foreground-muted" />
               )}
               {isExpanded ? (
                 <FolderOpen className="size-4 shrink-0 text-primary/70" />
@@ -231,7 +231,7 @@ export const TreeNodeItem = memo(function TreeNodeItem({
                   style={{ paddingLeft: `${(depth + 1) * 16 + 8}px` }}
                 >
                   <span className="size-3.5" />
-                  <FilePlus className="size-4 text-muted-foreground" />
+                  <FilePlus className="size-4 text-foreground-muted" />
                   <InlineInput
                     placeholder={t('workspace.enterFileName')}
                     existingNames={node.children.map(c => c.name)}
@@ -250,7 +250,7 @@ export const TreeNodeItem = memo(function TreeNodeItem({
                   style={{ paddingLeft: `${(depth + 1) * 16 + 8}px` }}
                 >
                   <span className="size-3.5" />
-                  <FolderPlus className="size-4 text-muted-foreground" />
+                  <FolderPlus className="size-4 text-foreground-muted" />
                   <InlineInput
                     placeholder={t('workspace.enterFolderName')}
                     existingNames={node.children.map(c => c.name)}
@@ -283,14 +283,14 @@ export const TreeNodeItem = memo(function TreeNodeItem({
           className={cn(
             'flex w-full items-center gap-1.5 rounded px-2 py-1 text-sm transition-colors',
             isSelected
-              ? 'bg-accent text-accent-foreground'
-              : 'hover:bg-accent/50'
+              ? 'bg-card text-foreground-secondary'
+              : 'hover:bg-card/50'
           )}
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
           onClick={() => onSelectFile(file)}
         >
           <span className="size-3.5 shrink-0" />
-          <Icon className="size-4 shrink-0 text-muted-foreground" />
+          <Icon className="size-4 shrink-0 text-foreground-muted" />
           {isRenaming ? (
             <InlineInput
               defaultValue={node.name}
@@ -305,7 +305,7 @@ export const TreeNodeItem = memo(function TreeNodeItem({
           ) : (
             <>
               <span className="truncate flex-1 text-left">{node.name}</span>
-              <span className="text-muted-foreground text-[10px] shrink-0">
+              <span className="text-foreground-muted text-[10px] shrink-0">
                 {formatFileSize(file.size)}
               </span>
             </>

@@ -80,7 +80,7 @@ function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
         <Key className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">{t('apiKeys.noKeys')}</h3>
-      <p className="text-muted-foreground mb-6 text-sm">
+      <p className="text-foreground-muted mb-6 text-sm">
         {t('apiKeys.noKeysDesc')}
       </p>
       <Button onClick={onCreateClick} variant="primary">
@@ -101,7 +101,7 @@ export default function ApiKeysPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
+        <div className="text-foreground-muted text-sm">
           {t('common.loading')}
         </div>
       </div>
@@ -115,7 +115,7 @@ export default function ApiKeysPage() {
         <h3 className="mb-1 font-semibold">
           {t('common.failedToLoad', { resource: t('apiKeys.title') })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -131,7 +131,7 @@ export default function ApiKeysPage() {
           <h1 className="text-2xl font-bold tracking-tight">
             {t('apiKeys.title')}
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             {t('apiKeys.subtitle')}
           </p>
         </div>
@@ -170,7 +170,7 @@ export default function ApiKeysPage() {
                 <TableRow key={apiKey.id}>
                   <TableCell className="font-medium">{apiKey.name}</TableCell>
                   <TableCell>
-                    <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
+                    <code className="bg-surface rounded px-1.5 py-0.5 font-mono text-xs">
                       {apiKey.key}
                     </code>
                   </TableCell>
@@ -178,7 +178,7 @@ export default function ApiKeysPage() {
                     {apiKey.agent ? (
                       <span>{apiKey.agent.name}</span>
                     ) : (
-                      <span className="text-muted-foreground text-xs">
+                      <span className="text-foreground-muted text-xs">
                         {t('apiKeys.any')}
                       </span>
                     )}

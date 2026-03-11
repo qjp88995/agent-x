@@ -66,7 +66,7 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold tracking-tight">
           {t('settings.title')}
         </h1>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('settings.subtitle')}
         </p>
       </div>
@@ -91,7 +91,7 @@ export default function SettingsPage() {
                     'relative flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-all duration-200 sm:flex-col sm:items-center sm:gap-2 sm:p-4',
                     isActive
                       ? 'border-primary bg-primary/5 shadow-sm'
-                      : 'border-border hover:border-primary/30 hover:bg-muted/50'
+                      : 'border-border hover:border-primary/30 hover:bg-surface/50'
                   )}
                 >
                   {isActive && (
@@ -102,7 +102,7 @@ export default function SettingsPage() {
                   <Icon
                     className={cn(
                       'size-5 shrink-0 sm:size-6',
-                      isActive ? 'text-primary' : 'text-muted-foreground'
+                      isActive ? 'text-primary' : 'text-foreground-muted'
                     )}
                   />
                   <div className="sm:text-center">
@@ -114,7 +114,7 @@ export default function SettingsPage() {
                     >
                       {t(option.labelKey)}
                     </p>
-                    <p className="text-muted-foreground mt-0.5 text-xs">
+                    <p className="text-foreground-muted mt-0.5 text-xs">
                       {t(option.descKey)}
                     </p>
                   </div>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
                     'relative flex flex-col items-center gap-1.5 rounded-lg border p-4 transition-all duration-200 cursor-pointer',
                     isActive
                       ? 'border-primary bg-primary/5 shadow-sm'
-                      : 'border-border hover:border-primary/30 hover:bg-muted/50'
+                      : 'border-border hover:border-primary/30 hover:bg-surface/50'
                   )}
                 >
                   {isActive && (
@@ -160,7 +160,7 @@ export default function SettingsPage() {
                   >
                     {option.nativeName}
                   </p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-foreground-muted text-xs">
                     {t(option.labelKey)}
                   </p>
                 </button>

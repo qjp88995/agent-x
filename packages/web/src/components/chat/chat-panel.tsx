@@ -36,7 +36,7 @@ function EmptyChat({ agentName }: { readonly agentName: string }) {
         <Bot className="size-8 text-white" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">{agentName}</h3>
-      <p className="text-muted-foreground text-sm">
+      <p className="text-foreground-muted text-sm">
         {t('chat.startConversation')}
       </p>
     </div>

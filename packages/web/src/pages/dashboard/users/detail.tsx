@@ -115,7 +115,7 @@ function StatBox({ icon: Icon, label, value, colorClass }: StatBoxProps) {
       </div>
       <div>
         <p className="text-2xl font-bold">{value}</p>
-        <p className="text-muted-foreground text-sm">{label}</p>
+        <p className="text-foreground-muted text-sm">{label}</p>
       </div>
     </div>
   );
@@ -268,7 +268,7 @@ export default function UserDetailPage() {
         <h3 className="mb-1 font-semibold">
           {t('common.failedToLoad', { resource: t('users.userDetail') })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -316,7 +316,7 @@ export default function UserDetailPage() {
               {t(statusConfig.labelKey)}
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">{user.email}</p>
+          <p className="text-foreground-muted text-sm">{user.email}</p>
         </div>
       </div>
 
@@ -542,7 +542,7 @@ export default function UserDetailPage() {
             <DialogDescription>{t('users.tempPasswordDesc')}</DialogDescription>
           </DialogHeader>
           <div className="flex items-center gap-2">
-            <code className="bg-muted flex-1 rounded px-3 py-2 font-mono text-sm">
+            <code className="bg-surface flex-1 rounded px-3 py-2 font-mono text-sm">
               {tempPassword}
             </code>
             <Button
@@ -688,7 +688,7 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="text-muted-foreground shrink-0 text-sm">{label}</span>
+      <span className="text-foreground-muted shrink-0 text-sm">{label}</span>
       <span
         className={cn(
           'text-right text-sm font-medium',
@@ -721,7 +721,7 @@ function ActionButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-accent',
+        'flex items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-card',
         variant === 'warning' && 'border-yellow-200 dark:border-yellow-900/50',
         variant === 'destructive' && 'border-red-200 dark:border-red-900/50'
       )}
@@ -729,7 +729,7 @@ function ActionButton({
       <Icon
         className={cn(
           'size-5 shrink-0',
-          variant === 'default' && 'text-muted-foreground',
+          variant === 'default' && 'text-foreground-muted',
           variant === 'warning' && 'text-yellow-600 dark:text-yellow-400',
           variant === 'destructive' && 'text-red-600 dark:text-red-400'
         )}
@@ -743,7 +743,7 @@ function ActionButton({
         >
           {label}
         </p>
-        <p className="text-muted-foreground text-xs">{description}</p>
+        <p className="text-foreground-muted text-xs">{description}</p>
       </div>
     </button>
   );

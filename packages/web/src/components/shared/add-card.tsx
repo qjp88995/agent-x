@@ -12,14 +12,14 @@ export function AddCard({
   readonly onClick?: () => void;
 }) {
   const className =
-    'flex min-h-35 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors hover:border-primary/40 hover:bg-accent/50';
+    'flex min-h-35 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors hover:border-primary/40 hover:bg-card/50';
 
   const content = (
     <>
       <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Plus className="size-5" />
       </div>
-      <span className="text-muted-foreground text-sm font-medium">{label}</span>
+      <span className="text-foreground-muted text-sm font-medium">{label}</span>
     </>
   );
 

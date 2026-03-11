@@ -205,7 +205,7 @@ function AgentBasicInfoTab({
               <FormItem>
                 <FormLabel>
                   {t('agents.temperature')}{' '}
-                  <span className="text-muted-foreground font-normal">
+                  <span className="text-foreground-muted font-normal">
                     ({field.value})
                   </span>
                 </FormLabel>

@@ -69,7 +69,7 @@ function StreamingIndicator() {
   return (
     <div className="mt-1 flex items-center gap-1.5 py-1">
       <span className="bg-primary/60 size-1.5 animate-pulse rounded-full" />
-      <span className="text-muted-foreground/50 text-[10px]">···</span>
+      <span className="text-foreground-muted/50 text-[10px]">···</span>
     </div>
   );
 }

@@ -175,7 +175,7 @@ export function CreateKeyDialog({ open, onOpenChange }: CreateKeyDialogProps) {
                   </Select>
                 )}
               />
-              <p className="text-muted-foreground text-xs">
+              <p className="text-foreground-muted text-xs">
                 {t('apiKeys.agentHint')}
               </p>
             </div>

@@ -109,8 +109,8 @@ function ConversationItem({
       className={cn(
         'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
         isActive
-          ? 'bg-accent text-accent-foreground'
-          : 'hover:bg-accent/50 text-foreground/80'
+          ? 'bg-card text-foreground-secondary'
+          : 'hover:bg-card/50 text-foreground/80'
       )}
     >
       <MessageSquare className="size-4 shrink-0 opacity-60" />
@@ -130,7 +130,7 @@ function ConversationItem({
             {conversation.title ?? t('chat.newChat')}
           </p>
         )}
-        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+        <p className="text-foreground-muted mt-0.5 truncate text-xs">
           {conversation.agent.name} &middot;{' '}
           {formatDate(conversation.updatedAt, dateLocale)}
         </p>
@@ -264,7 +264,7 @@ function Sidebar({
               </DropdownMenuItem>
             ))}
             {publishedAgents.length === 0 && (
-              <div className="text-muted-foreground px-2 py-1.5 text-sm">
+              <div className="text-foreground-muted px-2 py-1.5 text-sm">
                 {t('chat.noAgentsAvailable')}
               </div>
             )}
@@ -293,8 +293,8 @@ function Sidebar({
         <div className="flex flex-col gap-1 p-2">
           {filteredConversations.length === 0 && (
             <div className="flex flex-col items-center justify-center py-8">
-              <MessageSquare className="text-muted-foreground mb-2 size-8 opacity-40" />
-              <p className="text-muted-foreground text-xs">
+              <MessageSquare className="text-foreground-muted mb-2 size-8 opacity-40" />
+              <p className="text-foreground-muted text-xs">
                 {selectedAgentId
                   ? t('chat.noConversationsYet')
                   : t('chat.selectAgentToStart')}
@@ -328,7 +328,7 @@ function NoChatSelected() {
       <h3 className="mb-1 text-lg font-semibold">
         {t('chat.selectConversation')}
       </h3>
-      <p className="text-muted-foreground text-sm">
+      <p className="text-foreground-muted text-sm">
         {t('chat.chooseConversation')}
       </p>
     </div>
@@ -424,7 +424,7 @@ export default function ChatPage() {
       <div className="flex h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <AlertTriangle className="text-destructive size-10" />
-          <p className="text-muted-foreground">
+          <p className="text-foreground-muted">
             {t('chat.failedToLoadConversations')}
           </p>
           <Button variant="outline" asChild>
@@ -466,7 +466,7 @@ export default function ChatPage() {
       >
         {conversationsLoading ? (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-muted-foreground text-sm">
+            <p className="text-foreground-muted text-sm">
               {t('common.loading')}
             </p>
           </div>

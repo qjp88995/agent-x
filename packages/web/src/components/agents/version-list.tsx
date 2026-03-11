@@ -32,7 +32,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
     <div className="grid gap-4 sm:grid-cols-2">
       {/* Version ID */}
       <div className="flex flex-col gap-1 sm:col-span-2">
-        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+        <span className="text-foreground-muted text-xs font-medium uppercase tracking-wider">
           {t('versions.versionId')}
         </span>
         <div className="-mx-2.5 w-fit">
@@ -42,7 +42,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
 
       {/* Model */}
       <div className="flex flex-col gap-1">
-        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+        <span className="text-foreground-muted text-xs font-medium uppercase tracking-wider">
           {t('versions.model')}
         </span>
         <span className="text-sm">
@@ -52,7 +52,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
 
       {/* Parameters */}
       <div className="flex flex-col gap-1">
-        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+        <span className="text-foreground-muted text-xs font-medium uppercase tracking-wider">
           {t('versions.parameters')}
         </span>
         <span className="text-sm">
@@ -63,10 +63,10 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
 
       {/* System Prompt */}
       <div className="flex flex-col gap-1 sm:col-span-2">
-        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+        <span className="text-foreground-muted text-xs font-medium uppercase tracking-wider">
           {t('versions.systemPrompt')}
         </span>
-        <pre className="bg-muted/50 max-h-40 overflow-y-auto rounded-md p-3 text-xs leading-relaxed whitespace-pre-wrap">
+        <pre className="bg-surface/50 max-h-40 overflow-y-auto rounded-md p-3 text-xs leading-relaxed whitespace-pre-wrap">
           {version.systemPrompt}
         </pre>
       </div>
@@ -74,16 +74,12 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
       {/* Skills */}
       {version.skillsSnapshot.length > 0 && (
         <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+          <span className="text-foreground-muted text-xs font-medium uppercase tracking-wider">
             {t('versions.skills')} ({version.skillsSnapshot.length})
           </span>
           <div className="flex flex-wrap gap-1.5">
             {version.skillsSnapshot.map(skill => (
-              <Badge
-                key={skill.skillId}
-                variant="secondary"
-                className="text-xs"
-              >
+              <Badge key={skill.skillId} variant="muted" className="text-xs">
                 {skill.name}
               </Badge>
             ))}
@@ -94,18 +90,18 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
       {/* MCP Servers */}
       {version.mcpServersSnapshot.length > 0 && (
         <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+          <span className="text-foreground-muted text-xs font-medium uppercase tracking-wider">
             {t('versions.mcpServers')} ({version.mcpServersSnapshot.length})
           </span>
           <div className="flex flex-wrap gap-1.5">
             {version.mcpServersSnapshot.map(server => (
               <Badge
                 key={server.mcpServerId}
-                variant="secondary"
+                variant="muted"
                 className="text-xs"
               >
                 {server.name}
-                <span className="text-muted-foreground ml-1">
+                <span className="text-foreground-muted ml-1">
                   ({server.transport})
                 </span>
               </Badge>
@@ -141,34 +137,34 @@ function VersionItem({
       <CollapsibleTrigger
         className={cn(
           'flex w-full items-center justify-between gap-2 p-4 text-left transition-colors',
-          'hover:bg-muted/30 cursor-pointer',
-          isExpanded && 'bg-muted/20'
+          'hover:bg-surface/30 cursor-pointer',
+          isExpanded && 'bg-surface/20'
         )}
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
           {isExpanded ? (
-            <ChevronDown className="text-muted-foreground size-4 shrink-0" />
+            <ChevronDown className="text-foreground-muted size-4 shrink-0" />
           ) : (
-            <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+            <ChevronRight className="text-foreground-muted size-4 shrink-0" />
           )}
           <Badge variant="outline" className="shrink-0">
             v{version.version}
           </Badge>
 
-          <span className="text-muted-foreground shrink-0 text-sm">
+          <span className="text-foreground-muted shrink-0 text-sm">
             {formatDistanceToNow(new Date(version.publishedAt), {
               addSuffix: true,
               locale: dateLocale,
             })}
           </span>
           {version.changelog && (
-            <span className="text-muted-foreground min-w-0 truncate text-sm sm:max-w-60">
+            <span className="text-foreground-muted min-w-0 truncate text-sm sm:max-w-60">
               {version.changelog}
             </span>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="text-muted-foreground hidden items-center gap-1 text-sm sm:flex">
+          <span className="text-foreground-muted hidden items-center gap-1 text-sm sm:flex">
             <Link2 className="size-3.5" />
             {version._count?.shareTokens ?? 0}
           </span>
@@ -177,7 +173,7 @@ function VersionItem({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground h-7 gap-1 px-2"
+                className="text-foreground-muted h-7 gap-1 px-2"
                 asChild
                 onClick={e => e.stopPropagation()}
               >
@@ -222,7 +218,7 @@ export function VersionList({ agentId }: VersionListProps) {
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground py-8 text-center text-sm">
+      <div className="text-foreground-muted py-8 text-center text-sm">
         {t('versions.loading')}
       </div>
     );
@@ -231,10 +227,10 @@ export function VersionList({ agentId }: VersionListProps) {
   if (!versions?.length) {
     return (
       <div className="py-8 text-center">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('versions.noVersions')}
         </p>
-        <p className="text-muted-foreground mt-1 text-xs">
+        <p className="text-foreground-muted mt-1 text-xs">
           {t('versions.noVersionsDesc')}
         </p>
       </div>

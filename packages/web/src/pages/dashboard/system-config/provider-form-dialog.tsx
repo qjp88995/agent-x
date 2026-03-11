@@ -164,14 +164,14 @@ export function ProviderFormDialog({
                       'flex flex-col items-start rounded-md border p-2.5 text-left transition-colors',
                       form.protocol === option.value
                         ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
-                        : 'hover:bg-accent',
+                        : 'hover:bg-card',
                       isSaving && 'cursor-not-allowed opacity-60'
                     )}
                   >
                     <span className="text-sm font-medium">
                       {t(option.labelKey)}
                     </span>
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-foreground-muted text-xs">
                       {t(option.descKey)}
                     </span>
                   </button>
@@ -227,7 +227,7 @@ export function ProviderFormDialog({
               autoComplete="off"
             />
             {isEdit && (
-              <p className="text-muted-foreground text-xs">
+              <p className="text-foreground-muted text-xs">
                 {t('providers.apiKeyKeepHint')}
               </p>
             )}

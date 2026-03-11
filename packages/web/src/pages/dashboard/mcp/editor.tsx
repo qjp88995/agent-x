@@ -144,7 +144,7 @@ function HttpConfigFields({ disabled }: { readonly disabled: boolean }) {
           <FormItem>
             <FormLabel>
               {t('mcp.headers')}{' '}
-              <span className="text-muted-foreground font-normal">
+              <span className="text-foreground-muted font-normal">
                 {t('common.optional')}
               </span>
             </FormLabel>
@@ -443,14 +443,14 @@ export default function McpEditorPage() {
                             'flex flex-col items-start rounded-md border p-3 text-left transition-colors',
                             field.value === option.value
                               ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
-                              : 'hover:bg-accent',
+                              : 'hover:bg-card',
                             isSaving && 'cursor-not-allowed opacity-60'
                           )}
                         >
                           <span className="text-sm font-medium">
                             {t(option.labelKey)}
                           </span>
-                          <span className="text-muted-foreground text-xs">
+                          <span className="text-foreground-muted text-xs">
                             {t(option.descKey)}
                           </span>
                         </button>

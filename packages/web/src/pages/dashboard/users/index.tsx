@@ -139,7 +139,7 @@ function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
         <Users className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">{t('users.noUsers')}</h3>
-      <p className="text-muted-foreground mb-6 text-sm">
+      <p className="text-foreground-muted mb-6 text-sm">
         {t('users.noUsersDesc')}
       </p>
       <Button onClick={onCreateClick} variant="primary">
@@ -388,7 +388,7 @@ export default function UserListPage() {
         <h3 className="mb-1 font-semibold">
           {t('common.failedToLoad', { resource: t('users.title') })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -416,7 +416,7 @@ export default function UserListPage() {
           <h1 className="text-2xl font-bold tracking-tight">
             {t('users.title')}
           </h1>
-          <p className="text-muted-foreground text-sm">{t('users.subtitle')}</p>
+          <p className="text-foreground-muted text-sm">{t('users.subtitle')}</p>
         </div>
         <Button
           onClick={() => setCreateOpen(true)}
@@ -431,7 +431,7 @@ export default function UserListPage() {
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+          <Search className="text-foreground-muted absolute left-3 top-1/2 size-4 -translate-y-1/2" />
           <Input
             placeholder={t('users.searchPlaceholder')}
             value={searchInput}
@@ -537,7 +537,7 @@ export default function UserListPage() {
                             >
                               {user.name ?? '-'}
                             </span>
-                            <span className="text-muted-foreground truncate text-xs">
+                            <span className="text-foreground-muted truncate text-xs">
                               {user.email}
                             </span>
                           </Link>
@@ -549,7 +549,7 @@ export default function UserListPage() {
                       <TableCell>
                         <UserStatusBadge status={user.status} />
                       </TableCell>
-                      <TableCell className="text-muted-foreground hidden text-sm sm:table-cell">
+                      <TableCell className="text-foreground-muted hidden text-sm sm:table-cell">
                         {formatDistanceToNow(new Date(user.updatedAt), {
                           addSuffix: true,
                           locale: dateLocale,
@@ -659,7 +659,7 @@ export default function UserListPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-muted-foreground text-sm">
+              <p className="text-foreground-muted text-sm">
                 {t('users.showingRange', {
                   start: startIndex,
                   end: endIndex,
@@ -686,9 +686,9 @@ export default function UserListPage() {
         </>
       ) : hasAnyFilters ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-          <Search className="text-muted-foreground mb-4 size-10" />
+          <Search className="text-foreground-muted mb-4 size-10" />
           <h3 className="mb-1 text-lg font-semibold">{t('users.noResults')}</h3>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             {t('users.noResultsDesc')}
           </p>
         </div>
@@ -776,7 +776,7 @@ export default function UserListPage() {
             <DialogDescription>{t('users.tempPasswordDesc')}</DialogDescription>
           </DialogHeader>
           <div className="flex items-center gap-2">
-            <code className="bg-muted flex-1 rounded px-3 py-2 font-mono text-sm">
+            <code className="bg-surface flex-1 rounded px-3 py-2 font-mono text-sm">
               {tempPassword}
             </code>
             <Button
