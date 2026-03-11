@@ -234,7 +234,7 @@ export default function WorkspacePage() {
       </div>
 
       {/* Desktop: resizable split layout */}
-      <div className="hidden flex-1 md:flex">
+      <div className="hidden min-h-0 flex-1 overflow-hidden md:flex">
         <ResizablePanelGroup orientation="horizontal" className="flex-1">
           <ResizablePanel defaultSize="60%" minSize="30%">
             <WorkspacePanel conversationId={conversationId} />
