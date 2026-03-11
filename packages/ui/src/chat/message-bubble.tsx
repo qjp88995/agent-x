@@ -11,7 +11,13 @@ type MessageBubbleProps = {
   className?: string;
 };
 
-function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
+function CodeBlock({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   const [copied, setCopied] = React.useState(false);
 
   const language = React.useMemo(() => {
@@ -28,7 +34,9 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
       if (typeof node === 'number') return String(node);
       if (Array.isArray(node)) return node.map(extractText).join('');
       if (React.isValidElement(node)) {
-        return extractText((node.props as { children?: React.ReactNode }).children);
+        return extractText(
+          (node.props as { children?: React.ReactNode }).children
+        );
       }
       return '';
     };
@@ -73,11 +81,17 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
   );
 }
 
-function MessageBubble({ role, avatar, streaming, children, className }: MessageBubbleProps) {
+function MessageBubble({
+  role,
+  avatar,
+  streaming,
+  children,
+  className,
+}: MessageBubbleProps) {
   if (role === 'user') {
     return (
       <div className={cn('flex justify-end', className)}>
-        <div className="max-w-[85%] rounded-xl rounded-br-[2px] bg-surface border border-border px-3.5 py-2.5 text-[13px] text-foreground-secondary leading-relaxed">
+        <div className="max-w-[75%] rounded-xl rounded-br-[2px] bg-[#161616] border border-[#1a1a1a] px-3.5 py-2.5 text-[13px] text-foreground-secondary leading-relaxed">
           {children}
         </div>
       </div>
@@ -94,7 +108,7 @@ function MessageBubble({ role, avatar, streaming, children, className }: Message
           className="shrink-0 mt-0.5"
         />
       )}
-      <div className="flex-1 min-w-0 text-[13px] text-foreground-secondary leading-relaxed">
+      <div className="flex-1 min-w-0 max-w-[75%] text-[13px] text-foreground-secondary leading-relaxed">
         {children}
         {streaming && (
           <span className="inline-flex items-center gap-1 ml-1 align-middle">
