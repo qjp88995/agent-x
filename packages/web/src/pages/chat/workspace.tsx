@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, FileCode2, MessageSquare } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -25,10 +25,12 @@ import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { toUIMessages } from '@/lib/message-utils';
+import { cn } from '@/lib/utils';
 
 export default function WorkspacePage() {
   const { t } = useTranslation();
   const { conversationId } = useParams<{ conversationId: string }>();
+  const [activeTab, setActiveTab] = useState<'workspace' | 'chat'>('workspace');
   const queryClient = useQueryClient();
   const transportRef = useRef<AgentXChatTransport | null>(null);
 
@@ -143,8 +145,8 @@ export default function WorkspacePage() {
         </span>
         {conversationTitle && (
           <>
-            <span className="text-muted-foreground">·</span>
-            <span className="truncate text-sm text-muted-foreground">
+            <span className="text-muted-foreground hidden md:inline">·</span>
+            <span className="hidden truncate text-sm text-muted-foreground md:inline">
               {conversationTitle}
             </span>
           </>
@@ -167,16 +169,81 @@ export default function WorkspacePage() {
         </div>
       </div>
 
-      {/* Content */}
-      <ResizablePanelGroup orientation="horizontal" className="flex-1">
-        {/* Workspace panel (file tree + editor) */}
+      {/* Mobile tab bar */}
+      <div className="flex shrink-0 border-b md:hidden">
+        <button
+          type="button"
+          onClick={() => setActiveTab('workspace')}
+          className={cn(
+            'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
+            activeTab === 'workspace'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <FileCode2 className="size-4" />
+          {t('workspace.title')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('chat')}
+          className={cn(
+            'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
+            activeTab === 'chat'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <MessageSquare className="size-4" />
+          {t('chat.title')}
+        </button>
+      </div>
+
+      {/* Mobile content */}
+      <div className="flex flex-1 overflow-hidden md:hidden">
+        <div
+          className={cn('h-full w-full', activeTab !== 'workspace' && 'hidden')}
+        >
+          <WorkspacePanel conversationId={conversationId} />
+        </div>
+        <div
+          className={cn(
+            'flex h-full w-full flex-col',
+            activeTab !== 'chat' && 'hidden'
+          )}
+        >
+          <div className="flex-1 overflow-y-auto">
+            <MessageList
+              ref={messagesEndRef}
+              messages={messages}
+              className="mx-auto max-w-full px-2"
+              isStreaming={isLoading}
+              showTyping={
+                isLoading &&
+                messages.length > 0 &&
+                messages[messages.length - 1].role === 'user'
+              }
+            />
+          </div>
+          <ChatInput
+            onSend={handleSend}
+            onStop={handleStop}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
+
+      {/* Desktop: resizable split layout */}
+      <ResizablePanelGroup
+        orientation="horizontal"
+        className="hidden flex-1 md:flex"
+      >
         <ResizablePanel defaultSize="60%" minSize="30%">
           <WorkspacePanel conversationId={conversationId} />
         </ResizablePanel>
 
         <ResizableHandle withHandle />
 
-        {/* Chat panel */}
         <ResizablePanel defaultSize="40%" minSize="20%">
           <div className="flex h-full flex-col">
             <div className="flex-1 overflow-y-auto">
