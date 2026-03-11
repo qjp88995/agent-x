@@ -228,7 +228,7 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 
 ### Frontend Patterns
 
-- **Design standards (colors, spacing, layout widths, component conventions) are in `packages/web/DESIGN.md`**
+- **Design standards (colors, spacing, layout widths, component conventions) are in `packages/web/README.md`**
 - React Router v7 for routing
 - All dashboard pages lazy-loaded via `React.lazy()`
 - React Query v5 hooks in `src/hooks/` for all API calls
