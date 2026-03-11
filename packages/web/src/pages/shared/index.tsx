@@ -310,12 +310,12 @@ function SharedChatContent({
 
   const handleSelectConversation = useCallback(
     (id: string) => {
+      setMobileView('chat');
       if (id === conversationId) return;
       transportRef.current?.destroy();
       setConversationId(id);
       historyLoadedRef.current = null;
       setMessages([]);
-      setMobileView('chat');
     },
     [conversationId, setConversationId, setMessages]
   );
