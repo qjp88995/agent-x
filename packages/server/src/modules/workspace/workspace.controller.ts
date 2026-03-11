@@ -11,7 +11,6 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 
-import * as archiver from 'archiver';
 import { Response } from 'express';
 
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -41,30 +40,7 @@ export class WorkspaceController {
     @Res() res: Response
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
-
-    const files = await this.workspaceService.listFiles(conversationId);
-    if (files.length === 0) {
-      res.status(204).end();
-      return;
-    }
-
-    res.set({
-      'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="workspace-${conversationId}.zip"`,
-    });
-
-    const archive = archiver('zip', { zlib: { level: 9 } });
-    archive.pipe(res);
-
-    for (const file of files) {
-      const { content } = await this.workspaceService.readFileById(
-        conversationId,
-        file.id
-      );
-      archive.append(content, { name: file.path });
-    }
-
-    await archive.finalize();
+    return this.workspaceService.downloadAsZip(conversationId, res);
   }
 
   @Post()
@@ -127,22 +103,7 @@ export class WorkspaceController {
     @CurrentUser() user: { id: string }
   ) {
     await this.chatService.verifyOwnership(conversationId, user.id);
-
-    const file = await this.workspaceService.getFileById(
-      conversationId,
-      fileId
-    );
-    const result = await this.workspaceService.readFile(
-      conversationId,
-      file.path
-    );
-
-    return {
-      content: result.content,
-      mimeType: result.mimeType,
-      size: result.size,
-      path: file.path,
-    };
+    return this.workspaceService.getFileContentById(conversationId, fileId);
   }
 
   @Put(':fileId/content')

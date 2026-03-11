@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import * as archiver from 'archiver';
+import type { Response } from 'express';
 import * as fs from 'fs/promises';
 import * as mime from 'mime-types';
 import * as path from 'path';
@@ -752,5 +754,48 @@ export class WorkspaceService {
         data: { path: updatedPath, mimeType },
       });
     }
+  }
+
+  async downloadAsZip(conversationId: string, res: Response): Promise<void> {
+    const files = await this.listFiles(conversationId);
+    if (files.length === 0) {
+      res.status(204).end();
+      return;
+    }
+
+    res.set({
+      'Content-Type': 'application/zip',
+      'Content-Disposition': `attachment; filename="workspace-${conversationId}.zip"`,
+    });
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    archive.pipe(res);
+
+    for (const file of files) {
+      const { content } = await this.readFileById(conversationId, file.id);
+      archive.append(content, { name: file.path });
+    }
+
+    await archive.finalize();
+  }
+
+  async getFileContentById(
+    conversationId: string,
+    fileId: string
+  ): Promise<{
+    content: string | Buffer;
+    mimeType: string;
+    size: number;
+    path: string;
+  }> {
+    const file = await this.getFileById(conversationId, fileId);
+    const result = await this.readFile(conversationId, file.path);
+
+    return {
+      content: result.content,
+      mimeType: result.mimeType,
+      size: result.size,
+      path: file.path,
+    };
   }
 }
