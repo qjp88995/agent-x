@@ -16,3 +16,17 @@ export { Badge, badgeVariants } from './primitives/badge';
 export { Avatar } from './primitives/avatar';
 export { Separator } from './primitives/separator';
 export { Skeleton } from './primitives/skeleton';
+export { Switch } from './primitives/switch';
+export { Checkbox } from './primitives/checkbox';
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from './primitives/select';
+export { Slider } from './primitives/slider';
+export { ScrollArea, ScrollBar } from './primitives/scroll-area';
