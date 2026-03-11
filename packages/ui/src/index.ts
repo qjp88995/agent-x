@@ -106,3 +106,4 @@ export {
 
 // Navigation
 export { IconSidebar, type SidebarItem } from './navigation/icon-sidebar';
+export { PageHeader } from './navigation/page-header';
