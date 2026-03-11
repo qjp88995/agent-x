@@ -106,7 +106,7 @@ export function FileChangeCard({
     return (
       <button
         type="button"
-        className="my-1 flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-sm transition-colors hover:bg-accent/30"
+        className="my-1 max-w-full flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-2 text-sm transition-colors hover:bg-accent/30"
         onClick={() => onClickFile?.(change.path)}
       >
         {loading ? (
