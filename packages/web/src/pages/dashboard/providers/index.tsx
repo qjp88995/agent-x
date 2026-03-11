@@ -18,9 +18,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  type FilterTab,
+  FilterTabs,
+  StaggerItem,
+  StaggerList,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  ViewToggle,
 } from '@agent-x/design';
 import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
 import {
@@ -35,14 +40,19 @@ import { toast } from 'sonner';
 
 import { ProviderEmptyState } from '@/components/providers/provider-empty-state';
 import { AddCard } from '@/components/shared/add-card';
+import { ListPageHeader } from '@/components/shared/list-page-header';
+import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
   useDeleteProvider,
   useProviders,
   useSyncModels,
   useTestProvider,
 } from '@/hooks/use-providers';
+import { useViewMode } from '@/hooks/use-view-mode';
 import { PROTOCOL_CONFIG } from '@/lib/provider-constants';
 import { cn } from '@/lib/utils';
+
+import { ProviderTable } from './provider-table';
 
 function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
   const { t } = useTranslation();
@@ -212,11 +222,41 @@ function ProviderCard({
 
 export default function ProviderListPage() {
   const { t } = useTranslation();
-  const { data: providers, isLoading, error } = useProviders();
+  const { data: allProviders, isLoading, error } = useProviders();
+  const [view, setView] = useViewMode('providers');
   const deleteProvider = useDeleteProvider();
   const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(
     null
   );
+
+  const { search, setSearch, filter, setFilter, filtered } = useFilteredSearch(
+    allProviders,
+    {
+      searchKeys: ['name'],
+      filterKey: 'isActive',
+    }
+  );
+
+  const activeCount = allProviders?.filter(p => p.isActive).length;
+  const inactiveCount = allProviders?.filter(p => !p.isActive).length;
+
+  const filterTabs: FilterTab[] = [
+    {
+      key: FILTER_ALL,
+      label: t('agents.all', { defaultValue: 'All' }),
+      count: allProviders?.length,
+    },
+    {
+      key: 'true',
+      label: t('common.active'),
+      count: activeCount,
+    },
+    {
+      key: 'false',
+      label: t('common.inactive'),
+      count: inactiveCount,
+    },
+  ];
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
@@ -257,31 +297,50 @@ export default function ProviderListPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('providers.title')}
-          </h1>
-          <p className="text-foreground-muted text-sm">
-            {t('providers.subtitle')}
-          </p>
-        </div>
-      </div>
+      <ListPageHeader
+        title={t('providers.title')}
+        subtitle={t('providers.subtitle')}
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t('providers.searchPlaceholder', {
+            defaultValue: 'Search providers...',
+          }),
+        }}
+        trailing={
+          <>
+            <ViewToggle value={view} onChange={setView} />
+            <Button asChild>
+              <Link to="/providers/new">{t('providers.addProvider')}</Link>
+            </Button>
+          </>
+        }
+      />
 
-      {/* Provider grid */}
-      {!providers?.length ? (
+      {/* Filter tabs */}
+      <FilterTabs
+        tabs={filterTabs}
+        value={filter}
+        onChange={setFilter}
+        className="px-1"
+      />
+
+      {/* Provider list */}
+      {!filtered.length ? (
         <ProviderEmptyState />
+      ) : view === 'table' ? (
+        <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <AddCard to="/providers/new" label={t('providers.addProvider')} />
-          {providers.map(provider => (
-            <ProviderCard
-              key={provider.id}
-              provider={provider}
-              onDelete={setDeleteTarget}
-            />
+        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <StaggerItem>
+            <AddCard to="/providers/new" label={t('providers.addProvider')} />
+          </StaggerItem>
+          {filtered.map(provider => (
+            <StaggerItem key={provider.id}>
+              <ProviderCard provider={provider} onDelete={setDeleteTarget} />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       )}
 
       {/* Delete confirmation dialog */}
