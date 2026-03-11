@@ -103,3 +103,6 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from './feedback/dropdown-menu';
+
+// Navigation
+export { IconSidebar, type SidebarItem } from './navigation/icon-sidebar';
