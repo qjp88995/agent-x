@@ -117,6 +117,33 @@ Always add `className="flex flex-col gap-6"` to `<form>` elements that are direc
 <p className="text-foreground-muted text-sm">Description</p>
 ```
 
+### List Page Patterns
+
+All list pages (Agents, Providers, Skills, MCP, Prompts) use a shared infrastructure:
+
+- **`ListPageHeader`** (`components/shared/list-page-header.tsx`): Fixed-height header bar with title, optional search input, and trailing slot (ViewToggle + Create button). Class: `flex h-14 shrink-0 items-center gap-3 border-b border-border px-4`.
+- **`FilterTabs`** (from `@agent-x/design`): Tab-style filter with optional count badges. Used below the header.
+- **`ViewToggle`** (from `@agent-x/design`): Grid/table view switcher.
+- **`useViewMode(pageKey)`** (`hooks/use-view-mode.ts`): Persists view mode per page in localStorage.
+- **`useFilteredSearch(items, options)`** (`hooks/use-filtered-search.ts`): Combines debounced search + filter tab state. Returns `{ search, setSearch, filter, setFilter, filtered }`.
+- **Grid view**: `StaggerList` / `StaggerItem` (from `@agent-x/design`) wrapping card grid.
+- **Table view**: `DataTable` (from `@agent-x/design`) with sortable columns, row actions dropdown.
+
+### Command Palette (⌘K)
+
+Global command palette (`components/shared/app-command-palette.tsx`) available in dashboard and chat layouts.
+
+- Groups: Navigation, Actions (create new items), Theme toggle
+- Uses `CommandPalette*` components and `useCommandPalette()` from `@agent-x/design`
+- Keyboard shortcut: ⌘K / Ctrl+K
+
+### Motion System
+
+- **Page transitions**: `PageTransition` + `AnimatePresence` wrapping `<Outlet>` in dashboard layout.
+- **List stagger**: `StaggerList` / `StaggerItem` for card grids on list pages.
+- **Table fade-in**: `motion.div` with `initial={{ opacity: 0, y: 8 }}` for Users and API Keys tables.
+- Respects `prefers-reduced-motion` (handled via CSS in `index.css`).
+
 ### Card Hover (List Pages)
 
 All list page cards: `hover:shadow-md hover:border-primary/20 transition-all duration-200`
@@ -144,13 +171,21 @@ All list page cards: `hover:shadow-md hover:border-primary/20 transition-all dur
 - 脏状态（修改未保存）追踪
 - 失去焦点时自动保存
 - 支持文本文件编辑和图片文件预览
-- 自定义主题 `agentx-light` / `agentx-dark`（定义在 `lib/monaco-themes.ts`），跟随系统明暗模式切换
+- 自定义主题 `agentx-light` / `agentx-dark`（定义在 `lib/monaco-themes.ts`，Zinc/Emerald 配色），跟随系统明暗模式切换
 
 #### File Change Card (`components/workspace/file-change-card.tsx`)
 
 - 在聊天消息中展示 AI 工具调用产生的文件变更
 - 显示操作类型（创建、更新、删除、重命名等）
 - 连续的 workspace 工具调用会被分组展示
+
+#### ChatInput (`components/chat/chat-input.tsx`)
+
+- Wraps `ChatInput` from `@agent-x/design` (textarea-based, replaces previous Tiptap editor)
+- External API: `onSend(content: string)`, `onStop()`, `isLoading`, `disabled`
+- Internal state: text value, file attachments (UI-only), slash command menu
+- Toolbar: file upload button, slash commands, voice (skeleton), send/stop button
+- Outer wrapper: `border-t bg-background p-4` with `max-w-3xl mx-auto`
 
 #### Workspace Panel (`components/workspace/workspace-panel.tsx`)
 
