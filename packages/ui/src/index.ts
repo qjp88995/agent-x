@@ -108,6 +108,10 @@ export {
 export { IconSidebar, type SidebarItem } from './navigation/icon-sidebar';
 export { PageHeader } from './navigation/page-header';
 
+// Layout
+export { PageTransition } from './layout/page-transition';
+export { StaggerList, StaggerItem } from './layout/stagger-list';
+
 // Chat
 export { MessageBubble, CodeBlock } from './chat/message-bubble';
 export { ThinkingBlock } from './chat/thinking-block';
