@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Edit, Copy, Trash, Settings, User, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '../primitives/button';
 import {

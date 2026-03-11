@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Bot, Zap, Plug, Sparkles, FileText, Key, Settings, Users } from 'lucide-react';
 import { IconSidebar, type SidebarItem } from './icon-sidebar';
 
