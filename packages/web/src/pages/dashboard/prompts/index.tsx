@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@agent-x/design';
+import {
+  type FilterTab,
+  FilterTabs,
+  StaggerItem,
+  StaggerList,
+  ViewToggle,
+} from '@agent-x/design';
 import type { PromptResponse } from '@agent-x/shared';
+import { PromptType } from '@agent-x/shared';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -12,17 +19,24 @@ import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
 import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
 import { AddCard } from '@/components/shared/add-card';
+import { ListPageHeader } from '@/components/shared/list-page-header';
 import { useIsAdmin } from '@/hooks/use-auth';
+import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
   useDeleteMarketplacePrompt,
   useDeletePrompt,
   usePromptMarket,
   usePrompts,
 } from '@/hooks/use-prompts';
+import { useViewMode } from '@/hooks/use-view-mode';
+
+import { PromptTable } from './prompt-table';
 
 export default function PromptsPage() {
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
+  const [view, setView] = useViewMode('prompts');
+
   const {
     data: marketPrompts,
     isLoading: isLoadingMarket,
@@ -33,6 +47,7 @@ export default function PromptsPage() {
     isLoading: isLoadingCustom,
     error: customError,
   } = usePrompts();
+
   const deletePrompt = useDeletePrompt();
   const deleteMarketplacePrompt = useDeleteMarketplacePrompt();
   const [deleteTarget, setDeleteTarget] = useState<PromptResponse | null>(null);
@@ -42,10 +57,47 @@ export default function PromptsPage() {
   const [previewTarget, setPreviewTarget] = useState<PromptResponse | null>(
     null
   );
+
   const isLoading = isLoadingMarket || isLoadingCustom;
   const error = marketError ?? customError;
   const isDeleting =
     deletePrompt.isPending || deleteMarketplacePrompt.isPending;
+
+  const allPrompts = useMemo(
+    () => [...(marketPrompts ?? []), ...(customPrompts ?? [])],
+    [marketPrompts, customPrompts]
+  );
+
+  const { search, setSearch, filter, setFilter, filtered } =
+    useFilteredSearch<PromptResponse>(allPrompts, {
+      searchKeys: ['name', 'description'],
+      filterKey: 'type',
+    });
+
+  const systemCount = allPrompts.filter(
+    p => p.type === PromptType.SYSTEM
+  ).length;
+  const customCount = allPrompts.filter(
+    p => p.type === PromptType.CUSTOM
+  ).length;
+
+  const filterTabs: FilterTab[] = [
+    {
+      key: FILTER_ALL,
+      label: t('prompts.all', { defaultValue: 'All' }),
+      count: allPrompts.length,
+    },
+    {
+      key: PromptType.SYSTEM,
+      label: t('prompts.systemPrompts'),
+      count: systemCount,
+    },
+    {
+      key: PromptType.CUSTOM,
+      label: t('prompts.myPrompts'),
+      count: customCount,
+    },
+  ];
 
   function handleDeleteCustom(prompt: PromptResponse) {
     setDeleteTarget(prompt);
@@ -55,6 +107,14 @@ export default function PromptsPage() {
   function handleDeleteMarketplace(prompt: PromptResponse) {
     setDeleteTarget(prompt);
     setDeleteMode('marketplace');
+  }
+
+  function handleDelete(prompt: PromptResponse) {
+    if (prompt.type === PromptType.SYSTEM) {
+      handleDeleteMarketplace(prompt);
+    } else {
+      handleDeleteCustom(prompt);
+    }
   }
 
   function handleDeleteConfirm() {
@@ -68,6 +128,18 @@ export default function PromptsPage() {
       },
     });
   }
+
+  const showMarketplaceAddCard =
+    isAdmin && (filter === FILTER_ALL || filter === PromptType.SYSTEM);
+  const showCustomAddCard =
+    filter === FILTER_ALL || filter === PromptType.CUSTOM;
+
+  const emptyTab =
+    filter === PromptType.SYSTEM
+      ? 'marketplace'
+      : filter === PromptType.CUSTOM
+        ? 'custom'
+        : 'custom';
 
   if (isLoading) {
     return (
@@ -95,67 +167,70 @@ export default function PromptsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('prompts.title')}
-          </h1>
-          <p className="text-foreground-muted text-sm">
-            {t('prompts.subtitle')}
-          </p>
-        </div>
-      </div>
+      <ListPageHeader
+        title={t('prompts.title')}
+        subtitle={t('prompts.subtitle')}
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t('prompts.searchPlaceholder', {
+            defaultValue: 'Search prompts...',
+          }),
+        }}
+        trailing={<ViewToggle value={view} onChange={setView} />}
+      />
 
-      <Tabs defaultValue="marketplace">
-        <TabsList>
-          <TabsTrigger value="marketplace">
-            {t('prompts.systemPrompts')}
-          </TabsTrigger>
-          <TabsTrigger value="custom">{t('prompts.myPrompts')}</TabsTrigger>
-        </TabsList>
+      <FilterTabs
+        tabs={filterTabs}
+        value={filter}
+        onChange={setFilter}
+        className="px-1"
+      />
 
-        <TabsContent value="marketplace">
-          {!marketPrompts?.length ? (
-            <PromptEmptyState tab="marketplace" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {isAdmin && (
-                <AddCard
-                  to="/prompts/new?type=system"
-                  label={t('prompts.addToMarketplace')}
-                />
-              )}
-              {marketPrompts.map(prompt => (
+      {!filtered.length ? (
+        <PromptEmptyState tab={emptyTab} isAdmin={isAdmin} />
+      ) : view === 'table' ? (
+        <PromptTable
+          prompts={filtered}
+          isAdmin={isAdmin}
+          onDelete={handleDelete}
+          onPreview={setPreviewTarget}
+        />
+      ) : (
+        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {showMarketplaceAddCard && (
+            <StaggerItem>
+              <AddCard
+                to="/prompts/new?type=system"
+                label={t('prompts.addToMarketplace')}
+              />
+            </StaggerItem>
+          )}
+          {showCustomAddCard && (
+            <StaggerItem>
+              <AddCard to="/prompts/new" label={t('prompts.createPrompt')} />
+            </StaggerItem>
+          )}
+          {filtered.map(prompt => (
+            <StaggerItem key={prompt.id}>
+              {prompt.type === PromptType.SYSTEM ? (
                 <MarketplaceCard
-                  key={prompt.id}
                   prompt={prompt}
                   isAdmin={isAdmin}
                   onDelete={handleDeleteMarketplace}
                   onPreview={setPreviewTarget}
                 />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="custom">
-          {!customPrompts?.length ? (
-            <PromptEmptyState tab="custom" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              <AddCard to="/prompts/new" label={t('prompts.createPrompt')} />
-              {customPrompts.map(prompt => (
+              ) : (
                 <PromptCard
-                  key={prompt.id}
                   prompt={prompt}
                   onDelete={handleDeleteCustom}
                   onPreview={setPreviewTarget}
                 />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+              )}
+            </StaggerItem>
+          ))}
+        </StaggerList>
+      )}
 
       <PreviewDialog
         prompt={previewTarget}
