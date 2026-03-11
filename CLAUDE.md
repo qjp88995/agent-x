@@ -30,6 +30,7 @@ packages/
 │           ├── preferences/ # User preferences (theme, language) CRUD
 │           ├── api-key/    # API key management (sk-agx-... prefix)
 │           ├── openai-compat/  # /v1/chat/completions (OpenAI wire format)
+│           ├── user/       # User management (admin): list, create, role/status update, password reset
 │           └── system-config/  # System-level provider management + feature config + AI-powered features (admin)
 ├── web/             # React 19 frontend (Vite 6, Tailwind CSS v4, shadcn/ui)
 │   └── src/
@@ -38,6 +39,7 @@ packages/
 │       │   ├── workspace/  # Workspace panel, file tree, file editor, file change card
 │       │   ├── agents/     # Agent forms, cards, test chat panel
 │       │   ├── shared/     # Reusable form components (form-card, page-header, prompt-editor, etc.)
+│       │   ├── users/      # User management components (create-user-dialog)
 │       │   ├── auth/       # Protected route, login/register forms
 │       │   └── ui/         # shadcn/ui primitives (button, dialog, input, etc.)
 │       ├── contexts/       # React contexts (workspace-api-context for auth/public API switching)
@@ -56,9 +58,9 @@ packages/
 │           ├── workspace-utils.ts  # Extract file changes from AI tool calls
 │           ├── sync-preferences.ts # Centralized backend preference sync (persistPreference)
 │           ├── utils.ts            # General utilities (cn, etc.)
-│           └── schemas/            # Zod validation schemas (agent, provider, skill, mcp, api-key)
+│           └── schemas/            # Zod validation schemas (agent, provider, skill, mcp, api-key, user)
 ├── shared/          # Shared TypeScript types (DTOs, responses, enums)
-│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token, workspace, preferences, system-config
+│   └── src/types/   # auth, provider, agent, agent-version, skill, mcp, chat, api-key, share-token, workspace, preferences, system-config, user
 └── docker/          # Dockerfile.server, Dockerfile.web, nginx.conf
 ```
 
@@ -205,6 +207,20 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - Frontend: `/system-config` page (admin-only sidebar entry with Wrench icon), tabs for providers and features
 - Agent edit page: "Polish" button in system prompt editor calls `/api/system/polish`, shows result in dialog for user to apply or discard
 
+### User Management
+
+- `User` model with `UserRole` (ADMIN, USER) and `UserStatus` (ACTIVE, DISABLED, DELETED) enums
+- Backend: `user` module at `/api/users` (all @Roles('ADMIN'))
+  - `GET /users` — paginated list with search, role/status filters
+  - `GET /users/:id` — user detail with activity stats (agents, conversations, files, API keys, skills)
+  - `POST /users` — create user (email, password, name, role)
+  - `PATCH /users/:id/role` — update role (cannot change own role)
+  - `PATCH /users/:id/status` — update status (cannot disable self)
+  - `POST /users/:id/reset-password` — generate temporary password
+- Frontend: `/users` (admin-only sidebar entry with Users icon), `/users/:id` detail page
+- Hooks: `use-users.ts` with React Query hooks
+- Components: `components/users/create-user-dialog.tsx`
+
 ### Provider API Keys
 
 - Encrypted with AES-256-GCM via `src/common/crypto.util.ts`
@@ -234,11 +250,12 @@ Built-in tools available to agents during chat (defined in `chat/tools/`):
 - `/login`, `/register` - public auth pages
 - `/` → redirects to `/providers`
 - `/providers` - provider list, `/providers/new`, `/providers/:id/edit`
-- `/agents` - agent list, `/agents/new`, `/agents/:id/edit`, `/agents/:id/versions` (version management)
+- `/agents` - agent list, `/agents/new`, `/agents/:id/edit`, `/agents/:id/versions` (version management), `/agents/:id/versions/:versionId/conversations` (version conversations)
 - `/skills` - skills list, `/skills/new`, `/skills/:id/edit`
 - `/mcp-servers` - MCP server list, `/mcp-servers/new`, `/mcp-servers/:id/edit`
 - `/prompts` - prompts list, `/prompts/new`, `/prompts/:id/edit`
 - `/api-keys` - API key management
+- `/users` - user management (admin-only), `/users/:id` (user detail)
 - `/settings` - user preferences (theme, language)
 - `/system-config` - system configuration (admin-only: system providers, feature config)
 - `/chat` - full-screen chat UI (outside dashboard layout)
