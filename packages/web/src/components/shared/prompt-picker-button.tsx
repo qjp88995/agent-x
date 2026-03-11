@@ -27,8 +27,8 @@ export function PromptPickerButton({
         onClick={() => setOpen(true)}
         disabled={disabled}
       >
-        <BookOpen className="mr-2 size-4" />
-        {t('prompts.browseLibrary')}
+        <BookOpen className="size-4 sm:mr-2" />
+        <span className="hidden sm:inline">{t('prompts.browseLibrary')}</span>
       </Button>
 
       <PromptPickerDialog

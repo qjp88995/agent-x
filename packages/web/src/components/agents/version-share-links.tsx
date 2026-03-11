@@ -270,7 +270,7 @@ export function VersionShareLinks({
               key={token.id}
               className="flex items-center justify-between rounded-md border px-3 py-3"
             >
-              <div className="flex flex-col gap-1.5">
+              <div className="min-w-0 flex-1 flex flex-col gap-1.5">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-medium">{token.name}</span>
                   <Badge variant={token.isActive ? 'default' : 'secondary'}>

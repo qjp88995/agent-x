@@ -104,13 +104,15 @@ export function PolishButton({
                   disabled={isDisabled}
                 >
                   {polishPrompt.isPending ? (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin sm:mr-2" />
                   ) : (
-                    <Sparkles className="mr-2 size-4" />
+                    <Sparkles className="size-4 sm:mr-2" />
                   )}
-                  {polishPrompt.isPending
-                    ? t('systemConfig.polishing')
-                    : t('systemConfig.polish')}
+                  <span className="hidden sm:inline">
+                    {polishPrompt.isPending
+                      ? t('systemConfig.polishing')
+                      : t('systemConfig.polish')}
+                  </span>
                 </Button>
               </PopoverTrigger>
             </span>

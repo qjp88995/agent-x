@@ -36,14 +36,14 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
 
   return (
     <div className="flex min-h-0 max-w-4xl flex-1 flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold">{t('agents.systemPrompt')}</h3>
           <p className="text-muted-foreground text-sm">
             {t('agents.systemPromptDesc')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <PolishButton
             content={form.watch('systemPrompt') ?? ''}
             onApply={handleContentChange}

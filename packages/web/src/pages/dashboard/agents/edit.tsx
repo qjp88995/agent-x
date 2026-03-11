@@ -238,7 +238,7 @@ function AgentEditForm({
             </>
           }
         >
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
               onClick={() => navigate(`/agents/${agentId}/versions`)}
@@ -346,7 +346,7 @@ function AgentEditForm({
       </div>
 
       {agent.status === AgentStatus.ACTIVE && (
-        <TestChatPanel agentId={agentId} />
+        <TestChatPanel agentId={agentId} className="hidden lg:flex" />
       )}
 
       <ArchiveAgentDialog

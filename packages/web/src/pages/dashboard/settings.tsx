@@ -78,7 +78,7 @@ export default function SettingsPage() {
           <CardDescription>{t('settings.themeDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {THEME_OPTIONS.map(option => {
               const Icon = option.icon;
               const isActive = theme === option.value;
@@ -88,7 +88,7 @@ export default function SettingsPage() {
                   type="button"
                   onClick={() => setTheme(option.value)}
                   className={cn(
-                    'relative flex flex-col items-center gap-2 rounded-lg border p-4 transition-all duration-200 cursor-pointer',
+                    'relative flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-all duration-200 sm:flex-col sm:items-center sm:gap-2 sm:p-4',
                     isActive
                       ? 'border-primary bg-primary/5 shadow-sm'
                       : 'border-border hover:border-primary/30 hover:bg-muted/50'
@@ -101,11 +101,11 @@ export default function SettingsPage() {
                   )}
                   <Icon
                     className={cn(
-                      'size-6',
+                      'size-5 shrink-0 sm:size-6',
                       isActive ? 'text-primary' : 'text-muted-foreground'
                     )}
                   />
-                  <div className="text-center">
+                  <div className="sm:text-center">
                     <p
                       className={cn(
                         'text-sm font-medium',

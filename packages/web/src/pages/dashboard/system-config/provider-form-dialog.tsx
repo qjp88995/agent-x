@@ -123,7 +123,7 @@ export function ProviderFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="flex max-h-[90svh] flex-col sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit
@@ -135,7 +135,7 @@ export function ProviderFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-4">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto py-4">
           {/* Name */}
           <div className="flex flex-col gap-2">
             <Label>{t('common.name')}</Label>

@@ -242,7 +242,8 @@
     "systemPrompt": "System Prompt",
     "skills": "Skills",
     "mcpServers": "MCP Servers",
-    "configSnapshot": "Configuration"
+    "configSnapshot": "Configuration",
+    "versionId": "Version ID"
   },
   "shareLinks": {
     "title": "Share Links",

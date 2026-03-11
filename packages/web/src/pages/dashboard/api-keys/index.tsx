@@ -128,7 +128,7 @@ export default function ApiKeysPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
             {t('apiKeys.title')}
@@ -137,22 +137,32 @@ export default function ApiKeysPage() {
             {t('apiKeys.subtitle')}
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} variant="primary">
+        <Button
+          onClick={() => setCreateOpen(true)}
+          variant="primary"
+          className="sm:shrink-0"
+        >
           <Plus className="mr-2 size-4" />
           {t('apiKeys.createKey')}
         </Button>
       </div>
 
       {hasKeys ? (
-        <div className="rounded-lg border">
+        <div className="overflow-x-auto rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t('common.name')}</TableHead>
                 <TableHead>{t('apiKeys.key')}</TableHead>
-                <TableHead>{t('apiKeys.agent')}</TableHead>
-                <TableHead>{t('apiKeys.lastUsed')}</TableHead>
-                <TableHead>{t('apiKeys.expires')}</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  {t('apiKeys.agent')}
+                </TableHead>
+                <TableHead className="hidden md:table-cell">
+                  {t('apiKeys.lastUsed')}
+                </TableHead>
+                <TableHead className="hidden md:table-cell">
+                  {t('apiKeys.expires')}
+                </TableHead>
                 <TableHead>{t('common.status')}</TableHead>
                 <TableHead className="w-20">{t('common.actions')}</TableHead>
               </TableRow>
@@ -166,7 +176,7 @@ export default function ApiKeysPage() {
                       {apiKey.key}
                     </code>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     {apiKey.agent ? (
                       <span>{apiKey.agent.name}</span>
                     ) : (
@@ -175,10 +185,10 @@ export default function ApiKeysPage() {
                       </span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {formatDate(apiKey.lastUsedAt, dateLocale)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {formatDate(apiKey.expiresAt, dateLocale)}
                   </TableCell>
                   <TableCell>

@@ -227,9 +227,9 @@ export default function PromptEditorPage() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex min-h-0 flex-1 flex-col gap-6"
           >
-            <div className="flex min-h-0 flex-1 gap-6">
+            <div className="flex flex-col gap-6 lg:flex-row lg:min-h-0 lg:flex-1">
               {/* Left: Basic Info */}
-              <Card className="flex w-1/2 flex-col">
+              <Card className="flex w-full flex-col lg:w-1/2">
                 <CardHeader>
                   <CardTitle>{t('prompts.promptDetails')}</CardTitle>
                   <CardDescription>
@@ -378,15 +378,15 @@ export default function PromptEditorPage() {
               </Card>
 
               {/* Right: Prompt Content */}
-              <Card className="flex w-1/2 flex-col">
-                <CardHeader className="flex flex-row items-start justify-between space-y-0">
+              <Card className="flex min-h-96 w-full flex-col lg:min-h-0 lg:w-1/2">
+                <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
                   <div className="flex flex-col gap-1.5">
                     <CardTitle>{t('prompts.content')}</CardTitle>
                     <CardDescription>
                       {t('prompts.contentHint')}
                     </CardDescription>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2">
                     <PolishButton
                       content={form.watch('content') ?? ''}
                       onApply={handleContentChange}

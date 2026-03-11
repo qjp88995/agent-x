@@ -19,12 +19,14 @@ import {
 } from '@/components/ui/tooltip';
 import { useCreateConversation } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
+import { cn } from '@/lib/utils';
 
 interface TestChatPanelProps {
   readonly agentId: string;
+  readonly className?: string;
 }
 
-export function TestChatPanel({ agentId }: TestChatPanelProps) {
+export function TestChatPanel({ agentId, className }: TestChatPanelProps) {
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -108,7 +110,9 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
 
   if (collapsed) {
     return (
-      <div className="flex flex-col items-center border-l pt-4">
+      <div
+        className={cn('flex flex-col items-center border-l pt-4', className)}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -126,7 +130,7 @@ export function TestChatPanel({ agentId }: TestChatPanelProps) {
   }
 
   return (
-    <div className="flex w-120 shrink-0 flex-col border-l">
+    <div className={cn('flex w-120 shrink-0 flex-col border-l', className)}>
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b px-3">
         <span className="text-sm font-medium">{t('chat.testChat')}</span>

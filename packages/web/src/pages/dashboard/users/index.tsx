@@ -424,14 +424,18 @@ export default function UserListPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
             {t('users.title')}
           </h1>
           <p className="text-muted-foreground text-sm">{t('users.subtitle')}</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} variant="primary">
+        <Button
+          onClick={() => setCreateOpen(true)}
+          variant="primary"
+          className="sm:shrink-0"
+        >
           <Plus className="mr-2 size-4" />
           {t('users.createUser')}
         </Button>
@@ -503,14 +507,16 @@ export default function UserListPage() {
       {/* Table */}
       {hasUsers ? (
         <>
-          <div className="rounded-lg border">
+          <div className="overflow-x-auto rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('users.columnUser')}</TableHead>
                   <TableHead>{t('users.columnRole')}</TableHead>
                   <TableHead>{t('common.status')}</TableHead>
-                  <TableHead>{t('users.columnLastActive')}</TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    {t('users.columnLastActive')}
+                  </TableHead>
                   <TableHead className="w-20">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -531,7 +537,7 @@ export default function UserListPage() {
                     >
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Avatar className="size-8">
+                          <Avatar className="size-8 shrink-0">
                             <AvatarFallback
                               className={cn(
                                 'text-xs font-semibold',
@@ -543,17 +549,17 @@ export default function UserListPage() {
                           </Avatar>
                           <Link
                             to={`/users/${user.id}`}
-                            className="flex flex-col hover:underline"
+                            className="flex min-w-0 flex-col hover:underline"
                           >
                             <span
                               className={cn(
-                                'text-sm font-medium',
+                                'truncate text-sm font-medium',
                                 isDeleted && 'line-through'
                               )}
                             >
                               {user.name ?? '-'}
                             </span>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-muted-foreground truncate text-xs">
                               {user.email}
                             </span>
                           </Link>
@@ -565,7 +571,7 @@ export default function UserListPage() {
                       <TableCell>
                         <UserStatusBadge status={user.status} />
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
+                      <TableCell className="text-muted-foreground hidden text-sm sm:table-cell">
                         {formatDistanceToNow(new Date(user.updatedAt), {
                           addSuffix: true,
                           locale: dateLocale,
@@ -674,7 +680,7 @@ export default function UserListPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-muted-foreground text-sm">
                 {t('users.showingRange', {
                   start: startIndex,
@@ -682,7 +688,7 @@ export default function UserListPage() {
                   total,
                 })}
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                   pageNum => (
                     <Button

@@ -70,8 +70,8 @@ export function SavePromptButton({
         onClick={openDialog}
         disabled={disabled || !content?.trim()}
       >
-        <Bookmark className="mr-2 size-4" />
-        {t('prompts.saveToMyPrompts')}
+        <Bookmark className="size-4 sm:mr-2" />
+        <span className="hidden sm:inline">{t('prompts.saveToMyPrompts')}</span>
       </Button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

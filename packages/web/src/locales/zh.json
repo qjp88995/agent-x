@@ -242,7 +242,8 @@
     "systemPrompt": "系统提示词",
     "skills": "技能",
     "mcpServers": "MCP 服务",
-    "configSnapshot": "配置快照"
+    "configSnapshot": "配置快照",
+    "versionId": "版本 ID"
   },
   "shareLinks": {
     "title": "分享链接",

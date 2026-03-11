@@ -32,6 +32,16 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
   const { t } = useTranslation();
   return (
     <div className="grid gap-4 sm:grid-cols-2">
+      {/* Version ID */}
+      <div className="flex flex-col gap-1 sm:col-span-2">
+        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+          {t('versions.versionId')}
+        </span>
+        <div className="-mx-2.5 w-fit">
+          <CopyableId id={version.id} />
+        </div>
+      </div>
+
       {/* Model */}
       <div className="flex flex-col gap-1">
         <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
@@ -132,33 +142,35 @@ function VersionItem({
     >
       <CollapsibleTrigger
         className={cn(
-          'flex w-full items-center justify-between p-4 text-left transition-colors',
+          'flex w-full items-center justify-between gap-2 p-4 text-left transition-colors',
           'hover:bg-muted/30 cursor-pointer',
           isExpanded && 'bg-muted/20'
         )}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
           {isExpanded ? (
             <ChevronDown className="text-muted-foreground size-4 shrink-0" />
           ) : (
             <ChevronRight className="text-muted-foreground size-4 shrink-0" />
           )}
-          <Badge variant="outline">v{version.version}</Badge>
-          <CopyableId id={version.id} />
-          <span className="text-muted-foreground text-sm">
+          <Badge variant="outline" className="shrink-0">
+            v{version.version}
+          </Badge>
+
+          <span className="text-muted-foreground shrink-0 text-sm">
             {formatDistanceToNow(new Date(version.publishedAt), {
               addSuffix: true,
               locale: dateLocale,
             })}
           </span>
           {version.changelog && (
-            <span className="max-w-75 truncate text-sm">
+            <span className="text-muted-foreground min-w-0 truncate text-sm sm:max-w-60">
               {version.changelog}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-muted-foreground flex items-center gap-1 text-sm">
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-muted-foreground hidden items-center gap-1 text-sm sm:flex">
             <Link2 className="size-3.5" />
             {version._count?.shareTokens ?? 0}
           </span>
