@@ -2,6 +2,23 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams, useSearchParams } from 'react-router';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Button,
+  ScrollArea,
+  Separator,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -16,25 +33,6 @@ import {
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
   sharedConversationsKey,
   useCreateSharedConversation,

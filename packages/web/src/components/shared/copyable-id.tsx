@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Check, ClipboardCopy } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { Check, ClipboardCopy } from 'lucide-react';
 
 interface CopyableIdProps {
   readonly id: string;

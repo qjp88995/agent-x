@@ -1,23 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type { McpServerResponse } from '@agent-x/shared';
-import { Pencil, PlugZap, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import type { McpServerResponse } from '@agent-x/shared';
+import { Pencil, PlugZap, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useTestMcpServer } from '@/hooks/use-mcp';
 
 import { TransportBadge } from './transport-badge';

@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
 
-import { Loader2, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { Loader2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useAutoFill, useFeatureStatus } from '@/hooks/use-system-config';
 
 interface AutoFillButtonProps {

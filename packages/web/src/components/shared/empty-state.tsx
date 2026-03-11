@@ -1,9 +1,8 @@
 import { Link } from 'react-router';
 
+import { Button } from '@agent-x/design';
 import type { LucideIcon } from 'lucide-react';
 import { Plus } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 
 interface EmptyStateProps {
   readonly icon: LucideIcon;

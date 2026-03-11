@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
+} from '@agent-x/design';
 import type {
   ProviderProtocol as ProviderProtocolType,
   SystemProviderResponse,
@@ -9,18 +21,6 @@ import { ProviderProtocol } from '@agent-x/shared';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   useCreateSystemProvider,
   useUpdateSystemProvider,

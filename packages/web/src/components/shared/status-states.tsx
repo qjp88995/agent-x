@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router';
 
+import { Button } from '@agent-x/design';
 import { AlertTriangle } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 
 interface LoadingStateProps {
   readonly message: string;

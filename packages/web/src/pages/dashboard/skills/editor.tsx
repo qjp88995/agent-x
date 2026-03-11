@@ -8,6 +8,16 @@ import {
   useSearchParams,
 } from 'react-router';
 
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Textarea,
+} from '@agent-x/design';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,14 +28,6 @@ import { PolishButton } from '@/components/shared/polish-button';
 import { PromptEditor } from '@/components/shared/prompt-editor';
 import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
 import { LoadingState, NotFoundState } from '@/components/shared/status-states';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -35,8 +37,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplaceSkill,

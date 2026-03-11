@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '@agent-x/design';
 import type { WorkspaceFileResponse } from '@agent-x/shared';
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import { FileImage, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
 import { useWorkspaceApi } from '@/contexts/workspace-api-context';
 import { useFileContent, useUpdateFileContent } from '@/hooks/use-workspace';
 import { agentxDark, agentxLight } from '@/lib/monaco-themes';

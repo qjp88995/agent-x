@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Send, Square } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface ChatInputProps {
   readonly onSend: (content: string) => void;

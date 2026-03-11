@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '@agent-x/design';
 import { LinkIcon } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 
 export default function SharedExpiredPage() {
   const { t } = useTranslation();

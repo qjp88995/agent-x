@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import { useChat } from '@ai-sdk/react';
 import {
   Bot,
@@ -11,12 +17,6 @@ import {
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
-import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useCreateConversation } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { cn } from '@/lib/utils';

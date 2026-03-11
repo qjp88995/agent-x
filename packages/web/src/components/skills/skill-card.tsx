@@ -1,23 +1,20 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type { SkillResponse } from '@agent-x/shared';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import type { SkillResponse } from '@agent-x/shared';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 
 interface SkillCardProps {
   readonly skill: SkillResponse;

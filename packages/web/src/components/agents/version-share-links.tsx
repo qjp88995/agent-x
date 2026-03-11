@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { formatDistanceToNow } from 'date-fns';
-import { Ban, Check, Copy, Link2, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,10 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
+  Badge,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -26,14 +20,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
+  Input,
+  Label,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { formatDistanceToNow } from 'date-fns';
+import { Ban, Check, Copy, Link2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useCreateShareToken,

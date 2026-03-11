@@ -1,23 +1,21 @@
 import { useTranslation } from 'react-i18next';
 
-import type { SystemProviderResponse } from '@agent-x/shared';
-import { Loader2, Pencil, PlugZap, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import type { SystemProviderResponse } from '@agent-x/shared';
+import { Loader2, Pencil, PlugZap, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useTestSystemProvider } from '@/hooks/use-system-config';
 import { PROTOCOL_CONFIG } from '@/lib/provider-constants';
 import { cn } from '@/lib/utils';

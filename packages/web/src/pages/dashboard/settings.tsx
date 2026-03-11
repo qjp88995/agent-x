@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
 
-import { Check, Monitor, Moon, Sun } from 'lucide-react';
-
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@agent-x/design';
+import { Check, Monitor, Moon, Sun } from 'lucide-react';
+
 import { changeLanguage } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { useThemeStore } from '@/stores/theme-store';

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@agent-x/design';
 
 import { FeaturesTab } from './features-tab';
 import { ProvidersTab } from './providers-tab';

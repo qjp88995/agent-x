@@ -1,6 +1,19 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  Badge,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import type { Locale } from 'date-fns';
 import { format } from 'date-fns';
 import { AlertTriangle, Key, Plus, Trash2 } from 'lucide-react';
@@ -8,21 +21,6 @@ import { AlertTriangle, Key, Plus, Trash2 } from 'lucide-react';
 import { CreateKeyDialog } from '@/components/api-keys/create-key-dialog';
 import { DeleteConfirmDialog } from '@/components/api-keys/delete-confirm-dialog';
 import { UsageDocs } from '@/components/api-keys/usage-docs';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import type { ApiKeyResponse } from '@/hooks/use-api-keys';
 import { useApiKeys } from '@/hooks/use-api-keys';
 import { useDateLocale } from '@/hooks/use-date-locale';

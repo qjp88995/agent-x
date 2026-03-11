@@ -1,6 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  Separator,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import type { AgentResponse } from '@agent-x/shared';
 import {
   Check,
@@ -12,27 +29,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { Separator } from '@/components/ui/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
   useAddAgentMcp,
   useRemoveAgentMcp,

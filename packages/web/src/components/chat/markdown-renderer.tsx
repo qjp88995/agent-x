@@ -1,12 +1,12 @@
 import { memo, useCallback, useState } from 'react';
 import Markdown from 'react-markdown';
 
+import { Button } from '@agent-x/design';
 import { Check, Copy } from 'lucide-react';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 import 'highlight.js/styles/github-dark.min.css';

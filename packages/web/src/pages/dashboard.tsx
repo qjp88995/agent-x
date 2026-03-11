@@ -1,4 +1,5 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@agent-x/design';
+
 import { useAuthStore } from '@/stores/auth-store';
 
 export default function DashboardPage() {

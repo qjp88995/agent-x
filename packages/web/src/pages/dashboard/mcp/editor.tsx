@@ -8,6 +8,7 @@ import {
   useSearchParams,
 } from 'react-router';
 
+import { Button, Input, Textarea } from '@agent-x/design';
 import type { McpTransport as McpTransportType } from '@agent-x/shared';
 import { McpTransport } from '@agent-x/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +18,6 @@ import { toast } from 'sonner';
 import { FormCard } from '@/components/shared/form-card';
 import { PageHeader } from '@/components/shared/page-header';
 import { LoadingState, NotFoundState } from '@/components/shared/status-states';
-import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -27,8 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplaceMcpServer,

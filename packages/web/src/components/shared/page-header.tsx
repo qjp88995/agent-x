@@ -2,14 +2,13 @@ import type { ReactNode } from 'react';
 import type { To } from 'react-router';
 import { useNavigate } from 'react-router';
 
-import { ArrowLeft } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { ArrowLeft } from 'lucide-react';
 
 interface PageHeaderProps {
   readonly backTo: string | number;

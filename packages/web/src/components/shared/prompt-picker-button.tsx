@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '@agent-x/design';
 import { BookOpen } from 'lucide-react';
 
 import { PromptPickerDialog } from '@/components/prompts/prompt-picker-dialog';
-import { Button } from '@/components/ui/button';
-
 interface PromptPickerButtonProps {
   readonly onSelect: (content: string) => void;
   readonly disabled?: boolean;

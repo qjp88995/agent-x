@@ -2,12 +2,8 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ClipboardCopy } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -15,21 +11,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Check, ClipboardCopy } from 'lucide-react';
+
+import { DatePicker } from '@/components/ui/date-picker';
 import { useAgents } from '@/hooks/use-agents';
 import { useCreateApiKey } from '@/hooks/use-api-keys';
 import { type CreateApiKeyFormValues, createApiKeySchema } from '@/lib/schemas';

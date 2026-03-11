@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '@agent-x/design';
 import type {
   WorkspaceFileContentResponse,
   WorkspaceFileResponse,
@@ -8,7 +9,6 @@ import type {
 import { PanelLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
 import {
   ResizableHandle,
   ResizablePanel,

@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Check, ClipboardCopy } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  Button,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { Check, ClipboardCopy } from 'lucide-react';
 
 function CodeBlock({ code }: { readonly code: string }) {
   const { t } = useTranslation();

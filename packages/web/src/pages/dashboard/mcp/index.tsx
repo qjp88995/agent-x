@@ -1,14 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { McpServerResponse } from '@agent-x/shared';
-import { AlertTriangle } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { MarketplaceCard } from '@/components/mcp/marketplace-card';
-import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
-import { McpServerCard } from '@/components/mcp/mcp-server-card';
-import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +10,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@agent-x/design';
+import type { McpServerResponse } from '@agent-x/shared';
+import { AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { MarketplaceCard } from '@/components/mcp/marketplace-card';
+import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
+import { McpServerCard } from '@/components/mcp/mcp-server-card';
+import { AddCard } from '@/components/shared/add-card';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useDeleteMarketplaceMcpServer,

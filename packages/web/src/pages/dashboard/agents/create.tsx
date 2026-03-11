@@ -3,6 +3,22 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Slider,
+  Textarea,
+} from '@agent-x/design';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -13,14 +29,6 @@ import { PolishButton } from '@/components/shared/polish-button';
 import { PromptEditor } from '@/components/shared/prompt-editor';
 import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
 import { SavePromptButton } from '@/components/shared/save-prompt-button';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -30,16 +38,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Textarea } from '@/components/ui/textarea';
 import { useCreateAgent } from '@/hooks/use-agents';
 import { useProviders } from '@/hooks/use-providers';
 import { type AgentFormValues, agentSchema } from '@/lib/schemas';

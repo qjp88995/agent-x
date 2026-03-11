@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 
+import { Button, Input } from '@agent-x/design';
 import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
 import { ProviderProtocol } from '@agent-x/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +13,6 @@ import { toast } from 'sonner';
 import { FormCard } from '@/components/shared/form-card';
 import { PageHeader } from '@/components/shared/page-header';
 import { LoadingState, NotFoundState } from '@/components/shared/status-states';
-import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -22,7 +22,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
   useCreateProvider,
   useProvider,

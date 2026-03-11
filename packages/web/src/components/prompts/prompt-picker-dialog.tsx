@@ -1,27 +1,25 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { PromptResponse } from '@agent-x/shared';
-import { ArrowLeft, Eye, Search } from 'lucide-react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
+  Input,
+  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@agent-x/design';
+import type { PromptResponse } from '@agent-x/shared';
+import { ArrowLeft, Eye, Search } from 'lucide-react';
+
 import { usePromptMarket, usePrompts } from '@/hooks/use-prompts';
 
 const ALL_CATEGORIES = '__all__';

@@ -2,18 +2,27 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
-import type { ProviderModelResponse } from '@agent-x/shared';
-import { Save } from 'lucide-react';
-
-import { AutoFillButton } from '@/components/shared/auto-fill-button';
-import { FormFooter } from '@/components/shared/form-footer';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Slider,
+  Switch,
+  Textarea,
+} from '@agent-x/design';
+import type { ProviderModelResponse } from '@agent-x/shared';
+import { Save } from 'lucide-react';
+
+import { AutoFillButton } from '@/components/shared/auto-fill-button';
+import { FormFooter } from '@/components/shared/form-footer';
 import {
   FormControl,
   FormDescription,
@@ -22,17 +31,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import type { AgentFormValues } from '@/lib/schemas';
 
 type ProviderOption = {

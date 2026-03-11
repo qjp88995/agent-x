@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import type { SkillResponse } from '@agent-x/shared';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -11,8 +9,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  ScrollArea,
+} from '@agent-x/design';
+import type { SkillResponse } from '@agent-x/shared';
 
 interface PreviewDialogProps {
   readonly skill: SkillResponse | null;

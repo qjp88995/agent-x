@@ -1,11 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { SystemProviderResponse } from '@agent-x/shared';
-import { AlertTriangle } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +10,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@agent-x/design';
+import type { SystemProviderResponse } from '@agent-x/shared';
+import { AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { AddCard } from '@/components/shared/add-card';
 import {
   useDeleteSystemProvider,
   useSystemProviders,

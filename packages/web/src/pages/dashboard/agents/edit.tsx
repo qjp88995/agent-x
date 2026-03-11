@@ -3,6 +3,14 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 
+import {
+  Badge,
+  Button,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@agent-x/design';
 import type {
   AgentResponse,
   AgentStatus as AgentStatusType,
@@ -27,10 +35,7 @@ import { PublishVersionDialog } from '@/components/agents/publish-version-dialog
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
 import { PageHeader } from '@/components/shared/page-header';
 import { LoadingState, NotFoundState } from '@/components/shared/status-states';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePublishVersion } from '@/hooks/use-agent-versions';
 import {
   useAgent,

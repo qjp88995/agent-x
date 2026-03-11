@@ -1,10 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
-import type { PromptResponse } from '@agent-x/shared';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -12,8 +10,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  ScrollArea,
+} from '@agent-x/design';
+import type { PromptResponse } from '@agent-x/shared';
 
 interface PreviewDialogProps {
   readonly prompt: PromptResponse | null;

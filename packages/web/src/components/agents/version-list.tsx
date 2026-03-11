@@ -2,24 +2,22 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
+import {
+  Badge,
+  Button,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import type { AgentVersionResponse } from '@agent-x/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronRight, Link2, MessageSquare } from 'lucide-react';
 
 import { VersionShareLinks } from '@/components/agents/version-share-links';
 import { CopyableId } from '@/components/shared/copyable-id';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import { cn } from '@/lib/utils';

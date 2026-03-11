@@ -1,9 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { WorkspaceFileResponse } from '@agent-x/shared';
-import { ClipboardPaste, FilePlus, Folder, FolderPlus } from 'lucide-react';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +10,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+  Button,
+  ScrollArea,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
+import type { WorkspaceFileResponse } from '@agent-x/shared';
+import { ClipboardPaste, FilePlus, Folder, FolderPlus } from 'lucide-react';
+
 import {
   ContextMenu,
   ContextMenuContent,
@@ -22,12 +26,6 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 import { buildTree } from './file-tree-utils';
 import { InlineInput } from './inline-input';

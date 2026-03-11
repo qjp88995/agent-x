@@ -2,6 +2,26 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
 import {
   AlertTriangle,
@@ -15,30 +35,6 @@ import { toast } from 'sonner';
 
 import { ProviderEmptyState } from '@/components/providers/provider-empty-state';
 import { AddCard } from '@/components/shared/add-card';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
   useDeleteProvider,
   useProviders,

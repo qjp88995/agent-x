@@ -7,7 +7,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@agent-x/design';
+
 import { cn } from '@/lib/utils';
 
 interface FormCardProps {

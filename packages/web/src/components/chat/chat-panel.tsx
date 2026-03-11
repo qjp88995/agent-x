@@ -2,16 +2,16 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bot, ChevronLeft, Code2, MessageSquare } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { CONVERSATIONS_KEY, messagesKey, useMessages } from '@/hooks/use-chat';
 import { useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';

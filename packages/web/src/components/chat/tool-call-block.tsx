@@ -2,6 +2,11 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@agent-x/design';
+import {
   AlertCircle,
   CheckCircle2,
   ChevronDown,
@@ -10,11 +15,6 @@ import {
   Wrench,
 } from 'lucide-react';
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
 type ToolState =

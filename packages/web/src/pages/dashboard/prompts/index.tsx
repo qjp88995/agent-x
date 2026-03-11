@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@agent-x/design';
 import type { PromptResponse } from '@agent-x/shared';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,7 +12,6 @@ import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
 import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
 import { AddCard } from '@/components/shared/add-card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useDeleteMarketplacePrompt,

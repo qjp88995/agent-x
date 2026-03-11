@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@agent-x/design';
 import type { SkillResponse } from '@agent-x/shared';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,7 +12,6 @@ import { MarketplaceCard } from '@/components/skills/marketplace-card';
 import { PreviewDialog } from '@/components/skills/preview-dialog';
 import { SkillCard } from '@/components/skills/skill-card';
 import { SkillEmptyState } from '@/components/skills/skill-empty-state';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useDeleteMarketplaceSkill,

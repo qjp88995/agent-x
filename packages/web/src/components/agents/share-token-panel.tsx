@@ -1,12 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { formatDistanceToNow } from 'date-fns';
-import { Check, Copy, Link2, Loader2, XCircle } from 'lucide-react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -14,9 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  Input,
+  Label,
+} from '@agent-x/design';
+import { formatDistanceToNow } from 'date-fns';
+import { Check, Copy, Link2, Loader2, XCircle } from 'lucide-react';
+
 import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useCreateShareToken,

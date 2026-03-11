@@ -1,30 +1,26 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Loader2, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { PromptEditor } from '@/components/shared/prompt-editor';
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
-import {
+  Textarea,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { Loader2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { PromptEditor } from '@/components/shared/prompt-editor';
 import { useFeatureStatus, usePolishPrompt } from '@/hooks/use-system-config';
 
 const PRESET_KEYS = [

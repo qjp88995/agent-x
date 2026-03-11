@@ -2,22 +2,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import { useChat } from '@ai-sdk/react';
 import { ArrowLeft, Download, FileCode2, MessageSquare } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
-import { Button } from '@/components/ui/button';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { WorkspacePanel } from '@/components/workspace/workspace-panel';
 import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
 import {
