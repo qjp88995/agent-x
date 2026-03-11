@@ -1,13 +1,12 @@
 import { memo, useMemo } from 'react';
 
-import { MessageBubble } from '@agent-x/design';
+import { MessageBubble, ThinkingBlock } from '@agent-x/design';
 import type { ReasoningUIPart, UIMessage } from 'ai';
 
 import { FileChangeCard } from '@/components/workspace/file-change-card';
 import { extractFileChanges, type FileChange } from '@/lib/workspace-utils';
 
 import { MarkdownRenderer } from './markdown-renderer';
-import { ThinkingBlock } from './thinking-block';
 import { TimeCard } from './time-card';
 import { ToolCallBlock } from './tool-call-block';
 
@@ -156,9 +155,10 @@ function AssistantContent({
           return (
             <ThinkingBlock
               key={`reasoning-${i}`}
-              content={rp.text}
-              done={rp.state === 'done'}
-            />
+              defaultOpen={rp.state !== 'done'}
+            >
+              <div className="whitespace-pre-wrap">{rp.text || '...'}</div>
+            </ThinkingBlock>
           );
         }
         if (part.type === 'text') {
