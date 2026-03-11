@@ -308,3 +308,38 @@ Docker setup:
 - TypeScript strict mode in all packages
 - Immutable data patterns (create new objects, don't mutate)
 - **NEVER use `npx prisma db push`** to modify the database directly. Always use `npx prisma migrate dev --name <name>` to create proper migrations.
+
+### Tailwind CSS v4
+
+The project uses Tailwind CSS v4 with custom theme tokens defined in `@theme inline` blocks. **Always use standard Tailwind utility classes, NEVER use arbitrary value syntax to reference theme tokens.**
+
+```css
+/* WRONG — arbitrary value referencing a theme token */
+rounded-[var(--radius-lg)]
+bg-[var(--primary)]
+text-[var(--foreground-muted)]
+w-[var(--sidebar-collapsed)]
+
+/* CORRECT — standard Tailwind utility classes */
+rounded-lg
+bg-primary
+text-foreground-muted
+w-(--sidebar-collapsed)
+```
+
+Theme token → utility class mapping (defined in `packages/ui/src/index.css`):
+
+| Token        | Utility prefix                 | Example                                                                          |
+| ------------ | ------------------------------ | -------------------------------------------------------------------------------- |
+| `--color-*`  | `bg-`, `text-`, `border-`      | `bg-primary`, `text-foreground-muted`, `border-border`                           |
+| `--radius-*` | `rounded-`                     | `rounded-sm` (5px), `rounded-md` (8px), `rounded-lg` (10px), `rounded-xl` (12px) |
+| `--spacing`  | `p-`, `m-`, `gap-`, `w-`, `h-` | `p-4`, `gap-2`                                                                   |
+
+For sizing tokens (not registered in `@theme inline`), use the CSS variable function syntax:
+
+```css
+w-(--sidebar-collapsed)   /* 52px */
+w-(--sidebar-expanded)    /* 200px */
+h-(--header-height)       /* 48px */
+w-(--chat-sidebar)        /* 260px */
+```
