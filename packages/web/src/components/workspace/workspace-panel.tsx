@@ -5,8 +5,10 @@ import type {
   WorkspaceFileContentResponse,
   WorkspaceFileResponse,
 } from '@agent-x/shared';
+import { PanelLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { Button } from '@/components/ui/button';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -23,6 +25,7 @@ import {
   useRenameFile,
   useWorkspaceFiles,
 } from '@/hooks/use-workspace';
+import { cn } from '@/lib/utils';
 
 import { FileEditor, type OpenTab } from './file-editor';
 import { type ClipboardItem, FileTree } from './file-tree';
@@ -47,6 +50,7 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
   const [openTabs, setOpenTabs] = useState<OpenTab[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | undefined>();
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
+  const [mobileFileTreeOpen, setMobileFileTreeOpen] = useState(false);
 
   const handleSelectFile = useCallback((file: WorkspaceFileResponse) => {
     setOpenTabs(prev => {
@@ -55,6 +59,14 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
     });
     setActiveFileId(file.id);
   }, []);
+
+  const handleSelectFileMobile = useCallback(
+    (file: WorkspaceFileResponse) => {
+      handleSelectFile(file);
+      setMobileFileTreeOpen(false);
+    },
+    [handleSelectFile]
+  );
 
   const handleCloseTab = useCallback(
     (fileId: string) => {
@@ -287,44 +299,95 @@ export function WorkspacePanel({ conversationId }: WorkspacePanelProps) {
     ]
   );
 
+  const activeFile = openTabs.find(t => t.file.id === activeFileId)?.file;
+  const fileTreeProps = {
+    files: files ?? [],
+    selectedFileId: activeFileId,
+    clipboard,
+    onDownloadFile: handleDownloadFile,
+    onCreateFile: handleCreateFile,
+    onCreateDirectory: handleCreateDirectory,
+    onRenameFile: handleRenameFile,
+    onRenameDirectory: handleRenameDirectory,
+    onDeleteFile: handleDeleteFile,
+    onDeleteDirectory: handleDeleteDirectory,
+    onCopy: handleCopy,
+    onCut: handleCut,
+    onPaste: handlePaste,
+  };
+
   return (
-    <div className="flex h-full flex-col">
-      <ResizablePanelGroup orientation="horizontal" className="flex-1">
-        <ResizablePanel
-          defaultSize="25%"
-          minSize="15%"
-          maxSize="50%"
-          className="overflow-hidden"
-        >
-          <FileTree
-            files={files ?? []}
-            selectedFileId={activeFileId}
-            clipboard={clipboard}
-            onSelectFile={handleSelectFile}
-            onDownloadFile={handleDownloadFile}
-            onCreateFile={handleCreateFile}
-            onCreateDirectory={handleCreateDirectory}
-            onRenameFile={handleRenameFile}
-            onRenameDirectory={handleRenameDirectory}
-            onDeleteFile={handleDeleteFile}
-            onDeleteDirectory={handleDeleteDirectory}
-            onCopy={handleCopy}
-            onCut={handleCut}
-            onPaste={handlePaste}
-          />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize="75%">
-          <FileEditor
-            conversationId={conversationId}
-            tabs={openTabs}
-            activeFileId={activeFileId}
-            onSelectTab={setActiveFileId}
-            onCloseTab={handleCloseTab}
-            onTabModified={handleTabModified}
-          />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+    <div className="relative flex h-full flex-col">
+      {/* Mobile: backdrop */}
+      {mobileFileTreeOpen && (
+        <div
+          className="absolute inset-0 z-10 bg-black/40 md:hidden"
+          onClick={() => setMobileFileTreeOpen(false)}
+        />
+      )}
+
+      {/* Mobile: file tree drawer */}
+      <div
+        className={cn(
+          'absolute inset-y-0 left-0 z-20 w-64 border-r bg-background transition-transform duration-200 md:hidden',
+          mobileFileTreeOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <FileTree {...fileTreeProps} onSelectFile={handleSelectFileMobile} />
+      </div>
+
+      {/* Mobile: toolbar + editor */}
+      <div className="flex flex-1 flex-col overflow-hidden md:hidden">
+        <div className="flex h-9 shrink-0 items-center gap-2 border-b bg-muted/20 px-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 shrink-0"
+            onClick={() => setMobileFileTreeOpen(v => !v)}
+            aria-label="Toggle file tree"
+          >
+            <PanelLeft className="size-4" />
+          </Button>
+          {activeFile && (
+            <span className="truncate text-xs text-muted-foreground">
+              {activeFile.path}
+            </span>
+          )}
+        </div>
+        <FileEditor
+          conversationId={conversationId}
+          tabs={openTabs}
+          activeFileId={activeFileId}
+          onSelectTab={setActiveFileId}
+          onCloseTab={handleCloseTab}
+          onTabModified={handleTabModified}
+        />
+      </div>
+
+      {/* Desktop: resizable split */}
+      <div className="hidden flex-1 md:flex">
+        <ResizablePanelGroup orientation="horizontal" className="flex-1">
+          <ResizablePanel
+            defaultSize="25%"
+            minSize="15%"
+            maxSize="50%"
+            className="overflow-hidden"
+          >
+            <FileTree {...fileTreeProps} onSelectFile={handleSelectFile} />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize="75%">
+            <FileEditor
+              conversationId={conversationId}
+              tabs={openTabs}
+              activeFileId={activeFileId}
+              onSelectTab={setActiveFileId}
+              onCloseTab={handleCloseTab}
+              onTabModified={handleTabModified}
+            />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 }
