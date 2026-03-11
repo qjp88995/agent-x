@@ -31,6 +31,9 @@ export {
 export { Slider } from './primitives/slider';
 export { ScrollArea, ScrollBar } from './primitives/scroll-area';
 
+// Data
+export { DataTable, type Column } from './data/data-table';
+
 // Feedback
 export { Toaster, toast } from './feedback/toast';
 export {
