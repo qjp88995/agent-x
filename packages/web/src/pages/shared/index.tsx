@@ -4,7 +4,15 @@ import { Link, useParams, useSearchParams } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bot, Code2, MessageSquare, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  Bot,
+  ChevronLeft,
+  Code2,
+  MessageSquare,
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
@@ -178,6 +186,7 @@ function SharedChatContent({
 
   const [searchParams, setSearchParams] = useSearchParams();
   const conversationId = searchParams.get('c');
+  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>('sidebar');
 
   const setConversationId = useCallback(
     (id: string | null) => {
@@ -294,6 +303,7 @@ function SharedChatContent({
     setConversationId(null);
     setMessages([]);
     historyLoadedRef.current = null;
+    setMobileView('chat');
   }, [setConversationId, setMessages]);
 
   const handleSelectConversation = useCallback(
@@ -303,6 +313,7 @@ function SharedChatContent({
       setConversationId(id);
       historyLoadedRef.current = null;
       setMessages([]);
+      setMobileView('chat');
     },
     [conversationId, setConversationId, setMessages]
   );
@@ -335,78 +346,99 @@ function SharedChatContent({
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
-      <div className="flex h-full w-72 flex-col border-r bg-background">
-        {/* Agent info */}
-        <div className="flex h-14 shrink-0 items-center gap-2.5 border-b px-4">
-          <div className="gradient-bg flex size-8 shrink-0 items-center justify-center rounded-full">
-            {agentInfo.agentAvatar &&
-            /^https?:\/\//.test(agentInfo.agentAvatar) ? (
-              <img
-                src={agentInfo.agentAvatar}
-                alt={agentInfo.agentName}
-                className="size-8 rounded-full object-cover"
-              />
-            ) : (
-              <Bot className="size-4 text-white" />
-            )}
+      <div
+        className={cn(
+          'md:flex',
+          mobileView === 'sidebar' ? 'flex w-full' : 'hidden'
+        )}
+      >
+        <div className="flex h-full w-full flex-col border-r bg-background md:w-72">
+          {/* Agent info header */}
+          <div className="flex h-14 shrink-0 items-center gap-2.5 border-b px-4">
+            <div className="gradient-bg flex size-8 shrink-0 items-center justify-center rounded-full">
+              {agentInfo.agentAvatar &&
+              /^https?:\/\//.test(agentInfo.agentAvatar) ? (
+                <img
+                  src={agentInfo.agentAvatar}
+                  alt={agentInfo.agentName}
+                  className="size-8 rounded-full object-cover"
+                />
+              ) : (
+                <Bot className="size-4 text-white" />
+              )}
+            </div>
+            <span className="truncate text-sm font-semibold">
+              {agentInfo.agentName}
+            </span>
           </div>
-          <span className="truncate text-sm font-semibold">
-            {agentInfo.agentName}
-          </span>
-        </div>
 
-        {/* New chat button */}
-        <div className="px-3 py-2">
-          <Button
-            variant="primary"
-            className="w-full"
-            size="sm"
-            onClick={handleNewChat}
-          >
-            <Plus className="mr-2 size-4" />
-            {t('chat.newChat')}
-          </Button>
-        </div>
-
-        <Separator />
-
-        {/* Conversation list */}
-        <ScrollArea className="min-h-0 flex-1">
-          <div className="flex flex-col gap-1 p-2">
-            {(!conversations || conversations.length === 0) && (
-              <div className="flex flex-col items-center justify-center py-8">
-                <MessageSquare className="text-muted-foreground mb-2 size-8 opacity-40" />
-                <p className="text-muted-foreground text-xs">
-                  {t('chat.noConversationsYet')}
-                </p>
-              </div>
-            )}
-            {conversations?.map(conv => (
-              <SharedConversationItem
-                key={conv.id}
-                title={conv.title ?? t('chat.newChat')}
-                isActive={conv.id === conversationId}
-                onSelect={() => handleSelectConversation(conv.id)}
-                onRename={title => handleRenameConversation(conv.id, title)}
-                onDelete={() => handleDeleteConversation(conv.id)}
-              />
-            ))}
+          {/* New chat button */}
+          <div className="px-3 py-2">
+            <Button
+              variant="primary"
+              className="w-full"
+              size="sm"
+              onClick={handleNewChat}
+            >
+              <Plus className="mr-2 size-4" />
+              {t('chat.newChat')}
+            </Button>
           </div>
-        </ScrollArea>
 
-        {/* Footer */}
-        <div className="py-2 text-center text-xs">
-          <span className="text-muted-foreground">
-            {t('common.poweredBy')}{' '}
-          </span>
-          <span className="gradient-text font-semibold">Agent-X</span>
+          <Separator />
+
+          {/* Conversation list */}
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="flex flex-col gap-1 p-2">
+              {(!conversations || conversations.length === 0) && (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <MessageSquare className="text-muted-foreground mb-2 size-8 opacity-40" />
+                  <p className="text-muted-foreground text-xs">
+                    {t('chat.noConversationsYet')}
+                  </p>
+                </div>
+              )}
+              {conversations?.map(conv => (
+                <SharedConversationItem
+                  key={conv.id}
+                  title={conv.title ?? t('chat.newChat')}
+                  isActive={conv.id === conversationId}
+                  onSelect={() => handleSelectConversation(conv.id)}
+                  onRename={title => handleRenameConversation(conv.id, title)}
+                  onDelete={() => handleDeleteConversation(conv.id)}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+
+          {/* Footer */}
+          <div className="py-2 text-center text-xs">
+            <span className="text-muted-foreground">
+              {t('common.poweredBy')}{' '}
+            </span>
+            <span className="gradient-text font-semibold">Agent-X</span>
+          </div>
         </div>
       </div>
 
       {/* Main chat area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div
+        className={cn(
+          'flex flex-1 flex-col overflow-hidden',
+          mobileView === 'chat' ? 'flex' : 'hidden md:flex'
+        )}
+      >
         {/* Header */}
         <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-1 size-8 md:hidden"
+            onClick={() => setMobileView('sidebar')}
+            aria-label="返回"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
           <MessageSquare className="text-primary size-5" />
           <h2 className="truncate font-semibold">
             {conversationId
