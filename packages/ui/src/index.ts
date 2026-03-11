@@ -111,3 +111,6 @@ export { PageHeader } from './navigation/page-header';
 // Chat
 export { MessageBubble, CodeBlock } from './chat/message-bubble';
 export { ThinkingBlock } from './chat/thinking-block';
+export { FileChip } from './chat/file-chip';
+export { SlashCommandMenu, type SlashCommand } from './chat/slash-command-menu';
+export { VoiceRecorder } from './chat/voice-recorder';
