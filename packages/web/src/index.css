@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 @import '@agent-x/design/index.css';
 
-@source '../node_modules/@agent-x/design/src';
-
 @custom-variant light (&:is(.light *));
 
 @theme inline {

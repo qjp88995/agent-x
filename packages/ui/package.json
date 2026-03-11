@@ -3,15 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./index.css": "./src/index.css"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./index.css": "./dist/index.css"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "storybook dev -p 6006",
-    "build": "storybook build -o dist-storybook",
+    "build": "tsup && tailwindcss -i src/index.css -o dist/index.css --minify",
+    "dev": "tsup --watch & tailwindcss -i src/index.css -o dist/index.css --watch",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build -o dist-storybook",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit"
   },
@@ -46,9 +54,11 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@storybook/addon-docs": "^10.2.17",
     "@storybook/addon-themes": "^10.2.17",
     "@storybook/react": "^10.2.17",
     "@storybook/react-vite": "^10.2.17",
+    "@tailwindcss/cli": "^4.2.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -57,7 +67,7 @@
     "react-dom": "^19.0.0",
     "storybook": "^10.2.17",
     "tailwindcss": "^4.0.0",
-    "typescript": "~5.7.2",
-    "@storybook/addon-docs": "^10.2.17"
+    "tsup": "^8.5.1",
+    "typescript": "~5.7.2"
   }
 }
