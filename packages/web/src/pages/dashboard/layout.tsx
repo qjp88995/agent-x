@@ -6,6 +6,7 @@ import {
   Avatar,
   Button,
   IconSidebar,
+  PageTransition,
   ScrollArea,
   Sheet,
   SheetContent,
@@ -16,6 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@agent-x/design';
+import { AnimatePresence } from 'framer-motion';
 import {
   Bot,
   Database,
@@ -214,6 +216,7 @@ function MobileNav({
 
 export default function DashboardLayout() {
   const { t } = useTranslation();
+  const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const items = useSidebarItems();
@@ -255,7 +258,11 @@ export default function DashboardLayout() {
         </header>
 
         <main className="flex min-h-0 flex-1 flex-col overflow-auto">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <PageTransition key={location.pathname}>
+              <Outlet />
+            </PageTransition>
+          </AnimatePresence>
         </main>
       </div>
     </div>
