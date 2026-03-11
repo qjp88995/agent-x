@@ -2,6 +2,35 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import type {
   AgentResponse,
   AgentStatus as AgentStatusType,
@@ -21,39 +50,6 @@ import { toast } from 'sonner';
 
 import { AgentEmptyState } from '@/components/agents/agent-empty-state';
 import { AddCard } from '@/components/shared/add-card';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
   useAgents,
   useArchiveAgent,
@@ -90,10 +86,6 @@ function StatusBadge({ status }: { readonly status: AgentStatusType }) {
   );
 }
 
-function getAgentInitial(name: string): string {
-  return name.charAt(0).toUpperCase();
-}
-
 function AgentCard({
   agent,
   onDelete,
@@ -110,11 +102,7 @@ function AgentCard({
     <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
         <div className="flex items-center gap-3">
-          <Avatar className="size-10">
-            <AvatarFallback className="gradient-bg text-white text-sm font-semibold">
-              {getAgentInitial(agent.name)}
-            </AvatarFallback>
-          </Avatar>
+          <Avatar name={agent.name} size="lg" />
           <div className="flex flex-col gap-1">
             <CardTitle className="text-base">{agent.name}</CardTitle>
             <div className="flex items-center gap-2">

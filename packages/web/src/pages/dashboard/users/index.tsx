@@ -2,6 +2,43 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Avatar,
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@agent-x/design';
 import type { UserResponse } from '@agent-x/shared';
 import { format, formatDistanceToNow } from 'date-fns';
 import {
@@ -22,52 +59,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { CreateUserDialog } from '@/components/users/create-user-dialog';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import type { UseUsersParams } from '@/hooks/use-users';
@@ -136,11 +128,6 @@ function UserStatusBadge({ status }: { readonly status: string }) {
       {t(config.labelKey)}
     </Badge>
   );
-}
-
-function getUserInitial(name: string | null, email: string): string {
-  if (name) return name.charAt(0).toUpperCase();
-  return email.charAt(0).toUpperCase();
 }
 
 function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
@@ -537,16 +524,7 @@ export default function UserListPage() {
                     >
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Avatar className="size-8 shrink-0">
-                            <AvatarFallback
-                              className={cn(
-                                'text-xs font-semibold',
-                                isAdmin ? 'gradient-bg text-white' : 'bg-muted'
-                              )}
-                            >
-                              {getUserInitial(user.name, user.email)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <Avatar name={user.name ?? user.email} size="lg" />
                           <Link
                             to={`/users/${user.id}`}
                             className="flex min-w-0 flex-col hover:underline"

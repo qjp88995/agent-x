@@ -2,6 +2,32 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Skeleton,
+} from '@agent-x/design';
 import { format } from 'date-fns';
 import {
   AlertTriangle,
@@ -23,36 +49,6 @@ import {
 import { toast } from 'sonner';
 
 import { PageHeader } from '@/components/shared/page-header';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useResetUserPassword,
@@ -98,11 +94,6 @@ const STATUS_BADGE_CONFIG: Record<
     className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   },
 };
-
-function getUserInitial(name: string | null, email: string): string {
-  if (name) return name.charAt(0).toUpperCase();
-  return email.charAt(0).toUpperCase();
-}
 
 interface StatBoxProps {
   readonly icon: React.ComponentType<{ className?: string }>;
@@ -301,16 +292,7 @@ export default function UserDetailPage() {
 
       {/* User header */}
       <div className="flex items-center gap-4">
-        <Avatar className="size-14">
-          <AvatarFallback
-            className={cn(
-              'text-lg font-semibold',
-              isAdmin ? 'gradient-bg text-white' : 'bg-muted'
-            )}
-          >
-            {getUserInitial(user.name, user.email)}
-          </AvatarFallback>
-        </Avatar>
+        <Avatar name={displayName} size="lg" />
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <h2
