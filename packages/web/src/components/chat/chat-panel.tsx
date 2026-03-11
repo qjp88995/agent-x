@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bot, Code2, MessageSquare } from 'lucide-react';
+import { Bot, ChevronLeft, Code2, MessageSquare } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -25,6 +25,7 @@ interface ChatPanelProps {
   readonly conversationId: string;
   readonly agentName: string;
   readonly title?: string;
+  readonly onBack?: () => void;
 }
 
 function EmptyChat({ agentName }: { readonly agentName: string }) {
@@ -46,6 +47,7 @@ export function ChatPanel({
   conversationId,
   agentName,
   title,
+  onBack,
 }: ChatPanelProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -154,6 +156,17 @@ export function ChatPanel({
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+        {onBack && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-1 size-8 md:hidden"
+            onClick={onBack}
+            aria-label="返回"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+        )}
         <MessageSquare className="text-primary size-5" />
         <h2 className="truncate font-semibold">{title ?? agentName}</h2>
         {hasFiles && (
