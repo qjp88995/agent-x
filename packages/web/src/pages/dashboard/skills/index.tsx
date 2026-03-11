@@ -159,65 +159,64 @@ export default function SkillsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       <PageHeader
         title={t('skills.title')}
         description={t('skills.subtitle')}
         search
-        actions={<ViewToggle value={view} onChange={setView} />}
       />
 
-      <FilterTabs
-        tabs={filterTabs}
-        value={filter}
-        onChange={setFilter}
-        className="px-1"
-      />
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
+        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+        <ViewToggle value={view} onChange={setView} />
+      </div>
 
-      {!filtered.length ? (
-        <SkillEmptyState tab={emptyTab} isAdmin={isAdmin} />
-      ) : view === 'table' ? (
-        <SkillTable
-          skills={filtered}
-          isAdmin={isAdmin}
-          onDelete={handleDelete}
-          onPreview={setPreviewTarget}
-        />
-      ) : (
-        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {showMarketplaceAddCard && (
-            <StaggerItem>
-              <AddCard
-                to="/skills/new?type=system"
-                label={t('skills.addToMarketplace')}
-              />
-            </StaggerItem>
-          )}
-          {showCustomAddCard && (
-            <StaggerItem>
-              <AddCard to="/skills/new" label={t('skills.createSkill')} />
-            </StaggerItem>
-          )}
-          {filtered.map(skill => (
-            <StaggerItem key={skill.id}>
-              {skill.type === SkillType.SYSTEM ? (
-                <MarketplaceCard
-                  skill={skill}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteMarketplace}
-                  onPreview={setPreviewTarget}
+      <div className="flex-1 overflow-auto p-5">
+        {!filtered.length ? (
+          <SkillEmptyState tab={emptyTab} isAdmin={isAdmin} />
+        ) : view === 'table' ? (
+          <SkillTable
+            skills={filtered}
+            isAdmin={isAdmin}
+            onDelete={handleDelete}
+            onPreview={setPreviewTarget}
+          />
+        ) : (
+          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {showMarketplaceAddCard && (
+              <StaggerItem>
+                <AddCard
+                  to="/skills/new?type=system"
+                  label={t('skills.addToMarketplace')}
                 />
-              ) : (
-                <SkillCard
-                  skill={skill}
-                  onDelete={handleDeleteCustom}
-                  onPreview={setPreviewTarget}
-                />
-              )}
-            </StaggerItem>
-          ))}
-        </StaggerList>
-      )}
+              </StaggerItem>
+            )}
+            {showCustomAddCard && (
+              <StaggerItem>
+                <AddCard to="/skills/new" label={t('skills.createSkill')} />
+              </StaggerItem>
+            )}
+            {filtered.map(skill => (
+              <StaggerItem key={skill.id}>
+                {skill.type === SkillType.SYSTEM ? (
+                  <MarketplaceCard
+                    skill={skill}
+                    isAdmin={isAdmin}
+                    onDelete={handleDeleteMarketplace}
+                    onPreview={setPreviewTarget}
+                  />
+                ) : (
+                  <SkillCard
+                    skill={skill}
+                    onDelete={handleDeleteCustom}
+                    onPreview={setPreviewTarget}
+                  />
+                )}
+              </StaggerItem>
+            ))}
+          </StaggerList>
+        )}
+      </div>
 
       <PreviewDialog
         skill={previewTarget}

@@ -292,47 +292,44 @@ export default function ProviderListPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       {/* Header */}
       <PageHeader
         title={t('providers.title')}
         description={t('providers.subtitle')}
         search
         actions={
-          <>
-            <ViewToggle value={view} onChange={setView} />
-            <Button asChild>
-              <Link to="/providers/new">{t('providers.addProvider')}</Link>
-            </Button>
-          </>
+          <Button variant="primary" asChild>
+            <Link to="/providers/new">{t('providers.addProvider')}</Link>
+          </Button>
         }
       />
 
-      {/* Filter tabs */}
-      <FilterTabs
-        tabs={filterTabs}
-        value={filter}
-        onChange={setFilter}
-        className="px-1"
-      />
+      {/* Filter bar */}
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
+        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+        <ViewToggle value={view} onChange={setView} />
+      </div>
 
       {/* Provider list */}
-      {!filtered.length ? (
-        <ProviderEmptyState />
-      ) : view === 'table' ? (
-        <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
-      ) : (
-        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <StaggerItem>
-            <AddCard to="/providers/new" label={t('providers.addProvider')} />
-          </StaggerItem>
-          {filtered.map(provider => (
-            <StaggerItem key={provider.id}>
-              <ProviderCard provider={provider} onDelete={setDeleteTarget} />
+      <div className="flex-1 overflow-auto p-5">
+        {!filtered.length ? (
+          <ProviderEmptyState />
+        ) : view === 'table' ? (
+          <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
+        ) : (
+          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <StaggerItem>
+              <AddCard to="/providers/new" label={t('providers.addProvider')} />
             </StaggerItem>
-          ))}
-        </StaggerList>
-      )}
+            {filtered.map(provider => (
+              <StaggerItem key={provider.id}>
+                <ProviderCard provider={provider} onDelete={setDeleteTarget} />
+              </StaggerItem>
+            ))}
+          </StaggerList>
+        )}
+      </div>
 
       {/* Delete confirmation dialog */}
       <AlertDialog

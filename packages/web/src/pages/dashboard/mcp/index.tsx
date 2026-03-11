@@ -168,59 +168,61 @@ export default function McpPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       <PageHeader
         title={t('mcp.title')}
         description={t('mcp.subtitle')}
         search
-        actions={<ViewToggle value={view} onChange={setView} />}
       />
 
-      <FilterTabs
-        tabs={filterTabs}
-        value={filter}
-        onChange={setFilter}
-        className="px-1"
-      />
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
+        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+        <ViewToggle value={view} onChange={setView} />
+      </div>
 
-      {!filtered.length ? (
-        <McpEmptyState tab={emptyTab} isAdmin={isAdmin} />
-      ) : view === 'table' ? (
-        <McpTable
-          servers={filtered}
-          isAdmin={isAdmin}
-          onDelete={handleDelete}
-        />
-      ) : (
-        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {showMarketplaceAddCard && (
-            <StaggerItem>
-              <AddCard
-                to="/mcp-servers/new?type=official"
-                label={t('mcp.addToMarketplace')}
-              />
-            </StaggerItem>
-          )}
-          {showCustomAddCard && (
-            <StaggerItem>
-              <AddCard to="/mcp-servers/new" label={t('mcp.addServer')} />
-            </StaggerItem>
-          )}
-          {filtered.map(server => (
-            <StaggerItem key={server.id}>
-              {server.type === McpType.OFFICIAL ? (
-                <MarketplaceCard
-                  server={server}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteMarketplace}
+      <div className="flex-1 overflow-auto p-5">
+        {!filtered.length ? (
+          <McpEmptyState tab={emptyTab} isAdmin={isAdmin} />
+        ) : view === 'table' ? (
+          <McpTable
+            servers={filtered}
+            isAdmin={isAdmin}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {showMarketplaceAddCard && (
+              <StaggerItem>
+                <AddCard
+                  to="/mcp-servers/new?type=official"
+                  label={t('mcp.addToMarketplace')}
                 />
-              ) : (
-                <McpServerCard server={server} onDelete={handleDeleteCustom} />
-              )}
-            </StaggerItem>
-          ))}
-        </StaggerList>
-      )}
+              </StaggerItem>
+            )}
+            {showCustomAddCard && (
+              <StaggerItem>
+                <AddCard to="/mcp-servers/new" label={t('mcp.addServer')} />
+              </StaggerItem>
+            )}
+            {filtered.map(server => (
+              <StaggerItem key={server.id}>
+                {server.type === McpType.OFFICIAL ? (
+                  <MarketplaceCard
+                    server={server}
+                    isAdmin={isAdmin}
+                    onDelete={handleDeleteMarketplace}
+                  />
+                ) : (
+                  <McpServerCard
+                    server={server}
+                    onDelete={handleDeleteCustom}
+                  />
+                )}
+              </StaggerItem>
+            ))}
+          </StaggerList>
+        )}
+      </div>
 
       <AlertDialog
         open={deleteTarget !== null}

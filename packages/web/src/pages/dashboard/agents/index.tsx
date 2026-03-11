@@ -308,57 +308,54 @@ export default function AgentListPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       {/* Header */}
       <PageHeader
         title={t('agents.title')}
         description={t('agents.subtitle')}
         search
         actions={
-          <>
-            <ViewToggle value={view} onChange={setView} />
-            <Button asChild>
-              <Link to="/agents/new">{t('agents.createAgent')}</Link>
-            </Button>
-          </>
+          <Button variant="primary" asChild>
+            <Link to="/agents/new">{t('agents.createAgent')}</Link>
+          </Button>
         }
       />
 
-      {/* Filter tabs */}
-      <FilterTabs
-        tabs={filterTabs}
-        value={filter}
-        onChange={setFilter}
-        className="px-1"
-      />
+      {/* Filter bar */}
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
+        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+        <ViewToggle value={view} onChange={setView} />
+      </div>
 
       {/* Agent list */}
-      {!filtered.length ? (
-        <AgentEmptyState />
-      ) : view === 'table' ? (
-        <AgentTable
-          agents={filtered}
-          onDelete={setDeleteTarget}
-          onArchive={setArchiveTarget}
-          onUnarchive={handleUnarchive}
-        />
-      ) : (
-        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <StaggerItem>
-            <AddCard to="/agents/new" label={t('agents.createAgent')} />
-          </StaggerItem>
-          {filtered.map(agent => (
-            <StaggerItem key={agent.id}>
-              <AgentCard
-                agent={agent}
-                onDelete={setDeleteTarget}
-                onArchive={setArchiveTarget}
-                onUnarchive={handleUnarchive}
-              />
+      <div className="flex-1 overflow-auto p-5">
+        {!filtered.length ? (
+          <AgentEmptyState />
+        ) : view === 'table' ? (
+          <AgentTable
+            agents={filtered}
+            onDelete={setDeleteTarget}
+            onArchive={setArchiveTarget}
+            onUnarchive={handleUnarchive}
+          />
+        ) : (
+          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <StaggerItem>
+              <AddCard to="/agents/new" label={t('agents.createAgent')} />
             </StaggerItem>
-          ))}
-        </StaggerList>
-      )}
+            {filtered.map(agent => (
+              <StaggerItem key={agent.id}>
+                <AgentCard
+                  agent={agent}
+                  onDelete={setDeleteTarget}
+                  onArchive={setArchiveTarget}
+                  onUnarchive={handleUnarchive}
+                />
+              </StaggerItem>
+            ))}
+          </StaggerList>
+        )}
+      </div>
 
       {/* Delete confirmation dialog */}
       <AlertDialog
