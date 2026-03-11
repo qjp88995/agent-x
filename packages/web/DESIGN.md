@@ -4,37 +4,48 @@ React 19 frontend for Agent-X platform.
 
 ## Design Standards
 
-AI/Chatbot Platform visual style. Purple/Cyan OKLCH color palette with Plus Jakarta Sans font.
+Dark-first Zinc + Emerald design system. Components from `@agent-x/design` library.
 
 ### Color System
 
-OKLCH color space, defined in `src/index.css`. Key tokens:
+Hex color tokens, defined in `@agent-x/design/index.css` and bridged via `src/index.css`. Dark mode is the default (no class); light mode uses `.light` class.
 
-| Token          | Light                               | Dark                     | Usage                       |
-| -------------- | ----------------------------------- | ------------------------ | --------------------------- |
-| `--primary`    | `oklch(0.541 0.25 293)` purple      | `oklch(0.7 0.18 293)`    | Buttons, links, focus rings |
-| `--background` | `oklch(0.98 0.005 290)` near-white  | `oklch(0.145 0.02 280)`  | Page background             |
-| `--sidebar`    | `oklch(0.195 0.05 280)` dark indigo | `oklch(0.145 0.025 280)` | Sidebar background          |
+| Token                  | Dark (default) | Light     | Usage                  |
+| ---------------------- | -------------- | --------- | ---------------------- |
+| `--background`         | `#09090b` zinc | `#ffffff` | Page background        |
+| `--foreground`         | `#fafafa`      | `#09090b` | Primary text           |
+| `--card`               | `#18181b`      | `#f4f4f5` | Card/surface elevation |
+| `--surface`            | `#27272a`      | `#e4e4e7` | Subtle backgrounds     |
+| `--primary`            | `#10b981`      | `#059669` | Emerald accent, CTAs   |
+| `--primary-foreground` | `#022c22`      | `#ecfdf5` | Text on primary        |
+| `--destructive`        | `#ef4444`      | `#dc2626` | Error/delete actions   |
+| `--border`             | `#27272a`      | `#e4e4e7` | Borders                |
+| `--ring`               | `#10b981`      | `#059669` | Focus rings            |
+| `--foreground-muted`   | `#a1a1aa`      | `#71717a` | Secondary text         |
+| `--foreground-ghost`   | `#52525b`      | `#a1a1aa` | Placeholder, disabled  |
 
-> **永久深色侧边栏**：Sidebar 在明暗模式下均保持深色，形成与内容区的视觉层次对比，同时强化品牌识别。
+### Component Imports
 
-Gradient: `oklch(0.541 0.25 293)` purple -> `oklch(0.715 0.143 215)` cyan, 135deg angle.
+All shared UI components from `@agent-x/design`:
 
-### Custom Utility Classes
+```tsx
+import { Button, Card, CardHeader, CardContent, Badge, Avatar, Dialog, ... } from '@agent-x/design';
+```
 
-Defined in `src/index.css` `@layer utilities`:
-
-| Class           | Effect                             | Usage                           |
-| --------------- | ---------------------------------- | ------------------------------- |
-| `gradient-bg`   | Purple-to-cyan gradient background | Primary buttons, avatars, icons |
-| `gradient-text` | Gradient text (clip + transparent) | Brand text                      |
-| `glow-primary`  | 20px/40px purple box-shadow        | Hero icons, empty states        |
-| `glow-sm`       | 10px purple box-shadow             | Cards (login/register)          |
+Retained in `@/components/ui/` (app-specific): `form.tsx`, `calendar.tsx`, `date-picker.tsx`, `context-menu.tsx`, `resizable.tsx`.
 
 ### Typography
 
-- Font: **Plus Jakarta Sans** (loaded via Google Fonts in `index.html`)
+- Font: **System font stack** (`system-ui, -apple-system, sans-serif`)
 - Configured as `--font-sans` in `@theme inline`
+
+### Theme System
+
+Dark mode is default. Light mode toggled by `.light` class on `<html>`.
+
+### Sidebar
+
+Uses `IconSidebar` from design lib: collapsed 52px, expanded 200px. Main content offset: `md:ml-[var(--sidebar-collapsed)]`.
 
 ### Header Height
 
@@ -47,17 +58,6 @@ All full-screen page headers (chat, workspace, shared) use a consistent height:
 Standard header structure: `flex h-14 shrink-0 items-center border-b px-4`
 
 ### Layout Widths
-
-#### Dashboard (`pages/dashboard/layout.tsx`)
-
-```
-Sidebar (w-64, 256px) | Main content (flex-1, full width, p-6)
-```
-
-- Main content fills all available space (no max-width constraint)
-- Each page controls its own content width internally
-
-#### Width Standards by Page Type
 
 | Page Type            | Width      | Class                                                     | Examples                                    |
 | -------------------- | ---------- | --------------------------------------------------------- | ------------------------------------------- |
@@ -73,31 +73,9 @@ Sidebar (w-64, 256px) | Main content (flex-1, full width, p-6)
 
 ### Spacing Conventions
 
-#### Card + Form Pattern (Important)
+#### Card + Form Pattern
 
-shadcn/ui Card uses `flex flex-col gap-6` for spacing between its direct children. When a `<form>` wraps CardHeader, CardContent, and CardFooter, it blocks Card's gap from reaching them.
-
-**Rule: Always add `className="flex flex-col gap-6"` to `<form>` elements that are direct children of Card.**
-
-```tsx
-// CORRECT
-<Card>
-  <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-    <CardHeader>...</CardHeader>
-    <CardContent>...</CardContent>
-    <CardFooter>...</CardFooter>
-  </form>
-</Card>
-
-// WRONG - 0px gap between CardHeader and CardContent
-<Card>
-  <form onSubmit={handleSubmit}>
-    <CardHeader>...</CardHeader>
-    <CardContent>...</CardContent>
-    <CardFooter>...</CardFooter>
-  </form>
-</Card>
-```
+Always add `className="flex flex-col gap-6"` to `<form>` elements that are direct children of Card.
 
 #### Form Field Spacing
 
@@ -124,18 +102,19 @@ shadcn/ui Card uses `flex flex-col gap-6` for spacing between its direct childre
 | Ghost/icon           | `variant="ghost"`             | Toolbar icons, inline actions |
 | Destructive (solid)  | `variant="destructive"`       | Confirm delete in dialogs     |
 | Destructive (ghost)  | `variant="ghost-destructive"` | Card delete icon buttons      |
-| Link                 | `variant="link"`              | Inline text links             |
+
+### Badge Variants
+
+`default`, `outline`, `success`, `warning`, `destructive`, `info`, `muted`
 
 ### Empty State Pattern
 
-Consistent structure across all list pages:
-
 ```tsx
-<div className="gradient-bg text-white flex size-16 items-center justify-center rounded-full mb-4">
+<div className="bg-primary flex size-16 items-center justify-center rounded-full text-white mb-4">
   <Icon className="size-8" />
 </div>
 <h3 className="mb-1 text-lg font-semibold">Title</h3>
-<p className="text-muted-foreground text-sm">Description</p>
+<p className="text-foreground-muted text-sm">Description</p>
 ```
 
 ### Card Hover (List Pages)
@@ -144,54 +123,9 @@ All list page cards: `hover:shadow-md hover:border-primary/20 transition-all dur
 
 ### Form Patterns (react-hook-form + zod)
 
-#### Select 受控模式
-
-Radix Select 的 `value` 只接受 `string`。传 `undefined` 会使其进入非受控模式，后续值更新可能被忽略。
-
-```tsx
-// CORRECT - 始终传字符串，空字符串时自动显示 placeholder
-<Select value={field.value} onValueChange={field.onChange}>
-
-// WRONG - undefined 导致非受控/受控模式切换，值更新不可靠
-<Select value={field.value || undefined} onValueChange={field.onChange}>
-```
-
-#### 编辑表单异步数据初始化
-
-编辑页面需要异步加载数据再填充表单。由于 React hooks 不能条件调用，`useForm` 必须在组件顶部执行，此时数据可能未就绪。
-
-**规则：编辑表单拆分为 loader 外壳 + form 子组件。** 外壳负责数据加载和 loading/error 状态，子组件在 mount 时数据已就绪，`defaultValues` 从第一帧就是正确的。
-
-```tsx
-// CORRECT - 分层：外壳加载数据，子组件初始化表单
-function EditPage() {
-  const { data, isLoading } = useData(id);
-  if (isLoading) return <LoadingState />;
-  return <EditForm data={data} />;
-}
-
-function EditForm({ data }) {
-  const form = useForm({ defaultValues: { name: data.name } }); // 第一帧就正确
-}
-
-// WRONG - useForm 在数据加载前就初始化，依赖 useEffect 异步填充
-function EditPage() {
-  const { data, isLoading } = useData(id);
-  const form = useForm({ defaultValues: { name: '' } });
-  useEffect(() => {
-    if (data) form.reset(data);
-  }, [data]);
-  // 第一帧渲染空值，Select 等组件可能无法正确更新
-}
-```
-
-#### Zod Schema 验证消息
-
-Schema 中的 `message` 使用 i18n key，由 `FormMessage` 组件自动翻译：
-
-```tsx
-z.string().min(1, 'validation.required'); // 对应 locales/{en,zh}.json 中的 validation.required
-```
+- Select `value` 必须传 `string`，不能传 `undefined`
+- 编辑表单拆分为 loader 外壳 + form 子组件
+- Zod `message` 使用 i18n key: `z.string().min(1, 'validation.required')`
 
 ### Workspace UI Patterns
 
@@ -211,20 +145,6 @@ z.string().min(1, 'validation.required'); // 对应 locales/{en,zh}.json 中的 
 - 失去焦点时自动保存
 - 支持文本文件编辑和图片文件预览
 - 自定义主题 `agentx-light` / `agentx-dark`（定义在 `lib/monaco-themes.ts`），跟随系统明暗模式切换
-
-##### Editor Theme Palette
-
-| Token      | Light          | Dark             | Usage          |
-| ---------- | -------------- | ---------------- | -------------- |
-| keyword    | `#7C3AED` 紫   | `#A78BFA` 浅紫   | 关键字、标签   |
-| string     | `#0891B2` 青   | `#22D3EE` 亮青   | 字符串         |
-| function   | `#6D28D9` 深紫 | `#C084FC` 淡紫   | 函数声明/调用  |
-| type       | `#2563EB` 蓝   | `#60A5FA` 亮蓝   | 类型、类、接口 |
-| property   | `#0D9488` 青绿 | `#2DD4BF` 亮青绿 | 属性           |
-| number     | `#D97706` 琥珀 | `#FBBF24` 金色   | 数字、常量     |
-| comment    | `#8E8EA0` 灰   | `#6B6B8D` 暗灰   | 注释（斜体）   |
-| background | `#FDFDFF` 近白 | `#0F101C` 深靛   | 编辑器背景     |
-| cursor     | `#7C3AED`      | `#A78BFA`        | 光标、活动行号 |
 
 #### File Change Card (`components/workspace/file-change-card.tsx`)
 
