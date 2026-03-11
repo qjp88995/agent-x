@@ -16,12 +16,12 @@ interface ThemeState {
 
 export function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  const isDark =
-    theme === 'dark' ||
+  const isLight =
+    theme === 'light' ||
     (theme === 'system' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches);
+      window.matchMedia('(prefers-color-scheme: light)').matches);
 
-  root.classList.toggle('dark', isDark);
+  root.classList.toggle('light', isLight);
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -49,7 +49,7 @@ export const useThemeStore = create<ThemeState>()(
 
 // Listen for system theme changes
 window
-  .matchMedia('(prefers-color-scheme: dark)')
+  .matchMedia('(prefers-color-scheme: light)')
   .addEventListener('change', () => {
     const { theme } = useThemeStore.getState();
     if (theme === 'system') {
