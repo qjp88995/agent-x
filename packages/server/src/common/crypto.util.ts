@@ -26,3 +26,9 @@ export function decrypt(encryptedText: string, secret: string): string {
   decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
   return decipher.update(dataHex, 'hex', 'utf8') + decipher.final('utf8');
 }
+
+export function maskApiKey(encryptedApiKey: string, secret: string): string {
+  const decrypted = decrypt(encryptedApiKey, secret);
+  const lastFour = decrypted.slice(-4);
+  return `sk-...${lastFour}`;
+}

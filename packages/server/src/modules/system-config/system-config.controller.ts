@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CreateSystemProviderDto } from './dto/create-system-provider.dto';
+import { CreateProviderDto } from '../provider/dto/create-provider.dto';
+import { UpdateProviderDto } from '../provider/dto/update-provider.dto';
 import { GenerateDto } from './dto/generate.dto';
 import { PolishPromptDto } from './dto/polish-prompt.dto';
 import { UpdateFeatureConfigDto } from './dto/update-feature-config.dto';
-import { UpdateSystemProviderDto } from './dto/update-system-provider.dto';
 import { SystemConfigService } from './system-config.service';
 
 @Controller('system')
@@ -30,7 +30,7 @@ export class SystemConfigController {
 
   @Post('providers')
   @Roles('ADMIN')
-  createProvider(@Body() dto: CreateSystemProviderDto) {
+  createProvider(@Body() dto: CreateProviderDto) {
     return this.systemConfigService.createProvider(dto);
   }
 
@@ -42,10 +42,7 @@ export class SystemConfigController {
 
   @Put('providers/:id')
   @Roles('ADMIN')
-  updateProvider(
-    @Param('id') id: string,
-    @Body() dto: UpdateSystemProviderDto
-  ) {
+  updateProvider(@Param('id') id: string, @Body() dto: UpdateProviderDto) {
     return this.systemConfigService.updateProvider(id, dto);
   }
 

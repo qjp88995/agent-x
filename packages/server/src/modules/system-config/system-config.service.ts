@@ -7,41 +7,23 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { APICallError, generateText, Output } from 'ai';
+import { generateText, Output } from 'ai';
 import { z } from 'zod';
 
 import {
   clampTemperature,
   createLanguageModel,
-  getDefaultModelId,
   getThinkingProviderOptions,
+  type ModelInfo,
+  resolveModels,
+  testConnection,
 } from '../../common/ai-provider.util';
-import { decrypt, encrypt } from '../../common/crypto.util';
-import { ProviderProtocol } from '../../generated/prisma/client';
+import { decrypt, encrypt, maskApiKey } from '../../common/crypto.util';
+import { pickDefined } from '../../common/pick-defined.util';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateSystemProviderDto } from './dto/create-system-provider.dto';
+import { CreateProviderDto } from '../provider/dto/create-provider.dto';
+import { UpdateProviderDto } from '../provider/dto/update-provider.dto';
 import { UpdateFeatureConfigDto } from './dto/update-feature-config.dto';
-import { UpdateSystemProviderDto } from './dto/update-system-provider.dto';
-
-export interface ModelInfo {
-  readonly id: string;
-  readonly name: string;
-}
-
-const ANTHROPIC_MODELS: readonly ModelInfo[] = [
-  { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4' },
-  { id: 'claude-haiku-4-20250414', name: 'Claude Haiku 4' },
-  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
-  { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku' },
-] as const;
-
-const GEMINI_MODELS: readonly ModelInfo[] = [
-  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
-  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
-  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
-  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
-  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
-] as const;
 
 @Injectable()
 export class SystemConfigService implements OnModuleInit {
@@ -62,15 +44,9 @@ export class SystemConfigService implements OnModuleInit {
     return secret;
   }
 
-  private maskApiKey(apiKey: string): string {
-    const decrypted = decrypt(apiKey, this.getEncryptionSecret());
-    const lastFour = decrypted.slice(-4);
-    return `sk-...${lastFour}`;
-  }
-
   // --- SystemProvider CRUD ---
 
-  async createProvider(dto: CreateSystemProviderDto) {
+  async createProvider(dto: CreateProviderDto) {
     const encryptedApiKey = encrypt(dto.apiKey, this.getEncryptionSecret());
 
     return this.prisma.systemProvider.create({
@@ -88,9 +64,10 @@ export class SystemConfigService implements OnModuleInit {
       orderBy: { createdAt: 'desc' },
     });
 
+    const secret = this.getEncryptionSecret();
     return providers.map(provider => ({
       ...provider,
-      apiKey: this.maskApiKey(provider.apiKey),
+      apiKey: maskApiKey(provider.apiKey, secret),
     }));
   }
 
@@ -105,11 +82,11 @@ export class SystemConfigService implements OnModuleInit {
 
     return {
       ...provider,
-      apiKey: this.maskApiKey(provider.apiKey),
+      apiKey: maskApiKey(provider.apiKey, this.getEncryptionSecret()),
     };
   }
 
-  async updateProvider(id: string, dto: UpdateSystemProviderDto) {
+  async updateProvider(id: string, dto: UpdateProviderDto) {
     const provider = await this.prisma.systemProvider.findUnique({
       where: { id },
     });
@@ -118,20 +95,15 @@ export class SystemConfigService implements OnModuleInit {
       throw new NotFoundException('System provider not found');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.baseUrl !== undefined) {
-      data.baseUrl = dto.baseUrl;
-    }
-    if (dto.isActive !== undefined) {
-      data.isActive = dto.isActive;
-    }
-    if (dto.apiKey !== undefined) {
-      data.apiKey = encrypt(dto.apiKey, this.getEncryptionSecret());
-    }
+    const data = pickDefined({
+      name: dto.name,
+      baseUrl: dto.baseUrl,
+      isActive: dto.isActive,
+      apiKey:
+        dto.apiKey !== undefined
+          ? encrypt(dto.apiKey, this.getEncryptionSecret())
+          : undefined,
+    });
 
     return this.prisma.systemProvider.update({
       where: { id },
@@ -174,34 +146,7 @@ export class SystemConfigService implements OnModuleInit {
     }
 
     const apiKey = decrypt(provider.apiKey, this.getEncryptionSecret());
-
-    try {
-      const model = createLanguageModel(
-        provider.protocol,
-        provider.baseUrl,
-        apiKey,
-        getDefaultModelId(provider.protocol)
-      );
-
-      await generateText({
-        model,
-        prompt: 'Say hello in one word.',
-        maxOutputTokens: 10,
-        experimental_telemetry: { isEnabled: true },
-      });
-
-      return { success: true, message: 'Connection successful' };
-    } catch (error) {
-      if (APICallError.isInstance(error)) {
-        return {
-          success: false,
-          message: `Connection failed (${error.statusCode}): ${error.message}`,
-        };
-      }
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      return { success: false, message: `Connection failed: ${errorMessage}` };
-    }
+    return testConnection(provider.protocol, provider.baseUrl, apiKey);
   }
 
   async getProviderModels(id: string): Promise<readonly ModelInfo[]> {
@@ -214,24 +159,7 @@ export class SystemConfigService implements OnModuleInit {
     }
 
     const apiKey = decrypt(provider.apiKey, this.getEncryptionSecret());
-
-    switch (provider.protocol) {
-      case ProviderProtocol.OPENAI:
-        return this.fetchOpenAIModels(provider.baseUrl, apiKey);
-      case ProviderProtocol.ANTHROPIC:
-        return [...ANTHROPIC_MODELS];
-      case ProviderProtocol.GEMINI:
-        return [...GEMINI_MODELS];
-      case ProviderProtocol.DEEPSEEK:
-      case ProviderProtocol.QWEN:
-      case ProviderProtocol.ZHIPU:
-      case ProviderProtocol.MOONSHOT:
-        return this.fetchOpenAIModels(provider.baseUrl, apiKey);
-      default:
-        throw new BadRequestException(
-          `Unsupported protocol: ${provider.protocol as string}`
-        );
-    }
+    return resolveModels(provider.protocol, provider.baseUrl, apiKey);
   }
 
   // --- Feature Config ---
@@ -252,29 +180,15 @@ export class SystemConfigService implements OnModuleInit {
       throw new NotFoundException(`Feature config not found: ${featureKey}`);
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.systemProviderId !== undefined) {
-      data.systemProviderId = dto.systemProviderId;
-    }
-    if (dto.modelId !== undefined) {
-      data.modelId = dto.modelId;
-    }
-    if (dto.systemPrompt !== undefined) {
-      data.systemPrompt = dto.systemPrompt;
-    }
-    if (dto.isEnabled !== undefined) {
-      data.isEnabled = dto.isEnabled;
-    }
-    if (dto.temperature !== undefined) {
-      data.temperature = dto.temperature;
-    }
-    if (dto.maxTokens !== undefined) {
-      data.maxTokens = dto.maxTokens;
-    }
-    if (dto.thinkingEnabled !== undefined) {
-      data.thinkingEnabled = dto.thinkingEnabled;
-    }
+    const data = pickDefined({
+      systemProviderId: dto.systemProviderId,
+      modelId: dto.modelId,
+      systemPrompt: dto.systemPrompt,
+      isEnabled: dto.isEnabled,
+      temperature: dto.temperature,
+      maxTokens: dto.maxTokens,
+      thinkingEnabled: dto.thinkingEnabled,
+    });
 
     return this.prisma.systemFeatureConfig.update({
       where: { featureKey },
@@ -451,33 +365,5 @@ export class SystemConfigService implements OnModuleInit {
     });
 
     return output!;
-  }
-
-  // --- Private helpers ---
-
-  private async fetchOpenAIModels(
-    baseUrl: string,
-    apiKey: string
-  ): Promise<readonly ModelInfo[]> {
-    const response = await fetch(`${baseUrl}/models`, {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new BadRequestException(
-        `Failed to fetch models: ${response.statusText}`
-      );
-    }
-
-    const body = (await response.json()) as {
-      data: Array<{ id: string; name?: string }>;
-    };
-
-    return body.data.map(m => ({
-      id: m.id,
-      name: m.name ?? m.id,
-    }));
   }
 }

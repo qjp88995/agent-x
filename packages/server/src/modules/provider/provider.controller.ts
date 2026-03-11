@@ -48,7 +48,7 @@ export class ProviderController {
 
   @Post(':id/test')
   testConnection(@Param('id') id: string, @CurrentUser() user: { id: string }) {
-    return this.providerService.testConnection(id, user.id);
+    return this.providerService.testProviderConnection(id, user.id);
   }
 
   @Get(':id/models')

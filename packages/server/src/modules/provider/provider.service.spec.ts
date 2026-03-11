@@ -2,6 +2,7 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import * as aiProviderUtil from '../../common/ai-provider.util';
 import * as cryptoUtil from '../../common/crypto.util';
 import { ProviderProtocol } from '../../generated/prisma/client';
 import { ProviderService } from './provider.service';
@@ -25,63 +26,22 @@ jest.mock('../../prisma/prisma.service', () => ({
 jest.mock('../../common/crypto.util', () => ({
   encrypt: jest.fn(),
   decrypt: jest.fn(),
+  maskApiKey: jest.fn(),
 }));
 
-jest.mock('ai', () => ({
-  generateText: jest.fn(),
-  APICallError: {
-    isInstance: jest.fn((error: unknown) => {
-      return error instanceof Error && 'statusCode' in error && 'url' in error;
-    }),
-  },
+jest.mock('../../common/ai-provider.util', () => ({
+  testConnection: jest.fn(),
+  resolveModels: jest.fn(),
 }));
 
-jest.mock('@ai-sdk/openai', () => ({
-  createOpenAI: jest.fn(),
-}));
-
-jest.mock('@ai-sdk/anthropic', () => ({
-  createAnthropic: jest.fn(),
-}));
-
-jest.mock('@ai-sdk/google', () => ({
-  createGoogleGenerativeAI: jest.fn(),
-}));
-
-jest.mock('@ai-sdk/deepseek', () => ({
-  createDeepSeek: jest.fn(),
-}));
-
-jest.mock('@ai-sdk/alibaba', () => ({
-  createAlibaba: jest.fn(),
-}));
-
-jest.mock('@ai-sdk/moonshotai', () => ({
-  createMoonshotAI: jest.fn(),
-}));
-
-jest.mock('zhipu-ai-provider', () => ({
-  createZhipu: jest.fn(),
+jest.mock('../../common/pick-defined.util', () => ({
+  pickDefined: jest.fn((obj: Record<string, unknown>) =>
+    Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined))
+  ),
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { PrismaService } = require('../../prisma/prisma.service');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { generateText } = require('ai');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createOpenAI } = require('@ai-sdk/openai');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createAnthropic } = require('@ai-sdk/anthropic');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createGoogleGenerativeAI } = require('@ai-sdk/google');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createDeepSeek } = require('@ai-sdk/deepseek');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createAlibaba } = require('@ai-sdk/alibaba');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createMoonshotAI } = require('@ai-sdk/moonshotai');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { createZhipu } = require('zhipu-ai-provider');
 
 const ENCRYPTION_SECRET = 'test-encryption-secret';
 const MOCK_USER_ID = 'cuid-user-1';
@@ -185,7 +145,7 @@ describe('ProviderService', () => {
         },
       ];
       mockPrismaService.provider.findMany.mockResolvedValue(providers);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-test-key-1234');
+      (cryptoUtil.maskApiKey as jest.Mock).mockReturnValue('sk-...1234');
 
       const result = await service.findAll(MOCK_USER_ID);
 
@@ -213,7 +173,7 @@ describe('ProviderService', () => {
         _count: { models: 0 },
       };
       mockPrismaService.provider.findFirst.mockResolvedValue(provider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-test-key-5678');
+      (cryptoUtil.maskApiKey as jest.Mock).mockReturnValue('sk-...5678');
 
       const result = await service.findOne(MOCK_PROVIDER_ID, MOCK_USER_ID);
 
@@ -324,19 +284,16 @@ describe('ProviderService', () => {
     });
   });
 
-  describe('testConnection', () => {
-    it('should return success for valid OPENAI provider', async () => {
+  describe('testProviderConnection', () => {
+    it('should delegate to shared testConnection utility', async () => {
       mockPrismaService.provider.findFirst.mockResolvedValue(mockProvider);
       (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-real-api-key');
-
-      const mockChat = jest.fn().mockReturnValue('openai-model-instance');
-      const mockOpenAI = Object.assign(jest.fn(), { chat: mockChat });
-      (createOpenAI as jest.Mock).mockReturnValue(mockOpenAI);
-      (generateText as jest.Mock).mockResolvedValue({
-        text: 'Hello',
+      (aiProviderUtil.testConnection as jest.Mock).mockResolvedValue({
+        success: true,
+        message: 'Connection successful',
       });
 
-      const result = await service.testConnection(
+      const result = await service.testProviderConnection(
         MOCK_PROVIDER_ID,
         MOCK_USER_ID
       );
@@ -345,79 +302,11 @@ describe('ProviderService', () => {
         'encrypted-api-key',
         ENCRYPTION_SECRET
       );
-      expect(createOpenAI).toHaveBeenCalledWith({
-        baseURL: mockProvider.baseUrl,
-        apiKey: 'sk-real-api-key',
-      });
-      expect(mockChat).toHaveBeenCalledWith('gpt-4o-mini');
-      expect(generateText).toHaveBeenCalledWith({
-        model: 'openai-model-instance',
-        prompt: 'Say hello in one word.',
-        maxOutputTokens: 10,
-        experimental_telemetry: { isEnabled: true },
-      });
-      expect(result).toEqual({
-        success: true,
-        message: 'Connection successful',
-      });
-    });
-
-    it('should return success for valid ANTHROPIC provider', async () => {
-      const anthropicProvider = {
-        ...mockProvider,
-        protocol: ProviderProtocol.ANTHROPIC,
-        baseUrl: 'https://api.anthropic.com',
-      };
-      mockPrismaService.provider.findFirst.mockResolvedValue(anthropicProvider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-ant-key');
-
-      const mockModel = jest.fn();
-      (createAnthropic as jest.Mock).mockReturnValue(mockModel);
-      mockModel.mockReturnValue('anthropic-model-instance');
-      (generateText as jest.Mock).mockResolvedValue({
-        text: 'Hello',
-      });
-
-      const result = await service.testConnection(
-        MOCK_PROVIDER_ID,
-        MOCK_USER_ID
+      expect(aiProviderUtil.testConnection).toHaveBeenCalledWith(
+        'OPENAI',
+        'https://api.openai.com/v1',
+        'sk-real-api-key'
       );
-
-      expect(createAnthropic).toHaveBeenCalledWith({
-        baseURL: 'https://api.anthropic.com',
-        apiKey: 'sk-ant-key',
-      });
-      expect(result).toEqual({
-        success: true,
-        message: 'Connection successful',
-      });
-    });
-
-    it('should return success for valid GEMINI provider', async () => {
-      const geminiProvider = {
-        ...mockProvider,
-        protocol: ProviderProtocol.GEMINI,
-        baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-      };
-      mockPrismaService.provider.findFirst.mockResolvedValue(geminiProvider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('google-api-key');
-
-      const mockModel = jest.fn();
-      (createGoogleGenerativeAI as jest.Mock).mockReturnValue(mockModel);
-      mockModel.mockReturnValue('gemini-model-instance');
-      (generateText as jest.Mock).mockResolvedValue({
-        text: 'Hello',
-      });
-
-      const result = await service.testConnection(
-        MOCK_PROVIDER_ID,
-        MOCK_USER_ID
-      );
-
-      expect(createGoogleGenerativeAI).toHaveBeenCalledWith({
-        baseURL: 'https://generativelanguage.googleapis.com/v1beta',
-        apiKey: 'google-api-key',
-      });
       expect(result).toEqual({
         success: true,
         message: 'Connection successful',
@@ -427,15 +316,12 @@ describe('ProviderService', () => {
     it('should return failure when connection fails', async () => {
       mockPrismaService.provider.findFirst.mockResolvedValue(mockProvider);
       (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-invalid-key');
+      (aiProviderUtil.testConnection as jest.Mock).mockResolvedValue({
+        success: false,
+        message: 'Connection failed: Invalid API key',
+      });
 
-      const mockChat = jest.fn().mockReturnValue('openai-model-instance');
-      const mockOpenAI = Object.assign(jest.fn(), { chat: mockChat });
-      (createOpenAI as jest.Mock).mockReturnValue(mockOpenAI);
-      (generateText as jest.Mock).mockRejectedValue(
-        new Error('Invalid API key')
-      );
-
-      const result = await service.testConnection(
+      const result = await service.testProviderConnection(
         MOCK_PROVIDER_ID,
         MOCK_USER_ID
       );
@@ -446,152 +332,11 @@ describe('ProviderService', () => {
       });
     });
 
-    it('should return failure with status code for APICallError', async () => {
-      mockPrismaService.provider.findFirst.mockResolvedValue(mockProvider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-invalid-key');
-
-      const mockChat = jest.fn().mockReturnValue('openai-model-instance');
-      const mockOpenAI = Object.assign(jest.fn(), { chat: mockChat });
-      (createOpenAI as jest.Mock).mockReturnValue(mockOpenAI);
-
-      const apiError = Object.assign(new Error('Unauthorized'), {
-        statusCode: 401,
-        url: 'https://api.openai.com/v1/chat/completions',
-      });
-      (generateText as jest.Mock).mockRejectedValue(apiError);
-
-      const result = await service.testConnection(
-        MOCK_PROVIDER_ID,
-        MOCK_USER_ID
-      );
-
-      expect(result).toEqual({
-        success: false,
-        message: 'Connection failed (401): Unauthorized',
-      });
-    });
-
-    it('should return success for valid DEEPSEEK provider', async () => {
-      const deepseekProvider = {
-        ...mockProvider,
-        protocol: ProviderProtocol.DEEPSEEK,
-        baseUrl: 'https://api.deepseek.com',
-      };
-      mockPrismaService.provider.findFirst.mockResolvedValue(deepseekProvider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-deepseek-key');
-
-      const mockModel = jest.fn().mockReturnValue('deepseek-model-instance');
-      (createDeepSeek as jest.Mock).mockReturnValue(mockModel);
-      (generateText as jest.Mock).mockResolvedValue({ text: 'Hello' });
-
-      const result = await service.testConnection(
-        MOCK_PROVIDER_ID,
-        MOCK_USER_ID
-      );
-
-      expect(createDeepSeek).toHaveBeenCalledWith({
-        baseURL: 'https://api.deepseek.com',
-        apiKey: 'sk-deepseek-key',
-      });
-      expect(mockModel).toHaveBeenCalledWith('deepseek-chat');
-      expect(result).toEqual({
-        success: true,
-        message: 'Connection successful',
-      });
-    });
-
-    it('should return success for valid QWEN provider', async () => {
-      const qwenProvider = {
-        ...mockProvider,
-        protocol: ProviderProtocol.QWEN,
-        baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-      };
-      mockPrismaService.provider.findFirst.mockResolvedValue(qwenProvider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-qwen-key');
-
-      const mockModel = jest.fn().mockReturnValue('qwen-model-instance');
-      (createAlibaba as jest.Mock).mockReturnValue(mockModel);
-      (generateText as jest.Mock).mockResolvedValue({ text: 'Hello' });
-
-      const result = await service.testConnection(
-        MOCK_PROVIDER_ID,
-        MOCK_USER_ID
-      );
-
-      expect(createAlibaba).toHaveBeenCalledWith({
-        baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-        apiKey: 'sk-qwen-key',
-      });
-      expect(mockModel).toHaveBeenCalledWith('qwen-turbo');
-      expect(result).toEqual({
-        success: true,
-        message: 'Connection successful',
-      });
-    });
-
-    it('should return success for valid ZHIPU provider', async () => {
-      const zhipuProvider = {
-        ...mockProvider,
-        protocol: ProviderProtocol.ZHIPU,
-        baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-      };
-      mockPrismaService.provider.findFirst.mockResolvedValue(zhipuProvider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-zhipu-key');
-
-      const mockModel = jest.fn().mockReturnValue('zhipu-model-instance');
-      (createZhipu as jest.Mock).mockReturnValue(mockModel);
-      (generateText as jest.Mock).mockResolvedValue({ text: 'Hello' });
-
-      const result = await service.testConnection(
-        MOCK_PROVIDER_ID,
-        MOCK_USER_ID
-      );
-
-      expect(createZhipu).toHaveBeenCalledWith({
-        baseURL: 'https://open.bigmodel.cn/api/paas/v4',
-        apiKey: 'sk-zhipu-key',
-      });
-      expect(mockModel).toHaveBeenCalledWith('glm-4-flash');
-      expect(result).toEqual({
-        success: true,
-        message: 'Connection successful',
-      });
-    });
-
-    it('should return success for valid MOONSHOT provider', async () => {
-      const moonshotProvider = {
-        ...mockProvider,
-        protocol: ProviderProtocol.MOONSHOT,
-        baseUrl: 'https://api.moonshot.cn/v1',
-      };
-      mockPrismaService.provider.findFirst.mockResolvedValue(moonshotProvider);
-      (cryptoUtil.decrypt as jest.Mock).mockReturnValue('sk-moonshot-key');
-
-      const mockModel = jest.fn().mockReturnValue('moonshot-model-instance');
-      (createMoonshotAI as jest.Mock).mockReturnValue(mockModel);
-      (generateText as jest.Mock).mockResolvedValue({ text: 'Hello' });
-
-      const result = await service.testConnection(
-        MOCK_PROVIDER_ID,
-        MOCK_USER_ID
-      );
-
-      expect(createMoonshotAI).toHaveBeenCalledWith({
-        baseURL: 'https://api.moonshot.cn/v1',
-        apiKey: 'sk-moonshot-key',
-      });
-      expect(mockModel).toHaveBeenCalledWith('moonshot-v1-8k');
-      expect(result).toEqual({
-        success: true,
-        message: 'Connection successful',
-      });
-    });
-
     it('should throw NotFoundException when provider not found', async () => {
       mockPrismaService.provider.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.testConnection('nonexistent-id', MOCK_USER_ID)
+        service.testProviderConnection('nonexistent-id', MOCK_USER_ID)
       ).rejects.toThrow(NotFoundException);
     });
   });
