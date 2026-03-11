@@ -23,7 +23,7 @@ export function ListPageHeader({
   trailing,
 }: ListPageHeaderProps) {
   return (
-    <div className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-4">
+    <div className="flex h-12 shrink-0 items-center gap-3 border-b border-border px-5">
       <div className="flex min-w-0 flex-col">
         <span className="truncate text-sm font-semibold leading-none">
           {title}

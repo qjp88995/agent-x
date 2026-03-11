@@ -354,7 +354,7 @@ function SharedChatContent({
       >
         <div className="flex h-full w-full flex-col border-r bg-background md:w-72">
           {/* Agent info header */}
-          <div className="flex h-14 shrink-0 items-center gap-2.5 border-b px-4">
+          <div className="flex h-12 shrink-0 items-center gap-2.5 border-b px-4">
             <div className="bg-primary flex size-8 shrink-0 items-center justify-center rounded-full">
               {agentInfo.agentAvatar &&
               /^https?:\/\//.test(agentInfo.agentAvatar) ? (
@@ -429,7 +429,7 @@ function SharedChatContent({
         )}
       >
         {/* Header */}
-        <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+        <div className="flex h-12 shrink-0 items-center gap-3 border-b px-4">
           <Button
             variant="ghost"
             size="icon"

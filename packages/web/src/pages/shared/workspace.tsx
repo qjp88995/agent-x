@@ -125,7 +125,7 @@ function SharedWorkspaceContent({
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+      <div className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8" asChild>

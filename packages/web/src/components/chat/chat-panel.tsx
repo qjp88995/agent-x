@@ -155,7 +155,7 @@ export function ChatPanel({
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
+      <div className="flex h-12 shrink-0 items-center gap-3 border-b px-4">
         {onBack && (
           <Button
             variant="ghost"
@@ -196,7 +196,7 @@ export function ChatPanel({
           <MessageList
             ref={messagesEndRef}
             messages={messages}
-            className="mx-auto max-w-3xl"
+            className="mx-auto max-w-[640px]"
             isStreaming={isLoading}
             showTyping={
               isLoading &&
