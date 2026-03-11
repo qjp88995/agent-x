@@ -14,11 +14,11 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-8 w-full items-center justify-between gap-2 rounded-[var(--radius-md)] border border-border bg-card px-3 text-[13px] text-foreground-secondary',
+      'flex h-8 w-full items-center justify-between gap-2 rounded-md border border-border bg-card px-3 text-[13px] text-foreground-secondary',
       'focus:outline-none focus:border-primary',
       'disabled:cursor-not-allowed disabled:opacity-50',
       'data-[placeholder]:text-foreground-ghost',
-      'transition-colors duration-[var(--duration-fast)]',
+      'transition-colors duration-(--duration-fast)',
       '[&>span]:line-clamp-1 [&>span]:text-left',
       className,
     )}
@@ -68,7 +68,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 min-w-[8rem] overflow-hidden rounded-[var(--radius-md)] border border-border bg-card shadow-lg',
+        'relative z-50 min-w-32 overflow-hidden rounded-md border border-border bg-card shadow-lg',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -86,7 +86,7 @@ const SelectContent = React.forwardRef<
         className={cn(
           'p-1',
           position === 'popper' &&
-            'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]',
+            'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)',
         )}
       >
         {children}
@@ -116,11 +116,11 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-pointer select-none items-center rounded-[var(--radius-sm)] py-1.5 pl-7 pr-2 text-[12px] text-foreground-secondary outline-none',
+      'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-7 pr-2 text-[12px] text-foreground-secondary outline-none',
       'focus:bg-primary/10 focus:text-foreground-secondary',
       'hover:bg-primary/10',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      'transition-colors duration-[80ms]',
+      'transition-colors duration-80',
       className,
     )}
     {...props}

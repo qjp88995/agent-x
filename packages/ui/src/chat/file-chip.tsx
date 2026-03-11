@@ -14,7 +14,7 @@ function FileChip({ name, size, type = 'file', thumbnail, onRemove, className }:
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] border border-border bg-card text-[11px] max-w-[200px]',
+        'inline-flex items-center gap-2 px-2 py-1.5 rounded-sm border border-border bg-card text-[11px] max-w-50',
         className,
       )}
     >

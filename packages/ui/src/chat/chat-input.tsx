@@ -105,7 +105,7 @@ function ChatInput({
 
   // Send button appearance
   const sendButtonClass = cn(
-    'flex items-center justify-center size-7 rounded-[var(--radius-sm)] transition-colors shrink-0',
+    'flex items-center justify-center size-7 rounded-sm transition-colors shrink-0',
     streaming
       ? 'bg-red-500 hover:bg-red-600 text-white cursor-pointer'
       : canSend
@@ -143,7 +143,7 @@ function ChatInput({
       {/* Main container */}
       <div
         className={cn(
-          'border border-border rounded-[var(--radius-lg)] bg-card overflow-hidden',
+          'border border-border rounded-lg bg-card overflow-hidden',
           disabled && 'opacity-60',
         )}
       >
@@ -188,7 +188,7 @@ function ChatInput({
                 'w-full resize-none border-0 bg-transparent px-3 py-2.5',
                 'text-[13px] text-foreground placeholder:text-foreground-ghost',
                 'focus:outline-none focus:ring-0',
-                'max-h-[144px] overflow-y-auto',
+                'max-h-36 overflow-y-auto',
                 'leading-relaxed',
               )}
             />
@@ -202,7 +202,7 @@ function ChatInput({
                 disabled={disabled}
                 aria-label="Attach file"
                 className={cn(
-                  'flex items-center justify-center h-7 w-7 rounded-[var(--radius-sm)]',
+                  'flex items-center justify-center h-7 w-7 rounded-sm',
                   'text-foreground-ghost hover:text-foreground-muted hover:bg-surface',
                   'transition-colors disabled:pointer-events-none disabled:opacity-50',
                 )}
@@ -217,7 +217,7 @@ function ChatInput({
                 disabled={disabled}
                 aria-label="Slash commands"
                 className={cn(
-                  'flex items-center justify-center h-7 w-7 rounded-[var(--radius-sm)]',
+                  'flex items-center justify-center h-7 w-7 rounded-sm',
                   'text-foreground-ghost hover:text-foreground-muted hover:bg-surface',
                   'transition-colors disabled:pointer-events-none disabled:opacity-50',
                 )}
@@ -232,7 +232,7 @@ function ChatInput({
                 disabled={disabled}
                 aria-label="Voice input"
                 className={cn(
-                  'flex items-center justify-center h-7 w-7 rounded-[var(--radius-sm)]',
+                  'flex items-center justify-center h-7 w-7 rounded-sm',
                   'text-foreground-ghost hover:text-foreground-muted hover:bg-surface',
                   'transition-colors disabled:pointer-events-none disabled:opacity-50',
                 )}
@@ -266,7 +266,7 @@ function ChatInput({
         <div
           className={cn(
             'absolute inset-0 z-10 flex items-center justify-center',
-            'rounded-[var(--radius-lg)] border-2 border-dashed border-emerald-500',
+            'rounded-lg border-2 border-dashed border-emerald-500',
             'bg-emerald-500/10',
           )}
         >

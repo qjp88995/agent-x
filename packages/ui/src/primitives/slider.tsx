@@ -19,7 +19,7 @@ const Slider = React.forwardRef<
         'block h-4 w-4 rounded-full bg-primary border-2 border-white shadow-sm',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         'disabled:pointer-events-none disabled:opacity-50',
-        'transition-colors duration-[120ms]',
+        'transition-colors duration-120',
       )}
     />
   </SliderPrimitive.Root>

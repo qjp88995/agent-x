@@ -3,7 +3,7 @@ import { cn } from '../lib/utils';
 import { getAvatarColor } from '../tokens/colors';
 
 const sizeMap = {
-  sm: 'h-[22px] w-[22px] text-[9px]',
+  sm: 'h-5.5 w-5.5 text-[9px]',
   md: 'h-7 w-7 text-[10px]',
   lg: 'h-8 w-8 text-[11px]',
 } as const;
@@ -22,7 +22,7 @@ function Avatar({ name, src, size = 'md', className }: AvatarProps) {
   return (
     <AvatarPrimitive.Root
       className={cn(
-        'relative flex shrink-0 overflow-hidden rounded-[6px]',
+        'relative flex shrink-0 overflow-hidden rounded-md',
         sizeMap[size],
         className
       )}

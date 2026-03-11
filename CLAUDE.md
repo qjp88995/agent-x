@@ -311,21 +311,19 @@ Docker setup:
 
 ### Tailwind CSS v4
 
-The project uses Tailwind CSS v4 with custom theme tokens defined in `@theme inline` blocks. **Always use standard Tailwind utility classes, NEVER use arbitrary value syntax to reference theme tokens.**
+The project uses Tailwind CSS v4 with custom theme tokens defined in `@theme inline` blocks. **始终优先使用标准 utility class，避免任意值 `[...]` 语法。** Tailwind v4 扩展了默认值域，大多数以前需要 `[...]` 的写法现在都有原生 class：
 
-```css
-/* WRONG — arbitrary value referencing a theme token */
-rounded-[var(--radius-lg)]
-bg-[var(--primary)]
-text-[var(--foreground-muted)]
-w-[var(--sidebar-collapsed)]
+| 类别          | 错误 (arbitrary)                      | 正确 (native)              | 说明                  |
+| ------------- | ------------------------------------- | -------------------------- | --------------------- |
+| 间距/尺寸     | `w-[52px]`, `h-[144px]`               | `w-13`, `h-36`             | 基于 4px 网格: 值 ÷ 4 |
+| 小数值        | `size-[18px]`, `gap-[3px]`            | `size-4.5`, `gap-0.75`     | 支持 .5 / .75 小数    |
+| 1px 特殊值    | `p-[1px]`                             | `p-px`                     | 使用 `px` 后缀        |
+| 时长/延迟     | `duration-[120ms]`, `delay-[50ms]`    | `duration-120`, `delay-50` | 直接写毫秒数          |
+| 圆角 (theme)  | `rounded-[var(--radius-md)]`          | `rounded-md`               | 使用 theme token 映射 |
+| 颜色 (theme)  | `bg-[var(--surface)]`, `bg-[#161616]` | `bg-surface`               | 使用 theme token 映射 |
+| 非 theme 变量 | `h-[var(--header-height)]`            | `h-(--header-height)`      | 使用 `(--var)` 语法   |
 
-/* CORRECT — standard Tailwind utility classes */
-rounded-lg
-bg-primary
-text-foreground-muted
-w-(--sidebar-collapsed)
-```
+仅当值**确实没有标准 class 对应**时才使用 `[...]`（如非标准百分比 `top-[20%]`、`calc()` 表达式、非 4px 网格的特殊像素值等）。
 
 Theme token → utility class mapping (defined in `packages/ui/src/index.css`):
 

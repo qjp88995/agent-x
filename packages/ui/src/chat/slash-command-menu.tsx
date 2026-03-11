@@ -69,7 +69,7 @@ function SlashCommandMenu({
     <div
       className={cn(
         'absolute bottom-full mb-1 left-0 right-0 z-50',
-        'bg-card border border-border rounded-[var(--radius-md)] shadow-lg overflow-hidden',
+        'bg-card border border-border rounded-md shadow-lg overflow-hidden',
         'animate-in fade-in-0 slide-in-from-bottom-2 duration-150',
         className,
       )}
@@ -92,7 +92,7 @@ function SlashCommandMenu({
           />
         </div>
 
-        <CommandList className="max-h-[240px] overflow-y-auto p-1">
+        <CommandList className="max-h-60 overflow-y-auto p-1">
           <CommandEmpty className="py-6 text-center text-[12px] text-foreground-ghost">
             No commands found
           </CommandEmpty>
@@ -116,7 +116,7 @@ function SlashCommandMenu({
                   }}
                   className={cn(
                     'flex items-center gap-2 px-2 py-1.5 mx-0.5',
-                    'rounded-[var(--radius-sm)]',
+                    'rounded-sm',
                     'text-[12px] text-foreground-secondary',
                     'cursor-pointer select-none outline-none',
                     'transition-colors duration-75',

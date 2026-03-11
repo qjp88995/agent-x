@@ -19,7 +19,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 min-w-[8rem] overflow-hidden rounded-[var(--radius-md)] border border-border bg-card p-1 shadow-md',
+        'z-50 min-w-32 overflow-hidden rounded-md border border-border bg-card p-1 shadow-md',
         'animate-in fade-in-0 zoom-in-95',
         'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
         'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
@@ -45,8 +45,8 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5',
-      'text-[12px] text-foreground-secondary outline-none transition-colors duration-[80ms]',
+      'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5',
+      'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 focus:text-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       '[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-foreground-ghost',
@@ -66,8 +66,8 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center rounded-[var(--radius-sm)] py-1.5 pl-8 pr-2',
-      'text-[12px] text-foreground-secondary outline-none transition-colors duration-[80ms]',
+      'relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2',
+      'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 focus:text-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className,
@@ -92,8 +92,8 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center rounded-[var(--radius-sm)] py-1.5 pl-8 pr-2',
-      'text-[12px] text-foreground-secondary outline-none transition-colors duration-[80ms]',
+      'relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2',
+      'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 focus:text-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className,
@@ -149,8 +149,8 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'flex cursor-pointer select-none items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5',
-      'text-[12px] text-foreground-secondary outline-none transition-colors duration-[80ms]',
+      'flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5',
+      'text-[12px] text-foreground-secondary outline-none transition-colors duration-80',
       'focus:bg-primary/10 data-[state=open]:bg-primary/10',
       '[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-foreground-ghost',
       inset && 'pl-8',
@@ -171,7 +171,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      'z-50 min-w-[8rem] overflow-hidden rounded-[var(--radius-md)] border border-border bg-card p-1 shadow-md',
+      'z-50 min-w-32 overflow-hidden rounded-md border border-border bg-card p-1 shadow-md',
       'animate-in fade-in-0 zoom-in-95',
       'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
       'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',

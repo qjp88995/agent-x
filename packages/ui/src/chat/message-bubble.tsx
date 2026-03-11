@@ -51,7 +51,7 @@ function CodeBlock({
   }, [textContent]);
 
   return (
-    <div className="relative my-2 rounded-[var(--radius-md)] overflow-hidden border border-border bg-card">
+    <div className="relative my-2 rounded-md overflow-hidden border border-border bg-card">
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-border">
         <span className="text-[10px] text-foreground-ghost font-mono">
           {language ?? 'code'}
@@ -91,7 +91,7 @@ function MessageBubble({
   if (role === 'user') {
     return (
       <div className={cn('flex justify-end', className)}>
-        <div className="max-w-[75%] rounded-xl rounded-br-[2px] bg-[#161616] border border-[#1a1a1a] px-3.5 py-2.5 text-[13px] text-foreground-secondary leading-relaxed">
+        <div className="max-w-3/4 rounded-xl rounded-br-[2px] bg-surface border border-border px-3.5 py-2.5 text-[13px] text-foreground-secondary leading-relaxed">
           {children}
         </div>
       </div>
@@ -108,7 +108,7 @@ function MessageBubble({
           className="shrink-0 mt-0.5"
         />
       )}
-      <div className="flex-1 min-w-0 max-w-[75%] text-[13px] text-foreground-secondary leading-relaxed">
+      <div className="flex-1 min-w-0 max-w-3/4 text-[13px] text-foreground-secondary leading-relaxed">
         {children}
         {streaming && (
           <span className="inline-flex items-center gap-1 ml-1 align-middle">

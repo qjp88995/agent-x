@@ -31,7 +31,7 @@ function VoiceRecorder({
     return (
       <div
         className={cn(
-          'flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] border border-border bg-card',
+          'flex items-center gap-3 px-3 py-2 rounded-md border border-border bg-card',
           className
         )}
       >
@@ -43,7 +43,7 @@ function VoiceRecorder({
           type="button"
           onClick={onCancel}
           aria-label="Cancel transcription"
-          className="shrink-0 flex items-center justify-center size-6 rounded-[var(--radius-sm)] text-foreground-ghost hover:text-foreground-muted hover:bg-surface transition-colors"
+          className="shrink-0 flex items-center justify-center size-6 rounded-sm text-foreground-ghost hover:text-foreground-muted hover:bg-surface transition-colors"
         >
           <X className="size-3.5" />
         </button>
@@ -55,7 +55,7 @@ function VoiceRecorder({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] border border-red-500/60 bg-card',
+        'flex items-center gap-3 px-3 py-2 rounded-md border border-red-500/60 bg-card',
         className
       )}
     >
@@ -69,13 +69,13 @@ function VoiceRecorder({
 
       {/* Center: decorative waveform bars */}
       <div
-        className="flex-1 flex items-center justify-center gap-[3px]"
+        className="flex-1 flex items-center justify-center gap-0.75"
         aria-hidden
       >
         {WAVEFORM_HEIGHTS.map((h, i) => (
           <span
             key={i}
-            className="w-[3px] rounded-full bg-red-400/70 animate-pulse"
+            className="w-0.75 rounded-full bg-red-400/70 animate-pulse"
             style={{
               height: `${h}px`,
               animationDelay: `${i * 80}ms`,
@@ -90,7 +90,7 @@ function VoiceRecorder({
           type="button"
           onClick={onCancel}
           aria-label="Cancel recording"
-          className="flex items-center justify-center size-6 rounded-[var(--radius-sm)] text-foreground-ghost hover:text-foreground-muted hover:bg-surface transition-colors"
+          className="flex items-center justify-center size-6 rounded-sm text-foreground-ghost hover:text-foreground-muted hover:bg-surface transition-colors"
         >
           <X className="size-3.5" />
         </button>
@@ -98,7 +98,7 @@ function VoiceRecorder({
           type="button"
           onClick={onStop}
           aria-label="Stop recording and send"
-          className="flex items-center justify-center size-6 rounded-[var(--radius-sm)] text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+          className="flex items-center justify-center size-6 rounded-sm text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
         >
           <Square className="size-3.5 fill-current" />
         </button>

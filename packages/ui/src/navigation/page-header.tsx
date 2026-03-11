@@ -14,7 +14,7 @@ type PageHeaderProps = {
 function PageHeader({ title, description, search, onSearchClick, actions, className }: PageHeaderProps) {
   return (
     <header className={cn(
-      'flex items-center justify-between h-[var(--header-height)] px-4 border-b border-border shrink-0',
+      'flex items-center justify-between h-(--header-height) px-4 border-b border-border shrink-0',
       className
     )}>
       <div className="flex items-center gap-3">
@@ -28,7 +28,7 @@ function PageHeader({ title, description, search, onSearchClick, actions, classN
           <button
             type="button"
             onClick={onSearchClick}
-            className="inline-flex items-center gap-2 h-7 px-2.5 rounded-[var(--radius-sm)] border border-border bg-card text-[11px] text-foreground-ghost hover:text-foreground-muted transition-colors duration-[var(--duration-fast)]"
+            className="inline-flex items-center gap-2 h-7 px-2.5 rounded-sm border border-border bg-card text-[11px] text-foreground-ghost hover:text-foreground-muted transition-colors duration-(--duration-fast)"
           >
             <Search className="size-3.5" />
             <span>Search...</span>

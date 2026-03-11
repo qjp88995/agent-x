@@ -18,7 +18,7 @@ const meta: Meta<typeof PageHeader> = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-background min-h-[200px]">
+      <div className="bg-background min-h-50">
         <Story />
         <div className="p-6 text-foreground-muted text-[12px]">Page content area</div>
       </div>

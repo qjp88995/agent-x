@@ -65,7 +65,7 @@ const agentColumns: Column<Agent>[] = [
     render: agent => (
       <span className="flex items-center gap-2">
         <Avatar name={agent.name} size="sm" />
-        <span className="font-medium text-[var(--foreground)]">
+        <span className="font-medium text-foreground">
           {agent.name}
         </span>
       </span>
@@ -130,7 +130,7 @@ export const AgentTable: Story = {
     });
 
     return (
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]">
+      <div className="rounded-lg border border-border bg-surface">
         <DataTable
           columns={agentColumns}
           data={sortedAgents}
@@ -157,17 +157,17 @@ export const AgentTable: Story = {
 
 export const EmptyState: Story = {
   render: () => (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]">
+    <div className="rounded-lg border border-border bg-surface">
       <DataTable
         columns={agentColumns}
         data={[]}
         keyExtractor={a => a.id}
         emptyState={
           <span className="flex flex-col items-center gap-1">
-            <span className="text-[var(--foreground-muted)]">
+            <span className="text-foreground-muted">
               No agents found
             </span>
-            <span className="text-[10px] text-[var(--foreground-ghost)]">
+            <span className="text-[10px] text-foreground-ghost">
               Create your first agent to get started
             </span>
           </span>
@@ -179,7 +179,7 @@ export const EmptyState: Story = {
 
 export const Loading: Story = {
   render: () => (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]">
+    <div className="rounded-lg border border-border bg-surface">
       <DataTable
         columns={agentColumns}
         data={[]}

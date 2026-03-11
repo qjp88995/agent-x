@@ -28,8 +28,8 @@ const CommandPalette = React.forwardRef<HTMLDivElement, CommandPaletteProps>(
       overlayClassName="fixed inset-0 z-50 bg-black/60 animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
       contentClassName={cn(
         'fixed top-[20%] left-1/2 z-50 -translate-x-1/2',
-        'w-[480px] max-w-[calc(100%-2rem)]',
-        'bg-card border border-border rounded-[var(--radius-lg)] shadow-lg overflow-hidden',
+        'w-120 max-w-[calc(100%-2rem)]',
+        'bg-card border border-border rounded-lg shadow-lg overflow-hidden',
         'animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
         '[&_[cmdk-root]]:flex [&_[cmdk-root]]:flex-col',
         className,
@@ -75,7 +75,7 @@ const CommandPaletteList = React.forwardRef<HTMLDivElement, CommandPaletteListPr
   ({ className, ...props }, ref) => (
     <CommandList
       ref={ref}
-      className={cn('max-h-[300px] overflow-y-auto p-1', className)}
+      className={cn('max-h-75 overflow-y-auto p-1', className)}
       {...props}
     />
   ),
@@ -113,7 +113,7 @@ const CommandPaletteItem = React.forwardRef<HTMLDivElement, CommandPaletteItemPr
       ref={ref}
       className={cn(
         'flex items-center px-2 py-1.5 mx-1',
-        'rounded-[var(--radius-sm)]',
+        'rounded-sm',
         'text-[12px] text-foreground-secondary',
         'cursor-pointer select-none outline-none',
         'transition-colors duration-75',
@@ -184,7 +184,7 @@ type CommandPaletteItemIconProps = React.HTMLAttributes<HTMLSpanElement>;
 
 const CommandPaletteItemIcon = ({ className, ...props }: CommandPaletteItemIconProps) => (
   <span
-    className={cn('mr-2 size-[14px] text-foreground-ghost flex items-center justify-center', className)}
+    className={cn('mr-2 size-3.5 text-foreground-ghost flex items-center justify-center', className)}
     aria-hidden
     {...props}
   />

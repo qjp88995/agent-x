@@ -22,7 +22,7 @@ function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps) {
           type="button"
           onClick={() => onChange(tab.key)}
           className={cn(
-            'inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium transition-colors duration-[var(--duration-fast)] border-b-2 -mb-px',
+            'inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium transition-colors duration-(--duration-fast) border-b-2 -mb-px',
             value === tab.key
               ? 'text-foreground border-primary'
               : 'text-foreground-ghost border-transparent hover:text-foreground-muted'

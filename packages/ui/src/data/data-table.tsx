@@ -45,13 +45,13 @@ function DataTable<T>({
   return (
     <table className={cn('w-full border-collapse', className)}>
       <thead>
-        <tr className="border-b border-[var(--border)]">
+        <tr className="border-b border-border">
           {columns.map((col) => (
             <th
               key={col.key}
               style={col.width ? { width: col.width } : undefined}
               className={cn(
-                'px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-[var(--foreground-dim)]',
+                'px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-foreground-dim',
                 col.sortable && onSort && 'cursor-pointer select-none'
               )}
               onClick={col.sortable && onSort ? () => onSort(col.key) : undefined}
@@ -78,7 +78,7 @@ function DataTable<T>({
       <tbody>
         {loading ? (
           Array.from({ length: loadingRows }).map((_, rowIdx) => (
-            <tr key={rowIdx} className="border-b border-[var(--border-subtle)]">
+            <tr key={rowIdx} className="border-b border-border-subtle">
               {Array.from({ length: totalCols }).map((_, colIdx) => (
                 <td key={colIdx} className="px-3 py-2.5">
                   <Skeleton className="h-4 w-full" />
@@ -90,7 +90,7 @@ function DataTable<T>({
           <tr>
             <td
               colSpan={totalCols}
-              className="px-3 py-10 text-center text-[12px] text-[var(--foreground-ghost)]"
+              className="px-3 py-10 text-center text-[12px] text-foreground-ghost"
             >
               {emptyState ?? 'No data'}
             </td>
@@ -100,7 +100,7 @@ function DataTable<T>({
             <tr
               key={keyExtractor(item)}
               className={cn(
-                'group border-b border-[var(--border-subtle)] transition-colors duration-[120ms] hover:bg-[#111]',
+                'group border-b border-border-subtle transition-colors duration-120 hover:bg-card',
                 onRowClick && 'cursor-pointer'
               )}
               onClick={onRowClick ? () => onRowClick(item) : undefined}
@@ -108,13 +108,13 @@ function DataTable<T>({
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className="px-3 py-2.5 text-[12px] text-[var(--foreground-muted)]"
+                  className="px-3 py-2.5 text-[12px] text-foreground-muted"
                 >
                   {col.render(item)}
                 </td>
               ))}
               {rowActions && (
-                <td className="px-3 py-2.5 text-right opacity-0 transition-opacity duration-[120ms] group-hover:opacity-100">
+                <td className="px-3 py-2.5 text-right opacity-0 transition-opacity duration-120 group-hover:opacity-100">
                   {rowActions(item)}
                 </td>
               )}

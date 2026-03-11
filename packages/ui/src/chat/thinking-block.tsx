@@ -16,7 +16,7 @@ function ThinkingBlock({ duration, children, defaultOpen = false, className }: T
   return (
     <div
       className={cn(
-        'border border-primary/20 rounded-[var(--radius-md)] overflow-hidden',
+        'border border-primary/20 rounded-md overflow-hidden',
         className,
       )}
     >
