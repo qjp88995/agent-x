@@ -28,13 +28,11 @@ const STATUS_BADGE_CONFIG: Record<
 > = {
   ACTIVE: {
     labelKey: 'agents.active',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    className: 'bg-primary/10 text-primary',
   },
   ARCHIVED: {
     labelKey: 'agents.archived',
-    className:
-      'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+    className: 'bg-foreground-ghost/20 text-foreground-ghost',
   },
 };
 
@@ -42,9 +40,14 @@ function StatusBadge({ status }: { readonly status: AgentStatusType }) {
   const { t } = useTranslation();
   const config = STATUS_BADGE_CONFIG[status];
   return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
+    <span
+      className={cn(
+        'inline-flex items-center rounded-[10px] px-2 py-0.5 text-[10px] font-medium',
+        config.className
+      )}
+    >
       {t(config.labelKey)}
-    </Badge>
+    </span>
   );
 }
 
