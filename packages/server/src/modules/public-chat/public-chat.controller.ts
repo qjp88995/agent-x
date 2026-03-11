@@ -11,11 +11,7 @@ import {
   Res,
 } from '@nestjs/common';
 
-import {
-  pipeUIMessageStreamToResponse,
-  type UIMessage,
-  type UIMessageChunk,
-} from 'ai';
+import { type UIMessage } from 'ai';
 import { randomUUID } from 'crypto';
 import { Response } from 'express';
 
@@ -27,6 +23,7 @@ import { StreamManagerService } from '../chat/stream-manager.service';
 import {
   extractPartsFromBuffer,
   extractPartsFromSteps,
+  extractUserMessageContent,
 } from '../chat/stream-parts-extractor';
 import { PublicChatService } from './public-chat.service';
 
@@ -90,11 +87,7 @@ export class PublicChatController {
   ) {
     const conversation = await this.publicChatService.verifyAccess(token, id);
 
-    const lastMsg = body.messages[body.messages.length - 1];
-    const content = lastMsg.parts
-      .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
-      .map(p => p.text)
-      .join('');
+    const content = extractUserMessageContent(body.messages);
 
     await this.chatService.saveMessage(id, MessageRole.USER, [
       { type: 'text', text: content },
@@ -124,12 +117,12 @@ export class PublicChatController {
           const usage = await result.usage;
           const parts = extractPartsFromSteps(steps);
 
-          await this.chatService.saveMessageWithId(
-            messageId,
+          await this.chatService.saveMessage(
             id,
             MessageRole.ASSISTANT,
             parts,
-            usage
+            usage,
+            messageId
           );
 
           this.maybeGenerateTitle(id, agentVersionId, content).catch(err =>
@@ -143,11 +136,12 @@ export class PublicChatController {
           if (session && session.buffer.length > 0) {
             const parts = extractPartsFromBuffer(session.buffer);
             if (parts.length > 0) {
-              await this.chatService.saveMessageWithId(
-                messageId,
+              await this.chatService.saveMessage(
                 id,
                 MessageRole.ASSISTANT,
-                parts
+                parts,
+                undefined,
+                messageId
               );
             }
           }
@@ -173,47 +167,7 @@ export class PublicChatController {
       return;
     }
 
-    let onChunk: ((c: UIMessageChunk) => void) | undefined;
-    let onEnd: (() => void) | undefined;
-
-    const stream = new ReadableStream<UIMessageChunk>({
-      start(controller) {
-        for (const chunk of session.buffer) {
-          controller.enqueue(chunk);
-        }
-        if (session.status !== 'streaming') {
-          controller.close();
-          return;
-        }
-        onChunk = (c: UIMessageChunk) => {
-          try {
-            controller.enqueue(c);
-          } catch {
-            // Controller already closed
-          }
-        };
-        onEnd = () => {
-          try {
-            controller.close();
-          } catch {
-            // Controller already closed
-          }
-        };
-        session.emitter.on('chunk', onChunk);
-        session.emitter.once('end', onEnd);
-      },
-      cancel() {
-        if (onChunk) session.emitter.off('chunk', onChunk);
-        if (onEnd) session.emitter.off('end', onEnd);
-      },
-    });
-
-    res.on('close', () => {
-      if (onChunk) session.emitter.off('chunk', onChunk);
-      if (onEnd) session.emitter.off('end', onEnd);
-    });
-
-    pipeUIMessageStreamToResponse({ response: res, stream });
+    this.streamManager.pipeSessionToResponse(session, res);
   }
 
   @Get(':token/conversations/:id/active-stream')

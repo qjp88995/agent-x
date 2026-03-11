@@ -5,12 +5,13 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 
-import type { UIMessageChunk } from 'ai';
+import { pipeUIMessageStreamToResponse, type UIMessageChunk } from 'ai';
 import { EventEmitter } from 'events';
+import type { Response } from 'express';
 
 type StreamStatus = 'streaming' | 'completed' | 'error';
 
-interface StreamSession {
+export interface StreamSession {
   readonly messageId: string;
   readonly conversationId: string;
   readonly buffer: UIMessageChunk[];
@@ -101,6 +102,54 @@ export class StreamManagerService implements OnModuleInit, OnModuleDestroy {
     }
     session.abortController.abort();
     return true;
+  }
+
+  /**
+   * Build a ReadableStream from a session's buffer and live events,
+   * then pipe it to the HTTP response as an SSE stream.
+   */
+  pipeSessionToResponse(session: StreamSession, res: Response): void {
+    let onChunk: ((c: UIMessageChunk) => void) | undefined;
+    let onEnd: (() => void) | undefined;
+
+    const stream = new ReadableStream<UIMessageChunk>({
+      start(controller) {
+        for (const chunk of session.buffer) {
+          controller.enqueue(chunk);
+        }
+        if (session.status !== 'streaming') {
+          controller.close();
+          return;
+        }
+        onChunk = (c: UIMessageChunk) => {
+          try {
+            controller.enqueue(c);
+          } catch {
+            // Controller already closed
+          }
+        };
+        onEnd = () => {
+          try {
+            controller.close();
+          } catch {
+            // Controller already closed
+          }
+        };
+        session.emitter.on('chunk', onChunk);
+        session.emitter.once('end', onEnd);
+      },
+      cancel() {
+        if (onChunk) session.emitter.off('chunk', onChunk);
+        if (onEnd) session.emitter.off('end', onEnd);
+      },
+    });
+
+    res.on('close', () => {
+      if (onChunk) session.emitter.off('chunk', onChunk);
+      if (onEnd) session.emitter.off('end', onEnd);
+    });
+
+    pipeUIMessageStreamToResponse({ response: res, stream });
   }
 
   private async consumeStream(

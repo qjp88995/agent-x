@@ -1,4 +1,15 @@
-import type { UIMessageChunk } from 'ai';
+import type { UIMessage, UIMessageChunk } from 'ai';
+
+/**
+ * Extract text content from the last UIMessage in a list.
+ */
+export function extractUserMessageContent(messages: UIMessage[]): string {
+  const lastMsg = messages[messages.length - 1];
+  return lastMsg.parts
+    .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+    .map(p => p.text)
+    .join('');
+}
 
 interface StepData {
   readonly reasoning?: string | ReadonlyArray<{ text: string }>;
