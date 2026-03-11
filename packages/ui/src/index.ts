@@ -32,6 +32,7 @@ export { Slider } from './primitives/slider';
 export { ScrollArea, ScrollBar } from './primitives/scroll-area';
 
 // Feedback
+export { Toaster, toast } from './feedback/toast';
 export {
   Dialog,
   DialogClose,
