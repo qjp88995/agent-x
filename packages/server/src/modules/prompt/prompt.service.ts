@@ -5,6 +5,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 
+import { pickDefined } from '../../common/pick-defined.util';
 import { PromptType } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePromptDto } from './dto/create-prompt.dto';
@@ -130,27 +131,9 @@ export class PromptService implements OnModuleInit {
       throw new ForbiddenException('This prompt is not a SYSTEM prompt');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.content !== undefined) {
-      data.content = dto.content;
-    }
-    if (dto.categoryId !== undefined) {
-      data.categoryId = dto.categoryId;
-    }
-    if (dto.tags !== undefined) {
-      data.tags = dto.tags;
-    }
-
     return this.prisma.prompt.update({
       where: { id },
-      data,
+      data: pickDefined(dto),
       include: { category: true },
     });
   }
@@ -231,27 +214,9 @@ export class PromptService implements OnModuleInit {
       throw new ForbiddenException('You can only update your own prompts');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.content !== undefined) {
-      data.content = dto.content;
-    }
-    if (dto.categoryId !== undefined) {
-      data.categoryId = dto.categoryId;
-    }
-    if (dto.tags !== undefined) {
-      data.tags = dto.tags;
-    }
-
     return this.prisma.prompt.update({
       where: { id },
-      data,
+      data: pickDefined(dto),
       include: { category: true },
     });
   }

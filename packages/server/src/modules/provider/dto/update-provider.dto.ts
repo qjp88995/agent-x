@@ -1,18 +1,10 @@
-import { IsBoolean, IsOptional, IsString, IsUrl } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 
-export class UpdateProviderDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
+import { IsBoolean, IsOptional } from 'class-validator';
 
-  @IsOptional()
-  @IsUrl({ require_tld: false })
-  baseUrl?: string;
+import { CreateProviderDto } from './create-provider.dto';
 
-  @IsOptional()
-  @IsString()
-  apiKey?: string;
-
+export class UpdateProviderDto extends PartialType(CreateProviderDto) {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;

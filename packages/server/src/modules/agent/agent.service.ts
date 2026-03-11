@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { pickDefined } from '../../common/pick-defined.util';
 import { AgentStatus } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateAgentDto } from './dto/create-agent.dto';
@@ -121,22 +122,9 @@ export class AgentService {
       }
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) data.name = dto.name;
-    if (dto.description !== undefined) data.description = dto.description;
-    if (dto.providerId !== undefined) data.providerId = dto.providerId;
-    if (dto.modelId !== undefined) data.modelId = dto.modelId;
-    if (dto.systemPrompt !== undefined) data.systemPrompt = dto.systemPrompt;
-    if (dto.temperature !== undefined) data.temperature = dto.temperature;
-    if (dto.maxTokens !== undefined) data.maxTokens = dto.maxTokens;
-    if (dto.avatar !== undefined) data.avatar = dto.avatar;
-    if (dto.thinkingEnabled !== undefined)
-      data.thinkingEnabled = dto.thinkingEnabled;
-
     return this.prisma.agent.update({
       where: { id },
-      data,
+      data: pickDefined(dto),
     });
   }
 

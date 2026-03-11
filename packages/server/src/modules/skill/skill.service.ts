@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { pickDefined } from '../../common/pick-defined.util';
 import { SkillType } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -74,24 +75,9 @@ export class SkillService {
       throw new ForbiddenException('You can only update your own skills');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.content !== undefined) {
-      data.content = dto.content;
-    }
-    if (dto.tags !== undefined) {
-      data.tags = dto.tags;
-    }
-
     return this.prisma.skill.update({
       where: { id },
-      data,
+      data: pickDefined(dto),
     });
   }
 
@@ -144,24 +130,9 @@ export class SkillService {
       throw new ForbiddenException('This skill is not a SYSTEM skill');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.content !== undefined) {
-      data.content = dto.content;
-    }
-    if (dto.tags !== undefined) {
-      data.tags = dto.tags;
-    }
-
     return this.prisma.skill.update({
       where: { id },
-      data,
+      data: pickDefined(dto),
     });
   }
 

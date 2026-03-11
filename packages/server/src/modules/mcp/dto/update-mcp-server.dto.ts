@@ -1,21 +1,5 @@
-import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 
-import { McpTransport } from '../../../generated/prisma/client';
+import { CreateMcpServerDto } from './create-mcp-server.dto';
 
-export class UpdateMcpServerDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsEnum(McpTransport)
-  transport?: McpTransport;
-
-  @IsOptional()
-  @IsObject()
-  config?: Record<string, unknown>;
-}
+export class UpdateMcpServerDto extends PartialType(CreateMcpServerDto) {}

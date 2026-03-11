@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { pickDefined } from '../../common/pick-defined.util';
 import { McpTransport, McpType, Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateMcpServerDto } from './dto/create-mcp-server.dto';
@@ -85,20 +86,12 @@ export class McpService {
       throw new ForbiddenException('You can only update your own MCP servers');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.transport !== undefined) {
-      data.transport = dto.transport;
-    }
-    if (dto.config !== undefined) {
-      data.config = dto.config;
-    }
+    const data = pickDefined({
+      name: dto.name,
+      description: dto.description,
+      transport: dto.transport,
+      config: dto.config as Prisma.InputJsonValue | undefined,
+    });
 
     return this.prisma.mcpServer.update({
       where: { id },
@@ -155,20 +148,12 @@ export class McpService {
       throw new ForbiddenException('This server is not an OFFICIAL server');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.transport !== undefined) {
-      data.transport = dto.transport;
-    }
-    if (dto.config !== undefined) {
-      data.config = dto.config;
-    }
+    const data = pickDefined({
+      name: dto.name,
+      description: dto.description,
+      transport: dto.transport,
+      config: dto.config as Prisma.InputJsonValue | undefined,
+    });
 
     return this.prisma.mcpServer.update({
       where: { id },
