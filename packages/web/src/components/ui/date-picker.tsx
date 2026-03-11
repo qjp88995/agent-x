@@ -1,14 +1,10 @@
 import { useState } from 'react';
 
+import { Popover, PopoverContent, PopoverTrigger } from '@agent-x/design';
 import { format } from 'date-fns';
 import { CalendarIcon, X } from 'lucide-react';
 
 import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import { cn } from '@/lib/utils';
 

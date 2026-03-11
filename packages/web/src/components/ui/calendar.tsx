@@ -5,13 +5,13 @@ import {
   getDefaultClassNames,
 } from 'react-day-picker';
 
+import { Button, buttonVariants } from '@agent-x/design';
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from 'lucide-react';
 
-import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 function Calendar({
