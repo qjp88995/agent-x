@@ -107,3 +107,7 @@ export {
 // Navigation
 export { IconSidebar, type SidebarItem } from './navigation/icon-sidebar';
 export { PageHeader } from './navigation/page-header';
+
+// Chat
+export { MessageBubble, CodeBlock } from './chat/message-bubble';
+export { ThinkingBlock } from './chat/thinking-block';
