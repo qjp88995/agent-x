@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { createHash, randomBytes } from 'crypto';
-
+import { generateToken, hashToken } from '../../common/token.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
 
@@ -12,8 +11,8 @@ export class ApiKeyService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string, dto: CreateApiKeyDto) {
-    const rawKey = `${KEY_PREFIX}${randomBytes(32).toString('hex')}`;
-    const hashedKey = this.hashKey(rawKey);
+    const rawKey = generateToken(KEY_PREFIX);
+    const hashedKey = hashToken(rawKey);
 
     const record = await this.prisma.apiKey.create({
       data: {
@@ -73,7 +72,7 @@ export class ApiKeyService {
   async validate(
     rawKey: string
   ): Promise<{ userId: string; agentId: string | null } | null> {
-    const hashedKey = this.hashKey(rawKey);
+    const hashedKey = hashToken(rawKey);
 
     const apiKey = await this.prisma.apiKey.findUnique({
       where: { key: hashedKey },
@@ -100,10 +99,6 @@ export class ApiKeyService {
       userId: apiKey.userId,
       agentId: apiKey.agentId,
     };
-  }
-
-  private hashKey(rawKey: string): string {
-    return createHash('sha256').update(rawKey).digest('hex');
   }
 
   private maskKey(hashedKey: string): string {
