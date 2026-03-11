@@ -234,39 +234,38 @@ export default function WorkspacePage() {
       </div>
 
       {/* Desktop: resizable split layout */}
-      <ResizablePanelGroup
-        orientation="horizontal"
-        className="hidden flex-1 md:flex"
-      >
-        <ResizablePanel defaultSize="60%" minSize="30%">
-          <WorkspacePanel conversationId={conversationId} />
-        </ResizablePanel>
+      <div className="hidden flex-1 md:flex">
+        <ResizablePanelGroup orientation="horizontal" className="flex-1">
+          <ResizablePanel defaultSize="60%" minSize="30%">
+            <WorkspacePanel conversationId={conversationId} />
+          </ResizablePanel>
 
-        <ResizableHandle withHandle />
+          <ResizableHandle withHandle />
 
-        <ResizablePanel defaultSize="40%" minSize="20%">
-          <div className="flex h-full flex-col">
-            <div className="flex-1 overflow-y-auto">
-              <MessageList
-                ref={messagesEndRef}
-                messages={messages}
-                className="mx-auto max-w-full px-2"
-                isStreaming={isLoading}
-                showTyping={
-                  isLoading &&
-                  messages.length > 0 &&
-                  messages[messages.length - 1].role === 'user'
-                }
+          <ResizablePanel defaultSize="40%" minSize="20%">
+            <div className="flex h-full flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <MessageList
+                  ref={messagesEndRef}
+                  messages={messages}
+                  className="mx-auto max-w-full px-2"
+                  isStreaming={isLoading}
+                  showTyping={
+                    isLoading &&
+                    messages.length > 0 &&
+                    messages[messages.length - 1].role === 'user'
+                  }
+                />
+              </div>
+              <ChatInput
+                onSend={handleSend}
+                onStop={handleStop}
+                isLoading={isLoading}
               />
             </div>
-            <ChatInput
-              onSend={handleSend}
-              onStop={handleStop}
-              isLoading={isLoading}
-            />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 }
