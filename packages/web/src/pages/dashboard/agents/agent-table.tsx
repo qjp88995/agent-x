@@ -67,7 +67,7 @@ export function AgentTable({
   const columns: Column<AgentResponse>[] = [
     {
       key: 'name',
-      header: t('agents.title'),
+      header: t('common.name'),
       render: agent => (
         <div className="flex items-center gap-3">
           <Avatar name={agent.name} size="sm" />
@@ -86,7 +86,7 @@ export function AgentTable({
     },
     {
       key: 'model',
-      header: 'Model',
+      header: t('agents.model'),
       width: '200px',
       render: agent => (
         <Badge variant="outline" className="text-xs font-mono">
@@ -96,7 +96,7 @@ export function AgentTable({
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('common.status'),
       width: '120px',
       render: agent => <StatusBadge status={agent.status} />,
     },
