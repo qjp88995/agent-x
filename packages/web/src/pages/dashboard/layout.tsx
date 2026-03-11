@@ -1,7 +1,21 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, Outlet, useLocation } from 'react-router';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 
+import {
+  Avatar,
+  Button,
+  IconSidebar,
+  ScrollArea,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  type SidebarItem,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import {
   Bot,
   Database,
@@ -19,33 +33,19 @@ import {
   Wrench,
 } from 'lucide-react';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 
-interface NavItem {
+interface NavDef {
   readonly labelKey: string;
   readonly href: string;
   readonly icon: React.ComponentType<{ className?: string }>;
   readonly adminOnly?: boolean;
 }
 
-const NAV_ITEMS: readonly NavItem[] = [
+const NAV_ITEMS: readonly NavDef[] = [
   { labelKey: 'nav.providers', href: '/providers', icon: Database },
   { labelKey: 'nav.agents', href: '/agents', icon: Bot },
   { labelKey: 'nav.mcpServers', href: '/mcp-servers', icon: Server },
@@ -61,24 +61,6 @@ const NAV_ITEMS: readonly NavItem[] = [
     adminOnly: true,
   },
 ] as const;
-
-function getInitials(
-  name: string | undefined,
-  email: string | undefined
-): string {
-  if (name) {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  }
-  if (email) {
-    return email[0].toUpperCase();
-  }
-  return 'U';
-}
 
 const THEME_CYCLE = ['system', 'light', 'dark'] as const;
 const THEME_ICON = {
@@ -101,9 +83,9 @@ function ThemeToggle() {
       <TooltipTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           onClick={() => setTheme(nextTheme)}
-          className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8"
+          className="text-foreground-ghost hover:text-foreground-muted"
           aria-label={t('settings.theme')}
         >
           <Icon className="size-4" />
@@ -114,92 +96,31 @@ function ThemeToggle() {
   );
 }
 
-function BrandLogo() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="gradient-bg flex size-8 items-center justify-center rounded-lg">
-        <Bot className="size-4.5 text-white" />
-      </div>
-      <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
-        Agent-X
-      </span>
-    </div>
-  );
-}
-
-function NavLinks({ onNavigate }: { readonly onNavigate?: () => void }) {
-  const location = useLocation();
-  const { t } = useTranslation();
-  const isAdmin = useIsAdmin();
-
-  const filteredItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
-
-  return (
-    <nav className="flex flex-col gap-1 px-3">
-      {filteredItems.map(item => {
-        const isActive =
-          location.pathname === item.href ||
-          location.pathname.startsWith(`${item.href}/`);
-        const Icon = item.icon;
-
-        return (
-          <Link
-            key={item.href}
-            to={item.href}
-            onClick={onNavigate}
-            className={cn(
-              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 cursor-pointer',
-              isActive
-                ? 'bg-sidebar-primary/15 text-sidebar-primary-foreground shadow-sm'
-                : 'text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground'
-            )}
-          >
-            <Icon
-              className={cn(
-                'size-4 shrink-0',
-                isActive && 'text-sidebar-primary'
-              )}
-            />
-            {t(item.labelKey)}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
-function UserSection() {
+function SidebarFooter() {
   const { t } = useTranslation();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
 
   const displayName = user?.name ?? user?.email ?? 'User';
-  const initials = getInitials(
-    user?.name ?? undefined,
-    user?.email ?? undefined
-  );
 
   return (
-    <div className="px-3 pb-4">
-      <div className="border-sidebar-border/50 mb-4 border-t" />
-      <div className="flex items-center gap-3">
-        <Avatar className="size-8">
-          <AvatarFallback className="gradient-bg text-xs font-semibold text-white">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 truncate">
-          <p className="truncate text-sm font-medium text-sidebar-foreground">
-            {displayName}
-          </p>
-        </div>
+    <div className="flex flex-col gap-2">
+      <div className="border-t border-border" />
+      <div className="flex items-center gap-2">
+        <Avatar name={displayName} size="sm" />
+        <span className="flex-1 truncate text-[11px] font-medium text-foreground-muted opacity-0 transition-opacity duration-150 delay-[50ms] group-hover/sidebar:opacity-100">
+          {displayName}
+        </span>
+      </div>
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               onClick={logout}
-              className="text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground size-8"
+              className="text-foreground-ghost hover:text-foreground-muted"
               aria-label={t('auth.signOut')}
             >
               <LogOut className="size-4" />
@@ -212,47 +133,80 @@ function UserSection() {
   );
 }
 
-function DesktopSidebar() {
-  return (
-    <aside className="bg-sidebar text-sidebar-foreground border-sidebar-border hidden w-64 shrink-0 border-r md:flex md:flex-col">
-      <div className="flex h-14 items-center justify-between px-5">
-        <Link to="/">
-          <BrandLogo />
-        </Link>
-        <ThemeToggle />
-      </div>
-      <div className="border-sidebar-border/50 mx-3 border-t" />
-      <ScrollArea className="flex-1 py-4">
-        <NavLinks />
-      </ScrollArea>
-      <UserSection />
-    </aside>
-  );
+function useSidebarItems(): SidebarItem[] {
+  const location = useLocation();
+  const { t } = useTranslation();
+  const isAdmin = useIsAdmin();
+
+  return NAV_ITEMS.filter(item => !item.adminOnly || isAdmin).map(item => {
+    const Icon = item.icon;
+    const isActive =
+      location.pathname === item.href ||
+      location.pathname.startsWith(`${item.href}/`);
+
+    return {
+      icon: <Icon className="size-[18px]" />,
+      label: t(item.labelKey),
+      href: item.href,
+      active: isActive,
+    };
+  });
 }
 
-function MobileSidebar({
+function MobileNav({
   open,
   onOpenChange,
 }: {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
 }) {
+  const location = useLocation();
+  const { t } = useTranslation();
+  const isAdmin = useIsAdmin();
+
+  const filteredItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="left"
-        className="bg-sidebar text-sidebar-foreground w-64 p-0"
-      >
-        <SheetHeader className="h-14 flex-row items-center px-5">
-          <SheetTitle>
-            <BrandLogo />
+      <SheetContent side="left" className="w-64 p-0">
+        <SheetHeader className="h-12 flex-row items-center px-4">
+          <SheetTitle className="flex items-center gap-2">
+            <div className="flex size-7 items-center justify-center rounded-[var(--radius-sm)] bg-primary">
+              <span className="text-[12px] font-bold text-primary-foreground leading-none">
+                X
+              </span>
+            </div>
+            <span className="text-[13px] font-semibold">Agent-X</span>
           </SheetTitle>
         </SheetHeader>
-        <div className="border-sidebar-border/50 mx-3 border-t" />
-        <ScrollArea className="flex-1 py-4">
-          <NavLinks onNavigate={() => onOpenChange(false)} />
+        <div className="border-t border-border mx-3" />
+        <ScrollArea className="flex-1 py-3">
+          <nav className="flex flex-col gap-0.5 px-3">
+            {filteredItems.map(item => {
+              const isActive =
+                location.pathname === item.href ||
+                location.pathname.startsWith(`${item.href}/`);
+              const Icon = item.icon;
+
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  onClick={() => onOpenChange(false)}
+                  className={cn(
+                    'flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary-muted text-primary'
+                      : 'text-foreground-ghost hover:text-foreground-muted hover:bg-card'
+                  )}
+                >
+                  <Icon className="size-4 shrink-0" />
+                  {t(item.labelKey)}
+                </Link>
+              );
+            })}
+          </nav>
         </ScrollArea>
-        <UserSection />
       </SheetContent>
     </Sheet>
   );
@@ -260,39 +214,48 @@ function MobileSidebar({
 
 export default function DashboardLayout() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const items = useSidebarItems();
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <DesktopSidebar />
-      <MobileSidebar open={mobileOpen} onOpenChange={setMobileOpen} />
+      {/* Desktop sidebar */}
+      <div className="hidden md:block">
+        <IconSidebar
+          items={items}
+          onItemClick={item => navigate(item.href)}
+          footer={<SidebarFooter />}
+        />
+      </div>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* Mobile sidebar */}
+      <MobileNav open={mobileOpen} onOpenChange={setMobileOpen} />
+
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col overflow-hidden md:ml-[var(--sidebar-collapsed)]">
         {/* Mobile top bar */}
-        <header className="bg-background/80 border-b backdrop-blur-sm md:hidden">
-          <div className="flex h-14 items-center gap-4 px-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileOpen(true)}
-              aria-label={t('nav.openMenu')}
-            >
-              <Menu className="size-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <div className="gradient-bg flex size-6 items-center justify-center rounded-md">
-                <Bot className="size-3.5 text-white" />
-              </div>
-              <span className="text-lg font-bold tracking-tight">Agent-X</span>
+        <header className="flex h-12 items-center gap-3 border-b bg-background px-4 md:hidden">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setMobileOpen(true)}
+            aria-label={t('nav.openMenu')}
+          >
+            <Menu className="size-5" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <div className="flex size-6 items-center justify-center rounded-[var(--radius-sm)] bg-primary">
+              <span className="text-[10px] font-bold text-primary-foreground leading-none">
+                X
+              </span>
             </div>
+            <span className="text-sm font-semibold">Agent-X</span>
           </div>
         </header>
 
-        {/* Main content area */}
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="flex min-h-0 flex-1 flex-col overflow-auto p-6">
-            <Outlet />
-          </div>
+        <main className="flex min-h-0 flex-1 flex-col overflow-auto">
+          <Outlet />
         </main>
       </div>
     </div>
