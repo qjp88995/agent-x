@@ -18,7 +18,6 @@ import { SkillType } from '@agent-x/shared';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { AddCard } from '@/components/shared/add-card';
 import { DeleteDialog } from '@/components/skills/delete-dialog';
 import { MarketplaceCard } from '@/components/skills/marketplace-card';
 import { PreviewDialog } from '@/components/skills/preview-dialog';
@@ -141,11 +140,6 @@ export default function SkillsPage() {
     });
   }
 
-  const showMarketplaceAddCard =
-    isAdmin && (filter === FILTER_ALL || filter === SkillType.SYSTEM);
-  const showCustomAddCard =
-    filter === FILTER_ALL || filter === SkillType.CUSTOM;
-
   const emptyTab =
     filter === SkillType.SYSTEM
       ? 'marketplace'
@@ -208,19 +202,6 @@ export default function SkillsPage() {
           />
         ) : (
           <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {showMarketplaceAddCard && (
-              <StaggerItem>
-                <AddCard
-                  to="/skills/new?type=system"
-                  label={t('skills.addToMarketplace')}
-                />
-              </StaggerItem>
-            )}
-            {showCustomAddCard && (
-              <StaggerItem>
-                <AddCard to="/skills/new" label={t('skills.createSkill')} />
-              </StaggerItem>
-            )}
             {filtered.map(skill => (
               <StaggerItem key={skill.id}>
                 {skill.type === SkillType.SYSTEM ? (

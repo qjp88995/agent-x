@@ -23,7 +23,6 @@ import { MarketplaceCard } from '@/components/prompts/marketplace-card';
 import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
 import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
-import { AddCard } from '@/components/shared/add-card';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
@@ -150,11 +149,6 @@ export default function PromptsPage() {
     });
   }
 
-  const showMarketplaceAddCard =
-    isAdmin && (filter === FILTER_ALL || filter === PromptType.SYSTEM);
-  const showCustomAddCard =
-    filter === FILTER_ALL || filter === PromptType.CUSTOM;
-
   const emptyTab =
     filter === PromptType.SYSTEM
       ? 'marketplace'
@@ -217,19 +211,6 @@ export default function PromptsPage() {
           />
         ) : (
           <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {showMarketplaceAddCard && (
-              <StaggerItem>
-                <AddCard
-                  to="/prompts/new?type=system"
-                  label={t('prompts.addToMarketplace')}
-                />
-              </StaggerItem>
-            )}
-            {showCustomAddCard && (
-              <StaggerItem>
-                <AddCard to="/prompts/new" label={t('prompts.createPrompt')} />
-              </StaggerItem>
-            )}
             {filtered.map(prompt => (
               <StaggerItem key={prompt.id}>
                 {prompt.type === PromptType.SYSTEM ? (

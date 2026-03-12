@@ -29,7 +29,6 @@ import { toast } from 'sonner';
 import { MarketplaceCard } from '@/components/mcp/marketplace-card';
 import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
 import { McpServerCard } from '@/components/mcp/mcp-server-card';
-import { AddCard } from '@/components/shared/add-card';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
@@ -151,10 +150,6 @@ export default function McpPage() {
     });
   }
 
-  const showMarketplaceAddCard =
-    isAdmin && (filter === FILTER_ALL || filter === McpType.OFFICIAL);
-  const showCustomAddCard = filter === FILTER_ALL || filter === McpType.CUSTOM;
-
   const emptyTab =
     filter === McpType.OFFICIAL
       ? 'marketplace'
@@ -215,19 +210,6 @@ export default function McpPage() {
           />
         ) : (
           <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {showMarketplaceAddCard && (
-              <StaggerItem>
-                <AddCard
-                  to="/mcp-servers/new?type=official"
-                  label={t('mcp.addToMarketplace')}
-                />
-              </StaggerItem>
-            )}
-            {showCustomAddCard && (
-              <StaggerItem>
-                <AddCard to="/mcp-servers/new" label={t('mcp.addServer')} />
-              </StaggerItem>
-            )}
             {filtered.map(server => (
               <StaggerItem key={server.id}>
                 {server.type === McpType.OFFICIAL ? (

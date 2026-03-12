@@ -58,7 +58,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { AddCard } from '@/components/shared/add-card';
 import { EmptyState } from '@/components/shared/empty-state';
 import { CreateUserDialog } from '@/components/users/create-user-dialog';
 import { useDateLocale } from '@/hooks/use-date-locale';
@@ -466,12 +465,6 @@ export default function UserListPage() {
           <UserTable users={filtered} {...tableActions} />
         ) : (
           <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <StaggerItem>
-              <AddCard
-                label={t('users.createUser')}
-                onClick={() => setCreateOpen(true)}
-              />
-            </StaggerItem>
             {filtered.map(user => (
               <StaggerItem key={user.id}>
                 <UserCard user={user} {...tableActions} />

@@ -41,7 +41,6 @@ import {
 import { toast } from 'sonner';
 
 import { ProviderEmptyState } from '@/components/providers/provider-empty-state';
-import { AddCard } from '@/components/shared/add-card';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
   useDeleteProvider,
@@ -330,9 +329,6 @@ export default function ProviderListPage() {
           <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
         ) : (
           <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <StaggerItem>
-              <AddCard to="/providers/new" label={t('providers.addProvider')} />
-            </StaggerItem>
             {filtered.map(provider => (
               <StaggerItem key={provider.id}>
                 <ProviderCard provider={provider} onDelete={setDeleteTarget} />

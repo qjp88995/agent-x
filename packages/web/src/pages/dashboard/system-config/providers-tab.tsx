@@ -18,7 +18,6 @@ import type { SystemProviderResponse } from '@agent-x/shared';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { AddCard } from '@/components/shared/add-card';
 import {
   useDeleteSystemProvider,
   useSystemProviders,
@@ -50,11 +49,6 @@ export function ProvidersTab() {
 
   function handleEdit(provider: SystemProviderResponse) {
     setEditingProvider(provider);
-    setDialogOpen(true);
-  }
-
-  function handleAdd() {
-    setEditingProvider(null);
     setDialogOpen(true);
   }
 
@@ -91,9 +85,6 @@ export function ProvidersTab() {
   return (
     <div className="flex flex-col gap-6">
       <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <StaggerItem>
-          <AddCard label={t('systemConfig.addProvider')} onClick={handleAdd} />
-        </StaggerItem>
         {providers?.map(provider => (
           <StaggerItem key={provider.id}>
             <ProviderCard

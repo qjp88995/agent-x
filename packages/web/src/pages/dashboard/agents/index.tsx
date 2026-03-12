@@ -50,7 +50,6 @@ import {
 import { toast } from 'sonner';
 
 import { AgentEmptyState } from '@/components/agents/agent-empty-state';
-import { AddCard } from '@/components/shared/add-card';
 import {
   useAgents,
   useArchiveAgent,
@@ -355,9 +354,6 @@ export default function AgentListPage() {
           />
         ) : (
           <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <StaggerItem>
-              <AddCard to="/agents/new" label={t('agents.createAgent')} />
-            </StaggerItem>
             {filtered.map(agent => (
               <StaggerItem key={agent.id}>
                 <AgentCard
