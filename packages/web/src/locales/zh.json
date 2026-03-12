@@ -615,6 +615,11 @@
     "providers": "系统供应商",
     "providersDesc": "管理平台功能使用的系统级 AI 供应商。",
     "featuresTab": "功能配置",
+    "sections": {
+      "aiConfiguration": "AI 配置"
+    },
+    "notConfigured": "未配置",
+    "newProvider": "新建提供商",
     "addProvider": "添加系统供应商",
     "editProvider": "编辑系统供应商",
     "deleteProvider": "删除系统供应商",

@@ -615,6 +615,11 @@
     "providers": "System Providers",
     "providersDesc": "Manage system-level AI provider connections for platform features.",
     "featuresTab": "Feature Config",
+    "sections": {
+      "aiConfiguration": "AI Configuration"
+    },
+    "notConfigured": "Not configured",
+    "newProvider": "New Provider",
     "addProvider": "Add System Provider",
     "editProvider": "Edit System Provider",
     "deleteProvider": "Delete System Provider",

@@ -7,9 +7,10 @@ import { Plus } from 'lucide-react';
 interface EmptyStateProps {
   readonly icon: LucideIcon;
   readonly title: string;
-  readonly description: string;
+  readonly description?: string;
   readonly actionLabel?: string;
   readonly actionTo?: string;
+  readonly action?: React.ReactNode;
 }
 
 export function EmptyState({
@@ -18,6 +19,7 @@ export function EmptyState({
   description,
   actionLabel,
   actionTo,
+  action,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
@@ -25,8 +27,11 @@ export function EmptyState({
         <Icon className="size-8" />
       </div>
       <h3 className="mb-1 text-lg font-semibold">{title}</h3>
-      <p className="text-foreground-muted mb-6 text-sm">{description}</p>
-      {actionLabel && actionTo && (
+      {description && (
+        <p className="text-foreground-muted mb-6 text-sm">{description}</p>
+      )}
+      {action}
+      {!action && actionLabel && actionTo && (
         <Button asChild variant="primary">
           <Link to={actionTo}>
             <Plus className="mr-2 size-4" />
