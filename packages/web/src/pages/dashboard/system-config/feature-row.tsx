@@ -113,9 +113,9 @@ export function FeatureRow({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-4">
+      <CardContent className="flex flex-col gap-6">
         {/* Provider selector */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <Label>{t('systemConfig.selectProvider')}</Label>
           <Select value={providerId} onValueChange={setProviderId}>
             <SelectTrigger>
@@ -132,7 +132,7 @@ export function FeatureRow({
         </div>
 
         {/* Model selector */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <Label>{t('systemConfig.selectModel')}</Label>
           <Select
             value={modelId}
@@ -153,7 +153,7 @@ export function FeatureRow({
         </div>
 
         {/* System prompt */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <Label>{t('agents.systemPrompt')}</Label>
           <Textarea
             placeholder={t('agents.systemPromptPlaceholder')}
@@ -164,7 +164,7 @@ export function FeatureRow({
         </div>
 
         {/* Temperature */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <Label>
             {t('agents.temperature')}{' '}
             <span className="text-foreground-muted font-normal">
@@ -193,7 +193,7 @@ export function FeatureRow({
         </div>
 
         {/* Max Tokens */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <Label>{t('agents.maxTokens')}</Label>
           <Input
             type="number"
@@ -218,7 +218,7 @@ export function FeatureRow({
         </div>
       </CardContent>
 
-      <CardFooter className="border-t pt-4">
+      <CardFooter className="border-t pt-6">
         <div className="flex w-full justify-end">
           <Button
             variant="primary"

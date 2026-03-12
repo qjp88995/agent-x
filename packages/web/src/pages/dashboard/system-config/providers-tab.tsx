@@ -10,6 +10,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  Skeleton,
+  StaggerItem,
+  StaggerList,
 } from '@agent-x/design';
 import type { SystemProviderResponse } from '@agent-x/shared';
 import { AlertTriangle } from 'lucide-react';
@@ -23,6 +26,16 @@ import {
 
 import { ProviderCard } from './provider-card';
 import { ProviderFormDialog } from './provider-form-dialog';
+
+function ProvidersSkeleton() {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-48 rounded-lg" />
+      ))}
+    </div>
+  );
+}
 
 export function ProvidersTab() {
   const { t } = useTranslation();
@@ -56,13 +69,7 @@ export function ProvidersTab() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-foreground-muted text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
+    return <ProvidersSkeleton />;
   }
 
   if (error) {
@@ -83,17 +90,20 @@ export function ProvidersTab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <AddCard label={t('systemConfig.addProvider')} onClick={handleAdd} />
+      <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <StaggerItem>
+          <AddCard label={t('systemConfig.addProvider')} onClick={handleAdd} />
+        </StaggerItem>
         {providers?.map(provider => (
-          <ProviderCard
-            key={provider.id}
-            provider={provider}
-            onEdit={handleEdit}
-            onDelete={setDeleteTarget}
-          />
+          <StaggerItem key={provider.id}>
+            <ProviderCard
+              provider={provider}
+              onEdit={handleEdit}
+              onDelete={setDeleteTarget}
+            />
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerList>
 
       <ProviderFormDialog
         open={dialogOpen}

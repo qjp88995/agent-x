@@ -135,9 +135,9 @@ export function ProviderFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto py-4">
+        <div className="flex flex-1 flex-col gap-6 overflow-y-auto py-4">
           {/* Name */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <Label>{t('common.name')}</Label>
             <Input
               placeholder={t('providers.namePlaceholder')}
@@ -151,7 +151,7 @@ export function ProviderFormDialog({
 
           {/* Protocol */}
           {!isEdit && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               <Label>{t('providers.protocol')}</Label>
               <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                 {PROTOCOL_OPTIONS.map(option => (
@@ -181,7 +181,7 @@ export function ProviderFormDialog({
           )}
 
           {isEdit && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               <Label>{t('providers.protocol')}</Label>
               <Badge
                 variant="outline"
@@ -196,7 +196,7 @@ export function ProviderFormDialog({
           )}
 
           {/* Base URL */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <Label>{t('providers.baseUrl')}</Label>
             <Input
               type="url"
@@ -210,7 +210,7 @@ export function ProviderFormDialog({
           </div>
 
           {/* API Key */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <Label>{t('providers.apiKey')}</Label>
             <Input
               type="password"

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { Skeleton, StaggerItem, StaggerList } from '@agent-x/design';
 import { AlertTriangle, Wrench } from 'lucide-react';
 
 import {
@@ -9,19 +10,23 @@ import {
 
 import { FeatureRow } from './feature-row';
 
+function FeaturesSkeleton() {
+  return (
+    <div className="flex max-w-4xl flex-col gap-4">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <Skeleton key={i} className="h-64 rounded-lg" />
+      ))}
+    </div>
+  );
+}
+
 export function FeaturesTab() {
   const { t } = useTranslation();
   const { data: features, isLoading, error } = useSystemFeatures();
   const { data: providers } = useSystemProviders();
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-foreground-muted text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
+    return <FeaturesSkeleton />;
   }
 
   if (error) {
@@ -52,15 +57,13 @@ export function FeaturesTab() {
           </h3>
         </div>
       ) : (
-        <div className="flex max-w-4xl flex-col gap-4">
+        <StaggerList className="flex max-w-4xl flex-col gap-4">
           {features.map(feature => (
-            <FeatureRow
-              key={feature.id}
-              feature={feature}
-              providers={providers ?? []}
-            />
+            <StaggerItem key={feature.id}>
+              <FeatureRow feature={feature} providers={providers ?? []} />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       )}
     </div>
   );

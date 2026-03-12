@@ -96,7 +96,7 @@ export function ProviderCard({
         </p>
       </CardContent>
 
-      <CardFooter className="border-t pt-4">
+      <CardFooter className="border-t pt-6">
         <div className="flex w-full items-center justify-end gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
