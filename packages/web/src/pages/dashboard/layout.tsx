@@ -56,6 +56,9 @@ const NAV_ITEMS: readonly NavDef[] = [
   { labelKey: 'nav.skills', href: '/skills', icon: Sparkles },
   { labelKey: 'nav.apiKeys', href: '/api-keys', icon: Key },
   { labelKey: 'nav.users', href: '/users', icon: Users, adminOnly: true },
+] as const;
+
+const BOTTOM_NAV_ITEMS: readonly NavDef[] = [
   { labelKey: 'nav.preferences', href: '/settings', icon: Settings },
   {
     labelKey: 'nav.systemConfig',
@@ -136,24 +139,26 @@ function SidebarFooter() {
   );
 }
 
-function useSidebarItems(): SidebarItem[] {
+function useNavItems(defs: readonly NavDef[]): SidebarItem[] {
   const location = useLocation();
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
 
-  return NAV_ITEMS.filter(item => !item.adminOnly || isAdmin).map(item => {
-    const Icon = item.icon;
-    const isActive =
-      location.pathname === item.href ||
-      location.pathname.startsWith(`${item.href}/`);
+  return defs
+    .filter(item => !item.adminOnly || isAdmin)
+    .map(item => {
+      const Icon = item.icon;
+      const isActive =
+        location.pathname === item.href ||
+        location.pathname.startsWith(`${item.href}/`);
 
-    return {
-      icon: <Icon className="size-[18px]" />,
-      label: t(item.labelKey),
-      href: item.href,
-      active: isActive,
-    };
-  });
+      return {
+        icon: <Icon className="size-[18px]" />,
+        label: t(item.labelKey),
+        href: item.href,
+        active: isActive,
+      };
+    });
 }
 
 function MobileNav({
@@ -167,14 +172,16 @@ function MobileNav({
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
 
-  const filteredItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
+  const allItems = [...NAV_ITEMS, ...BOTTOM_NAV_ITEMS].filter(
+    item => !item.adminOnly || isAdmin
+  );
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-64 p-0">
         <SheetHeader className="h-12 flex-row items-center px-4">
           <SheetTitle className="flex items-center gap-2">
-            <div className="flex size-7 items-center justify-center rounded-[var(--radius-sm)] bg-primary">
+            <div className="flex size-7 items-center justify-center rounded-md bg-primary">
               <span className="text-[12px] font-bold text-primary-foreground leading-none">
                 X
               </span>
@@ -185,7 +192,7 @@ function MobileNav({
         <div className="border-t border-border mx-3" />
         <ScrollArea className="flex-1 py-3">
           <nav className="flex flex-col gap-0.5 px-3">
-            {filteredItems.map(item => {
+            {allItems.map(item => {
               const isActive =
                 location.pathname === item.href ||
                 location.pathname.startsWith(`${item.href}/`);
@@ -197,7 +204,7 @@ function MobileNav({
                   to={item.href}
                   onClick={() => onOpenChange(false)}
                   className={cn(
-                    'flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                     isActive
                       ? 'bg-primary-muted text-primary'
                       : 'text-foreground-ghost hover:text-foreground-muted hover:bg-card'
@@ -220,7 +227,8 @@ export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const items = useSidebarItems();
+  const items = useNavItems(NAV_ITEMS);
+  const bottomItems = useNavItems(BOTTOM_NAV_ITEMS);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -228,6 +236,7 @@ export default function DashboardLayout() {
       <div className="hidden md:block">
         <IconSidebar
           items={items}
+          bottomItems={bottomItems}
           onItemClick={item => navigate(item.href)}
           footer={<SidebarFooter />}
         />

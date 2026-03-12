@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Bot, FileText, Key, Plug, Settings, Sparkles, Users,Zap } from 'lucide-react';
+import { Bot, FileText, Key, Plug, Settings, Sparkles, Users, Wrench, Zap } from 'lucide-react';
 
 import { IconSidebar, type SidebarItem } from './icon-sidebar';
 
-const defaultItems: SidebarItem[] = [
+const mainItems: SidebarItem[] = [
   { icon: <Bot className="size-4.5" />, label: 'Agents', href: '/agents', active: true },
   { icon: <Zap className="size-4.5" />, label: 'Providers', href: '/providers' },
   { icon: <Plug className="size-4.5" />, label: 'MCP Servers', href: '/mcp-servers' },
@@ -11,7 +11,11 @@ const defaultItems: SidebarItem[] = [
   { icon: <FileText className="size-4.5" />, label: 'Prompts', href: '/prompts' },
   { icon: <Key className="size-4.5" />, label: 'API Keys', href: '/api-keys' },
   { icon: <Users className="size-4.5" />, label: 'Users', href: '/users' },
+];
+
+const bottomItems: SidebarItem[] = [
   { icon: <Settings className="size-4.5" />, label: 'Settings', href: '/settings' },
+  { icon: <Wrench className="size-4.5" />, label: 'System', href: '/system-config' },
 ];
 
 const meta: Meta<typeof IconSidebar> = {
@@ -42,10 +46,11 @@ const meta: Meta<typeof IconSidebar> = {
 export default meta;
 type Story = StoryObj<typeof IconSidebar>;
 
-export const Collapsed: Story = {
-  name: 'Collapsed (hover to expand)',
+export const Default: Story = {
+  name: 'Default (hover to expand)',
   args: {
-    items: defaultItems,
+    items: mainItems,
+    bottomItems,
   },
 };
 
@@ -60,8 +65,8 @@ export const WithActiveItem: Story = {
       { icon: <FileText className="size-4.5" />, label: 'Prompts', href: '/prompts' },
       { icon: <Key className="size-4.5" />, label: 'API Keys', href: '/api-keys' },
       { icon: <Users className="size-4.5" />, label: 'Users', href: '/users' },
-      { icon: <Settings className="size-4.5" />, label: 'Settings', href: '/settings' },
     ],
+    bottomItems,
   },
 };
 
@@ -76,7 +81,28 @@ export const WithBadges: Story = {
       { icon: <FileText className="size-4.5" />, label: 'Prompts', href: '/prompts', badge: 'NEW' },
       { icon: <Key className="size-4.5" />, label: 'API Keys', href: '/api-keys' },
       { icon: <Users className="size-4.5" />, label: 'Users', href: '/users' },
-      { icon: <Settings className="size-4.5" />, label: 'Settings', href: '/settings' },
     ],
+    bottomItems,
+  },
+};
+
+export const WithFooter: Story = {
+  name: 'With Footer (avatar area)',
+  args: {
+    items: mainItems,
+    bottomItems,
+    footer: (
+      <div className="flex flex-col gap-2">
+        <div className="border-t border-border" />
+        <div className="flex items-center gap-2">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-card text-[10px] text-foreground-muted">
+            U
+          </div>
+          <span className="flex-1 truncate text-[11px] font-medium text-foreground-muted opacity-0 transition-opacity duration-150 delay-50 group-hover/sidebar:opacity-100">
+            User Name
+          </span>
+        </div>
+      </div>
+    ),
   },
 };
