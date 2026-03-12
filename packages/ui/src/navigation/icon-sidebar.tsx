@@ -21,7 +21,7 @@ type IconSidebarProps = {
 
 function DefaultLogo() {
   return (
-    <div className="flex h-12 items-center justify-center overflow-hidden">
+    <div className="flex h-12 items-center">
       <div className="flex shrink-0 items-center justify-center rounded-md bg-primary size-8">
         <span className="text-[13px] font-bold text-primary-foreground leading-none">
           X
@@ -127,9 +127,7 @@ function IconSidebar({
 
       {/* Footer */}
       {footer && (
-        <div className="shrink-0 px-2 py-2 overflow-hidden">
-          {footer}
-        </div>
+        <div className="shrink-0 px-2 py-2 overflow-hidden">{footer}</div>
       )}
     </aside>
   );
