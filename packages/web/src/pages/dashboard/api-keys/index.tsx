@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Badge,
   Button,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -41,35 +42,14 @@ function StatusBadge({
   const { t } = useTranslation();
 
   if (!isActive) {
-    return (
-      <Badge
-        variant="outline"
-        className="border-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-      >
-        {t('apiKeys.revoked')}
-      </Badge>
-    );
+    return <Badge variant="destructive">{t('apiKeys.revoked')}</Badge>;
   }
 
   if (expiresAt && new Date(expiresAt) < new Date()) {
-    return (
-      <Badge
-        variant="outline"
-        className="border-0 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-      >
-        {t('apiKeys.expired')}
-      </Badge>
-    );
+    return <Badge variant="warning">{t('apiKeys.expired')}</Badge>;
   }
 
-  return (
-    <Badge
-      variant="outline"
-      className="border-0 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-    >
-      {t('common.active')}
-    </Badge>
-  );
+  return <Badge variant="success">{t('common.active')}</Badge>;
 }
 
 function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
@@ -101,9 +81,28 @@ export default function ApiKeysPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-foreground-muted text-sm">
-          {t('common.loading')}
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="mt-2 h-4 w-64" />
+          </div>
+          <Skeleton className="h-9 w-32" />
+        </div>
+        <div className="overflow-x-auto rounded-lg border">
+          <div className="flex flex-col divide-y">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 px-4 py-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-5 w-40 rounded" />
+                <Skeleton className="hidden h-4 w-20 sm:block" />
+                <Skeleton className="hidden h-4 w-24 md:block" />
+                <Skeleton className="hidden h-4 w-24 md:block" />
+                <Skeleton className="h-5 w-16 rounded-full" />
+                <Skeleton className="size-8 rounded-md" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
