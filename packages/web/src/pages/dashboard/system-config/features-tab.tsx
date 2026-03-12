@@ -1,32 +1,31 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Skeleton, StaggerItem, StaggerList } from '@agent-x/design';
+import { SettingsAccordion, Skeleton } from '@agent-x/design';
 import { AlertTriangle, Wrench } from 'lucide-react';
 
+import { EmptyState } from '@/components/shared/empty-state';
 import {
   useSystemFeatures,
   useSystemProviders,
 } from '@/hooks/use-system-config';
 
-import { FeatureRow } from './feature-row';
-
-function FeaturesSkeleton() {
-  return (
-    <div className="flex max-w-4xl flex-col gap-4">
-      {Array.from({ length: 2 }).map((_, i) => (
-        <Skeleton key={i} className="h-64 rounded-lg" />
-      ))}
-    </div>
-  );
-}
+import { FeatureAccordionItem } from './feature-row';
 
 export function FeaturesTab() {
   const { t } = useTranslation();
   const { data: features, isLoading, error } = useSystemFeatures();
   const { data: providers } = useSystemProviders();
+  const [expanded, setExpanded] = useState('');
 
   if (isLoading) {
-    return <FeaturesSkeleton />;
+    return (
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 rounded-lg" />
+        ))}
+      </div>
+    );
   }
 
   if (error) {
@@ -45,26 +44,30 @@ export function FeaturesTab() {
     );
   }
 
+  if (!features || features.length === 0) {
+    return <EmptyState icon={Wrench} title={t('common.noResults')} />;
+  }
+
   return (
-    <div className="flex flex-col gap-6">
-      {!features || features.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-          <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full text-white">
-            <Wrench className="size-8" />
-          </div>
-          <h3 className="mb-1 text-lg font-semibold">
-            {t('common.noResults')}
-          </h3>
-        </div>
-      ) : (
-        <StaggerList className="flex max-w-4xl flex-col gap-4">
-          {features.map(feature => (
-            <StaggerItem key={feature.id}>
-              <FeatureRow feature={feature} providers={providers ?? []} />
-            </StaggerItem>
-          ))}
-        </StaggerList>
-      )}
+    <div className="flex flex-col gap-5">
+      <div>
+        <h2 className="text-base font-semibold">
+          {t('systemConfig.featuresTab')}
+        </h2>
+        <p className="text-foreground-muted mt-0.5 text-sm">
+          {t('systemConfig.subtitle')}
+        </p>
+      </div>
+
+      <SettingsAccordion value={expanded} onValueChange={setExpanded}>
+        {features.map(feature => (
+          <FeatureAccordionItem
+            key={feature.id}
+            feature={feature}
+            providers={providers ?? []}
+          />
+        ))}
+      </SettingsAccordion>
     </div>
   );
 }

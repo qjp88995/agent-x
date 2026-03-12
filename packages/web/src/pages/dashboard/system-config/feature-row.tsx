@@ -2,13 +2,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+  Badge,
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
   Input,
   Label,
   Select,
@@ -16,6 +11,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SettingsAccordionContent,
+  SettingsAccordionItem,
+  SettingsAccordionTrigger,
   Slider,
   Switch,
   Textarea,
@@ -32,7 +30,7 @@ import {
   useUpdateSystemFeature,
 } from '@/hooks/use-system-config';
 
-export function FeatureRow({
+export function FeatureAccordionItem({
   feature,
   providers,
 }: {
@@ -54,7 +52,6 @@ export function FeatureRow({
 
   const { data: models } = useSystemProviderModels(providerId || undefined);
 
-  // Reset model when provider changes
   useEffect(() => {
     if (providerId !== (feature.systemProviderId ?? '')) {
       setModelId('');
@@ -90,151 +87,147 @@ export function FeatureRow({
     }
   }
 
+  function handleToggle(checked: boolean) {
+    setIsEnabled(checked);
+    updateFeature.mutate({
+      featureKey: feature.featureKey,
+      dto: { isEnabled: checked },
+    });
+  }
+
+  const selectedProvider = providers.find(p => p.id === providerId);
+  const selectedModel = models?.find(m => m.id === modelId);
+
+  const summaryBadges = feature.systemProviderId ? (
+    <>
+      <Badge variant="muted" className="text-xs">
+        {selectedProvider?.name ?? '...'} /{' '}
+        {selectedModel?.name ?? modelId ?? '...'}
+      </Badge>
+      <Badge variant="muted" className="text-xs">
+        T: {temperature}
+      </Badge>
+    </>
+  ) : (
+    <Badge variant="muted" className="text-xs">
+      {t('systemConfig.notConfigured')}
+    </Badge>
+  );
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
+    <SettingsAccordionItem value={feature.featureKey} disabled={!isEnabled}>
+      <SettingsAccordionTrigger
+        title={t(`systemConfig.features.${feature.featureKey}.name`)}
+        description={t(
+          `systemConfig.features.${feature.featureKey}.description`
+        )}
+        summary={summaryBadges}
+        trailing={<Switch checked={isEnabled} onCheckedChange={handleToggle} />}
+      />
+      <SettingsAccordionContent>
+        <div className="flex flex-col gap-4">
+          {/* Row 1: Provider + Model */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <Label>{t('systemConfig.selectProvider')}</Label>
+              <Select value={providerId} onValueChange={setProviderId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('systemConfig.selectProvider')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {providers.map(p => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label>{t('systemConfig.selectModel')}</Label>
+              <Select
+                value={modelId}
+                onValueChange={setModelId}
+                disabled={!providerId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('systemConfig.selectModel')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {models?.map(m => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Row 2: System Prompt */}
           <div className="flex flex-col gap-1">
-            <CardTitle className="text-base">
-              {t(`systemConfig.features.${feature.featureKey}.name`)}
-            </CardTitle>
-            <CardDescription>
-              {t(`systemConfig.features.${feature.featureKey}.description`)}
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-foreground-muted text-sm">
-              {isEnabled
-                ? t('systemConfig.enabled')
-                : t('systemConfig.disabled')}
-            </span>
-            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="flex flex-col gap-6">
-        {/* Provider selector */}
-        <div className="flex flex-col gap-1">
-          <Label>{t('systemConfig.selectProvider')}</Label>
-          <Select value={providerId} onValueChange={setProviderId}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('systemConfig.selectProvider')} />
-            </SelectTrigger>
-            <SelectContent>
-              {providers.map(p => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Model selector */}
-        <div className="flex flex-col gap-1">
-          <Label>{t('systemConfig.selectModel')}</Label>
-          <Select
-            value={modelId}
-            onValueChange={setModelId}
-            disabled={!providerId}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t('systemConfig.selectModel')} />
-            </SelectTrigger>
-            <SelectContent>
-              {models?.map(m => (
-                <SelectItem key={m.id} value={m.id}>
-                  {m.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* System prompt */}
-        <div className="flex flex-col gap-1">
-          <Label>{t('agents.systemPrompt')}</Label>
-          <Textarea
-            placeholder={t('agents.systemPromptPlaceholder')}
-            value={systemPrompt}
-            onChange={e => setSystemPrompt(e.target.value)}
-            rows={4}
-          />
-        </div>
-
-        {/* Temperature */}
-        <div className="flex flex-col gap-1">
-          <Label>
-            {t('agents.temperature')}{' '}
-            <span className="text-foreground-muted font-normal">
-              ({temperature})
-            </span>
-          </Label>
-          <div className="flex items-center gap-4">
-            <Slider
-              min={0}
-              max={2}
-              step={0.1}
-              value={[temperature]}
-              onValueChange={([v]) => setTemperature(v)}
-              className="flex-1"
-            />
-            <Input
-              type="number"
-              min="0"
-              max="2"
-              step="0.1"
-              value={temperature}
-              onChange={e => setTemperature(parseFloat(e.target.value) || 0)}
-              className="w-20"
+            <Label>{t('agents.systemPrompt')}</Label>
+            <Textarea
+              placeholder={t('agents.systemPromptPlaceholder')}
+              value={systemPrompt}
+              onChange={e => setSystemPrompt(e.target.value)}
+              rows={3}
             />
           </div>
-        </div>
 
-        {/* Max Tokens */}
-        <div className="flex flex-col gap-1">
-          <Label>{t('agents.maxTokens')}</Label>
-          <Input
-            type="number"
-            min="1"
-            value={maxTokens}
-            onChange={e => setMaxTokens(parseInt(e.target.value, 10) || 0)}
-          />
-        </div>
-
-        {/* Thinking Mode */}
-        <div className="flex items-center justify-between rounded-lg border p-3">
-          <div className="space-y-0.5">
-            <Label>{t('agents.thinkingEnabled')}</Label>
-            <p className="text-foreground-muted text-xs">
-              {t('agents.thinkingEnabledHint')}
-            </p>
+          {/* Row 3: Temperature + MaxTokens + Thinking */}
+          <div className="grid grid-cols-3 items-end gap-4">
+            <div className="flex flex-col gap-1">
+              <Label>
+                {t('agents.temperature')}{' '}
+                <span className="text-foreground-muted font-normal">
+                  ({temperature})
+                </span>
+              </Label>
+              <Slider
+                min={0}
+                max={2}
+                step={0.1}
+                value={[temperature]}
+                onValueChange={([v]) => setTemperature(v)}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label>{t('agents.maxTokens')}</Label>
+              <Input
+                type="number"
+                min="1"
+                value={maxTokens}
+                onChange={e => setMaxTokens(parseInt(e.target.value, 10) || 0)}
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-2.5">
+              <Label className="text-xs">{t('agents.thinkingEnabled')}</Label>
+              <Switch
+                checked={thinkingEnabled}
+                onCheckedChange={setThinkingEnabled}
+              />
+            </div>
           </div>
-          <Switch
-            checked={thinkingEnabled}
-            onCheckedChange={setThinkingEnabled}
-          />
-        </div>
-      </CardContent>
 
-      <CardFooter className="border-t pt-6">
-        <div className="flex w-full justify-end">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleSave}
-            disabled={!hasChanges || updateFeature.isPending}
-          >
-            {updateFeature.isPending ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 size-4" />
-            )}
-            {t('common.save')}
-          </Button>
+          {/* Save button */}
+          <div className="flex justify-end">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={!hasChanges || updateFeature.isPending}
+            >
+              {updateFeature.isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 size-4" />
+              )}
+              {t('common.save')}
+            </Button>
+          </div>
         </div>
-      </CardFooter>
-    </Card>
+      </SettingsAccordionContent>
+    </SettingsAccordionItem>
   );
 }

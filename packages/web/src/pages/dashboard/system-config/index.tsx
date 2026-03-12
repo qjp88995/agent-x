@@ -1,18 +1,28 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
   PageHeader,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+  SettingsLayout,
+  SettingsNav,
+  SettingsNavGroup,
+  SettingsNavItem,
 } from '@agent-x/design';
+import { Plug, Settings } from 'lucide-react';
+
+import {
+  useSystemFeatures,
+  useSystemProviders,
+} from '@/hooks/use-system-config';
 
 import { FeaturesTab } from './features-tab';
 import { ProvidersTab } from './providers-tab';
 
 export default function SystemConfigPage() {
   const { t } = useTranslation();
+  const [section, setSection] = useState('providers');
+  const { data: providers } = useSystemProviders();
+  const { data: features } = useSystemFeatures();
 
   return (
     <div className="flex h-full flex-col">
@@ -21,24 +31,33 @@ export default function SystemConfigPage() {
         description={t('systemConfig.subtitle')}
       />
 
-      <div className="flex-1 overflow-auto p-5">
-        <Tabs defaultValue="providers">
-          <TabsList>
-            <TabsTrigger value="providers">
-              {t('systemConfig.providers')}
-            </TabsTrigger>
-            <TabsTrigger value="features">
-              {t('systemConfig.featuresTab')}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="providers">
-            <ProvidersTab />
-          </TabsContent>
-          <TabsContent value="features">
-            <FeaturesTab />
-          </TabsContent>
-        </Tabs>
-      </div>
+      <SettingsLayout
+        sidebar={
+          <SettingsNav value={section} onValueChange={setSection}>
+            <SettingsNavGroup
+              title={t('systemConfig.sections.aiConfiguration')}
+            >
+              <SettingsNavItem
+                value="providers"
+                icon={Plug}
+                count={providers?.length}
+              >
+                {t('systemConfig.providers')}
+              </SettingsNavItem>
+              <SettingsNavItem
+                value="features"
+                icon={Settings}
+                count={features?.length}
+              >
+                {t('systemConfig.featuresTab')}
+              </SettingsNavItem>
+            </SettingsNavGroup>
+          </SettingsNav>
+        }
+      >
+        {section === 'providers' && <ProvidersTab />}
+        {section === 'features' && <FeaturesTab />}
+      </SettingsLayout>
     </div>
   );
 }
