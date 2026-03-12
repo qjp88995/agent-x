@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
@@ -14,6 +14,11 @@ import {
   Avatar,
   Badge,
   Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -25,23 +30,18 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  type FilterTab,
+  FilterTabs,
   Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  PageHeader,
   Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  StaggerItem,
+  StaggerList,
+  ViewToggle,
 } from '@agent-x/design';
 import type { UserResponse } from '@agent-x/shared';
-import { format, formatDistanceToNow } from 'date-fns';
-import { motion } from 'framer-motion';
+import { UserStatus } from '@agent-x/shared';
+import { formatDistanceToNow } from 'date-fns';
 import {
   AlertTriangle,
   Ban,
@@ -49,9 +49,7 @@ import {
   Copy,
   KeyRound,
   MoreHorizontal,
-  Plus,
   RotateCcw,
-  Search,
   Shield,
   ShieldOff,
   Trash2,
@@ -60,140 +58,236 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { DatePicker } from '@/components/ui/date-picker';
+import { AddCard } from '@/components/shared/add-card';
+import { EmptyState } from '@/components/shared/empty-state';
 import { CreateUserDialog } from '@/components/users/create-user-dialog';
 import { useDateLocale } from '@/hooks/use-date-locale';
-import type { UseUsersParams } from '@/hooks/use-users';
+import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
+  useAllUsers,
   useResetUserPassword,
   useUpdateUserRole,
   useUpdateUserStatus,
-  useUsers,
 } from '@/hooks/use-users';
+import { useViewMode } from '@/hooks/use-view-mode';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 
-type SortOption = 'newest' | 'oldest' | 'name' | 'email';
+import type { UserTableActions } from './user-table';
+import { UserTable } from './user-table';
 
-function RoleBadge({ role }: { readonly role: string }) {
-  const { t } = useTranslation();
-  const variant = role === 'ADMIN' ? 'info' : 'default';
-  const labelKey = role === 'ADMIN' ? 'users.roleAdmin' : 'users.roleUser';
-  return <Badge variant={variant}>{t(labelKey)}</Badge>;
+function UserCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+        <div className="flex items-center gap-3">
+          <Skeleton className="size-8 rounded-full" />
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-full" />
+      </CardContent>
+      <CardFooter className="border-t pt-4">
+        <div className="flex w-full items-center justify-between">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="size-7 rounded-md" />
+        </div>
+      </CardFooter>
+    </Card>
+  );
 }
 
-function UserStatusBadge({ status }: { readonly status: string }) {
+function UserCard({
+  user,
+  onRoleChange,
+  onResetPassword,
+  onDisable,
+  onEnable,
+  onDelete,
+  onRestore,
+}: {
+  readonly user: UserResponse;
+} & UserTableActions) {
   const { t } = useTranslation();
-  const variantMap: Record<string, 'success' | 'warning' | 'destructive'> = {
+  const dateLocale = useDateLocale();
+  const currentUser = useAuthStore(state => state.user);
+  const isCurrentUser = currentUser?.id === user.id;
+  const isAdmin = user.role === 'ADMIN';
+
+  const statusVariantMap: Record<
+    string,
+    'success' | 'warning' | 'destructive'
+  > = {
     ACTIVE: 'success',
     DISABLED: 'warning',
     DELETED: 'destructive',
   };
-  const labelMap: Record<string, string> = {
+  const statusLabelMap: Record<string, string> = {
     ACTIVE: 'users.statusActive',
     DISABLED: 'users.statusDisabled',
     DELETED: 'users.statusDeleted',
   };
-  return (
-    <Badge variant={variantMap[status] ?? 'default'}>
-      {t(labelMap[status] ?? 'users.statusActive')}
-    </Badge>
-  );
-}
-
-function EmptyState({ onCreateClick }: { readonly onCreateClick: () => void }) {
-  const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-      <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full text-white">
-        <Users className="size-8" />
-      </div>
-      <h3 className="mb-1 text-lg font-semibold">{t('users.noUsers')}</h3>
-      <p className="text-foreground-muted mb-6 text-sm">
-        {t('users.noUsersDesc')}
-      </p>
-      <Button onClick={onCreateClick} variant="primary">
-        <Plus className="mr-2 size-4" />
-        {t('users.createUser')}
-      </Button>
-    </div>
+    <Card className="flex flex-col transition-all duration-200 hover:border-primary/20 hover:shadow-md">
+      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+        <div className="flex items-center gap-3">
+          <Avatar name={user.name ?? user.email} size="lg" />
+          <div className="flex flex-col gap-1">
+            <CardTitle className="text-base">
+              <Link
+                to={`/users/${user.id}`}
+                className={cn(
+                  'hover:underline',
+                  user.status === UserStatus.DELETED && 'line-through'
+                )}
+              >
+                {user.name ?? user.email}
+              </Link>
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Badge variant={isAdmin ? 'info' : 'default'}>
+                {isAdmin ? t('users.roleAdmin') : t('users.roleUser')}
+              </Badge>
+              <Badge variant={statusVariantMap[user.status] ?? 'default'}>
+                {t(statusLabelMap[user.status] ?? 'users.statusActive')}
+              </Badge>
+            </div>
+          </div>
+        </div>
+        {!isCurrentUser && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-8">
+                <MoreHorizontal className="size-4" />
+                <span className="sr-only">{t('common.actions')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {user.status === UserStatus.ACTIVE && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      onRoleChange(user, isAdmin ? 'USER' : 'ADMIN')
+                    }
+                  >
+                    {isAdmin ? (
+                      <>
+                        <ShieldOff className="mr-2 size-4" />
+                        {t('users.changeToUser')}
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="mr-2 size-4" />
+                        {t('users.changeToAdmin')}
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onResetPassword(user)}>
+                    <KeyRound className="mr-2 size-4" />
+                    {t('users.resetPassword')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => onDisable(user)}>
+                    <Ban className="mr-2 size-4" />
+                    {t('users.disable')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => onDelete(user)}
+                  >
+                    <Trash2 className="mr-2 size-4" />
+                    {t('common.delete')}
+                  </DropdownMenuItem>
+                </>
+              )}
+              {user.status === UserStatus.DISABLED && (
+                <>
+                  <DropdownMenuItem onClick={() => onEnable(user)}>
+                    <UserCheck className="mr-2 size-4" />
+                    {t('users.enable')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => onDelete(user)}
+                  >
+                    <Trash2 className="mr-2 size-4" />
+                    {t('common.delete')}
+                  </DropdownMenuItem>
+                </>
+              )}
+              {user.status === UserStatus.DELETED && (
+                <DropdownMenuItem onClick={() => onRestore(user)}>
+                  <RotateCcw className="mr-2 size-4" />
+                  {t('users.restore')}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </CardHeader>
+
+      <CardContent className="flex-1">
+        <p className="text-foreground-muted truncate text-sm">{user.email}</p>
+      </CardContent>
+
+      <CardFooter className="border-t pt-4">
+        <div className="flex w-full items-center justify-between">
+          <span className="text-foreground-muted text-xs">
+            {formatDistanceToNow(new Date(user.updatedAt), {
+              addSuffix: true,
+              locale: dateLocale,
+            })}
+          </span>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }
 
 export default function UserListPage() {
   const { t } = useTranslation();
-  const dateLocale = useDateLocale();
-  const currentUser = useAuthStore(state => state.user);
+  const { data: allUsers, isLoading, error } = useAllUsers();
+  const [view, setView] = useViewMode('users');
 
-  // Filter state
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateFrom, setDateFrom] = useState<Date | undefined>();
-  const [dateTo, setDateTo] = useState<Date | undefined>();
-  const [sortOption, setSortOption] = useState<SortOption>('newest');
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const { filter, setFilter, filtered } = useFilteredSearch(allUsers, {
+    searchKeys: ['name', 'email'],
+    filterKey: 'status',
+  });
 
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-      setPage(1);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchInput]);
+  const activeCount = allUsers?.filter(
+    u => u.status === UserStatus.ACTIVE
+  ).length;
+  const disabledCount = allUsers?.filter(
+    u => u.status === UserStatus.DISABLED
+  ).length;
+  const deletedCount = allUsers?.filter(
+    u => u.status === UserStatus.DELETED
+  ).length;
 
-  // Reset page when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [roleFilter, statusFilter, dateFrom, dateTo, sortOption]);
+  const filterTabs: FilterTab[] = [
+    { key: FILTER_ALL, label: t('users.allStatuses'), count: allUsers?.length },
+    {
+      key: UserStatus.ACTIVE,
+      label: t('users.statusActive'),
+      count: activeCount,
+    },
+    {
+      key: UserStatus.DISABLED,
+      label: t('users.statusDisabled'),
+      count: disabledCount,
+    },
+    {
+      key: UserStatus.DELETED,
+      label: t('users.statusDeleted'),
+      count: deletedCount,
+    },
+  ];
 
-  const queryParams = useMemo<UseUsersParams>(() => {
-    const params: UseUsersParams = {
-      page,
-      pageSize,
-    };
-    if (debouncedSearch) params.search = debouncedSearch;
-    if (roleFilter !== 'all') params.role = roleFilter;
-    if (statusFilter !== 'all') params.status = statusFilter;
-    if (dateFrom) params.registeredFrom = format(dateFrom, 'yyyy-MM-dd');
-    if (dateTo) params.registeredTo = format(dateTo, 'yyyy-MM-dd');
-
-    switch (sortOption) {
-      case 'newest':
-        params.sortBy = 'createdAt';
-        params.sortOrder = 'desc';
-        break;
-      case 'oldest':
-        params.sortBy = 'createdAt';
-        params.sortOrder = 'asc';
-        break;
-      case 'name':
-        params.sortBy = 'name';
-        params.sortOrder = 'asc';
-        break;
-      case 'email':
-        params.sortBy = 'email';
-        params.sortOrder = 'asc';
-        break;
-    }
-
-    return params;
-  }, [
-    debouncedSearch,
-    roleFilter,
-    statusFilter,
-    dateFrom,
-    dateTo,
-    sortOption,
-    page,
-    pageSize,
-  ]);
-
-  const { data, isLoading, error } = useUsers(queryParams);
   const updateRole = useUpdateUserRole();
   const updateStatus = useUpdateUserStatus();
   const resetPassword = useResetUserPassword();
@@ -214,7 +308,16 @@ export default function UserListPage() {
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
   const [restoreTarget, setRestoreTarget] = useState<UserResponse | null>(null);
 
-  // Handlers
+  // Shared action handlers for both table and card views
+  const tableActions: UserTableActions = {
+    onRoleChange: (user, newRole) => setRoleChangeTarget({ user, newRole }),
+    onResetPassword: user => setResetPasswordTarget(user),
+    onDisable: user => setDisableTarget(user),
+    onEnable: user => setEnableTarget(user),
+    onDelete: user => setDeleteTarget(user),
+    onRestore: user => setRestoreTarget(user),
+  };
+
   const handleRoleChangeConfirm = useCallback(() => {
     if (!roleChangeTarget) return;
     updateRole.mutate(
@@ -224,9 +327,7 @@ export default function UserListPage() {
           setRoleChangeTarget(null);
           toast.success(t('users.roleChanged'));
         },
-        onError: () => {
-          toast.error(t('users.roleChangeFailed'));
-        },
+        onError: () => toast.error(t('users.roleChangeFailed')),
       }
     );
   }, [roleChangeTarget, updateRole, t]);
@@ -238,9 +339,7 @@ export default function UserListPage() {
         setResetPasswordTarget(null);
         setTempPassword(data.temporaryPassword);
       },
-      onError: () => {
-        toast.error(t('users.resetPasswordFailed'));
-      },
+      onError: () => toast.error(t('users.resetPasswordFailed')),
     });
   }, [resetPasswordTarget, resetPassword, t]);
 
@@ -261,9 +360,7 @@ export default function UserListPage() {
           setDisableTarget(null);
           toast.success(t('users.userDisabled'));
         },
-        onError: () => {
-          toast.error(t('users.disableFailed'));
-        },
+        onError: () => toast.error(t('users.disableFailed')),
       }
     );
   }, [disableTarget, updateStatus, t]);
@@ -277,9 +374,7 @@ export default function UserListPage() {
           setEnableTarget(null);
           toast.success(t('users.userEnabled'));
         },
-        onError: () => {
-          toast.error(t('users.enableFailed'));
-        },
+        onError: () => toast.error(t('users.enableFailed')),
       }
     );
   }, [enableTarget, updateStatus, t]);
@@ -294,9 +389,7 @@ export default function UserListPage() {
           setDeleteConfirmEmail('');
           toast.success(t('users.userDeleted'));
         },
-        onError: () => {
-          toast.error(t('users.deleteFailed'));
-        },
+        onError: () => toast.error(t('users.deleteFailed')),
       }
     );
   }, [deleteTarget, deleteConfirmEmail, updateStatus, t]);
@@ -310,54 +403,19 @@ export default function UserListPage() {
           setRestoreTarget(null);
           toast.success(t('users.userRestored'));
         },
-        onError: () => {
-          toast.error(t('users.restoreFailed'));
-        },
+        onError: () => toast.error(t('users.restoreFailed')),
       }
     );
   }, [restoreTarget, updateStatus, t]);
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-40" />
-            <Skeleton className="mt-2 h-4 w-64" />
-          </div>
-          <Skeleton className="h-9 w-28" />
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Skeleton className="h-9 w-[200px]" />
-          <Skeleton className="h-9 w-[130px]" />
-          <Skeleton className="h-9 w-[130px]" />
-        </div>
-        <div className="rounded-lg border">
-          <div className="flex flex-col divide-y">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 px-4 py-3">
-                <Skeleton className="size-8 rounded-full" />
-                <div className="flex-1 space-y-1.5">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-48" />
-                </div>
-                <Skeleton className="h-5 w-16" />
-                <Skeleton className="h-5 w-16" />
-                <Skeleton className="h-4 w-20" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <AlertTriangle className="text-destructive mb-4 size-10" />
         <h3 className="mb-1 font-semibold">
-          {t('common.failedToLoad', { resource: t('users.title') })}
+          {t('common.failedToLoad', {
+            resource: t('users.title').toLowerCase(),
+          })}
         </h3>
         <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
@@ -366,311 +424,62 @@ export default function UserListPage() {
     );
   }
 
-  const users = data?.data ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = Math.ceil(total / pageSize);
-  const startIndex = (page - 1) * pageSize + 1;
-  const endIndex = Math.min(page * pageSize, total);
-  const hasUsers = users.length > 0;
-  const hasAnyFilters =
-    debouncedSearch ||
-    roleFilter !== 'all' ||
-    statusFilter !== 'all' ||
-    dateFrom ||
-    dateTo;
-
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('users.title')}
-          </h1>
-          <p className="text-foreground-muted text-sm">{t('users.subtitle')}</p>
-        </div>
-        <Button
-          onClick={() => setCreateOpen(true)}
-          variant="primary"
-          className="sm:shrink-0"
-        >
-          <Plus className="mr-2 size-4" />
-          {t('users.createUser')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('users.title')}
+        description={t('users.subtitle')}
+        search
+        actions={
+          <Button variant="primary" onClick={() => setCreateOpen(true)}>
+            {t('users.createUser')}
+          </Button>
+        }
+      />
 
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="text-foreground-muted absolute left-3 top-1/2 size-4 -translate-y-1/2" />
-          <Input
-            placeholder={t('users.searchPlaceholder')}
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-[130px]">
-            <SelectValue placeholder={t('users.filterRole')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('users.allRoles')}</SelectItem>
-            <SelectItem value="ADMIN">{t('users.roleAdmin')}</SelectItem>
-            <SelectItem value="USER">{t('users.roleUser')}</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[130px]">
-            <SelectValue placeholder={t('users.filterStatus')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('users.allStatuses')}</SelectItem>
-            <SelectItem value="ACTIVE">{t('users.statusActive')}</SelectItem>
-            <SelectItem value="DISABLED">
-              {t('users.statusDisabled')}
-            </SelectItem>
-            <SelectItem value="DELETED">{t('users.statusDeleted')}</SelectItem>
-          </SelectContent>
-        </Select>
-        <DatePicker
-          value={dateFrom}
-          onChange={setDateFrom}
-          placeholder={t('users.registeredFrom')}
-          clearable
-        />
-        <DatePicker
-          value={dateTo}
-          onChange={setDateTo}
-          placeholder={t('users.registeredTo')}
-          fromDate={dateFrom}
-          clearable
-        />
-        <Select
-          value={sortOption}
-          onValueChange={v => setSortOption(v as SortOption)}
-        >
-          <SelectTrigger className="w-[130px]">
-            <SelectValue placeholder={t('users.sort')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">{t('users.sortNewest')}</SelectItem>
-            <SelectItem value="oldest">{t('users.sortOldest')}</SelectItem>
-            <SelectItem value="name">{t('users.sortName')}</SelectItem>
-            <SelectItem value="email">{t('users.sortEmail')}</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
+        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
-      {/* Table */}
-      {hasUsers ? (
-        <>
-          <motion.div
-            className="overflow-x-auto rounded-lg border"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-          >
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('users.columnUser')}</TableHead>
-                  <TableHead>{t('users.columnRole')}</TableHead>
-                  <TableHead>{t('common.status')}</TableHead>
-                  <TableHead className="hidden sm:table-cell">
-                    {t('users.columnLastActive')}
-                  </TableHead>
-                  <TableHead className="w-20">{t('common.actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map(user => {
-                  const isCurrentUser = currentUser?.id === user.id;
-                  const isAdmin = user.role === 'ADMIN';
-                  const isDisabled = user.status === 'DISABLED';
-                  const isDeleted = user.status === 'DELETED';
-
-                  return (
-                    <TableRow
-                      key={user.id}
-                      className={cn(
-                        isDisabled && 'opacity-60',
-                        isDeleted && 'opacity-40'
-                      )}
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar name={user.name ?? user.email} size="lg" />
-                          <Link
-                            to={`/users/${user.id}`}
-                            className="flex min-w-0 flex-col hover:underline"
-                          >
-                            <span
-                              className={cn(
-                                'truncate text-sm font-medium',
-                                isDeleted && 'line-through'
-                              )}
-                            >
-                              {user.name ?? '-'}
-                            </span>
-                            <span className="text-foreground-muted truncate text-xs">
-                              {user.email}
-                            </span>
-                          </Link>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <RoleBadge role={user.role} />
-                      </TableCell>
-                      <TableCell>
-                        <UserStatusBadge status={user.status} />
-                      </TableCell>
-                      <TableCell className="text-foreground-muted hidden text-sm sm:table-cell">
-                        {formatDistanceToNow(new Date(user.updatedAt), {
-                          addSuffix: true,
-                          locale: dateLocale,
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        {!isCurrentUser && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
-                              >
-                                <MoreHorizontal className="size-4" />
-                                <span className="sr-only">
-                                  {t('common.actions')}
-                                </span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {/* Active user actions */}
-                              {user.status === 'ACTIVE' && (
-                                <>
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      setRoleChangeTarget({
-                                        user,
-                                        newRole: isAdmin ? 'USER' : 'ADMIN',
-                                      })
-                                    }
-                                  >
-                                    {isAdmin ? (
-                                      <>
-                                        <ShieldOff className="mr-2 size-4" />
-                                        {t('users.changeToUser')}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Shield className="mr-2 size-4" />
-                                        {t('users.changeToAdmin')}
-                                      </>
-                                    )}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => setResetPasswordTarget(user)}
-                                  >
-                                    <KeyRound className="mr-2 size-4" />
-                                    {t('users.resetPassword')}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => setDisableTarget(user)}
-                                  >
-                                    <Ban className="mr-2 size-4" />
-                                    {t('users.disable')}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    variant="destructive"
-                                    onClick={() => setDeleteTarget(user)}
-                                  >
-                                    <Trash2 className="mr-2 size-4" />
-                                    {t('common.delete')}
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-
-                              {/* Disabled user actions */}
-                              {user.status === 'DISABLED' && (
-                                <>
-                                  <DropdownMenuItem
-                                    onClick={() => setEnableTarget(user)}
-                                  >
-                                    <UserCheck className="mr-2 size-4" />
-                                    {t('users.enable')}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    variant="destructive"
-                                    onClick={() => setDeleteTarget(user)}
-                                  >
-                                    <Trash2 className="mr-2 size-4" />
-                                    {t('common.delete')}
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-
-                              {/* Deleted user actions */}
-                              {user.status === 'DELETED' && (
-                                <DropdownMenuItem
-                                  onClick={() => setRestoreTarget(user)}
-                                >
-                                  <RotateCcw className="mr-2 size-4" />
-                                  {t('users.restore')}
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </motion.div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-foreground-muted text-sm">
-                {t('users.showingRange', {
-                  start: startIndex,
-                  end: endIndex,
-                  total,
-                })}
-              </p>
-              <div className="flex flex-wrap items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  pageNum => (
-                    <Button
-                      key={pageNum}
-                      variant={pageNum === page ? 'default' : 'ghost'}
-                      size="icon"
-                      className="size-8"
-                      onClick={() => setPage(pageNum)}
-                    >
-                      {pageNum}
-                    </Button>
-                  )
-                )}
-              </div>
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-5">
+        {isLoading ? (
+          view === 'table' ? (
+            <UserTable users={[]} loading {...tableActions} />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <UserCardSkeleton key={i} />
+              ))}
             </div>
-          )}
-        </>
-      ) : hasAnyFilters ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-          <Search className="text-foreground-muted mb-4 size-10" />
-          <h3 className="mb-1 text-lg font-semibold">{t('users.noResults')}</h3>
-          <p className="text-foreground-muted text-sm">
-            {t('users.noResultsDesc')}
-          </p>
-        </div>
-      ) : (
-        <EmptyState onCreateClick={() => setCreateOpen(true)} />
-      )}
+          )
+        ) : !filtered.length ? (
+          <EmptyState
+            icon={Users}
+            title={t('users.noUsers')}
+            description={t('users.noUsersDesc')}
+          />
+        ) : view === 'table' ? (
+          <UserTable users={filtered} {...tableActions} />
+        ) : (
+          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <StaggerItem>
+              <AddCard
+                label={t('users.createUser')}
+                onClick={() => setCreateOpen(true)}
+              />
+            </StaggerItem>
+            {filtered.map(user => (
+              <StaggerItem key={user.id}>
+                <UserCard user={user} {...tableActions} />
+              </StaggerItem>
+            ))}
+          </StaggerList>
+        )}
+      </div>
 
       {/* Create User Dialog */}
       <CreateUserDialog open={createOpen} onOpenChange={setCreateOpen} />
