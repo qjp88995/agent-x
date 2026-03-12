@@ -1,4 +1,4 @@
-import { createContext, use, type ReactNode } from 'react';
+import { createContext, type ReactNode, use } from 'react';
 
 import { Content, Root, Trigger } from '@radix-ui/react-collapsible';
 import { ChevronRight } from 'lucide-react';
@@ -57,7 +57,7 @@ function SettingsAccordionItem({
   return (
     <Root
       open={isOpen}
-      onOpenChange={(open) => onValueChange(open ? value : '')}
+      onOpenChange={open => onValueChange(open ? value : '')}
       className={cn(
         'rounded-lg border bg-card transition-colors',
         isOpen ? 'border-primary/20' : 'border-border',
@@ -112,8 +112,8 @@ function SettingsAccordionTrigger({
           )}
           {trailing && (
             <div
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => {
+              onClick={e => e.stopPropagation()}
+              onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
               }}
             >

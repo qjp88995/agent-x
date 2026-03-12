@@ -57,6 +57,7 @@ export { Tabs, TabsContent, TabsList, TabsTrigger } from './primitives/tabs';
 export { Textarea } from './primitives/textarea';
 
 // Data
+export { CompactCardItem, CompactCardList } from './data/compact-card-list';
 export { type Column, DataTable, type DataTableProps } from './data/data-table';
 export { type FilterTab, FilterTabs } from './data/filter-tabs';
 export {
@@ -70,7 +71,6 @@ export {
   TableRow,
 } from './data/table';
 export { type ViewMode, ViewToggle } from './data/view-toggle';
-export { CompactCardItem, CompactCardList } from './data/compact-card-list';
 
 // Feedback
 export {
@@ -162,8 +162,8 @@ export {
 } from './navigation/breadcrumb';
 export {
   IconSidebar,
-  type SidebarItem,
   type SidebarFooter,
+  type SidebarItem,
 } from './navigation/icon-sidebar';
 export { PageHeader } from './navigation/page-header';
 export {
@@ -177,18 +177,18 @@ export {
 } from './navigation/pagination';
 
 // Settings
-export { SettingsLayout } from './settings/settings-layout';
-export {
-  SettingsNav,
-  SettingsNavGroup,
-  SettingsNavItem,
-} from './settings/settings-nav';
 export {
   SettingsAccordion,
   SettingsAccordionContent,
   SettingsAccordionItem,
   SettingsAccordionTrigger,
 } from './settings/settings-accordion';
+export { SettingsLayout } from './settings/settings-layout';
+export {
+  SettingsNav,
+  SettingsNavGroup,
+  SettingsNavItem,
+} from './settings/settings-nav';
 
 // Layout
 export { PageTransition } from './layout/page-transition';
