@@ -166,4 +166,4 @@ function IconSidebar({
   );
 }
 
-export { IconSidebar, type SidebarItem, type SidebarFooter };
+export { IconSidebar, type SidebarFooter,type SidebarItem };

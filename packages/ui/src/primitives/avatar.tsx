@@ -1,4 +1,5 @@
 import { Fallback, Image, Root } from '@radix-ui/react-avatar';
+
 import { cn } from '../lib/utils';
 import { getAvatarColor } from '../tokens/colors';
 
