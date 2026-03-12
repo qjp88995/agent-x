@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import {
+  Avatar,
   Badge,
   Button,
   type Column,
@@ -10,6 +11,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from '@agent-x/design';
 import type { McpServerResponse } from '@agent-x/shared';
 import { McpType } from '@agent-x/shared';
@@ -49,9 +53,15 @@ interface McpTableProps {
   readonly servers: McpServerResponse[];
   readonly isAdmin: boolean;
   readonly onDelete: (server: McpServerResponse) => void;
+  readonly loading?: boolean;
 }
 
-export function McpTable({ servers, isAdmin, onDelete }: McpTableProps) {
+export function McpTable({
+  servers,
+  isAdmin,
+  onDelete,
+  loading,
+}: McpTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -60,9 +70,19 @@ export function McpTable({ servers, isAdmin, onDelete }: McpTableProps) {
       key: 'name',
       header: t('common.name'),
       render: server => (
-        <span className="text-foreground text-sm font-medium">
-          {server.name}
-        </span>
+        <div className="flex items-center gap-2.5">
+          <Avatar name={server.name} size="md" />
+          <div>
+            <div className="text-sm font-medium text-foreground">
+              {server.name}
+            </div>
+            {server.description && (
+              <div className="text-[10px] text-foreground-ghost line-clamp-1">
+                {server.description}
+              </div>
+            )}
+          </div>
+        </div>
       ),
     },
     {
@@ -77,20 +97,6 @@ export function McpTable({ servers, isAdmin, onDelete }: McpTableProps) {
       width: '160px',
       render: server => <TransportBadge transport={server.transport} />,
     },
-    {
-      key: 'description',
-      header: t('common.description', { defaultValue: 'Description' }),
-      render: server =>
-        server.description ? (
-          <span className="text-foreground-muted line-clamp-1 text-sm">
-            {server.description}
-          </span>
-        ) : (
-          <span className="text-foreground-muted/50 text-sm italic">
-            {t('common.noDescription')}
-          </span>
-        ),
-    },
   ];
 
   function rowActions(server: McpServerResponse) {
@@ -99,33 +105,53 @@ export function McpTable({ servers, isAdmin, onDelete }: McpTableProps) {
     const canDelete = isCustom || isOfficialAdmin;
 
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
-            <MoreHorizontal className="size-4" />
-            <span className="sr-only">{t('common.actions')}</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {isCustom && (
-            <DropdownMenuItem
-              onClick={() => navigate(`/mcp-servers/${server.id}/edit`)}
-            >
-              <Pencil className="mr-2 size-4" />
-              {t('common.edit')}
-            </DropdownMenuItem>
-          )}
-          {canDelete && (
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => onDelete(server)}
-            >
-              <Trash2 className="mr-2 size-4" />
-              {t('common.delete')}
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-1">
+        {isCustom && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                onClick={e => {
+                  e.stopPropagation();
+                  navigate(`/mcp-servers/${server.id}/edit`);
+                }}
+              >
+                <Pencil className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('common.edit')}</TooltipContent>
+          </Tooltip>
+        )}
+        {canDelete && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                onClick={e => e.stopPropagation()}
+              >
+                <MoreHorizontal className="size-4" />
+                <span className="sr-only">{t('common.actions')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={e => {
+                  e.stopPropagation();
+                  onDelete(server);
+                }}
+              >
+                <Trash2 className="mr-2 size-4" />
+                {t('common.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
     );
   }
 
@@ -140,6 +166,7 @@ export function McpTable({ servers, isAdmin, onDelete }: McpTableProps) {
           : undefined
       }
       rowActions={rowActions}
+      loading={loading}
       emptyState={
         <span>
           {t('mcp.noServers', { defaultValue: 'No MCP servers found.' })}
