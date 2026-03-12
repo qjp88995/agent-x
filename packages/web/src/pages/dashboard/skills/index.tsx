@@ -2,9 +2,13 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+  Card,
+  CardContent,
+  CardHeader,
   type FilterTab,
   FilterTabs,
   PageHeader,
+  Skeleton,
   StaggerItem,
   StaggerList,
   ViewToggle,
@@ -31,6 +35,21 @@ import {
 import { useViewMode } from '@/hooks/use-view-mode';
 
 import { SkillTable } from './skill-table';
+
+function SkillCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-4 w-20 rounded-full" />
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="mt-1.5 h-4 w-2/3" />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function SkillsPage() {
   const { t } = useTranslation();
@@ -134,16 +153,6 @@ export default function SkillsPage() {
         ? 'custom'
         : 'custom';
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-foreground-muted text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -172,7 +181,23 @@ export default function SkillsPage() {
       </div>
 
       <div className="flex-1 overflow-auto p-5">
-        {!filtered.length ? (
+        {isLoading ? (
+          view === 'table' ? (
+            <SkillTable
+              skills={[]}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+              onPreview={setPreviewTarget}
+              loading
+            />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkillCardSkeleton key={i} />
+              ))}
+            </div>
+          )
+        ) : !filtered.length ? (
           <SkillEmptyState tab={emptyTab} isAdmin={isAdmin} />
         ) : view === 'table' ? (
           <SkillTable
