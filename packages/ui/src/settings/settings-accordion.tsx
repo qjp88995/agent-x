@@ -137,11 +137,15 @@ function SettingsAccordionContent({
     <Content
       forceMount
       className={cn(
-        'overflow-hidden data-[state=closed]:animate-collapse data-[state=open]:animate-expand',
+        'grid transition-[grid-template-rows,opacity] duration-200 ease-out',
+        'data-[state=open]:grid-rows-[1fr] data-[state=open]:opacity-100',
+        'data-[state=closed]:grid-rows-[0fr] data-[state=closed]:opacity-0',
         className
       )}
     >
-      <div className="p-4">{children}</div>
+      <div className="overflow-hidden">
+        <div className="p-4">{children}</div>
+      </div>
     </Content>
   );
 }
