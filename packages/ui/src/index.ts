@@ -70,6 +70,7 @@ export {
   TableRow,
 } from './data/table';
 export { type ViewMode, ViewToggle } from './data/view-toggle';
+export { CompactCardItem, CompactCardList } from './data/compact-card-list';
 
 // Feedback
 export {
@@ -174,6 +175,20 @@ export {
   PaginationNext,
   PaginationPrevious,
 } from './navigation/pagination';
+
+// Settings
+export { SettingsLayout } from './settings/settings-layout';
+export {
+  SettingsNav,
+  SettingsNavGroup,
+  SettingsNavItem,
+} from './settings/settings-nav';
+export {
+  SettingsAccordion,
+  SettingsAccordionContent,
+  SettingsAccordionItem,
+  SettingsAccordionTrigger,
+} from './settings/settings-accordion';
 
 // Layout
 export { PageTransition } from './layout/page-transition';
