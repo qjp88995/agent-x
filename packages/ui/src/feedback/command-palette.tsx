@@ -1,4 +1,9 @@
-import * as React from 'react';
+import {
+  useState,
+  useEffect,
+  type ComponentProps,
+  type HTMLAttributes,
+} from 'react';
 import {
   Command,
   CommandDialog,
@@ -14,47 +19,48 @@ import { cn } from '../lib/utils';
 
 // ── Root ────────────────────────────────────────────────────────────────────
 
-type CommandPaletteProps = React.ComponentPropsWithoutRef<
-  typeof CommandDialog
-> & {
+type CommandPaletteProps = ComponentProps<typeof CommandDialog> & {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-const CommandPalette = React.forwardRef<HTMLDivElement, CommandPaletteProps>(
-  ({ className, children, open, onOpenChange, ...props }, ref) => (
-    <CommandDialog
-      ref={ref}
-      open={open}
-      onOpenChange={onOpenChange}
-      overlayClassName="fixed inset-0 z-50 bg-black/60 animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
-      contentClassName={cn(
-        'fixed top-[20%] left-1/2 z-50 -translate-x-1/2',
-        'w-120 max-w-[calc(100%-2rem)]',
-        'bg-card border border-border rounded-lg shadow-lg overflow-hidden',
-        'animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
-        '**:[[cmdk-root]]:flex **:[[cmdk-root]]:flex-col',
-        className
-      )}
-      loop
-      {...props}
-    >
-      {children}
-    </CommandDialog>
-  )
+const CommandPalette = ({
+  className,
+  children,
+  open,
+  onOpenChange,
+  ref,
+  ...props
+}: CommandPaletteProps) => (
+  <CommandDialog
+    ref={ref}
+    open={open}
+    onOpenChange={onOpenChange}
+    overlayClassName="fixed inset-0 z-50 bg-black/60 animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
+    contentClassName={cn(
+      'fixed top-[20%] left-1/2 z-50 -translate-x-1/2',
+      'w-120 max-w-[calc(100%-2rem)]',
+      'bg-card border border-border rounded-lg shadow-lg overflow-hidden',
+      'animate-in fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
+      '**:[[cmdk-root]]:flex **:[[cmdk-root]]:flex-col',
+      className
+    )}
+    loop
+    {...props}
+  >
+    {children}
+  </CommandDialog>
 );
-CommandPalette.displayName = 'CommandPalette';
 
 // ── Input ───────────────────────────────────────────────────────────────────
 
-type CommandPaletteInputProps = React.ComponentPropsWithoutRef<
-  typeof CommandInput
->;
+type CommandPaletteInputProps = ComponentProps<typeof CommandInput>;
 
-const CommandPaletteInput = React.forwardRef<
-  HTMLInputElement,
-  CommandPaletteInputProps
->(({ className, ...props }, ref) => (
+const CommandPaletteInput = ({
+  className,
+  ref,
+  ...props
+}: CommandPaletteInputProps) => (
   <div className="flex items-center gap-2 px-3 border-b border-border">
     <Search className="size-3.5 shrink-0 text-foreground-ghost" aria-hidden />
     <CommandInput
@@ -69,37 +75,33 @@ const CommandPaletteInput = React.forwardRef<
       {...props}
     />
   </div>
-));
-CommandPaletteInput.displayName = 'CommandPaletteInput';
+);
 
 // ── List ────────────────────────────────────────────────────────────────────
 
-type CommandPaletteListProps = React.ComponentPropsWithoutRef<
-  typeof CommandList
->;
+type CommandPaletteListProps = ComponentProps<typeof CommandList>;
 
-const CommandPaletteList = React.forwardRef<
-  HTMLDivElement,
-  CommandPaletteListProps
->(({ className, ...props }, ref) => (
+const CommandPaletteList = ({
+  className,
+  ref,
+  ...props
+}: CommandPaletteListProps) => (
   <CommandList
     ref={ref}
     className={cn('max-h-75 overflow-y-auto p-1', className)}
     {...props}
   />
-));
-CommandPaletteList.displayName = 'CommandPaletteList';
+);
 
 // ── Group ───────────────────────────────────────────────────────────────────
 
-type CommandPaletteGroupProps = React.ComponentPropsWithoutRef<
-  typeof CommandGroup
->;
+type CommandPaletteGroupProps = ComponentProps<typeof CommandGroup>;
 
-const CommandPaletteGroup = React.forwardRef<
-  HTMLDivElement,
-  CommandPaletteGroupProps
->(({ className, ...props }, ref) => (
+const CommandPaletteGroup = ({
+  className,
+  ref,
+  ...props
+}: CommandPaletteGroupProps) => (
   <CommandGroup
     ref={ref}
     className={cn(
@@ -111,19 +113,17 @@ const CommandPaletteGroup = React.forwardRef<
     )}
     {...props}
   />
-));
-CommandPaletteGroup.displayName = 'CommandPaletteGroup';
+);
 
 // ── Item ────────────────────────────────────────────────────────────────────
 
-type CommandPaletteItemProps = React.ComponentPropsWithoutRef<
-  typeof CommandItem
->;
+type CommandPaletteItemProps = ComponentProps<typeof CommandItem>;
 
-const CommandPaletteItem = React.forwardRef<
-  HTMLDivElement,
-  CommandPaletteItemProps
->(({ className, ...props }, ref) => (
+const CommandPaletteItem = ({
+  className,
+  ref,
+  ...props
+}: CommandPaletteItemProps) => (
   <CommandItem
     ref={ref}
     className={cn(
@@ -138,19 +138,17 @@ const CommandPaletteItem = React.forwardRef<
     )}
     {...props}
   />
-));
-CommandPaletteItem.displayName = 'CommandPaletteItem';
+);
 
 // ── Empty ───────────────────────────────────────────────────────────────────
 
-type CommandPaletteEmptyProps = React.ComponentPropsWithoutRef<
-  typeof CommandEmpty
->;
+type CommandPaletteEmptyProps = ComponentProps<typeof CommandEmpty>;
 
-const CommandPaletteEmpty = React.forwardRef<
-  HTMLDivElement,
-  CommandPaletteEmptyProps
->(({ className, ...props }, ref) => (
+const CommandPaletteEmpty = ({
+  className,
+  ref,
+  ...props
+}: CommandPaletteEmptyProps) => (
   <CommandEmpty
     ref={ref}
     className={cn(
@@ -159,30 +157,27 @@ const CommandPaletteEmpty = React.forwardRef<
     )}
     {...props}
   />
-));
-CommandPaletteEmpty.displayName = 'CommandPaletteEmpty';
+);
 
 // ── Separator ───────────────────────────────────────────────────────────────
 
-type CommandPaletteSeparatorProps = React.ComponentPropsWithoutRef<
-  typeof CommandSeparator
->;
+type CommandPaletteSeparatorProps = ComponentProps<typeof CommandSeparator>;
 
-const CommandPaletteSeparator = React.forwardRef<
-  HTMLDivElement,
-  CommandPaletteSeparatorProps
->(({ className, ...props }, ref) => (
+const CommandPaletteSeparator = ({
+  className,
+  ref,
+  ...props
+}: CommandPaletteSeparatorProps) => (
   <CommandSeparator
     ref={ref}
     className={cn('h-px bg-border my-1', className)}
     {...props}
   />
-));
-CommandPaletteSeparator.displayName = 'CommandPaletteSeparator';
+);
 
 // ── Kbd hint ─────────────────────────────────────────────────────────────────
 
-type KbdProps = React.HTMLAttributes<HTMLElement>;
+type KbdProps = HTMLAttributes<HTMLElement>;
 
 const Kbd = ({ className, ...props }: KbdProps) => (
   <kbd
@@ -196,11 +191,10 @@ const Kbd = ({ className, ...props }: KbdProps) => (
     {...props}
   />
 );
-Kbd.displayName = 'Kbd';
 
 // ── Item icon wrapper ─────────────────────────────────────────────────────────
 
-type CommandPaletteItemIconProps = React.HTMLAttributes<HTMLSpanElement>;
+type CommandPaletteItemIconProps = HTMLAttributes<HTMLSpanElement>;
 
 const CommandPaletteItemIcon = ({
   className,
@@ -215,14 +209,13 @@ const CommandPaletteItemIcon = ({
     {...props}
   />
 );
-CommandPaletteItemIcon.displayName = 'CommandPaletteItemIcon';
 
 // ── Hook: useCommandPalette ───────────────────────────────────────────────────
 
 function useCommandPalette() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
