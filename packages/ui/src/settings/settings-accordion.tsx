@@ -135,6 +135,7 @@ function SettingsAccordionContent({
 }) {
   return (
     <Content
+      forceMount
       className={cn(
         'overflow-hidden data-[state=closed]:animate-collapse data-[state=open]:animate-expand',
         className

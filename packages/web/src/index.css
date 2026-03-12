@@ -35,7 +35,7 @@
   --sidebar-expanded: 200px;
   --chat-sidebar: 260px;
   --animate-expand: expand 200ms ease-out;
-  --animate-collapse: collapse 200ms ease-out;
+  --animate-collapse: collapse 200ms ease-out forwards;
 }
 
 @layer base {
