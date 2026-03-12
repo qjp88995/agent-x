@@ -75,58 +75,28 @@ import { useAuthStore } from '@/stores/auth-store';
 
 type SortOption = 'newest' | 'oldest' | 'name' | 'email';
 
-const ROLE_BADGE_CONFIG: Record<
-  string,
-  { labelKey: string; className: string }
-> = {
-  ADMIN: {
-    labelKey: 'users.roleAdmin',
-    className:
-      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  },
-  USER: {
-    labelKey: 'users.roleUser',
-    className:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  },
-};
-
-const STATUS_BADGE_CONFIG: Record<
-  string,
-  { labelKey: string; className: string }
-> = {
-  ACTIVE: {
-    labelKey: 'users.statusActive',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  },
-  DISABLED: {
-    labelKey: 'users.statusDisabled',
-    className:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  },
-  DELETED: {
-    labelKey: 'users.statusDeleted',
-    className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  },
-};
-
 function RoleBadge({ role }: { readonly role: string }) {
   const { t } = useTranslation();
-  const config = ROLE_BADGE_CONFIG[role] ?? ROLE_BADGE_CONFIG.USER;
-  return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {t(config.labelKey)}
-    </Badge>
-  );
+  const variant = role === 'ADMIN' ? 'info' : 'default';
+  const labelKey = role === 'ADMIN' ? 'users.roleAdmin' : 'users.roleUser';
+  return <Badge variant={variant}>{t(labelKey)}</Badge>;
 }
 
 function UserStatusBadge({ status }: { readonly status: string }) {
   const { t } = useTranslation();
-  const config = STATUS_BADGE_CONFIG[status] ?? STATUS_BADGE_CONFIG.ACTIVE;
+  const variantMap: Record<string, 'success' | 'warning' | 'destructive'> = {
+    ACTIVE: 'success',
+    DISABLED: 'warning',
+    DELETED: 'destructive',
+  };
+  const labelMap: Record<string, string> = {
+    ACTIVE: 'users.statusActive',
+    DISABLED: 'users.statusDisabled',
+    DELETED: 'users.statusDeleted',
+  };
   return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {t(config.labelKey)}
+    <Badge variant={variantMap[status] ?? 'default'}>
+      {t(labelMap[status] ?? 'users.statusActive')}
     </Badge>
   );
 }
