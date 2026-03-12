@@ -2,17 +2,7 @@ import { type FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-} from '@agent-x/design';
+import { Button, Input, Label } from '@agent-x/design';
 import { Bot } from 'lucide-react';
 
 import { useAuthStore } from '@/stores/auth-store';
@@ -50,7 +40,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-[320px]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="bg-primary mb-4 flex size-10 items-center justify-center rounded-[10px] shadow-lg">
+          <div className="bg-primary mb-3 flex size-10 items-center justify-center rounded-[10px] shadow-lg">
             <Bot className="size-5 text-white" />
           </div>
           <h1 className="text-[22px] font-bold tracking-[-0.5px]">Agent-X</h1>
@@ -59,71 +49,61 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('auth.signIn')}</CardTitle>
-            <CardDescription>{t('auth.signInDesc')}</CardDescription>
-          </CardHeader>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {error && (
+            <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
+              {error}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <CardContent className="flex flex-col gap-3">
-              {error && (
-                <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2 text-sm">
-                  {error}
-                </div>
-              )}
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="email">{t('auth.email')}</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder={t('auth.emailPlaceholder')}
+              autoComplete="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="email">{t('auth.email')}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t('auth.emailPlaceholder')}
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="password">{t('auth.password')}</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder={t('auth.passwordPlaceholder')}
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="password">{t('auth.password')}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={t('auth.passwordPlaceholder')}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  disabled={isSubmitting}
-                />
-              </div>
-            </CardContent>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="mt-1 w-full"
+            disabled={!isFormValid || isSubmitting}
+          >
+            {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
+          </Button>
 
-            <CardFooter className="flex flex-col gap-4">
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full transition-opacity"
-                disabled={!isFormValid || isSubmitting}
-              >
-                {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
-              </Button>
-
-              <p className="text-foreground-muted text-center text-sm">
-                {t('auth.noAccount')}{' '}
-                <Link
-                  to="/register"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {t('auth.createOne')}
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
+          <p className="text-foreground-ghost text-center text-[11px]">
+            {t('auth.noAccount')}{' '}
+            <Link
+              to="/register"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              {t('auth.createOne')}
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );
