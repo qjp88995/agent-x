@@ -12,6 +12,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  type SidebarFooter,
   type SidebarItem,
   Tooltip,
   TooltipContent,
@@ -102,23 +103,18 @@ function ThemeToggle() {
   );
 }
 
-function SidebarFooter() {
+function useSidebarFooter(): SidebarFooter {
   const { t } = useTranslation();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
 
   const displayName = user?.name ?? user?.email ?? 'User';
 
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="border-t border-border" />
-      <div className="flex items-center gap-2">
-        <Avatar name={displayName} size="sm" />
-        <span className="flex-1 truncate text-[11px] font-medium text-foreground-muted opacity-0 transition-opacity duration-150 delay-[50ms] group-hover/sidebar:opacity-100">
-          {displayName}
-        </span>
-      </div>
-      <div className="flex items-center gap-1">
+  return {
+    avatar: <Avatar name={displayName} size="sm" />,
+    label: displayName,
+    actions: (
+      <>
         <ThemeToggle />
         <Tooltip>
           <TooltipTrigger asChild>
@@ -134,9 +130,9 @@ function SidebarFooter() {
           </TooltipTrigger>
           <TooltipContent>{t('auth.signOut')}</TooltipContent>
         </Tooltip>
-      </div>
-    </div>
-  );
+      </>
+    ),
+  };
 }
 
 function useNavItems(defs: readonly NavDef[]): SidebarItem[] {
@@ -229,6 +225,7 @@ export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const items = useNavItems(NAV_ITEMS);
   const bottomItems = useNavItems(BOTTOM_NAV_ITEMS);
+  const footer = useSidebarFooter();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -238,7 +235,7 @@ export default function DashboardLayout() {
           items={items}
           bottomItems={bottomItems}
           onItemClick={item => navigate(item.href)}
-          footer={<SidebarFooter />}
+          footer={footer}
         />
       </div>
 
