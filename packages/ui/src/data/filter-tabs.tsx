@@ -16,7 +16,7 @@ type FilterTabsProps = {
 function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps) {
   return (
     <div className={cn('flex items-center gap-1', className)}>
-      {tabs.map((tab) => (
+      {tabs.map(tab => (
         <button
           key={tab.key}
           type="button"
@@ -33,7 +33,9 @@ function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps) {
             <span
               className={cn(
                 'text-[10px]',
-                value === tab.key ? 'text-foreground-muted' : 'text-foreground-ghost'
+                value === tab.key
+                  ? 'text-foreground-muted'
+                  : 'text-foreground-ghost'
               )}
             >
               {tab.count}
@@ -45,4 +47,4 @@ function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps) {
   );
 }
 
-export { type FilterTab,FilterTabs };
+export { type FilterTab, FilterTabs };
