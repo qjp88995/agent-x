@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import {
+  Avatar,
   Badge,
   Button,
   type Column,
@@ -10,6 +11,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from '@agent-x/design';
 import type { PromptResponse } from '@agent-x/shared';
 import { PromptType } from '@agent-x/shared';
@@ -49,6 +53,7 @@ interface PromptTableProps {
   readonly isAdmin: boolean;
   readonly onDelete: (prompt: PromptResponse) => void;
   readonly onPreview: (prompt: PromptResponse) => void;
+  readonly loading?: boolean;
 }
 
 export function PromptTable({
@@ -56,6 +61,7 @@ export function PromptTable({
   isAdmin,
   onDelete,
   onPreview,
+  loading,
 }: PromptTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -65,9 +71,19 @@ export function PromptTable({
       key: 'name',
       header: t('common.name'),
       render: prompt => (
-        <span className="text-foreground text-sm font-medium">
-          {prompt.name}
-        </span>
+        <div className="flex items-center gap-2.5">
+          <Avatar name={prompt.name} size="md" />
+          <div>
+            <div className="text-sm font-medium text-foreground">
+              {prompt.name}
+            </div>
+            {prompt.description && (
+              <div className="text-[10px] text-foreground-ghost line-clamp-1">
+                {prompt.description}
+              </div>
+            )}
+          </div>
+        </div>
       ),
     },
     {
@@ -89,20 +105,6 @@ export function PromptTable({
       width: '120px',
       render: prompt => <TypeBadge type={prompt.type} />,
     },
-    {
-      key: 'description',
-      header: t('common.description', { defaultValue: 'Description' }),
-      render: prompt =>
-        prompt.description ? (
-          <span className="text-foreground-muted line-clamp-2 text-sm">
-            {prompt.description}
-          </span>
-        ) : (
-          <span className="text-foreground-muted/50 text-sm italic">
-            {t('common.noDescription')}
-          </span>
-        ),
-    },
   ];
 
   function rowActions(prompt: PromptResponse) {
@@ -111,37 +113,68 @@ export function PromptTable({
     const canDelete = isCustom || isSystemAdmin;
 
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
-            <MoreHorizontal className="size-4" />
-            <span className="sr-only">{t('common.actions')}</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => onPreview(prompt)}>
-            <Eye className="mr-2 size-4" />
+      <div className="flex items-center gap-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={e => {
+                e.stopPropagation();
+                onPreview(prompt);
+              }}
+            >
+              <Eye className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
             {t('common.preview', { defaultValue: 'Preview' })}
-          </DropdownMenuItem>
-          {isCustom && (
-            <DropdownMenuItem
-              onClick={() => navigate(`/prompts/${prompt.id}/edit`)}
-            >
-              <Pencil className="mr-2 size-4" />
-              {t('common.edit')}
-            </DropdownMenuItem>
-          )}
-          {canDelete && (
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => onDelete(prompt)}
-            >
-              <Trash2 className="mr-2 size-4" />
-              {t('common.delete')}
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </TooltipContent>
+        </Tooltip>
+        {isCustom && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                onClick={e => {
+                  e.stopPropagation();
+                  navigate(`/prompts/${prompt.id}/edit`);
+                }}
+              >
+                <Pencil className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('common.edit')}</TooltipContent>
+          </Tooltip>
+        )}
+        {canDelete && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                onClick={e => e.stopPropagation()}
+              >
+                <MoreHorizontal className="size-4" />
+                <span className="sr-only">{t('common.actions')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => onDelete(prompt)}
+              >
+                <Trash2 className="mr-2 size-4" />
+                {t('common.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
     );
   }
 
@@ -151,6 +184,7 @@ export function PromptTable({
       data={prompts}
       keyExtractor={prompt => prompt.id}
       rowActions={rowActions}
+      loading={loading}
       emptyState={
         <span>
           {t('prompts.noPrompts', { defaultValue: 'No prompts found.' })}
