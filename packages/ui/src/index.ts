@@ -58,7 +58,7 @@ export { Textarea } from './primitives/textarea';
 
 // Data
 export { type Column, DataTable, type DataTableProps } from './data/data-table';
-export { type FilterTab,FilterTabs } from './data/filter-tabs';
+export { type FilterTab, FilterTabs } from './data/filter-tabs';
 export {
   Table,
   TableBody,
@@ -69,7 +69,7 @@ export {
   TableHeader,
   TableRow,
 } from './data/table';
-export { type ViewMode,ViewToggle } from './data/view-toggle';
+export { type ViewMode, ViewToggle } from './data/view-toggle';
 
 // Feedback
 export {
@@ -141,7 +141,7 @@ export {
   SheetTitle,
   SheetTrigger,
 } from './feedback/sheet';
-export { toast,Toaster } from './feedback/toast';
+export { toast, Toaster } from './feedback/toast';
 export {
   Tooltip,
   TooltipContent,
@@ -159,7 +159,11 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from './navigation/breadcrumb';
-export { IconSidebar, type SidebarItem } from './navigation/icon-sidebar';
+export {
+  IconSidebar,
+  type SidebarItem,
+  type SidebarFooter,
+} from './navigation/icon-sidebar';
 export { PageHeader } from './navigation/page-header';
 export {
   Pagination,
@@ -173,12 +177,12 @@ export {
 
 // Layout
 export { PageTransition } from './layout/page-transition';
-export { StaggerItem,StaggerList } from './layout/stagger-list';
+export { StaggerItem, StaggerList } from './layout/stagger-list';
 
 // Chat
 export { ChatInput, type FileAttachment } from './chat/chat-input';
 export { FileChip } from './chat/file-chip';
-export { CodeBlock,MessageBubble } from './chat/message-bubble';
-export { type SlashCommand,SlashCommandMenu } from './chat/slash-command-menu';
+export { CodeBlock, MessageBubble } from './chat/message-bubble';
+export { type SlashCommand, SlashCommandMenu } from './chat/slash-command-menu';
 export { ThinkingBlock } from './chat/thinking-block';
 export { VoiceRecorder, type VoiceRecorderState } from './chat/voice-recorder';
