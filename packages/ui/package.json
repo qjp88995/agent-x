@@ -20,7 +20,7 @@
     "dev": "tsup --watch",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build -o dist-storybook",
-    "lint": "tsc --noEmit",
+    "lint": "eslint . && tsc --noEmit",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -54,6 +54,7 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.3",
     "@storybook/addon-docs": "^10.2.17",
     "@storybook/addon-themes": "^10.2.17",
     "@storybook/react": "^10.2.17",
@@ -62,11 +63,17 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.39.3",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.15.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "storybook": "^10.2.17",
     "tailwindcss": "^4.0.0",
     "tsup": "^8.5.1",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.56.1"
   }
 }

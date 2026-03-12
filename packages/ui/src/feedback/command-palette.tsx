@@ -1,20 +1,22 @@
 import {
-  useState,
-  useEffect,
   type ComponentProps,
   type HTMLAttributes,
+  useEffect,
+  useState,
 } from 'react';
+
 import {
   Command,
   CommandDialog,
-  CommandInput,
-  CommandList,
-  CommandGroup,
-  CommandItem,
   CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   CommandSeparator,
 } from 'cmdk';
 import { Search } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 
 // ── Root ────────────────────────────────────────────────────────────────────
@@ -231,15 +233,15 @@ function useCommandPalette() {
 
 export {
   CommandPalette,
-  CommandPaletteInput,
-  CommandPaletteList,
-  CommandPaletteGroup,
-  CommandPaletteItem,
   CommandPaletteEmpty,
-  CommandPaletteSeparator,
+  CommandPaletteGroup,
+  CommandPaletteInput,
+  CommandPaletteItem,
   CommandPaletteItemIcon,
-  Kbd,
-  useCommandPalette,
+  CommandPaletteList,
   // Re-export cmdk primitives for advanced composition
   Command as CommandPaletteRoot,
+  CommandPaletteSeparator,
+  Kbd,
+  useCommandPalette,
 };

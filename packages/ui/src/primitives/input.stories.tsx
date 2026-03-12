@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Check } from 'lucide-react';
+
 import { Input } from './input';
 import { Label } from './label';
 

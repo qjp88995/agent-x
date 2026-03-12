@@ -45,4 +45,4 @@ function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps) {
   );
 }
 
-export { FilterTabs, type FilterTab };
+export { type FilterTab,FilterTabs };

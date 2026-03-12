@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+
 import { cn } from '../lib/utils';
 import { VARIANTS } from '../tokens/motion';
 
@@ -33,4 +34,4 @@ function StaggerItem({ children, className }: StaggerItemProps) {
   );
 }
 
-export { StaggerList, StaggerItem };
+export { StaggerItem,StaggerList };

@@ -1,5 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
 import { FilterTabs } from './filter-tabs';
 
 const meta: Meta<typeof FilterTabs> = {

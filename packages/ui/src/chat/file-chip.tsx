@@ -1,5 +1,6 @@
-import { cn } from '../lib/utils';
 import { File, Image as ImageIcon, X } from 'lucide-react';
+
+import { cn } from '../lib/utils';
 
 type FileChipProps = {
   name: string;

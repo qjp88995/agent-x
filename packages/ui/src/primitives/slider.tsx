@@ -1,5 +1,7 @@
 import { type ComponentProps } from 'react';
-import { Root, Track, Range, Thumb } from '@radix-ui/react-slider';
+
+import { Range, Root, Thumb,Track } from '@radix-ui/react-slider';
+
 import { cn } from '../lib/utils';
 
 function Slider({ className, ref, ...props }: ComponentProps<typeof Root>) {

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { FileText, Zap, Settings } from 'lucide-react';
+import { FileText, Settings,Zap } from 'lucide-react';
+
 import { ChatInput } from './chat-input';
 
 const meta: Meta<typeof ChatInput> = {

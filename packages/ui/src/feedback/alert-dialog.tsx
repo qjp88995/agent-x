@@ -1,15 +1,17 @@
 import { ComponentProps, HTMLAttributes } from 'react';
+
 import {
-  Root,
-  Trigger,
-  Portal,
-  Overlay,
-  Content,
-  Title,
-  Description,
   Action,
   Cancel,
+  Content,
+  Description,
+  Overlay,
+  Portal,
+  Root,
+  Title,
+  Trigger,
 } from '@radix-ui/react-alert-dialog';
+
 import { cn } from '../lib/utils';
 
 const AlertDialog = Root;

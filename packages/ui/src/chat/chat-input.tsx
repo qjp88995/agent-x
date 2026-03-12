@@ -1,8 +1,10 @@
 import * as React from 'react';
+
+import { ArrowUp, Mic, Paperclip, Slash, Square } from 'lucide-react';
+
 import { cn } from '../lib/utils';
-import { Paperclip, Slash, Mic, ArrowUp, Square } from 'lucide-react';
 import { FileChip } from './file-chip';
-import { SlashCommandMenu, type SlashCommand } from './slash-command-menu';
+import { type SlashCommand,SlashCommandMenu } from './slash-command-menu';
 import { VoiceRecorder } from './voice-recorder';
 
 type FileAttachment = {

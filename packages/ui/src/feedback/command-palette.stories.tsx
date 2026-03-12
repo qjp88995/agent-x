@@ -9,6 +9,7 @@ import {
   WrenchIcon,
   ZapIcon,
 } from 'lucide-react';
+
 import {
   CommandPalette,
   CommandPaletteEmpty,

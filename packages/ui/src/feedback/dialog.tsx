@@ -1,5 +1,7 @@
 import { ComponentProps, HTMLAttributes } from 'react';
-import { Root, Trigger, Portal, Close, Overlay, Content, Title, Description } from '@radix-ui/react-dialog';
+
+import { Close, Content, Description,Overlay, Portal, Root, Title, Trigger } from '@radix-ui/react-dialog';
+
 import { cn } from '../lib/utils';
 
 const Dialog = Root;

@@ -1,10 +1,12 @@
 import * as React from 'react';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Edit, Trash } from 'lucide-react';
-import { DataTable, type Column } from './data-table';
-import { Badge } from '../primitives/badge';
+
 import { Avatar } from '../primitives/avatar';
+import { Badge } from '../primitives/badge';
 import { Button } from '../primitives/button';
+import { type Column,DataTable } from './data-table';
 
 type Agent = {
   id: string;

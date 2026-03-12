@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+
+import { ChevronDown,ChevronUp } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 import { Skeleton } from '../primitives/skeleton';
 

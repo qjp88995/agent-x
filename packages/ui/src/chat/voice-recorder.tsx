@@ -1,5 +1,6 @@
+import { Loader2,Square, X } from 'lucide-react';
+
 import { cn } from '../lib/utils';
-import { Square, X, Loader2 } from 'lucide-react';
 
 type VoiceRecorderState = 'recording' | 'transcribing';
 

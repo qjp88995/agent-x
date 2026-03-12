@@ -6,8 +6,8 @@ import {
   MoreHorizontalIcon,
 } from 'lucide-react';
 
-import { type Button, buttonVariants } from '../primitives/button';
 import { cn } from '../lib/utils';
+import { type Button, buttonVariants } from '../primitives/button';
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (

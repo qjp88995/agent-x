@@ -1,11 +1,13 @@
 import * as React from 'react';
+
 import {
   Command,
-  CommandList,
+  CommandEmpty,
   CommandGroup,
   CommandItem,
-  CommandEmpty,
+  CommandList,
 } from 'cmdk';
+
 import { cn } from '../lib/utils';
 
 type SlashCommand = {
@@ -145,4 +147,4 @@ function SlashCommandMenu({
   );
 }
 
-export { SlashCommandMenu, type SlashCommand };
+export { type SlashCommand,SlashCommandMenu };

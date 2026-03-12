@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Edit, Copy, Trash, Settings, User, LogOut, ChevronDown } from 'lucide-react';
+import { ChevronDown,Copy, Edit, LogOut, Settings, Trash, User } from 'lucide-react';
+
 import { Button } from '../primitives/button';
 import {
   DropdownMenu,

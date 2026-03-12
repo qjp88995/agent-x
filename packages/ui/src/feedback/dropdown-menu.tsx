@@ -1,22 +1,24 @@
 import { ComponentProps } from 'react';
+
 import {
-  Root,
-  Trigger,
-  Group,
-  Portal,
-  Sub,
-  RadioGroup,
-  Content,
-  Item,
   CheckboxItem,
-  RadioItem,
+  Content,
+  Group,
+  Item,
   ItemIndicator,
   Label,
+  Portal,
+  RadioGroup,
+  RadioItem,
+  Root,
   Separator,
-  SubTrigger,
+  Sub,
   SubContent,
+  SubTrigger,
+  Trigger,
 } from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 
 const DropdownMenu = Root;
@@ -165,17 +167,17 @@ const DropdownMenuSubContent = ({ className, ref, ...props }: ComponentProps<typ
 
 export {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-  DropdownMenuPortal,
 };

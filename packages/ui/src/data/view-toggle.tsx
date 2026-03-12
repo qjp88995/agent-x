@@ -1,5 +1,6 @@
+import { LayoutGrid,List } from 'lucide-react';
+
 import { cn } from '../lib/utils';
-import { List, LayoutGrid } from 'lucide-react';
 
 type ViewMode = 'table' | 'grid';
 
@@ -38,4 +39,4 @@ function ViewToggle({ value, onChange, className }: ViewToggleProps) {
   );
 }
 
-export { ViewToggle, type ViewMode };
+export { type ViewMode,ViewToggle };

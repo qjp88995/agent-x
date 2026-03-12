@@ -1,22 +1,24 @@
 import { ComponentProps } from 'react';
+
 import {
-  Root,
-  Group,
-  Value,
-  Trigger,
-  ScrollUpButton,
-  ScrollDownButton,
   Content,
-  Portal,
-  Viewport,
-  Label,
+  Group,
+  Icon,
   Item,
   ItemIndicator,
   ItemText,
+  Label,
+  Portal,
+  Root,
+  ScrollDownButton,
+  ScrollUpButton,
   Separator,
-  Icon,
+  Trigger,
+  Value,
+  Viewport,
 } from '@radix-ui/react-select';
-import { ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { Check,ChevronDown, ChevronUp } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 
 const Select = Root;

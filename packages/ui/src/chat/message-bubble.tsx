@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { Copy, Check } from 'lucide-react';
+
+import { Check,Copy } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 import { Avatar } from '../primitives/avatar';
 
@@ -121,4 +123,4 @@ function MessageBubble({
   );
 }
 
-export { MessageBubble, CodeBlock };
+export { CodeBlock,MessageBubble };

@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { cn } from '../lib/utils';
+
 import { Search } from 'lucide-react';
+
+import { cn } from '../lib/utils';
 
 type PageHeaderProps = {
   title: string;
