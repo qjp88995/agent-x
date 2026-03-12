@@ -1,5 +1,4 @@
-import * as AvatarPrimitive from '@radix-ui/react-avatar';
-
+import { Fallback, Image, Root } from '@radix-ui/react-avatar';
 import { cn } from '../lib/utils';
 import { getAvatarColor } from '../tokens/colors';
 
@@ -21,7 +20,7 @@ function Avatar({ name, src, size = 'md', className }: AvatarProps) {
   const bgColor = getAvatarColor(name);
 
   return (
-    <AvatarPrimitive.Root
+    <Root
       className={cn(
         'relative flex shrink-0 overflow-hidden rounded-md',
         sizeMap[size],
@@ -29,19 +28,19 @@ function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       )}
     >
       {src && (
-        <AvatarPrimitive.Image
+        <Image
           src={src}
           alt={name}
           className="aspect-square h-full w-full object-cover"
         />
       )}
-      <AvatarPrimitive.Fallback
+      <Fallback
         className="flex h-full w-full items-center justify-center font-medium text-white"
         style={{ backgroundColor: bgColor }}
       >
         {initials}
-      </AvatarPrimitive.Fallback>
-    </AvatarPrimitive.Root>
+      </Fallback>
+    </Root>
   );
 }
 

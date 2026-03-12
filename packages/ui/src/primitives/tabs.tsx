@@ -1,15 +1,12 @@
-import * as React from 'react';
+import type { ComponentProps } from 'react';
 
-import * as TabsPrimitive from '@radix-ui/react-tabs';
+import { Content, List, Root, Trigger } from '@radix-ui/react-tabs';
 
 import { cn } from '../lib/utils';
 
-function Tabs({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+function Tabs({ className, ...props }: ComponentProps<typeof Root>) {
   return (
-    <TabsPrimitive.Root
+    <Root
       data-slot="tabs"
       className={cn('flex flex-col gap-6', className)}
       {...props}
@@ -17,12 +14,9 @@ function Tabs({
   );
 }
 
-function TabsList({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.List>) {
+function TabsList({ className, ...props }: ComponentProps<typeof List>) {
   return (
-    <TabsPrimitive.List
+    <List
       data-slot="tabs-list"
       className={cn(
         'text-foreground-ghost inline-flex h-10 w-fit items-center gap-1 border-b border-border',
@@ -33,12 +27,9 @@ function TabsList({
   );
 }
 
-function TabsTrigger({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+function TabsTrigger({ className, ...props }: ComponentProps<typeof Trigger>) {
   return (
-    <TabsPrimitive.Trigger
+    <Trigger
       data-slot="tabs-trigger"
       className={cn(
         'relative inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
@@ -56,12 +47,9 @@ function TabsTrigger({
   );
 }
 
-function TabsContent({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) {
+function TabsContent({ className, ...props }: ComponentProps<typeof Content>) {
   return (
-    <TabsPrimitive.Content
+    <Content
       data-slot="tabs-content"
       className={cn('flex-1 outline-none', className)}
       {...props}
