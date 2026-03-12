@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 import {
+  Avatar,
   Badge,
   Button,
   type Column,
@@ -11,10 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from '@agent-x/design';
-import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
+import type { ProviderResponse } from '@agent-x/shared';
 import {
-  ExternalLink,
   MoreHorizontal,
   Pencil,
   PlugZap,
@@ -27,34 +30,7 @@ import { useSyncModels, useTestProvider } from '@/hooks/use-providers';
 import { PROTOCOL_CONFIG } from '@/lib/provider-constants';
 import { cn } from '@/lib/utils';
 
-function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
-  const { t } = useTranslation();
-  const config = PROTOCOL_CONFIG[protocol];
-  return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {t(config.labelKey)}
-    </Badge>
-  );
-}
-
-function StatusDot({ active }: { readonly active: boolean }) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center gap-1.5">
-      <span
-        className={cn(
-          'inline-block size-2 rounded-full',
-          active ? 'bg-green-500' : 'bg-gray-400'
-        )}
-      />
-      <span className="text-foreground-muted text-xs">
-        {active ? t('common.active') : t('common.inactive')}
-      </span>
-    </div>
-  );
-}
-
-function truncateUrl(url: string, maxLength = 40): string {
+function truncateUrl(url: string, maxLength = 30): string {
   if (url.length <= maxLength) return url;
   return `${url.slice(0, maxLength)}...`;
 }
@@ -62,9 +38,14 @@ function truncateUrl(url: string, maxLength = 40): string {
 interface ProviderTableProps {
   readonly providers: ProviderResponse[];
   readonly onDelete: (provider: ProviderResponse) => void;
+  readonly loading?: boolean;
 }
 
-export function ProviderTable({ providers, onDelete }: ProviderTableProps) {
+export function ProviderTable({
+  providers,
+  onDelete,
+  loading,
+}: ProviderTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const testProvider = useTestProvider();
@@ -101,27 +82,31 @@ export function ProviderTable({ providers, onDelete }: ProviderTableProps) {
       key: 'name',
       header: t('common.name'),
       render: provider => (
-        <span className="text-foreground text-sm font-medium">
-          {provider.name}
-        </span>
+        <div className="flex items-center gap-2.5">
+          <Avatar name={provider.name} size="md" />
+          <div>
+            <div className="text-sm font-medium text-foreground">
+              {provider.name}
+            </div>
+            <div className="text-[10px] text-foreground-ghost">
+              {truncateUrl(provider.baseUrl)}
+            </div>
+          </div>
+        </div>
       ),
     },
     {
       key: 'protocol',
       header: t('providers.protocol', { defaultValue: 'Protocol' }),
       width: '140px',
-      render: provider => <ProtocolBadge protocol={provider.protocol} />,
-    },
-    {
-      key: 'baseUrl',
-      header: t('providers.baseUrl', { defaultValue: 'Base URL' }),
-      width: '240px',
-      render: provider => (
-        <div className="flex items-center gap-1.5 text-sm text-foreground-muted">
-          <ExternalLink className="size-3.5 shrink-0" />
-          <span className="truncate">{truncateUrl(provider.baseUrl)}</span>
-        </div>
-      ),
+      render: provider => {
+        const config = PROTOCOL_CONFIG[provider.protocol];
+        return (
+          <Badge variant="outline" className={cn('border-0', config.className)}>
+            {t(config.labelKey)}
+          </Badge>
+        );
+      },
     },
     {
       key: 'models',
@@ -137,60 +122,92 @@ export function ProviderTable({ providers, onDelete }: ProviderTableProps) {
       key: 'status',
       header: t('common.status'),
       width: '120px',
-      render: provider => <StatusDot active={provider.isActive} />,
+      render: provider => (
+        <Badge variant={provider.isActive ? 'success' : 'muted'}>
+          {provider.isActive ? t('common.active') : t('common.inactive')}
+        </Badge>
+      ),
     },
   ];
 
   function rowActions(provider: ProviderResponse) {
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
-            <MoreHorizontal className="size-4" />
-            <span className="sr-only">{t('common.actions')}</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => handleTest(provider)}
-            disabled={testProvider.isPending}
-          >
-            <PlugZap className="mr-2 size-4" />
+      <div className="flex items-center gap-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={e => {
+                e.stopPropagation();
+                handleTest(provider);
+              }}
+              disabled={testProvider.isPending}
+            >
+              <PlugZap className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
             {testProvider.isPending
               ? t('providers.testing')
               : t('providers.testConnection')}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleSync(provider)}
-            disabled={syncModels.isPending}
-          >
-            <RefreshCw
-              className={cn(
-                'mr-2 size-4',
-                syncModels.isPending && 'animate-spin'
-              )}
-            />
-            {syncModels.isPending
-              ? t('providers.syncing')
-              : t('providers.syncModels')}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => navigate(`/providers/${provider.id}/edit`)}
-          >
-            <Pencil className="mr-2 size-4" />
-            {t('common.edit')}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => onDelete(provider)}
-          >
-            <Trash2 className="mr-2 size-4" />
-            {t('common.delete')}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={e => {
+                e.stopPropagation();
+                navigate(`/providers/${provider.id}/edit`);
+              }}
+            >
+              <Pencil className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('common.edit')}</TooltipContent>
+        </Tooltip>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={e => e.stopPropagation()}
+            >
+              <MoreHorizontal className="size-4" />
+              <span className="sr-only">{t('common.actions')}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => handleSync(provider)}
+              disabled={syncModels.isPending}
+            >
+              <RefreshCw
+                className={cn(
+                  'mr-2 size-4',
+                  syncModels.isPending && 'animate-spin'
+                )}
+              />
+              {syncModels.isPending
+                ? t('providers.syncing')
+                : t('providers.syncModels')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => onDelete(provider)}
+            >
+              <Trash2 className="mr-2 size-4" />
+              {t('common.delete')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     );
   }
 
@@ -201,6 +218,7 @@ export function ProviderTable({ providers, onDelete }: ProviderTableProps) {
       keyExtractor={provider => provider.id}
       onRowClick={provider => navigate(`/providers/${provider.id}/edit`)}
       rowActions={rowActions}
+      loading={loading}
       emptyState={
         <span>
           {t('providers.noProviders', { defaultValue: 'No providers found.' })}

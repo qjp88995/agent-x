@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   Avatar,
+  Badge,
   Button,
   Card,
   CardContent,
@@ -26,6 +27,7 @@ import {
   type FilterTab,
   FilterTabs,
   PageHeader,
+  Skeleton,
   StaggerItem,
   StaggerList,
   Tooltip,
@@ -33,10 +35,7 @@ import {
   TooltipTrigger,
   ViewToggle,
 } from '@agent-x/design';
-import type {
-  AgentResponse,
-  AgentStatus as AgentStatusType,
-} from '@agent-x/shared';
+import type { AgentResponse } from '@agent-x/shared';
 import { AgentStatus } from '@agent-x/shared';
 import {
   AlertTriangle,
@@ -60,36 +59,36 @@ import {
 } from '@/hooks/use-agents';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import { useViewMode } from '@/hooks/use-view-mode';
-import { cn } from '@/lib/utils';
 
 import { AgentTable } from './agent-table';
 
-const STATUS_BADGE_CONFIG: Record<
-  AgentStatusType,
-  { labelKey: string; className: string }
-> = {
-  ACTIVE: {
-    labelKey: 'agents.active',
-    className: 'bg-primary/10 text-primary',
-  },
-  ARCHIVED: {
-    labelKey: 'agents.archived',
-    className: 'bg-foreground-ghost/20 text-foreground-ghost',
-  },
-};
-
-function StatusBadge({ status }: { readonly status: AgentStatusType }) {
-  const { t } = useTranslation();
-  const config = STATUS_BADGE_CONFIG[status];
+function AgentCardSkeleton() {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-[10px] px-2 py-0.5 text-[10px] font-medium',
-        config.className
-      )}
-    >
-      {t(config.labelKey)}
-    </span>
+    <Card className="flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+        <div className="flex items-center gap-3">
+          <Skeleton className="size-8 rounded-md" />
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="mt-1.5 h-4 w-2/3" />
+      </CardContent>
+      <CardFooter className="border-t pt-4">
+        <div className="flex w-full items-center justify-between">
+          <Skeleton className="h-4 w-24" />
+          <div className="flex items-center gap-1">
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -113,7 +112,15 @@ function AgentCard({
           <div className="flex flex-col gap-1">
             <CardTitle className="text-base">{agent.name}</CardTitle>
             <div className="flex items-center gap-2">
-              <StatusBadge status={agent.status} />
+              <Badge
+                variant={
+                  agent.status === AgentStatus.ACTIVE ? 'success' : 'muted'
+                }
+              >
+                {agent.status === AgentStatus.ACTIVE
+                  ? t('agents.active')
+                  : t('agents.archived')}
+              </Badge>
               {agent.latestVersion !== null && (
                 <span className="text-foreground-muted text-xs">
                   v{agent.latestVersion}
@@ -283,16 +290,6 @@ export default function AgentListPage() {
     });
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-foreground-muted text-sm">
-          {t('agents.loadingAgents')}
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -331,7 +328,23 @@ export default function AgentListPage() {
 
       {/* Agent list */}
       <div className="flex-1 overflow-auto p-5">
-        {!filtered.length ? (
+        {isLoading ? (
+          view === 'table' ? (
+            <AgentTable
+              agents={[]}
+              onDelete={setDeleteTarget}
+              onArchive={setArchiveTarget}
+              onUnarchive={handleUnarchive}
+              loading
+            />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <AgentCardSkeleton key={i} />
+              ))}
+            </div>
+          )
+        ) : !filtered.length ? (
           <AgentEmptyState />
         ) : view === 'table' ? (
           <AgentTable

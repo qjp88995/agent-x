@@ -21,6 +21,7 @@ import {
   type FilterTab,
   FilterTabs,
   PageHeader,
+  Skeleton,
   StaggerItem,
   StaggerList,
   Tooltip,
@@ -28,7 +29,7 @@ import {
   TooltipTrigger,
   ViewToggle,
 } from '@agent-x/design';
-import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
+import type { ProviderResponse } from '@agent-x/shared';
 import {
   AlertTriangle,
   ExternalLink,
@@ -54,33 +55,6 @@ import { cn } from '@/lib/utils';
 
 import { ProviderTable } from './provider-table';
 
-function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
-  const { t } = useTranslation();
-  const config = PROTOCOL_CONFIG[protocol];
-  return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {t(config.labelKey)}
-    </Badge>
-  );
-}
-
-function StatusDot({ active }: { readonly active: boolean }) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center gap-1.5">
-      <span
-        className={cn(
-          'inline-block size-2 rounded-full',
-          active ? 'bg-green-500' : 'bg-gray-400'
-        )}
-      />
-      <span className="text-foreground-muted text-xs">
-        {active ? t('common.active') : t('common.inactive')}
-      </span>
-    </div>
-  );
-}
-
 function truncateUrl(url: string, maxLength = 40): string {
   if (url.length <= maxLength) return url;
   return `${url.slice(0, maxLength)}...`;
@@ -96,6 +70,7 @@ function ProviderCard({
   const { t } = useTranslation();
   const testProvider = useTestProvider();
   const syncModels = useSyncModels();
+  const config = PROTOCOL_CONFIG[provider.protocol];
 
   function handleTest() {
     testProvider.mutate(provider.id, {
@@ -129,8 +104,15 @@ function ProviderCard({
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{provider.name}</CardTitle>
           <div className="flex items-center gap-2">
-            <ProtocolBadge protocol={provider.protocol} />
-            <StatusDot active={provider.isActive} />
+            <Badge
+              variant="outline"
+              className={cn('border-0', config.className)}
+            >
+              {t(config.labelKey)}
+            </Badge>
+            <Badge variant={provider.isActive ? 'success' : 'muted'}>
+              {provider.isActive ? t('common.active') : t('common.inactive')}
+            </Badge>
           </div>
         </div>
         <Tooltip>
@@ -220,6 +202,35 @@ function ProviderCard({
   );
 }
 
+function ProviderCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-5 w-32" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-5 w-16 rounded-full" />
+            <Skeleton className="h-5 w-14 rounded-full" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-48" />
+      </CardContent>
+      <CardFooter className="border-t pt-4">
+        <div className="flex w-full items-center justify-between">
+          <Skeleton className="h-4 w-20" />
+          <div className="flex items-center gap-1">
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
 export default function ProviderListPage() {
   const { t } = useTranslation();
   const { data: allProviders, isLoading, error } = useProviders();
@@ -265,16 +276,6 @@ export default function ProviderListPage() {
     });
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-foreground-muted text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -313,7 +314,17 @@ export default function ProviderListPage() {
 
       {/* Provider list */}
       <div className="flex-1 overflow-auto p-5">
-        {!filtered.length ? (
+        {isLoading ? (
+          view === 'table' ? (
+            <ProviderTable providers={[]} onDelete={setDeleteTarget} loading />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ProviderCardSkeleton key={i} />
+              ))}
+            </div>
+          )
+        ) : !filtered.length ? (
           <ProviderEmptyState />
         ) : view === 'table' ? (
           <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
