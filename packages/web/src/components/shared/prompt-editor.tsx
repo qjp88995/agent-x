@@ -71,7 +71,7 @@ export function PromptEditor({
         completionKeymap: false,
       }}
       height="100%"
-      className={cn('min-h-0 flex-1 [&_.cm-editor]:h-full', className)}
+      className={cn('min-h-0 flex-1 **:[.cm-editor]:h-full', className)}
     />
   );
 }

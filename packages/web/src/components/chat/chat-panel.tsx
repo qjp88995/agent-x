@@ -196,7 +196,7 @@ export function ChatPanel({
           <MessageList
             ref={messagesEndRef}
             messages={messages}
-            className="mx-auto max-w-[640px]"
+            className="mx-auto max-w-160"
             isStreaming={isLoading}
             showTyping={
               isLoading &&

@@ -155,7 +155,7 @@ export function PromptPickerDialog({
                 />
               </div>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-45">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -73,7 +73,7 @@ export function ChatInput({
 
   return (
     <div className="border-t bg-background p-4">
-      <div className="mx-auto max-w-[640px]">
+      <div className="mx-auto max-w-160">
         <input
           ref={fileInputRef}
           type="file"

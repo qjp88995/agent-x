@@ -149,7 +149,7 @@ function useNavItems(defs: readonly NavDef[]): SidebarItem[] {
         location.pathname.startsWith(`${item.href}/`);
 
       return {
-        icon: <Icon className="size-[18px]" />,
+        icon: <Icon className="size-4.5" />,
         label: t(item.labelKey),
         href: item.href,
         active: isActive,
@@ -178,7 +178,7 @@ function MobileNav({
         <SheetHeader className="h-12 flex-row items-center px-4">
           <SheetTitle className="flex items-center gap-2">
             <div className="flex size-7 items-center justify-center rounded-md bg-primary">
-              <span className="text-[12px] font-bold text-primary-foreground leading-none">
+              <span className="text-xs font-bold text-primary-foreground leading-none">
                 X
               </span>
             </div>
@@ -243,7 +243,7 @@ export default function DashboardLayout() {
       <MobileNav open={mobileOpen} onOpenChange={setMobileOpen} />
 
       {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden md:ml-[var(--sidebar-collapsed)]">
+      <div className="flex flex-1 flex-col overflow-hidden md:ml-(--sidebar-collapsed)">
         {/* Mobile top bar */}
         <header className="flex h-12 items-center gap-3 border-b bg-background px-4 md:hidden">
           <Button
@@ -255,7 +255,7 @@ export default function DashboardLayout() {
             <Menu className="size-5" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="flex size-6 items-center justify-center rounded-[var(--radius-sm)] bg-primary">
+            <div className="flex size-6 items-center justify-center rounded-sm bg-primary">
               <span className="text-[10px] font-bold text-primary-foreground leading-none">
                 X
               </span>

@@ -257,7 +257,7 @@ export function FileEditor({
             )}
             onClick={() => onSelectTab(tab.file.id)}
           >
-            <span className="truncate max-w-[120px]">
+            <span className="truncate max-w-30">
               {tab.file.path.split('/').pop()}
             </span>
             {tab.modified && (

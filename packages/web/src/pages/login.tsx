@@ -38,13 +38,13 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-[320px]">
+      <div className="w-80">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="bg-primary mb-3 flex size-10 items-center justify-center rounded-[10px] shadow-lg">
+          <div className="bg-primary mb-3 flex size-10 items-center justify-center rounded-lg shadow-lg">
             <Bot className="size-5 text-white" />
           </div>
           <h1 className="text-[22px] font-bold tracking-[-0.5px]">Agent-X</h1>
-          <p className="text-foreground-ghost mt-1 text-[12px]">
+          <p className="text-foreground-ghost mt-1 text-xs">
             {t('auth.platformDesc')}
           </p>
         </div>
