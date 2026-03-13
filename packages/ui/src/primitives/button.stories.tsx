@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Loader2,Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 import { Button } from './button';
 
@@ -60,6 +60,9 @@ export const AllSizes: Story = {
         <Plus />
       </Button>
       <Button variant="primary" size="icon-sm">
+        <Plus />
+      </Button>
+      <Button variant="primary" size="icon-lg">
         <Plus />
       </Button>
     </div>

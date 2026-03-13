@@ -51,6 +51,7 @@ export {
 } from './primitives/select';
 export { Separator } from './primitives/separator';
 export { Skeleton } from './primitives/skeleton';
+export { SplitButton, type SplitButtonProps } from './primitives/split-button';
 export { Slider } from './primitives/slider';
 export { Switch } from './primitives/switch';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './primitives/tabs';
