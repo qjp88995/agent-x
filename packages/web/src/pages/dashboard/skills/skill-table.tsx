@@ -52,7 +52,7 @@ interface SkillTableProps {
   readonly skills: SkillResponse[];
   readonly isAdmin: boolean;
   readonly onDelete: (skill: SkillResponse) => void;
-  readonly onPreview: (skill: SkillResponse) => void;
+  readonly onPreview?: (skill: SkillResponse) => void;
   readonly loading?: boolean;
 }
 
@@ -131,7 +131,7 @@ export function SkillTable({
               className="size-7"
               onClick={e => {
                 e.stopPropagation();
-                onPreview(skill);
+                onPreview?.(skill);
               }}
             >
               <Eye className="size-3.5" />

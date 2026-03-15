@@ -19,7 +19,7 @@ import { Eye, Pencil, Trash2 } from 'lucide-react';
 interface SkillCardProps {
   readonly skill: SkillResponse;
   readonly onDelete: (skill: SkillResponse) => void;
-  readonly onPreview: (skill: SkillResponse) => void;
+  readonly onPreview?: (skill: SkillResponse) => void;
 }
 
 export function SkillCard({ skill, onDelete, onPreview }: SkillCardProps) {
@@ -81,7 +81,7 @@ export function SkillCard({ skill, onDelete, onPreview }: SkillCardProps) {
                   variant="ghost"
                   size="icon"
                   className="size-7"
-                  onClick={() => onPreview(skill)}
+                  onClick={() => onPreview?.(skill)}
                 >
                   <Eye className="size-3.5" />
                 </Button>

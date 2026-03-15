@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
-  type FilterTab,
-  FilterTabs,
   PageHeader,
   Skeleton,
   StaggerItem,
@@ -14,23 +14,15 @@ import {
   ViewToggle,
 } from '@agent-x/design';
 import type { SkillResponse } from '@agent-x/shared';
-import { SkillType } from '@agent-x/shared';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DeleteDialog } from '@/components/skills/delete-dialog';
-import { MarketplaceCard } from '@/components/skills/marketplace-card';
-import { PreviewDialog } from '@/components/skills/preview-dialog';
 import { SkillCard } from '@/components/skills/skill-card';
 import { SkillEmptyState } from '@/components/skills/skill-empty-state';
 import { useIsAdmin } from '@/hooks/use-auth';
-import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
-import {
-  useDeleteMarketplaceSkill,
-  useDeleteSkill,
-  useSkillMarket,
-  useSkills,
-} from '@/hooks/use-skills';
+import { useFilteredSearch } from '@/hooks/use-filtered-search';
+import { useDeleteSkill, useSkills } from '@/hooks/use-skills';
 import { useViewMode } from '@/hooks/use-view-mode';
 
 import { SkillTable } from './skill-table';
@@ -55,97 +47,30 @@ export default function SkillsPage() {
   const isAdmin = useIsAdmin();
   const [view, setView] = useViewMode('skills');
 
-  const {
-    data: marketSkills,
-    isLoading: isLoadingMarket,
-    error: marketError,
-  } = useSkillMarket();
-  const {
-    data: customSkills,
-    isLoading: isLoadingCustom,
-    error: customError,
-  } = useSkills();
+  const { data: skills, isLoading, error } = useSkills();
 
   const deleteSkill = useDeleteSkill();
-  const deleteMarketplaceSkill = useDeleteMarketplaceSkill();
   const [deleteTarget, setDeleteTarget] = useState<SkillResponse | null>(null);
-  const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
-    'custom'
-  );
-  const [previewTarget, setPreviewTarget] = useState<SkillResponse | null>(
-    null
-  );
 
-  const isLoading = isLoadingMarket || isLoadingCustom;
-  const error = marketError ?? customError;
-  const isDeleting = deleteSkill.isPending || deleteMarketplaceSkill.isPending;
+  const isDeleting = deleteSkill.isPending;
 
-  const allSkills = useMemo(
-    () => [...(marketSkills ?? []), ...(customSkills ?? [])],
-    [marketSkills, customSkills]
-  );
-
-  const { filter, setFilter, filtered } = useFilteredSearch<SkillResponse>(
-    allSkills,
-    {
-      searchKeys: ['name', 'description'],
-      filterKey: 'type',
-    }
-  );
-
-  const systemCount = allSkills.filter(s => s.type === SkillType.SYSTEM).length;
-  const customCount = allSkills.filter(s => s.type === SkillType.CUSTOM).length;
-
-  const filterTabs: FilterTab[] = [
-    {
-      key: FILTER_ALL,
-      label: t('skills.all', { defaultValue: 'All' }),
-      count: allSkills.length,
-    },
-    {
-      key: SkillType.SYSTEM,
-      label: t('skills.systemSkills'),
-      count: systemCount,
-    },
-    { key: SkillType.CUSTOM, label: t('skills.mySkills'), count: customCount },
-  ];
-
-  function handleDeleteCustom(skill: SkillResponse) {
-    setDeleteTarget(skill);
-    setDeleteMode('custom');
-  }
-
-  function handleDeleteMarketplace(skill: SkillResponse) {
-    setDeleteTarget(skill);
-    setDeleteMode('marketplace');
-  }
+  const { filtered } = useFilteredSearch<SkillResponse>(skills ?? [], {
+    searchKeys: ['name', 'description'],
+  });
 
   function handleDelete(skill: SkillResponse) {
-    if (skill.type === SkillType.SYSTEM) {
-      handleDeleteMarketplace(skill);
-    } else {
-      handleDeleteCustom(skill);
-    }
+    setDeleteTarget(skill);
   }
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    const mutation =
-      deleteMode === 'marketplace' ? deleteMarketplaceSkill : deleteSkill;
-    mutation.mutate(deleteTarget.id, {
+    deleteSkill.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
         toast.success(t('skills.deleted'));
       },
     });
   }
-
-  const emptyTab =
-    filter === SkillType.SYSTEM
-      ? 'marketplace'
-      : filter === SkillType.CUSTOM
-        ? 'custom'
-        : 'custom';
 
   if (error) {
     return (
@@ -167,10 +92,17 @@ export default function SkillsPage() {
         title={t('skills.title')}
         description={t('skills.subtitle')}
         search
+        actions={
+          <Button variant="primary" asChild>
+            <Link to="/skills/new">
+              <Plus />
+              {t('skills.createSkill')}
+            </Link>
+          </Button>
+        }
       />
 
-      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
-        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
         <ViewToggle value={view} onChange={setView} />
       </div>
 
@@ -181,7 +113,6 @@ export default function SkillsPage() {
               skills={[]}
               isAdmin={isAdmin}
               onDelete={handleDelete}
-              onPreview={setPreviewTarget}
               loading
             />
           ) : (
@@ -192,49 +123,57 @@ export default function SkillsPage() {
             </div>
           )
         ) : !filtered.length ? (
-          <SkillEmptyState tab={emptyTab} isAdmin={isAdmin} />
+          <>
+            <SkillEmptyState tab="custom" isAdmin={isAdmin} />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=skills"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         ) : view === 'table' ? (
-          <SkillTable
-            skills={filtered}
-            isAdmin={isAdmin}
-            onDelete={handleDelete}
-            onPreview={setPreviewTarget}
-          />
+          <>
+            <SkillTable
+              skills={filtered}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+            />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=skills"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         ) : (
-          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map(skill => (
-              <StaggerItem key={skill.id}>
-                {skill.type === SkillType.SYSTEM ? (
-                  <MarketplaceCard
-                    skill={skill}
-                    isAdmin={isAdmin}
-                    onDelete={handleDeleteMarketplace}
-                    onPreview={setPreviewTarget}
-                  />
-                ) : (
-                  <SkillCard
-                    skill={skill}
-                    onDelete={handleDeleteCustom}
-                    onPreview={setPreviewTarget}
-                  />
-                )}
-              </StaggerItem>
-            ))}
-          </StaggerList>
+          <>
+            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtered.map(skill => (
+                <StaggerItem key={skill.id}>
+                  <SkillCard skill={skill} onDelete={handleDelete} />
+                </StaggerItem>
+              ))}
+            </StaggerList>
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=skills"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         )}
       </div>
 
-      <PreviewDialog
-        skill={previewTarget}
-        open={previewTarget !== null}
-        onOpenChange={open => {
-          if (!open) setPreviewTarget(null);
-        }}
-      />
-
       <DeleteDialog
         target={deleteTarget}
-        mode={deleteMode}
+        mode="custom"
         open={deleteTarget !== null}
         onOpenChange={open => {
           if (!open) setDeleteTarget(null);
