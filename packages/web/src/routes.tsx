@@ -27,6 +27,9 @@ const PromptsPage = lazy(() => import('@/pages/dashboard/prompts/index'));
 const PromptEditorPage = lazy(() => import('@/pages/dashboard/prompts/editor'));
 const McpPage = lazy(() => import('@/pages/dashboard/mcp/index'));
 const McpEditorPage = lazy(() => import('@/pages/dashboard/mcp/editor'));
+const MarketplacePage = lazy(
+  () => import('@/pages/dashboard/marketplace/index')
+);
 const ApiKeysPage = lazy(() => import('@/pages/dashboard/api-keys/index'));
 const UserListPage = lazy(() => import('@/pages/dashboard/users/index'));
 const UserDetailPage = lazy(() => import('@/pages/dashboard/users/detail'));
@@ -87,6 +90,7 @@ export function AppRoutes() {
             <Route path="/mcp-servers" element={<McpPage />} />
             <Route path="/mcp-servers/new" element={<McpEditorPage />} />
             <Route path="/mcp-servers/:id/edit" element={<McpEditorPage />} />
+            <Route path="/marketplace" element={<MarketplacePage />} />
             <Route path="/api-keys" element={<ApiKeysPage />} />
             <Route path="/users" element={<UserListPage />} />
             <Route path="/users/:id" element={<UserDetailPage />} />
