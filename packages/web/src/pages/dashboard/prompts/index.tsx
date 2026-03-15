@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
-  type FilterTab,
-  FilterTabs,
   PageHeader,
   Skeleton,
   StaggerItem,
@@ -14,23 +14,15 @@ import {
   ViewToggle,
 } from '@agent-x/design';
 import type { PromptResponse } from '@agent-x/shared';
-import { PromptType } from '@agent-x/shared';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DeleteDialog } from '@/components/prompts/delete-dialog';
-import { MarketplaceCard } from '@/components/prompts/marketplace-card';
-import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
 import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
 import { useIsAdmin } from '@/hooks/use-auth';
-import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
-import {
-  useDeleteMarketplacePrompt,
-  useDeletePrompt,
-  usePromptMarket,
-  usePrompts,
-} from '@/hooks/use-prompts';
+import { useFilteredSearch } from '@/hooks/use-filtered-search';
+import { useDeletePrompt, usePrompts } from '@/hooks/use-prompts';
 import { useViewMode } from '@/hooks/use-view-mode';
 
 import { PromptTable } from './prompt-table';
@@ -55,106 +47,30 @@ export default function PromptsPage() {
   const isAdmin = useIsAdmin();
   const [view, setView] = useViewMode('prompts');
 
-  const {
-    data: marketPrompts,
-    isLoading: isLoadingMarket,
-    error: marketError,
-  } = usePromptMarket();
-  const {
-    data: customPrompts,
-    isLoading: isLoadingCustom,
-    error: customError,
-  } = usePrompts();
+  const { data: prompts, isLoading, error } = usePrompts();
 
   const deletePrompt = useDeletePrompt();
-  const deleteMarketplacePrompt = useDeleteMarketplacePrompt();
   const [deleteTarget, setDeleteTarget] = useState<PromptResponse | null>(null);
-  const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
-    'custom'
-  );
-  const [previewTarget, setPreviewTarget] = useState<PromptResponse | null>(
-    null
-  );
 
-  const isLoading = isLoadingMarket || isLoadingCustom;
-  const error = marketError ?? customError;
-  const isDeleting =
-    deletePrompt.isPending || deleteMarketplacePrompt.isPending;
+  const isDeleting = deletePrompt.isPending;
 
-  const allPrompts = useMemo(
-    () => [...(marketPrompts ?? []), ...(customPrompts ?? [])],
-    [marketPrompts, customPrompts]
-  );
-
-  const { filter, setFilter, filtered } = useFilteredSearch<PromptResponse>(
-    allPrompts,
-    {
-      searchKeys: ['name', 'description'],
-      filterKey: 'type',
-    }
-  );
-
-  const systemCount = allPrompts.filter(
-    p => p.type === PromptType.SYSTEM
-  ).length;
-  const customCount = allPrompts.filter(
-    p => p.type === PromptType.CUSTOM
-  ).length;
-
-  const filterTabs: FilterTab[] = [
-    {
-      key: FILTER_ALL,
-      label: t('prompts.all', { defaultValue: 'All' }),
-      count: allPrompts.length,
-    },
-    {
-      key: PromptType.SYSTEM,
-      label: t('prompts.systemPrompts'),
-      count: systemCount,
-    },
-    {
-      key: PromptType.CUSTOM,
-      label: t('prompts.myPrompts'),
-      count: customCount,
-    },
-  ];
-
-  function handleDeleteCustom(prompt: PromptResponse) {
-    setDeleteTarget(prompt);
-    setDeleteMode('custom');
-  }
-
-  function handleDeleteMarketplace(prompt: PromptResponse) {
-    setDeleteTarget(prompt);
-    setDeleteMode('marketplace');
-  }
+  const { filtered } = useFilteredSearch<PromptResponse>(prompts ?? [], {
+    searchKeys: ['name', 'description'],
+  });
 
   function handleDelete(prompt: PromptResponse) {
-    if (prompt.type === PromptType.SYSTEM) {
-      handleDeleteMarketplace(prompt);
-    } else {
-      handleDeleteCustom(prompt);
-    }
+    setDeleteTarget(prompt);
   }
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    const mutation =
-      deleteMode === 'marketplace' ? deleteMarketplacePrompt : deletePrompt;
-    mutation.mutate(deleteTarget.id, {
+    deletePrompt.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
         toast.success(t('prompts.deleted'));
       },
     });
   }
-
-  const emptyTab =
-    filter === PromptType.SYSTEM
-      ? 'marketplace'
-      : filter === PromptType.CUSTOM
-        ? 'custom'
-        : 'custom';
 
   if (error) {
     return (
@@ -176,10 +92,17 @@ export default function PromptsPage() {
         title={t('prompts.title')}
         description={t('prompts.subtitle')}
         search
+        actions={
+          <Button variant="primary" asChild>
+            <Link to="/prompts/new">
+              <Plus />
+              {t('prompts.createPrompt')}
+            </Link>
+          </Button>
+        }
       />
 
-      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
-        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
         <ViewToggle value={view} onChange={setView} />
       </div>
 
@@ -190,7 +113,6 @@ export default function PromptsPage() {
               prompts={[]}
               isAdmin={isAdmin}
               onDelete={handleDelete}
-              onPreview={setPreviewTarget}
               loading
             />
           ) : (
@@ -201,49 +123,57 @@ export default function PromptsPage() {
             </div>
           )
         ) : !filtered.length ? (
-          <PromptEmptyState tab={emptyTab} isAdmin={isAdmin} />
+          <>
+            <PromptEmptyState tab="custom" isAdmin={isAdmin} />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=prompts"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         ) : view === 'table' ? (
-          <PromptTable
-            prompts={filtered}
-            isAdmin={isAdmin}
-            onDelete={handleDelete}
-            onPreview={setPreviewTarget}
-          />
+          <>
+            <PromptTable
+              prompts={filtered}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+            />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=prompts"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         ) : (
-          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map(prompt => (
-              <StaggerItem key={prompt.id}>
-                {prompt.type === PromptType.SYSTEM ? (
-                  <MarketplaceCard
-                    prompt={prompt}
-                    isAdmin={isAdmin}
-                    onDelete={handleDeleteMarketplace}
-                    onPreview={setPreviewTarget}
-                  />
-                ) : (
-                  <PromptCard
-                    prompt={prompt}
-                    onDelete={handleDeleteCustom}
-                    onPreview={setPreviewTarget}
-                  />
-                )}
-              </StaggerItem>
-            ))}
-          </StaggerList>
+          <>
+            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtered.map(prompt => (
+                <StaggerItem key={prompt.id}>
+                  <PromptCard prompt={prompt} onDelete={handleDelete} />
+                </StaggerItem>
+              ))}
+            </StaggerList>
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=prompts"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         )}
       </div>
 
-      <PreviewDialog
-        prompt={previewTarget}
-        open={previewTarget !== null}
-        onOpenChange={open => {
-          if (!open) setPreviewTarget(null);
-        }}
-      />
-
       <DeleteDialog
         target={deleteTarget}
-        mode={deleteMode}
+        mode="custom"
         open={deleteTarget !== null}
         onOpenChange={open => {
           if (!open) setDeleteTarget(null);

@@ -19,7 +19,7 @@ import { Eye, Pencil, Trash2 } from 'lucide-react';
 interface PromptCardProps {
   readonly prompt: PromptResponse;
   readonly onDelete: (prompt: PromptResponse) => void;
-  readonly onPreview: (prompt: PromptResponse) => void;
+  readonly onPreview?: (prompt: PromptResponse) => void;
 }
 
 export function PromptCard({ prompt, onDelete, onPreview }: PromptCardProps) {
@@ -86,7 +86,7 @@ export function PromptCard({ prompt, onDelete, onPreview }: PromptCardProps) {
                   variant="ghost"
                   size="icon"
                   className="size-7"
-                  onClick={() => onPreview(prompt)}
+                  onClick={() => onPreview?.(prompt)}
                 >
                   <Eye className="size-3.5" />
                 </Button>

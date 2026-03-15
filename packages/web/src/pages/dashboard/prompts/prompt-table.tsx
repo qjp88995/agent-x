@@ -52,7 +52,7 @@ interface PromptTableProps {
   readonly prompts: PromptResponse[];
   readonly isAdmin: boolean;
   readonly onDelete: (prompt: PromptResponse) => void;
-  readonly onPreview: (prompt: PromptResponse) => void;
+  readonly onPreview?: (prompt: PromptResponse) => void;
   readonly loading?: boolean;
 }
 
@@ -122,7 +122,7 @@ export function PromptTable({
               className="size-7"
               onClick={e => {
                 e.stopPropagation();
-                onPreview(prompt);
+                onPreview?.(prompt);
               }}
             >
               <Eye className="size-3.5" />
