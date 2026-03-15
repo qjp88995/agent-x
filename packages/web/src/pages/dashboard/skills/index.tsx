@@ -18,6 +18,7 @@ import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DeleteDialog } from '@/components/skills/delete-dialog';
+import { PreviewDialog } from '@/components/skills/preview-dialog';
 import { SkillCard } from '@/components/skills/skill-card';
 import { SkillEmptyState } from '@/components/skills/skill-empty-state';
 import { useIsAdmin } from '@/hooks/use-auth';
@@ -51,6 +52,9 @@ export default function SkillsPage() {
 
   const deleteSkill = useDeleteSkill();
   const [deleteTarget, setDeleteTarget] = useState<SkillResponse | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<SkillResponse | null>(
+    null
+  );
 
   const isDeleting = deleteSkill.isPending;
 
@@ -140,6 +144,7 @@ export default function SkillsPage() {
               skills={filtered}
               isAdmin={isAdmin}
               onDelete={handleDelete}
+              onPreview={setPreviewTarget}
             />
             <div className="mt-5 text-center">
               <Link
@@ -155,7 +160,11 @@ export default function SkillsPage() {
             <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filtered.map(skill => (
                 <StaggerItem key={skill.id}>
-                  <SkillCard skill={skill} onDelete={handleDelete} />
+                  <SkillCard
+                    skill={skill}
+                    onDelete={handleDelete}
+                    onPreview={setPreviewTarget}
+                  />
                 </StaggerItem>
               ))}
             </StaggerList>
@@ -170,6 +179,14 @@ export default function SkillsPage() {
           </>
         )}
       </div>
+
+      <PreviewDialog
+        skill={previewTarget}
+        open={previewTarget !== null}
+        onOpenChange={open => {
+          if (!open) setPreviewTarget(null);
+        }}
+      />
 
       <DeleteDialog
         target={deleteTarget}

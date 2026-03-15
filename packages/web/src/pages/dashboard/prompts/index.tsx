@@ -18,6 +18,7 @@ import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DeleteDialog } from '@/components/prompts/delete-dialog';
+import { PreviewDialog } from '@/components/prompts/preview-dialog';
 import { PromptCard } from '@/components/prompts/prompt-card';
 import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
 import { useIsAdmin } from '@/hooks/use-auth';
@@ -51,6 +52,9 @@ export default function PromptsPage() {
 
   const deletePrompt = useDeletePrompt();
   const [deleteTarget, setDeleteTarget] = useState<PromptResponse | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<PromptResponse | null>(
+    null
+  );
 
   const isDeleting = deletePrompt.isPending;
 
@@ -140,6 +144,7 @@ export default function PromptsPage() {
               prompts={filtered}
               isAdmin={isAdmin}
               onDelete={handleDelete}
+              onPreview={setPreviewTarget}
             />
             <div className="mt-5 text-center">
               <Link
@@ -155,7 +160,11 @@ export default function PromptsPage() {
             <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filtered.map(prompt => (
                 <StaggerItem key={prompt.id}>
-                  <PromptCard prompt={prompt} onDelete={handleDelete} />
+                  <PromptCard
+                    prompt={prompt}
+                    onDelete={handleDelete}
+                    onPreview={setPreviewTarget}
+                  />
                 </StaggerItem>
               ))}
             </StaggerList>
@@ -170,6 +179,14 @@ export default function PromptsPage() {
           </>
         )}
       </div>
+
+      <PreviewDialog
+        prompt={previewTarget}
+        open={previewTarget !== null}
+        onOpenChange={open => {
+          if (!open) setPreviewTarget(null);
+        }}
+      />
 
       <DeleteDialog
         target={deleteTarget}
