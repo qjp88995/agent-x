@@ -17,8 +17,13 @@ import {
   PageHeader,
   StaggerItem,
   StaggerList,
+  ViewToggle,
 } from '@agent-x/design';
-import type { PromptResponse, SkillResponse } from '@agent-x/shared';
+import type {
+  McpServerResponse,
+  PromptResponse,
+  SkillResponse,
+} from '@agent-x/shared';
 import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -34,6 +39,11 @@ import {
   usePromptMarket,
 } from '@/hooks/use-prompts';
 import { useDeleteMarketplaceSkill, useSkillMarket } from '@/hooks/use-skills';
+import { useViewMode } from '@/hooks/use-view-mode';
+
+import { McpTable } from '../mcp/mcp-table';
+import { PromptTable } from '../prompts/prompt-table';
+import { SkillTable } from '../skills/skill-table';
 
 type TabKey = 'skills' | 'mcp' | 'prompts';
 
@@ -46,6 +56,7 @@ function isValidTab(value: string | null): value is TabKey {
 export default function MarketplacePage() {
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
+  const [view, setView] = useViewMode('marketplace');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const tabParam = searchParams.get('tab');
@@ -158,6 +169,142 @@ export default function MarketplacePage() {
     });
   }
 
+  function handleSkillDelete(skill: SkillResponse) {
+    setDeleteTarget({ id: skill.id, name: skill.name, tab: 'skills' });
+  }
+
+  function handleMcpDelete(server: McpServerResponse) {
+    setDeleteTarget({ id: server.id, name: server.name, tab: 'mcp' });
+  }
+
+  function handlePromptDelete(prompt: PromptResponse) {
+    setDeleteTarget({ id: prompt.id, name: prompt.name, tab: 'prompts' });
+  }
+
+  function renderTabContent() {
+    if (isLoading) {
+      if (view === 'table') {
+        if (activeTab === 'skills')
+          return (
+            <SkillTable
+              skills={[]}
+              isAdmin={isAdmin}
+              onDelete={handleSkillDelete}
+              loading
+            />
+          );
+        if (activeTab === 'mcp')
+          return (
+            <McpTable
+              servers={[]}
+              isAdmin={isAdmin}
+              onDelete={handleMcpDelete}
+              loading
+            />
+          );
+        return (
+          <PromptTable
+            prompts={[]}
+            isAdmin={isAdmin}
+            onDelete={handlePromptDelete}
+            loading
+          />
+        );
+      }
+      return (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-surface-secondary h-32 animate-pulse rounded-lg"
+            />
+          ))}
+        </div>
+      );
+    }
+
+    if (activeTab === 'skills') {
+      if (!skills?.length)
+        return <EmptyMarketplace message={t('marketplace.emptySkills')} />;
+      if (view === 'table')
+        return (
+          <SkillTable
+            skills={skills}
+            isAdmin={isAdmin}
+            onDelete={handleSkillDelete}
+            onPreview={setPreviewSkill}
+          />
+        );
+      return (
+        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {skills.map(skill => (
+            <StaggerItem key={skill.id}>
+              <SkillMarketplaceCard
+                skill={skill}
+                isAdmin={isAdmin}
+                onDelete={handleSkillDelete}
+                onPreview={setPreviewSkill}
+              />
+            </StaggerItem>
+          ))}
+        </StaggerList>
+      );
+    }
+
+    if (activeTab === 'mcp') {
+      if (!mcpServers?.length)
+        return <EmptyMarketplace message={t('marketplace.emptyMcp')} />;
+      if (view === 'table')
+        return (
+          <McpTable
+            servers={mcpServers}
+            isAdmin={isAdmin}
+            onDelete={handleMcpDelete}
+          />
+        );
+      return (
+        <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {mcpServers.map(server => (
+            <StaggerItem key={server.id}>
+              <McpMarketplaceCard
+                server={server}
+                isAdmin={isAdmin}
+                onDelete={handleMcpDelete}
+              />
+            </StaggerItem>
+          ))}
+        </StaggerList>
+      );
+    }
+
+    // prompts tab
+    if (!prompts?.length)
+      return <EmptyMarketplace message={t('marketplace.emptyPrompts')} />;
+    if (view === 'table')
+      return (
+        <PromptTable
+          prompts={prompts}
+          isAdmin={isAdmin}
+          onDelete={handlePromptDelete}
+          onPreview={setPreviewPrompt}
+        />
+      );
+    return (
+      <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {prompts.map(prompt => (
+          <StaggerItem key={prompt.id}>
+            <PromptMarketplaceCard
+              prompt={prompt}
+              isAdmin={isAdmin}
+              onDelete={handlePromptDelete}
+              onPreview={setPreviewPrompt}
+            />
+          </StaggerItem>
+        ))}
+      </StaggerList>
+    );
+  }
+
   if (error) {
     return (
       <div className="flex h-full flex-col">
@@ -196,81 +343,16 @@ export default function MarketplacePage() {
         }
       />
 
-      {/* Tab bar — no ViewToggle (marketplace only supports grid for now) */}
-      <div className="flex h-10 shrink-0 items-center border-b border-border px-5">
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
         <FilterTabs
           tabs={filterTabs}
           value={activeTab}
           onChange={setActiveTab}
         />
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
-      <div className="flex-1 overflow-auto p-5">
-        {isLoading ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-surface-secondary h-32 animate-pulse rounded-lg"
-              />
-            ))}
-          </div>
-        ) : activeTab === 'skills' ? (
-          !skills?.length ? (
-            <EmptyMarketplace message={t('marketplace.emptySkills')} />
-          ) : (
-            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {skills.map(skill => (
-                <StaggerItem key={skill.id}>
-                  <SkillMarketplaceCard
-                    skill={skill}
-                    isAdmin={isAdmin}
-                    onDelete={s =>
-                      setDeleteTarget({ id: s.id, name: s.name, tab: 'skills' })
-                    }
-                    onPreview={setPreviewSkill}
-                  />
-                </StaggerItem>
-              ))}
-            </StaggerList>
-          )
-        ) : activeTab === 'mcp' ? (
-          !mcpServers?.length ? (
-            <EmptyMarketplace message={t('marketplace.emptyMcp')} />
-          ) : (
-            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {mcpServers.map(server => (
-                <StaggerItem key={server.id}>
-                  <McpMarketplaceCard
-                    server={server}
-                    isAdmin={isAdmin}
-                    onDelete={s =>
-                      setDeleteTarget({ id: s.id, name: s.name, tab: 'mcp' })
-                    }
-                  />
-                </StaggerItem>
-              ))}
-            </StaggerList>
-          )
-        ) : !prompts?.length ? (
-          <EmptyMarketplace message={t('marketplace.emptyPrompts')} />
-        ) : (
-          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {prompts.map(prompt => (
-              <StaggerItem key={prompt.id}>
-                <PromptMarketplaceCard
-                  prompt={prompt}
-                  isAdmin={isAdmin}
-                  onDelete={p =>
-                    setDeleteTarget({ id: p.id, name: p.name, tab: 'prompts' })
-                  }
-                  onPreview={setPreviewPrompt}
-                />
-              </StaggerItem>
-            ))}
-          </StaggerList>
-        )}
-      </div>
+      <div className="flex-1 overflow-auto p-5">{renderTabContent()}</div>
 
       {/* Delete confirmation */}
       <AlertDialog
