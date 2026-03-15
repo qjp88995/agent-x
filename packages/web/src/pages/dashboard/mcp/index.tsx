@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
 import {
   AlertDialog,
@@ -10,11 +11,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  Button,
   Card,
   CardContent,
   CardHeader,
-  type FilterTab,
-  FilterTabs,
   PageHeader,
   Skeleton,
   StaggerItem,
@@ -22,21 +22,14 @@ import {
   ViewToggle,
 } from '@agent-x/design';
 import type { McpServerResponse } from '@agent-x/shared';
-import { McpType } from '@agent-x/shared';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { MarketplaceCard } from '@/components/mcp/marketplace-card';
 import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
 import { McpServerCard } from '@/components/mcp/mcp-server-card';
 import { useIsAdmin } from '@/hooks/use-auth';
-import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
-import {
-  useDeleteMarketplaceMcpServer,
-  useDeleteMcpServer,
-  useMcpMarket,
-  useMcpServers,
-} from '@/hooks/use-mcp';
+import { useFilteredSearch } from '@/hooks/use-filtered-search';
+import { useDeleteMcpServer, useMcpServers } from '@/hooks/use-mcp';
 import { useViewMode } from '@/hooks/use-view-mode';
 
 import { McpTable } from './mcp-table';
@@ -61,101 +54,35 @@ export default function McpPage() {
   const isAdmin = useIsAdmin();
   const [view, setView] = useViewMode('mcp');
 
-  const {
-    data: marketServers,
-    isLoading: isLoadingMarket,
-    error: marketError,
-  } = useMcpMarket();
-  const {
-    data: customServers,
-    isLoading: isLoadingCustom,
-    error: customError,
-  } = useMcpServers();
+  const { data: customServers, isLoading, error } = useMcpServers();
 
   const deleteMcpServer = useDeleteMcpServer();
-  const deleteMarketplaceMcpServer = useDeleteMarketplaceMcpServer();
   const [deleteTarget, setDeleteTarget] = useState<McpServerResponse | null>(
     null
   );
-  const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
-    'custom'
-  );
 
-  const isLoading = isLoadingMarket || isLoadingCustom;
-  const error = marketError ?? customError;
-  const isDeleting =
-    deleteMcpServer.isPending || deleteMarketplaceMcpServer.isPending;
+  const isDeleting = deleteMcpServer.isPending;
 
-  const allServers = useMemo(
-    () => [...(marketServers ?? []), ...(customServers ?? [])],
-    [marketServers, customServers]
-  );
-
-  const { filter, setFilter, filtered } = useFilteredSearch<McpServerResponse>(
-    allServers,
+  const { filtered } = useFilteredSearch<McpServerResponse>(
+    customServers ?? [],
     {
       searchKeys: ['name', 'description'],
-      filterKey: 'type',
     }
   );
 
-  const officialCount = allServers.filter(
-    s => s.type === McpType.OFFICIAL
-  ).length;
-  const customCount = allServers.filter(s => s.type === McpType.CUSTOM).length;
-
-  const filterTabs: FilterTab[] = [
-    {
-      key: FILTER_ALL,
-      label: t('mcp.all', { defaultValue: 'All' }),
-      count: allServers.length,
-    },
-    {
-      key: McpType.OFFICIAL,
-      label: t('mcp.marketplace'),
-      count: officialCount,
-    },
-    { key: McpType.CUSTOM, label: t('mcp.myServers'), count: customCount },
-  ];
-
-  function handleDeleteCustom(server: McpServerResponse) {
-    setDeleteTarget(server);
-    setDeleteMode('custom');
-  }
-
-  function handleDeleteMarketplace(server: McpServerResponse) {
-    setDeleteTarget(server);
-    setDeleteMode('marketplace');
-  }
-
   function handleDelete(server: McpServerResponse) {
-    if (server.type === McpType.OFFICIAL) {
-      handleDeleteMarketplace(server);
-    } else {
-      handleDeleteCustom(server);
-    }
+    setDeleteTarget(server);
   }
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    const mutation =
-      deleteMode === 'marketplace'
-        ? deleteMarketplaceMcpServer
-        : deleteMcpServer;
-    mutation.mutate(deleteTarget.id, {
+    deleteMcpServer.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
         toast.success(t('mcp.deleted'));
       },
     });
   }
-
-  const emptyTab =
-    filter === McpType.OFFICIAL
-      ? 'marketplace'
-      : filter === McpType.CUSTOM
-        ? 'custom'
-        : 'marketplace';
 
   if (error) {
     return (
@@ -177,10 +104,17 @@ export default function McpPage() {
         title={t('mcp.title')}
         description={t('mcp.subtitle')}
         search
+        actions={
+          <Button variant="primary" asChild>
+            <Link to="/mcp-servers/new">
+              <Plus />
+              {t('mcp.createService')}
+            </Link>
+          </Button>
+        }
       />
 
-      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
-        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
         <ViewToggle value={view} onChange={setView} />
       </div>
 
@@ -201,32 +135,51 @@ export default function McpPage() {
             </div>
           )
         ) : !filtered.length ? (
-          <McpEmptyState tab={emptyTab} isAdmin={isAdmin} />
+          <>
+            <McpEmptyState tab="custom" isAdmin={isAdmin} />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=mcp"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         ) : view === 'table' ? (
-          <McpTable
-            servers={filtered}
-            isAdmin={isAdmin}
-            onDelete={handleDelete}
-          />
+          <>
+            <McpTable
+              servers={filtered}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+            />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=mcp"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         ) : (
-          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map(server => (
-              <StaggerItem key={server.id}>
-                {server.type === McpType.OFFICIAL ? (
-                  <MarketplaceCard
-                    server={server}
-                    isAdmin={isAdmin}
-                    onDelete={handleDeleteMarketplace}
-                  />
-                ) : (
-                  <McpServerCard
-                    server={server}
-                    onDelete={handleDeleteCustom}
-                  />
-                )}
-              </StaggerItem>
-            ))}
-          </StaggerList>
+          <>
+            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtered.map(server => (
+                <StaggerItem key={server.id}>
+                  <McpServerCard server={server} onDelete={handleDelete} />
+                </StaggerItem>
+              ))}
+            </StaggerList>
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=mcp"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
         )}
       </div>
 
@@ -238,17 +191,9 @@ export default function McpPage() {
       >
         <AlertDialogContent variant="destructive">
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {deleteMode === 'marketplace'
-                ? t('mcp.deleteMarketplace')
-                : t('mcp.deleteServer')}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{t('mcp.deleteServer')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteMode === 'marketplace'
-                ? t('mcp.deleteMarketplaceConfirm', {
-                    name: deleteTarget?.name,
-                  })
-                : t('mcp.deleteConfirm', { name: deleteTarget?.name })}
+              {t('mcp.deleteConfirm', { name: deleteTarget?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
