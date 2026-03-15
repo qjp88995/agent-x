@@ -31,6 +31,7 @@ import {
   Server,
   Settings,
   Sparkles,
+  Store,
   Sun,
   Users,
   Wrench,
@@ -55,6 +56,7 @@ const NAV_ITEMS: readonly NavDef[] = [
   { labelKey: 'nav.mcpServers', href: '/mcp-servers', icon: Server },
   { labelKey: 'nav.prompts', href: '/prompts', icon: MessageSquarePlus },
   { labelKey: 'nav.skills', href: '/skills', icon: Sparkles },
+  { labelKey: 'nav.marketplace', href: '/marketplace', icon: Store },
   { labelKey: 'nav.apiKeys', href: '/api-keys', icon: Key },
   { labelKey: 'nav.users', href: '/users', icon: Users, adminOnly: true },
 ] as const;
