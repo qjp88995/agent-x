@@ -144,6 +144,57 @@ All list pages (Agents, Providers, Skills, MCP, Prompts) share:
 - `StaggerList` / `StaggerItem` (from `@agent-x/design`) wrapping card grid
 - Card hover: `hover:shadow-md hover:border-primary/20 transition-all duration-200`
 
+### Form Page Pattern
+
+All create/edit form pages (Providers, Skills, MCP Servers) share the same full-height layout:
+
+```
+┌─ PageHeader ─────────────────────────────────────┐
+│ [←]  Page Title                                  │  h-(--header-height), border-b
+└──────────────────────────────────────────────────┘
+│                                                  │
+│  Form fields (max-w-2xl, left-aligned)           │  flex-1 overflow-auto p-5
+│  ┌─ Name ──────────────────────────┐             │
+│  └─────────────────────────────────┘             │
+│  ┌─ Protocol (grid) ──────────────┐              │
+│  └─────────────────────────────────┘             │
+│  ── Separator ──────────────────────             │
+│  ┌─ Base URL ──────────────────────┐             │
+│  └─────────────────────────────────┘             │
+│  ┌─ API Key ───────────────────────┐             │
+│  └─────────────────────────────────┘             │
+│  ── Separator ──────────────────────             │
+│  [Test Connection]          [Cancel] [Save]      │
+│                                                  │
+└──────────────────────────────────────────────────┘
+```
+
+**Structure:**
+
+```tsx
+<div className="flex h-full flex-col">
+  <PageHeader leading={<BackButton />} title="Page Title" />
+  <div className="flex-1 overflow-auto p-5">
+    <form className="flex max-w-2xl flex-col gap-6">
+      {/* form fields */}
+      <Separator />
+      {/* action buttons */}
+    </form>
+  </div>
+</div>
+```
+
+**Key conventions:**
+
+- **Outer container**: `flex h-full flex-col` — matches list page full-height layout
+- **PageHeader**: from `@agent-x/design`, with `leading` prop for back button (`ArrowLeft` icon, ghost variant, `size-7`)
+- **Content area**: `flex-1 overflow-auto p-5` — scrollable, same padding as list page
+- **Form**: `flex max-w-2xl flex-col gap-6` — left-aligned (no `mx-auto`), `gap-6` between fields
+- **Action buttons**: at form bottom, separated by `<Separator />`. Left side for secondary actions (e.g. Test Connection), right side for Cancel + Submit (`flex-1` spacer between)
+- **Form components**: `Form`, `FormField`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage` from `@agent-x/design`
+
+**Exception — Agent create page**: uses two-column layout (`lg:flex-row lg:w-1/2`) for config fields + system prompt editor side-by-side.
+
 ### Login Page
 
 Centered on page, 320px width:
