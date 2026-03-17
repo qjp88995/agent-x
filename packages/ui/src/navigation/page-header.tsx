@@ -7,19 +7,21 @@ import { cn } from '../lib/utils';
 type PageHeaderProps = {
   title: string;
   description?: string;
+  leading?: React.ReactNode;
   search?: boolean;
   onSearchClick?: () => void;
   actions?: React.ReactNode;
   className?: string;
 };
 
-function PageHeader({ title, description, search, onSearchClick, actions, className }: PageHeaderProps) {
+function PageHeader({ title, description, leading, search, onSearchClick, actions, className }: PageHeaderProps) {
   return (
     <header className={cn(
       'flex items-center justify-between h-(--header-height) px-4 border-b border-border shrink-0',
       className
     )}>
       <div className="flex items-center gap-3">
+        {leading}
         <h1 className="text-[13px] font-semibold text-foreground tracking-[-0.3px]">{title}</h1>
         {description && (
           <span className="text-[10px] text-foreground-dim">{description}</span>

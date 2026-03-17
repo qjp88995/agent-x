@@ -3,17 +3,8 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 
-import { Button, Input } from '@agent-x/design';
-import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
-import { ProviderProtocol } from '@agent-x/shared';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { FormCard } from '@/components/shared/form-card';
-import { PageHeader } from '@/components/shared/page-header';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import {
+  Button,
   Form,
   FormControl,
   FormDescription,
@@ -21,7 +12,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+  Input,
+  PageHeader,
+  Separator,
+} from '@agent-x/design';
+import type { ProviderProtocol as ProviderProtocolType } from '@agent-x/shared';
+import { ProviderProtocol } from '@agent-x/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import {
   useCreateProvider,
   useProvider,
@@ -153,50 +154,32 @@ export default function CreateProviderPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
+      {/* Header */}
       <PageHeader
-        backTo="/providers"
-        backLabel={t('providers.backToProviders')}
+        leading={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => navigate('/providers')}
+            aria-label={t('providers.backToProviders')}
+          >
+            <ArrowLeft className="size-3.5" />
+          </Button>
+        }
         title={
           isEditMode ? t('providers.editProvider') : t('providers.addProvider')
         }
-        description={
-          isEditMode
-            ? t('providers.editProviderDesc')
-            : t('providers.addProviderDesc')
-        }
       />
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-6"
-        >
-          <FormCard
-            title={t('providers.providerDetails')}
-            description={t('providers.providerDetailsDesc')}
-            footer={
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/providers')}
-                  disabled={isSaving}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!form.formState.isValid || isSaving}
-                  variant="primary"
-                >
-                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-                  {isEditMode
-                    ? t('common.save')
-                    : t('providers.createProvider')}
-                </Button>
-              </>
-            }
+      {/* Form content */}
+      <div className="flex-1 overflow-auto p-5">
+        <Form {...form}>
+          <form
+            id="provider-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex max-w-2xl flex-col gap-6"
           >
             {/* Name */}
             <FormField
@@ -284,6 +267,8 @@ export default function CreateProviderPage() {
               </div>
             )}
 
+            <Separator />
+
             {/* Base URL */}
             <FormField
               control={form.control}
@@ -336,10 +321,10 @@ export default function CreateProviderPage() {
                 </FormItem>
               )}
             />
-
-            {/* Test Connection (only in edit mode) */}
-            {isEditMode && (
-              <div className="flex items-center gap-3">
+            {/* Footer */}
+            <Separator />
+            <div className="flex items-center gap-3">
+              {isEditMode && (
                 <Button
                   type="button"
                   variant="outline"
@@ -352,11 +337,30 @@ export default function CreateProviderPage() {
                   )}
                   {t('providers.testConnection')}
                 </Button>
-              </div>
-            )}
-          </FormCard>
-        </form>
-      </Form>
+              )}
+              <div className="flex-1" />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/providers')}
+                disabled={isSaving}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!form.formState.isValid || isSaving}
+                variant="primary"
+              >
+                {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                {isEditMode ? t('common.save') : t('providers.createProvider')}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }
