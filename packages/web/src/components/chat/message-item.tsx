@@ -1,14 +1,17 @@
 import { memo, useMemo } from 'react';
 
-import { MessageBubble, ThinkingBlock } from '@agent-x/design';
+import {
+  type FileChange,
+  FileChangeCard,
+  MarkdownContent,
+  MessageBubble,
+  ThinkingBlock,
+  TimeCard,
+  ToolCallBlock,
+} from '@agent-x/design';
 import type { ReasoningUIPart, UIMessage } from 'ai';
 
-import { FileChangeCard } from '@/components/workspace/file-change-card';
-import { extractFileChanges, type FileChange } from '@/lib/workspace-utils';
-
-import { MarkdownRenderer } from './markdown-renderer';
-import { TimeCard } from './time-card';
-import { ToolCallBlock } from './tool-call-block';
+import { extractFileChanges } from '@/lib/workspace-utils';
 
 function TypingIndicator() {
   return (
@@ -164,7 +167,7 @@ function AssistantContent({
         if (part.type === 'text') {
           const text = (part as { type: 'text'; text: string }).text;
           if (!text) return null;
-          return <MarkdownRenderer key={`text-${i}`} content={text} />;
+          return <MarkdownContent key={`text-${i}`} content={text} />;
         }
         if (isToolPart(part)) {
           // Render workspace tools as grouped file change cards
