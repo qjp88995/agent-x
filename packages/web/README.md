@@ -146,7 +146,7 @@ All list pages (Agents, Providers, Skills, MCP, Prompts) share:
 
 ### Form Page Pattern
 
-All create/edit form pages (Providers, Skills, MCP Servers) share the same full-height layout:
+All create/edit form pages (Providers, Agents, MCP Servers, Prompts, Skills) share the same full-height layout:
 
 ```
 ┌─ PageHeader ─────────────────────────────────────┐
@@ -193,7 +193,9 @@ All create/edit form pages (Providers, Skills, MCP Servers) share the same full-
 - **Action buttons**: at form bottom, separated by `<Separator />`. Left side for secondary actions (e.g. Test Connection), right side for Cancel + Submit (`flex-1` spacer between)
 - **Form components**: `Form`, `FormField`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage` from `@agent-x/design`
 
-**Exception — Agent create page**: uses two-column layout (`lg:flex-row lg:w-1/2`) for config fields + system prompt editor side-by-side.
+**Two-column variant** — Agent create/edit, Prompt editor, and Skills editor use the same shell but with a two-column layout (`lg:flex-row lg:w-1/2`) for config fields + editor side-by-side. No Card wrappers — section headers use plain `h3` + `p` text elements.
+
+**Agent edit page** — extends the pattern with a `<Tabs>` inside the content area and an optional `<TestChatPanel>` side panel. Uses `PageHeader` `actions` prop for status badge and action buttons (version management, archive, publish).
 
 ### Login Page
 
