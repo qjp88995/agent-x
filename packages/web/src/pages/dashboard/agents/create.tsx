@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router';
 
 import {
   Button,
+  CodeEditor,
   Form,
   FormControl,
   FormDescription,
@@ -14,7 +15,6 @@ import {
   FormMessage,
   Input,
   PageHeader,
-  PromptEditor,
   Select,
   SelectContent,
   SelectItem,
@@ -403,7 +403,7 @@ export default function CreateAgentPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-1 flex-col">
                       <FormControl>
-                        <PromptEditor
+                        <CodeEditor
                           value={field.value}
                           onChange={field.onChange}
                           placeholder={t('agents.systemPromptPlaceholder')}

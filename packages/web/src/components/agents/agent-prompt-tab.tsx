@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router';
 
 import {
   Button,
+  CodeEditor,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-  PromptEditor,
   Separator,
 } from '@agent-x/design';
 import { Loader2 } from 'lucide-react';
@@ -68,7 +68,7 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
         render={({ field }) => (
           <FormItem className="flex min-h-0 flex-1 flex-col">
             <FormControl>
-              <PromptEditor
+              <CodeEditor
                 value={field.value}
                 onChange={field.onChange}
                 placeholder={t('agents.systemPromptPlaceholder')}

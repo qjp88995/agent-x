@@ -10,6 +10,7 @@ import {
 
 import {
   Button,
+  CodeEditor,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -24,7 +25,6 @@ import {
   FormMessage,
   Input,
   PageHeader,
-  PromptEditor,
   Select,
   SelectContent,
   SelectItem,
@@ -386,7 +386,7 @@ export default function PromptEditorPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-1 flex-col">
                       <FormControl>
-                        <PromptEditor
+                        <CodeEditor
                           value={field.value}
                           onChange={field.onChange}
                           placeholder={t('prompts.contentPlaceholder')}

@@ -8,7 +8,7 @@ import { cmThemeDark, cmThemeLight } from '../lib/codemirror-themes';
 import { useIsDark } from '../lib/use-is-dark';
 import { cn } from '../lib/utils';
 
-interface PromptEditorProps {
+interface CodeEditorProps {
   readonly value?: string;
   readonly onChange?: (value: string) => void;
   readonly placeholder?: string;
@@ -16,13 +16,13 @@ interface PromptEditorProps {
   readonly className?: string;
 }
 
-function PromptEditor({
+function CodeEditor({
   value = '',
   onChange,
   placeholder,
   disabled = false,
   className,
-}: PromptEditorProps) {
+}: CodeEditorProps) {
   const isDark = useIsDark();
 
   const extensions = useMemo(
@@ -58,4 +58,4 @@ function PromptEditor({
   );
 }
 
-export { PromptEditor, type PromptEditorProps };
+export { CodeEditor, type CodeEditorProps };

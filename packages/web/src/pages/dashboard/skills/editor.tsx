@@ -10,6 +10,7 @@ import {
 
 import {
   Button,
+  CodeEditor,
   Form,
   FormControl,
   FormDescription,
@@ -19,7 +20,6 @@ import {
   FormMessage,
   Input,
   PageHeader,
-  PromptEditor,
   Separator,
   Textarea,
 } from '@agent-x/design';
@@ -294,7 +294,7 @@ export default function SkillEditorPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-1 flex-col">
                       <FormControl>
-                        <PromptEditor
+                        <CodeEditor
                           value={field.value}
                           onChange={field.onChange}
                           placeholder={t('skills.contentPlaceholder')}

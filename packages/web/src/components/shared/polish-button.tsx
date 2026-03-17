@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   Button,
+  CodeEditor,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -12,7 +13,6 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  PromptEditor,
   Textarea,
   Tooltip,
   TooltipContent,
@@ -194,7 +194,7 @@ export function PolishButton({
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-auto">
-            <PromptEditor
+            <CodeEditor
               value={polishedContent}
               disabled
               className="max-h-[50vh]"
