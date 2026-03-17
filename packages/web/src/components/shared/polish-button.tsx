@@ -12,6 +12,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  PromptEditor,
   Textarea,
   Tooltip,
   TooltipContent,
@@ -20,7 +21,6 @@ import {
 import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { PromptEditor } from '@/components/shared/prompt-editor';
 import { useFeatureStatus, usePolishPrompt } from '@/hooks/use-system-config';
 
 const PRESET_KEYS = [

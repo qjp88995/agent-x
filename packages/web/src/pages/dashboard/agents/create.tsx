@@ -14,6 +14,7 @@ import {
   FormMessage,
   Input,
   PageHeader,
+  PromptEditor,
   Select,
   SelectContent,
   SelectItem,
@@ -29,7 +30,6 @@ import { toast } from 'sonner';
 
 import { AutoFillButton } from '@/components/shared/auto-fill-button';
 import { PolishButton } from '@/components/shared/polish-button';
-import { PromptEditor } from '@/components/shared/prompt-editor';
 import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
 import { SavePromptButton } from '@/components/shared/save-prompt-button';
 import { useCreateAgent } from '@/hooks/use-agents';

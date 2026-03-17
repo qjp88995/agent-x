@@ -8,12 +8,12 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  PromptEditor,
   Separator,
 } from '@agent-x/design';
 import { Loader2 } from 'lucide-react';
 
 import { PolishButton } from '@/components/shared/polish-button';
-import { PromptEditor } from '@/components/shared/prompt-editor';
 import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
 import { SavePromptButton } from '@/components/shared/save-prompt-button';
 import type { AgentFormValues } from '@/lib/schemas';
