@@ -8,17 +8,8 @@ import {
   useSearchParams,
 } from 'react-router';
 
-import { Button, Input, Textarea } from '@agent-x/design';
-import type { McpTransport as McpTransportType } from '@agent-x/shared';
-import { McpTransport } from '@agent-x/shared';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { FormCard } from '@/components/shared/form-card';
-import { PageHeader } from '@/components/shared/page-header';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import {
+  Button,
   Form,
   FormControl,
   FormDescription,
@@ -26,7 +17,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+  Input,
+  PageHeader,
+  Separator,
+  Textarea,
+} from '@agent-x/design';
+import type { McpTransport as McpTransportType } from '@agent-x/shared';
+import { McpTransport } from '@agent-x/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplaceMcpServer,
@@ -314,14 +316,6 @@ export default function McpEditorPage() {
       ? t('mcp.editServer')
       : t('mcp.addServerTitle');
 
-  const pageDescription = isOfficialMode
-    ? isEditMode
-      ? t('mcp.editMarketplaceDesc')
-      : t('mcp.addMarketplaceDesc')
-    : isEditMode
-      ? t('mcp.editServerDesc')
-      : t('mcp.addServerDesc');
-
   if (isEditMode && isLoadingServer) {
     return <LoadingState message={t('mcp.loadingServer')} />;
   }
@@ -338,42 +332,26 @@ export default function McpEditorPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       <PageHeader
-        backTo="/mcp-servers"
-        backLabel={t('mcp.backToServers')}
+        leading={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => navigate('/mcp-servers')}
+            aria-label={t('mcp.backToServers')}
+          >
+            <ArrowLeft className="size-3.5" />
+          </Button>
+        }
         title={pageTitle}
-        description={pageDescription}
       />
-
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-6"
-        >
-          <FormCard
-            title={t('mcp.serverDetails')}
-            description={t('mcp.serverDetailsDesc')}
-            footer={
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/mcp-servers')}
-                  disabled={isSaving}
-                >
-                  {t('common.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!form.formState.isValid || isSaving}
-                  variant="primary"
-                >
-                  {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-                  {isEditMode ? t('common.save') : t('mcp.createServer')}
-                </Button>
-              </>
-            }
+      <div className="flex-1 overflow-auto p-5">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex max-w-2xl flex-col gap-6"
           >
             {/* Name */}
             <FormField
@@ -462,15 +440,41 @@ export default function McpEditorPage() {
               )}
             />
 
+            <Separator />
+
             {/* Dynamic config fields */}
             {watchedTransport === McpTransport.STDIO ? (
               <StdioConfigFields disabled={isSaving} />
             ) : (
               <HttpConfigFields disabled={isSaving} />
             )}
-          </FormCard>
-        </form>
-      </Form>
+
+            {/* Footer */}
+            <Separator />
+            <div className="flex items-center gap-3">
+              <div className="flex-1" />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/mcp-servers')}
+                disabled={isSaving}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!form.formState.isValid || isSaving}
+                variant="primary"
+              >
+                {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+                {isEditMode ? t('common.save') : t('mcp.createServer')}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }
