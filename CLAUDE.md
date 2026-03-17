@@ -74,6 +74,24 @@ Docker setup:
 - `JWT_SECRET`, `ENCRYPTION_SECRET` - Security secrets
 - `PORT` - Exposed web port (default: 80)
 
+## Agent Teams
+
+When a task involves code changes across 2 or more packages, automatically use Agent Teams to parallelize work:
+
+| Package path                           | Teammate | Agent definition             |
+| -------------------------------------- | -------- | ---------------------------- |
+| `packages/server/`, `packages/shared/` | backend  | `.claude/agents/backend.md`  |
+| `packages/ui/`                         | design   | `.claude/agents/design.md`   |
+| `packages/web/`                        | frontend | `.claude/agents/frontend.md` |
+
+- If only one package is involved, work directly without creating a team
+- Teammates communicate via SendMessage when coordination is needed (e.g., frontend needs a new component from design, backend changes shared types that affect frontend)
+- Each teammate only modifies files within its own scope
+
+## Component Extraction Rule
+
+When writing frontend page components (`packages/web/`), always evaluate whether a component could be extracted as a reusable design system component in `@agent-x/design` (`packages/ui/`). If it can, notify the **design** teammate via SendMessage to implement it there first, then consume it from `@agent-x/design`.
+
 ## Conventions
 
 - pnpm only (no npm/yarn)
