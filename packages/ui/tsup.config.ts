@@ -8,6 +8,7 @@ export default defineConfig({
   splitting: true,
   treeshake: true,
   clean: true,
+  onSuccess: 'cp src/lib.css dist/index.css',
   external: [
     'react',
     'react-dom',
