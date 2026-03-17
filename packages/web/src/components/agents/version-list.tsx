@@ -35,7 +35,7 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
         <span className="text-foreground-muted text-xs font-medium uppercase tracking-wider">
           {t('versions.versionId')}
         </span>
-        <div className="-mx-2.5 w-fit">
+        <div className="-mx-1.5 w-fit">
           <CopyableText
             text={version.id}
             truncate={8}
