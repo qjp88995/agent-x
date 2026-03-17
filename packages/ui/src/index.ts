@@ -56,6 +56,7 @@ export { Slider } from './primitives/slider';
 export { Switch } from './primitives/switch';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './primitives/tabs';
 export { Textarea } from './primitives/textarea';
+export { PromptEditor, type PromptEditorProps } from './primitives/prompt-editor';
 
 // Data
 export { CompactCardItem, CompactCardList } from './data/compact-card-list';
