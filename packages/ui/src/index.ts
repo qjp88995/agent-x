@@ -202,8 +202,12 @@ export { StaggerItem, StaggerList } from './layout/stagger-list';
 
 // Chat
 export { ChatInput, type FileAttachment } from './chat/chat-input';
+export { FileChangeCard, type FileChange, type FileChangeOperation } from './chat/file-change-card';
 export { FileChip } from './chat/file-chip';
+export { MarkdownContent } from './chat/markdown-content';
 export { CodeBlock, MessageBubble } from './chat/message-bubble';
 export { type SlashCommand, SlashCommandMenu } from './chat/slash-command-menu';
 export { ThinkingBlock } from './chat/thinking-block';
+export { TimeCard } from './chat/time-card';
+export { ToolCallBlock, type ToolState } from './chat/tool-call-block';
 export { VoiceRecorder, type VoiceRecorderState } from './chat/voice-recorder';
