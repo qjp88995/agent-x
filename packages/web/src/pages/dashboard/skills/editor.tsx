@@ -122,7 +122,7 @@ export default function SkillEditorPage() {
         }
       }
       toast.success(isEditMode ? t('skills.updated') : t('skills.created'));
-      await navigate(isSystemMode ? '/marketplace' : '/skills');
+      await navigate(isSystemMode ? '/marketplace?tab=skills' : '/skills');
     } catch {
       toast.error(
         isEditMode ? t('skills.updateFailed') : t('skills.createFailed')
@@ -148,7 +148,7 @@ export default function SkillEditorPage() {
         title={t('skills.notFound')}
         description={t('skills.notFoundDesc')}
         backLabel={t('skills.backToSkills')}
-        backTo={isSystemMode ? '/marketplace' : '/skills'}
+        backTo={isSystemMode ? '/marketplace?tab=skills' : '/skills'}
       />
     );
   }
@@ -161,7 +161,9 @@ export default function SkillEditorPage() {
             variant="ghost"
             size="icon"
             className="size-7"
-            onClick={() => navigate(isSystemMode ? '/marketplace' : '/skills')}
+            onClick={() =>
+              navigate(isSystemMode ? '/marketplace?tab=skills' : '/skills')
+            }
             aria-label={t('skills.backToSkills')}
           >
             <ArrowLeft className="size-3.5" />
@@ -315,7 +317,7 @@ export default function SkillEditorPage() {
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  navigate(isSystemMode ? '/marketplace' : '/skills')
+                  navigate(isSystemMode ? '/marketplace?tab=skills' : '/skills')
                 }
                 disabled={isSaving}
               >

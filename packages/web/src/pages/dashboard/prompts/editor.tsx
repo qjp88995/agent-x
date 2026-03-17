@@ -163,7 +163,7 @@ export default function PromptEditorPage() {
         }
       }
       toast.success(isEditMode ? t('prompts.updated') : t('prompts.created'));
-      await navigate(isSystemMode ? '/marketplace' : '/prompts');
+      await navigate(isSystemMode ? '/marketplace?tab=prompts' : '/prompts');
     } catch {
       toast.error(
         isEditMode ? t('prompts.updateFailed') : t('prompts.createFailed')
@@ -189,7 +189,7 @@ export default function PromptEditorPage() {
         title={t('prompts.notFound')}
         description={t('prompts.notFoundDesc')}
         backLabel={t('prompts.backToPrompts')}
-        backTo={isSystemMode ? '/marketplace' : '/prompts'}
+        backTo={isSystemMode ? '/marketplace?tab=prompts' : '/prompts'}
       />
     );
   }
@@ -202,7 +202,9 @@ export default function PromptEditorPage() {
             variant="ghost"
             size="icon"
             className="size-7"
-            onClick={() => navigate(isSystemMode ? '/marketplace' : '/prompts')}
+            onClick={() =>
+              navigate(isSystemMode ? '/marketplace?tab=prompts' : '/prompts')
+            }
             aria-label={t('prompts.backToPrompts')}
           >
             <ArrowLeft className="size-3.5" />
@@ -407,7 +409,9 @@ export default function PromptEditorPage() {
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  navigate(isSystemMode ? '/marketplace' : '/prompts')
+                  navigate(
+                    isSystemMode ? '/marketplace?tab=prompts' : '/prompts'
+                  )
                 }
                 disabled={isSaving}
               >
