@@ -21,6 +21,7 @@ import { AgentStatus } from '@agent-x/shared';
 import {
   Archive,
   ArchiveRestore,
+  GitBranch,
   MessageSquare,
   MoreHorizontal,
   Pencil,
@@ -111,6 +112,22 @@ export function AgentTable({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('agents.chat')}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={e => e.stopPropagation()}
+                  asChild
+                >
+                  <Link to={`/agents/${agent.id}/versions`}>
+                    <GitBranch className="size-3.5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('agents.versionManagement')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
