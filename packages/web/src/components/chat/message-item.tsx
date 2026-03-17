@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   type FileChange,
@@ -148,7 +149,50 @@ function AssistantContent({
   readonly parts: UIMessage['parts'];
   readonly streaming?: boolean;
 }) {
+  const { t } = useTranslation();
   const groupMap = useMemo(() => computeWorkspaceGroups(parts), [parts]);
+
+  const toolCallLabels = useMemo(
+    () => ({
+      preparing: t('toolCall.preparing'),
+      calling: t('toolCall.calling'),
+      completed: t('toolCall.completed'),
+      error: t('toolCall.error'),
+      input: t('toolCall.input'),
+      output: t('toolCall.output'),
+    }),
+    [t]
+  );
+
+  const timeCardLabels = useMemo(
+    () => ({
+      loading: t('toolCall.gettingTime'),
+      error: t('toolCall.error'),
+    }),
+    [t]
+  );
+
+  const fileChangeLabels = useMemo(
+    () => ({
+      writing: t('workspace.fileWriting'),
+      filesWriting: (count: number) => t('workspace.filesWriting', { count }),
+      filesChanged: (count: number) => t('workspace.filesChanged', { count }),
+      operations: {
+        created: t('workspace.fileCreated'),
+        updated: t('workspace.fileUpdated'),
+        deleted: t('workspace.fileDeleted'),
+        renamed: t('workspace.fileRenamed'),
+        read: t('workspace.fileRead'),
+        listed: t('workspace.fileListed'),
+        searched: t('workspace.fileSearched'),
+        checked: t('workspace.fileChecked'),
+        'dir-created': t('workspace.folderCreated'),
+        'dir-deleted': t('workspace.folderDeleted'),
+        'dir-renamed': t('workspace.folderRenamed'),
+      },
+    }),
+    [t]
+  );
 
   return (
     <div>
@@ -181,6 +225,7 @@ function AssistantContent({
                     key={`file-changes-${i}`}
                     changes={group.changes}
                     loading={group.loading}
+                    labels={fileChangeLabels}
                   />
                 );
               }
@@ -196,6 +241,7 @@ function AssistantContent({
                 key={part.toolCallId ?? `tool-${i}`}
                 state={part.state}
                 output={part.output as any}
+                labels={timeCardLabels}
               />
             );
           }
@@ -214,6 +260,7 @@ function AssistantContent({
               input={part.input}
               output={part.output}
               errorText={part.errorText}
+              labels={toolCallLabels}
             />
           );
         }
