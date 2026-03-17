@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router';
 
 import {
   Button,
+  ErrorState,
   Form,
   FormControl,
   FormDescription,
@@ -13,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  LoadingState,
   PageHeader,
   Separator,
 } from '@agent-x/design';
@@ -22,7 +24,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import {
   useCreateProvider,
   useProvider,
@@ -144,11 +145,11 @@ export default function CreateProviderPage() {
 
   if (isEditMode && !isLoadingProvider && !existingProvider) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('providers.notFound')}
         description={t('providers.notFoundDesc')}
-        backLabel={t('providers.backToProviders')}
-        backTo="/providers"
+        actionLabel={t('providers.backToProviders')}
+        onAction={() => navigate('/providers')}
       />
     );
   }

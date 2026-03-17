@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 
-import { Button, PageHeader } from '@agent-x/design';
+import { Button, ErrorState, LoadingState, PageHeader } from '@agent-x/design';
 import type { SharedConversationResponse } from '@agent-x/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 
 import { MessageList } from '@/components/chat/message-list';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useAgent } from '@/hooks/use-agents';
 import { useDateLocale } from '@/hooks/use-date-locale';
@@ -149,11 +148,11 @@ export default function VersionConversationsPage() {
 
   if (error || !agent) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('agents.notFound')}
         description={t('agents.notFoundDesc')}
-        backLabel={t('agents.backToAgents')}
-        backTo="/agents"
+        actionLabel={t('agents.backToAgents')}
+        onAction={() => navigate('/agents')}
       />
     );
   }

@@ -16,6 +16,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  ErrorState,
   Form,
   FormControl,
   FormDescription,
@@ -24,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  LoadingState,
   PageHeader,
   Select,
   SelectContent,
@@ -40,7 +42,6 @@ import { toast } from 'sonner';
 import { AutoFillButton } from '@/components/shared/auto-fill-button';
 import { PolishButton } from '@/components/shared/polish-button';
 import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplacePrompt,
@@ -185,11 +186,13 @@ export default function PromptEditorPage() {
 
   if (isEditMode && !isLoadingPrompt && !existingPrompt) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('prompts.notFound')}
         description={t('prompts.notFoundDesc')}
-        backLabel={t('prompts.backToPrompts')}
-        backTo={isSystemMode ? '/marketplace?tab=prompts' : '/prompts'}
+        actionLabel={t('prompts.backToPrompts')}
+        onAction={() =>
+          navigate(isSystemMode ? '/marketplace?tab=prompts' : '/prompts')
+        }
       />
     );
   }

@@ -10,6 +10,7 @@ import {
 
 import {
   Button,
+  ErrorState,
   Form,
   FormControl,
   FormDescription,
@@ -18,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  LoadingState,
   PageHeader,
   Separator,
   Textarea,
@@ -28,7 +30,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplaceMcpServer,
@@ -322,11 +323,13 @@ export default function McpEditorPage() {
 
   if (isEditMode && !isLoadingServer && !existingServer) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('mcp.notFound')}
         description={t('mcp.notFoundDesc')}
-        backLabel={t('mcp.backToServers')}
-        backTo={isOfficialMode ? '/marketplace?tab=mcp' : '/mcp-servers'}
+        actionLabel={t('mcp.backToServers')}
+        onAction={() =>
+          navigate(isOfficialMode ? '/marketplace?tab=mcp' : '/mcp-servers')
+        }
       />
     );
   }

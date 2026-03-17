@@ -8,6 +8,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
+  CopyableText,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -17,7 +18,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronRight, Link2, MessageSquare } from 'lucide-react';
 
 import { VersionShareLinks } from '@/components/agents/version-share-links';
-import { CopyableId } from '@/components/shared/copyable-id';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import { cn } from '@/lib/utils';
@@ -36,7 +36,12 @@ function VersionDetail({ version }: { version: AgentVersionResponse }) {
           {t('versions.versionId')}
         </span>
         <div className="-mx-2.5 w-fit">
-          <CopyableId id={version.id} />
+          <CopyableText
+            text={version.id}
+            truncate={8}
+            copyLabel={t('common.copy')}
+            copiedLabel={t('common.copied')}
+          />
         </div>
       </div>
 

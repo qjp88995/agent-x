@@ -11,6 +11,7 @@ import {
 import {
   Button,
   CodeEditor,
+  ErrorState,
   Form,
   FormControl,
   FormDescription,
@@ -19,6 +20,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  LoadingState,
   PageHeader,
   Separator,
   Textarea,
@@ -30,7 +32,6 @@ import { toast } from 'sonner';
 import { AutoFillButton } from '@/components/shared/auto-fill-button';
 import { PolishButton } from '@/components/shared/polish-button';
 import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplaceSkill,
@@ -144,11 +145,13 @@ export default function SkillEditorPage() {
 
   if (isEditMode && !isLoadingSkill && !existingSkill) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('skills.notFound')}
         description={t('skills.notFoundDesc')}
-        backLabel={t('skills.backToSkills')}
-        backTo={isSystemMode ? '/marketplace?tab=skills' : '/skills'}
+        actionLabel={t('skills.backToSkills')}
+        onAction={() =>
+          navigate(isSystemMode ? '/marketplace?tab=skills' : '/skills')
+        }
       />
     );
   }

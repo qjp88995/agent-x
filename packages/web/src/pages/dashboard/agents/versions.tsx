@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 
-import { Button, PageHeader } from '@agent-x/design';
+import { Button, ErrorState, LoadingState, PageHeader } from '@agent-x/design';
 import { ArrowLeft } from 'lucide-react';
 
 import { VersionList } from '@/components/agents/version-list';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useAgent } from '@/hooks/use-agents';
 
 export default function AgentVersionsPage() {
@@ -24,11 +23,11 @@ export default function AgentVersionsPage() {
 
   if (error || !agent) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('agents.notFound')}
         description={t('agents.notFoundDesc')}
-        backLabel={t('agents.backToAgents')}
-        backTo="/agents"
+        actionLabel={t('agents.backToAgents')}
+        onAction={() => navigate('/agents')}
       />
     );
   }

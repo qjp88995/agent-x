@@ -30,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  EmptyState,
   type FilterTab,
   FilterTabs,
   Input,
@@ -58,7 +59,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { EmptyState } from '@/components/shared/empty-state';
 import { CreateUserDialog } from '@/components/users/create-user-dialog';
 import { useDateLocale } from '@/hooks/use-date-locale';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';

@@ -6,7 +6,9 @@ import { Navigate, useNavigate, useParams } from 'react-router';
 import {
   Badge,
   Button,
+  ErrorState,
   Form,
+  LoadingState,
   PageHeader,
   Tabs,
   TabsContent,
@@ -36,7 +38,6 @@ import { AgentPromptTab } from '@/components/agents/agent-prompt-tab';
 import { ArchiveAgentDialog } from '@/components/agents/archive-agent-dialog';
 import { PublishVersionDialog } from '@/components/agents/publish-version-dialog';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { usePublishVersion } from '@/hooks/use-agent-versions';
 import {
   useAgent,
@@ -66,6 +67,7 @@ const STATUS_BADGE_CONFIG: Record<
 
 export default function EditAgentPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const {
     data: agent,
@@ -84,11 +86,11 @@ export default function EditAgentPage() {
 
   if (agentError || !agent) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('agents.notFound')}
         description={t('agents.notFoundDesc')}
-        backLabel={t('agents.backToAgents')}
-        backTo="/agents"
+        actionLabel={t('agents.backToAgents')}
+        onAction={() => navigate('/agents')}
       />
     );
   }

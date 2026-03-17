@@ -14,6 +14,7 @@ import {
   Button,
   type Column,
   DataTable,
+  EmptyState,
   Skeleton,
   Tooltip,
   TooltipContent,
@@ -30,7 +31,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { EmptyState } from '@/components/shared/empty-state';
 import {
   useDeleteSystemProvider,
   useSystemProviders,

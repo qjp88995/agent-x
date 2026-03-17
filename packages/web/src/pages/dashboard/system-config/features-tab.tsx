@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SettingsAccordion, Skeleton } from '@agent-x/design';
+import { EmptyState, SettingsAccordion, Skeleton } from '@agent-x/design';
 import { AlertTriangle, Wrench } from 'lucide-react';
 
-import { EmptyState } from '@/components/shared/empty-state';
 import {
   useSystemFeatures,
   useSystemProviders,

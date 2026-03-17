@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
-import { Unplug } from 'lucide-react';
-
-import { EmptyState } from '@/components/shared/empty-state';
+import { Button, EmptyState } from '@agent-x/design';
+import { Plus, Unplug } from 'lucide-react';
 
 export function ProviderEmptyState() {
   const { t } = useTranslation();
@@ -12,8 +12,14 @@ export function ProviderEmptyState() {
       icon={Unplug}
       title={t('providers.noProviders')}
       description={t('providers.noProvidersDesc')}
-      actionLabel={t('providers.addProvider')}
-      actionTo="/providers/new"
+      action={
+        <Button asChild variant="primary">
+          <Link to="/providers/new">
+            <Plus className="mr-2 size-4" />
+            {t('providers.addProvider')}
+          </Link>
+        </Button>
+      }
     />
   );
 }
