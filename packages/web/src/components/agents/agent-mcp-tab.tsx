@@ -4,11 +4,6 @@ import { useTranslation } from 'react-i18next';
 import {
   Badge,
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   Checkbox,
   Collapsible,
   CollapsibleContent,
@@ -84,95 +79,93 @@ export function AgentMcpTab({ agentId, currentMcpServers }: AgentMcpTabProps) {
   }
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto flex flex-col gap-6 max-w-4xl">
+    <div className="flex max-w-2xl flex-col gap-6">
       {/* Bound MCP servers */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('agentMcp.boundServers')}</CardTitle>
-          <CardDescription>{t('agentMcp.boundServersDesc')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {currentMcpServers.length === 0 ? (
-            <p className="text-foreground-muted text-sm">
-              {t('agentMcp.noBound')}
-            </p>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {currentMcpServers.map(entry => (
-                <BoundServerItem
-                  key={entry.id}
-                  entry={entry}
-                  agentId={agentId}
-                  onRemove={() => handleRemove(entry.mcpServerId)}
-                  isRemoving={
-                    removeMcp.isPending &&
-                    removeMcp.variables?.mcpServerId === entry.mcpServerId
-                  }
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div>
+        <h3 className="text-sm font-medium">{t('agentMcp.boundServers')}</h3>
+        <p className="text-foreground-muted mb-3 text-xs">
+          {t('agentMcp.boundServersDesc')}
+        </p>
+        {currentMcpServers.length === 0 ? (
+          <p className="text-foreground-muted text-sm">
+            {t('agentMcp.noBound')}
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {currentMcpServers.map(entry => (
+              <BoundServerItem
+                key={entry.id}
+                entry={entry}
+                agentId={agentId}
+                onRemove={() => handleRemove(entry.mcpServerId)}
+                isRemoving={
+                  removeMcp.isPending &&
+                  removeMcp.variables?.mcpServerId === entry.mcpServerId
+                }
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Separator />
 
       {/* Available MCP servers */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('agentMcp.availableServers')}</CardTitle>
-          <CardDescription>
-            {t('agentMcp.availableServersDesc')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {availableServers.length === 0 ? (
-            <p className="text-foreground-muted text-sm">
-              {t('agentMcp.noAvailable')}
-            </p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {availableServers.map(server => (
-                <div
-                  key={server.id}
-                  className="flex items-center justify-between rounded-md border px-4 py-3"
-                >
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{server.name}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {server.transport}
-                      </Badge>
-                      {server.tools && (
-                        <span className="text-foreground-muted text-xs">
-                          {server.tools.length} {t('agentMcp.tools')}
-                        </span>
-                      )}
-                    </div>
-                    {server.description && (
-                      <p className="text-foreground-muted text-xs">
-                        {server.description}
-                      </p>
+      <div>
+        <h3 className="text-sm font-medium">
+          {t('agentMcp.availableServers')}
+        </h3>
+        <p className="text-foreground-muted mb-3 text-xs">
+          {t('agentMcp.availableServersDesc')}
+        </p>
+        {availableServers.length === 0 ? (
+          <p className="text-foreground-muted text-sm">
+            {t('agentMcp.noAvailable')}
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {availableServers.map(server => (
+              <div
+                key={server.id}
+                className="flex items-center justify-between rounded-md border px-4 py-3"
+              >
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{server.name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {server.transport}
+                    </Badge>
+                    {server.tools && (
+                      <span className="text-foreground-muted text-xs">
+                        {server.tools.length} {t('agentMcp.tools')}
+                      </span>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleAdd(server.id)}
-                    disabled={addMcp.isPending}
-                  >
-                    {addMcp.isPending &&
-                    addMcp.variables?.mcpServerId === server.id ? (
-                      <Loader2 className="mr-1 size-3 animate-spin" />
-                    ) : (
-                      <Plus className="mr-1 size-3" />
-                    )}
-                    {t('agentMcp.add')}
-                  </Button>
+                  {server.description && (
+                    <p className="text-foreground-muted text-xs">
+                      {server.description}
+                    </p>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleAdd(server.id)}
+                  disabled={addMcp.isPending}
+                >
+                  {addMcp.isPending &&
+                  addMcp.variables?.mcpServerId === server.id ? (
+                    <Loader2 className="mr-1 size-3 animate-spin" />
+                  ) : (
+                    <Plus className="mr-1 size-3" />
+                  )}
+                  {t('agentMcp.add')}
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -313,7 +306,7 @@ function BoundServerItem({
                 {serverTools.map(tool => (
                   <label
                     key={tool.name}
-                    className="flex items-start gap-3 rounded-md px-2 py-1.5 hover:bg-surface/50 cursor-pointer"
+                    className="hover:bg-surface/50 flex cursor-pointer items-start gap-3 rounded-md px-2 py-1.5"
                   >
                     <Checkbox
                       checked={selectedTools.includes(tool.name)}

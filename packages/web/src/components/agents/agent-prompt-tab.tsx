@@ -2,19 +2,20 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
-import { Save } from 'lucide-react';
-
-import { FormFooter } from '@/components/shared/form-footer';
-import { PolishButton } from '@/components/shared/polish-button';
-import { PromptEditor } from '@/components/shared/prompt-editor';
-import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
-import { SavePromptButton } from '@/components/shared/save-prompt-button';
 import {
+  Button,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form';
+  Separator,
+} from '@agent-x/design';
+import { Loader2 } from 'lucide-react';
+
+import { PolishButton } from '@/components/shared/polish-button';
+import { PromptEditor } from '@/components/shared/prompt-editor';
+import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
+import { SavePromptButton } from '@/components/shared/save-prompt-button';
 import type { AgentFormValues } from '@/lib/schemas';
 
 type AgentPromptTabProps = {
@@ -35,11 +36,11 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
   }
 
   return (
-    <div className="flex min-h-0 max-w-4xl flex-1 flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-lg font-semibold">{t('agents.systemPrompt')}</h3>
-          <p className="text-foreground-muted text-sm">
+          <h3 className="text-sm font-medium">{t('agents.systemPrompt')}</h3>
+          <p className="text-foreground-muted text-xs">
             {t('agents.systemPromptDesc')}
           </p>
         </div>
@@ -79,14 +80,29 @@ function AgentPromptTab({ form, isBusy, isSaving }: AgentPromptTabProps) {
         )}
       />
 
-      <FormFooter
-        onCancel={() => navigate('/agents')}
-        isSaving={isSaving}
-        disabled={!form.formState.isValid}
-        submitLabel={t('common.save')}
-        cancelLabel={t('common.cancel')}
-        icon={<Save className="mr-2 size-4" />}
-      />
+      {/* Footer */}
+      <Separator />
+      <div className="flex items-center gap-3">
+        <div className="flex-1" />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/agents')}
+          disabled={isSaving}
+        >
+          {t('common.cancel')}
+        </Button>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={!form.formState.isValid || isSaving}
+          variant="primary"
+        >
+          {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
+          {t('common.save')}
+        </Button>
+      </div>
     </div>
   );
 }
