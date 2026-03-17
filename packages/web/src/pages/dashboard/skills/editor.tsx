@@ -10,25 +10,6 @@ import {
 
 import {
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Textarea,
-} from '@agent-x/design';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { AutoFillButton } from '@/components/shared/auto-fill-button';
-import { PageHeader } from '@/components/shared/page-header';
-import { PolishButton } from '@/components/shared/polish-button';
-import { PromptEditor } from '@/components/shared/prompt-editor';
-import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
-import {
   Form,
   FormControl,
   FormDescription,
@@ -36,7 +17,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+  Input,
+  PageHeader,
+  Separator,
+  Textarea,
+} from '@agent-x/design';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { AutoFillButton } from '@/components/shared/auto-fill-button';
+import { PolishButton } from '@/components/shared/polish-button';
+import { PromptEditor } from '@/components/shared/prompt-editor';
+import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
+import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplaceSkill,
@@ -128,7 +122,7 @@ export default function SkillEditorPage() {
         }
       }
       toast.success(isEditMode ? t('skills.updated') : t('skills.created'));
-      await navigate('/skills');
+      await navigate(isSystemMode ? '/marketplace' : '/skills');
     } catch {
       toast.error(
         isEditMode ? t('skills.updateFailed') : t('skills.createFailed')
@@ -144,14 +138,6 @@ export default function SkillEditorPage() {
       ? t('skills.editSkill')
       : t('skills.createSkill');
 
-  const pageDescription = isSystemMode
-    ? isEditMode
-      ? t('skills.editSystemSkillDesc')
-      : t('skills.addSystemSkillDesc')
-    : isEditMode
-      ? t('skills.editSkillDesc')
-      : t('skills.createSkillDesc');
-
   if (isEditMode && isLoadingSkill) {
     return <LoadingState message={t('skills.loadingSkill')} />;
   }
@@ -162,136 +148,133 @@ export default function SkillEditorPage() {
         title={t('skills.notFound')}
         description={t('skills.notFoundDesc')}
         backLabel={t('skills.backToSkills')}
-        backTo="/skills"
+        backTo={isSystemMode ? '/marketplace' : '/skills'}
       />
     );
   }
 
   return (
-    <div className="-m-6 flex min-h-0 flex-1 flex-col">
-      <div className="flex min-h-0 flex-1 flex-col gap-6 p-6">
-        <PageHeader
-          backTo="/skills"
-          backLabel={t('skills.backToSkills')}
-          title={pageTitle}
-          description={pageDescription}
-        />
-
+    <div className="flex h-full flex-col">
+      <PageHeader
+        leading={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => navigate(isSystemMode ? '/marketplace' : '/skills')}
+            aria-label={t('skills.backToSkills')}
+          >
+            <ArrowLeft className="size-3.5" />
+          </Button>
+        }
+        title={pageTitle}
+      />
+      <div className="flex-1 overflow-auto p-5">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex min-h-0 flex-1 flex-col gap-6"
+            className="flex flex-col gap-6"
           >
-            <div className="flex flex-col gap-6 lg:flex-row lg:min-h-0 lg:flex-1">
+            <div className="flex flex-col gap-6 lg:flex-row">
               {/* Left: Basic Info */}
-              <Card className="flex w-full flex-col lg:w-1/2">
-                <CardHeader>
-                  <CardTitle>{t('skills.skillDetails')}</CardTitle>
-                  <CardDescription>
-                    {t('skills.skillDetailsDesc')}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-1 flex-col gap-6 overflow-y-auto">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-1">
-                          {t('common.name')}
-                          <AutoFillButton
-                            content={form.watch('content')}
-                            fieldDescription="A short, descriptive skill name (max 30 characters). Use the same language as the input content."
-                            onResult={v =>
-                              form.setValue('name', v, {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              })
-                            }
-                            disabled={isSaving}
-                          />
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t('skills.namePlaceholder')}
-                            disabled={isSaving}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t('skills.nameHint')}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <div className="flex w-full flex-col gap-6 lg:w-1/2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1">
+                        {t('common.name')}
+                        <AutoFillButton
+                          content={form.watch('content')}
+                          fieldDescription="A short, descriptive skill name (max 30 characters). Use the same language as the input content."
+                          onResult={v =>
+                            form.setValue('name', v, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            })
+                          }
+                          disabled={isSaving}
+                        />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('skills.namePlaceholder')}
+                          disabled={isSaving}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('skills.nameHint')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-1">
-                          {t('common.description')}
-                          <AutoFillButton
-                            content={form.watch('content')}
-                            fieldDescription="A concise description of what this skill does (1-2 sentences). Use the same language as the input content."
-                            onResult={v =>
-                              form.setValue('description', v, {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              })
-                            }
-                            disabled={isSaving}
-                          />
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder={t('skills.descPlaceholder')}
-                            disabled={isSaving}
-                            rows={3}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t('skills.descHint')}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1">
+                        {t('common.description')}
+                        <AutoFillButton
+                          content={form.watch('content')}
+                          fieldDescription="A concise description of what this skill does (1-2 sentences). Use the same language as the input content."
+                          onResult={v =>
+                            form.setValue('description', v, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            })
+                          }
+                          disabled={isSaving}
+                        />
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t('skills.descPlaceholder')}
+                          disabled={isSaving}
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('skills.descHint')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="tags"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('skills.tags')}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t('skills.tagsPlaceholder')}
-                            disabled={isSaving}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t('skills.tagsHint')}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('skills.tags')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('skills.tagsPlaceholder')}
+                          disabled={isSaving}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('skills.tagsHint')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {/* Right: Skill Content */}
-              <Card className="flex min-h-96 w-full flex-col lg:min-h-0 lg:w-1/2">
-                <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
-                  <div className="flex flex-col gap-1.5">
-                    <CardTitle>{t('skills.content')}</CardTitle>
-                    <CardDescription>{t('skills.contentHint')}</CardDescription>
+              <div className="flex min-h-96 w-full flex-col gap-3 lg:min-h-0 lg:w-1/2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium">
+                      {t('skills.content')}
+                    </h3>
+                    <p className="text-foreground-muted text-xs">
+                      {t('skills.contentHint')}
+                    </p>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex gap-2">
                     <PolishButton
                       content={form.watch('content') ?? ''}
                       onApply={handleContentChange}
@@ -302,41 +285,45 @@ export default function SkillEditorPage() {
                       disabled={isSaving}
                     />
                   </div>
-                </CardHeader>
-                <CardContent className="flex min-h-0 flex-1 flex-col">
-                  <FormField
-                    control={form.control}
-                    name="content"
-                    render={({ field }) => (
-                      <FormItem className="flex min-h-0 flex-1 flex-col">
-                        <FormControl>
-                          <PromptEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder={t('skills.contentPlaceholder')}
-                            disabled={isSaving}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+                </div>
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-1 flex-col">
+                      <FormControl>
+                        <PromptEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder={t('skills.contentPlaceholder')}
+                          disabled={isSaving}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t pt-6">
+            <Separator />
+            <div className="flex items-center gap-3">
+              <div className="flex-1" />
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/skills')}
+                size="sm"
+                onClick={() =>
+                  navigate(isSystemMode ? '/marketplace' : '/skills')
+                }
                 disabled={isSaving}
               >
                 {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
+                size="sm"
                 disabled={!form.formState.isValid || isSaving}
                 variant="primary"
               >

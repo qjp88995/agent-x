@@ -302,7 +302,7 @@ export default function McpEditorPage() {
         }
       }
       toast.success(isEditMode ? t('mcp.updated') : t('mcp.created'));
-      await navigate('/mcp-servers');
+      await navigate(isOfficialMode ? '/marketplace' : '/mcp-servers');
     } catch {
       toast.error(isEditMode ? t('mcp.updateFailed') : t('mcp.createFailed'));
     }
@@ -326,7 +326,7 @@ export default function McpEditorPage() {
         title={t('mcp.notFound')}
         description={t('mcp.notFoundDesc')}
         backLabel={t('mcp.backToServers')}
-        backTo="/mcp-servers"
+        backTo={isOfficialMode ? '/marketplace' : '/mcp-servers'}
       />
     );
   }
@@ -339,7 +339,9 @@ export default function McpEditorPage() {
             variant="ghost"
             size="icon"
             className="size-7"
-            onClick={() => navigate('/mcp-servers')}
+            onClick={() =>
+              navigate(isOfficialMode ? '/marketplace' : '/mcp-servers')
+            }
             aria-label={t('mcp.backToServers')}
           >
             <ArrowLeft className="size-3.5" />
@@ -457,7 +459,9 @@ export default function McpEditorPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/mcp-servers')}
+                onClick={() =>
+                  navigate(isOfficialMode ? '/marketplace' : '/mcp-servers')
+                }
                 disabled={isSaving}
               >
                 {t('common.cancel')}
