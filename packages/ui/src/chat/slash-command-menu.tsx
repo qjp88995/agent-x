@@ -105,7 +105,7 @@ function SlashCommandMenu({
               heading={group || undefined}
               className={cn(
                 group &&
-                  '**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1 **:[[cmdk-group-heading]]:text-[10px] **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-foreground-dim **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-wide'
+                  '**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-foreground-dim **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:tracking-wide'
               )}
             >
               {items.map(cmd => (

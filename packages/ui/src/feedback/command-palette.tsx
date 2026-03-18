@@ -108,7 +108,7 @@ const CommandPaletteGroup = ({
     ref={ref}
     className={cn(
       '**:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5',
-      '**:[[cmdk-group-heading]]:text-[10px] **:[[cmdk-group-heading]]:font-medium',
+      '**:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium',
       '**:[[cmdk-group-heading]]:text-foreground-dim **:[[cmdk-group-heading]]:uppercase',
       '**:[[cmdk-group-heading]]:tracking-wide',
       className
@@ -184,7 +184,7 @@ type KbdProps = HTMLAttributes<HTMLElement>;
 const Kbd = ({ className, ...props }: KbdProps) => (
   <kbd
     className={cn(
-      'ml-auto text-[10px] text-foreground-ghost',
+      'ml-auto text-xs text-foreground-ghost',
       'bg-background border border-border',
       'px-1 rounded',
       'font-sans',

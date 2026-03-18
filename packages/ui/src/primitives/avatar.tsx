@@ -5,7 +5,7 @@ import { getAvatarColor } from '../tokens/colors';
 
 const sizeMap = {
   sm: 'h-5.5 w-5.5 text-[9px]',
-  md: 'h-7 w-7 text-[10px]',
+  md: 'h-7 w-7 text-xs',
   lg: 'h-8 w-8 text-[11px]',
 } as const;
 

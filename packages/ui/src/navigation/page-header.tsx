@@ -24,7 +24,7 @@ function PageHeader({ title, description, leading, search, onSearchClick, action
         {leading}
         <h1 className="text-[13px] font-semibold text-foreground tracking-[-0.3px]">{title}</h1>
         {description && (
-          <span className="text-[10px] text-foreground-dim">{description}</span>
+          <span className="text-xs text-foreground-dim">{description}</span>
         )}
       </div>
       <div className="flex items-center gap-2">

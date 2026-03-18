@@ -55,13 +55,13 @@ function CodeBlock({
   return (
     <div className="relative my-2 rounded-md overflow-hidden border border-border bg-card">
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-border">
-        <span className="text-[10px] text-foreground-ghost font-mono">
+        <span className="text-xs text-foreground-ghost font-mono">
           {language ?? 'code'}
         </span>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1 text-[10px] text-foreground-muted hover:text-foreground-secondary transition-colors"
+          className="flex items-center gap-1 text-xs text-foreground-muted hover:text-foreground-secondary transition-colors"
         >
           {copied ? (
             <>

@@ -49,7 +49,7 @@ export function TimeCard({ state, output, labels }: TimeCardProps) {
       {output?.timezone && (
         <>
           <Globe className="text-foreground-muted/60 size-3 shrink-0" />
-          <span className="text-foreground-muted text-[10px]">
+          <span className="text-foreground-muted text-xs">
             {output.timezone}
           </span>
         </>

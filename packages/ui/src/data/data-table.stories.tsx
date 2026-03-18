@@ -169,7 +169,7 @@ export const EmptyState: Story = {
             <span className="text-foreground-muted">
               No agents found
             </span>
-            <span className="text-[10px] text-foreground-ghost">
+            <span className="text-xs text-foreground-ghost">
               Create your first agent to get started
             </span>
           </span>

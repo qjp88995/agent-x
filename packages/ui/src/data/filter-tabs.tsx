@@ -32,7 +32,7 @@ function FilterTabs({ tabs, value, onChange, className }: FilterTabsProps) {
           {tab.count != null && (
             <span
               className={cn(
-                'text-[10px]',
+                'text-xs',
                 value === tab.key
                   ? 'text-foreground-muted'
                   : 'text-foreground-ghost'

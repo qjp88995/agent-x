@@ -42,7 +42,7 @@ export const Error: Story = {
         defaultValue="bad value"
         className="border-destructive focus-visible:border-destructive"
       />
-      <span className="text-[10px] text-destructive">
+      <span className="text-xs text-destructive">
         Username is already taken.
       </span>
     </div>
@@ -79,7 +79,7 @@ export const WithHint: Story = {
     <div className="flex flex-col gap-1.5 w-64">
       <Label htmlFor="hint-input">API Key</Label>
       <Input id="hint-input" placeholder="sk-..." type="password" />
-      <span className="text-[10px] text-foreground-dim">
+      <span className="text-xs text-foreground-dim">
         Your API key is stored encrypted and never shared.
       </span>
     </div>

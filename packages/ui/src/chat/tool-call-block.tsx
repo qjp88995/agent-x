@@ -127,8 +127,8 @@ export function ToolCallBlock({
           <ChevronRight aria-hidden="true" className="size-3 shrink-0" />
         )}
         <Wrench aria-hidden="true" className="size-3 shrink-0" />
-        <span className="text-[10px] uppercase tracking-wider">{toolName}</span>
-        <span className="text-foreground-muted/60 text-[10px]">
+        <span className="text-xs uppercase tracking-wider">{toolName}</span>
+        <span className="text-foreground-muted/60 text-xs">
           {statusLabel[state]}
         </span>
         <StatusIndicator state={state} />
@@ -142,7 +142,7 @@ export function ToolCallBlock({
         >
           {input != null && (
             <div>
-              <div className="text-foreground-muted/50 mb-1 text-[10px] uppercase tracking-wider">
+              <div className="text-foreground-muted/50 mb-1 text-xs uppercase tracking-wider">
                 {merged.input}
               </div>
               <JsonBlock data={input} />
@@ -150,7 +150,7 @@ export function ToolCallBlock({
           )}
           {state === 'output-available' && output != null && (
             <div>
-              <div className="text-foreground-muted/50 mb-1 text-[10px] uppercase tracking-wider">
+              <div className="text-foreground-muted/50 mb-1 text-xs uppercase tracking-wider">
                 {merged.output}
               </div>
               <JsonBlock data={output} />

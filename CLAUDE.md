@@ -94,6 +94,7 @@ When writing frontend page components (`packages/web/`), always evaluate whether
 
 ## Conventions
 
+- Minimum font size: 12px (`text-xs`). Never use `text-[10px]` or smaller — Chrome in Chinese locale enforces 12px minimum, causing inconsistent rendering across languages.
 - pnpm only (no npm/yarn)
 - Commit messages in English: conventional commits (feat/fix/refactor/docs/test/chore)
 - Tests: Jest for backend, TDD approach

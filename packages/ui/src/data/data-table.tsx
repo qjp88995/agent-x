@@ -53,7 +53,7 @@ function DataTable<T>({
               key={col.key}
               style={col.width ? { width: col.width } : undefined}
               className={cn(
-                'px-3 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-foreground-dim',
+                'px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-foreground-dim',
                 col.sortable && onSort && 'cursor-pointer select-none'
               )}
               onClick={col.sortable && onSort ? () => onSort(col.key) : undefined}

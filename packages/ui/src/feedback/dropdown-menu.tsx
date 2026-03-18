@@ -116,7 +116,7 @@ const DropdownMenuLabel = ({ className, inset, ref, ...props }: ComponentProps<t
   <Label
     ref={ref}
     className={cn(
-      'px-2 py-1.5 text-[10px] font-medium text-foreground-dim',
+      'px-2 py-1.5 text-xs font-medium text-foreground-dim',
       inset && 'pl-8',
       className
     )}

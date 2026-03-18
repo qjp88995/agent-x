@@ -117,7 +117,7 @@ export function FileChangeCard({
           <Icon className={cn('size-4 shrink-0', config.colorClass)} />
         )}
         <span className="truncate font-mono text-xs">{change.path}</span>
-        <span className="text-foreground-muted text-[10px] shrink-0">
+        <span className="text-foreground-muted text-xs shrink-0">
           {loading ? writingLabel : getOperationLabel(change.operation)}
         </span>
       </button>
@@ -161,7 +161,7 @@ export function FileChangeCard({
               >
                 <Icon className={cn('size-3.5 shrink-0', config.colorClass)} />
                 <span className="truncate font-mono">{change.path}</span>
-                <span className="text-foreground-muted text-[10px] ml-auto shrink-0">
+                <span className="text-foreground-muted text-xs ml-auto shrink-0">
                   {getOperationLabel(change.operation)}
                 </span>
               </button>

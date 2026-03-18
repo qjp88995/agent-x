@@ -21,7 +21,7 @@ function TooltipContent({
         sideOffset={sideOffset}
         className={cn(
           'z-50 overflow-hidden rounded-sm border border-border bg-card px-2 py-1',
-          'text-[10px] text-foreground-muted',
+          'text-xs text-foreground-muted',
           'animate-in fade-in-0 zoom-in-95',
           'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
           'data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1',
