@@ -258,7 +258,7 @@ export default function DashboardLayout() {
           </Button>
           <div className="flex items-center gap-2">
             <div className="flex size-6 items-center justify-center rounded-sm bg-primary">
-              <span className="text-[10px] font-bold text-primary-foreground leading-none">
+              <span className="text-xs font-bold text-primary-foreground leading-none">
                 X
               </span>
             </div>

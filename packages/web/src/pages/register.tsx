@@ -119,7 +119,7 @@ export default function RegisterPage() {
             {isSubmitting ? t('auth.creatingAccount') : t('auth.createAccount')}
           </Button>
 
-          <p className="text-foreground-ghost text-center text-[11px]">
+          <p className="text-foreground-ghost text-center text-xs">
             {t('auth.hasAccount')}{' '}
             <Link
               to="/login"

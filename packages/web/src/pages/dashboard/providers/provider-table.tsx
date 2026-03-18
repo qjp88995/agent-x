@@ -88,7 +88,7 @@ export function ProviderTable({
             <div className="text-sm font-medium text-foreground">
               {provider.name}
             </div>
-            <div className="text-[10px] text-foreground-ghost">
+            <div className="text-xs text-foreground-ghost">
               {truncateUrl(provider.baseUrl)}
             </div>
           </div>

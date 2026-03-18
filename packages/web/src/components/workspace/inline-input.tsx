@@ -88,7 +88,7 @@ export function InlineInput({
         }}
       />
       {error && (
-        <span className="absolute top-full left-0 z-10 mt-0.5 rounded bg-destructive px-1.5 py-0.5 text-[10px] text-destructive-foreground shadow-sm">
+        <span className="absolute top-full left-0 z-10 mt-0.5 rounded bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground shadow-sm">
           {error}
         </span>
       )}

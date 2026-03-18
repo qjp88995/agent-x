@@ -94,7 +94,7 @@ export default function LoginPage() {
             {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
           </Button>
 
-          <p className="text-foreground-ghost text-center text-[11px]">
+          <p className="text-foreground-ghost text-center text-xs">
             {t('auth.noAccount')}{' '}
             <Link
               to="/register"

@@ -78,7 +78,7 @@ export function PromptTable({
               {prompt.name}
             </div>
             {prompt.description && (
-              <div className="text-[10px] text-foreground-ghost line-clamp-1">
+              <div className="text-xs text-foreground-ghost line-clamp-1">
                 {prompt.description}
               </div>
             )}

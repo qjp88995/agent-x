@@ -305,7 +305,7 @@ export const TreeNodeItem = memo(function TreeNodeItem({
           ) : (
             <>
               <span className="truncate flex-1 text-left">{node.name}</span>
-              <span className="text-foreground-muted text-[10px] shrink-0">
+              <span className="text-foreground-muted text-xs shrink-0">
                 {formatFileSize(file.size)}
               </span>
             </>

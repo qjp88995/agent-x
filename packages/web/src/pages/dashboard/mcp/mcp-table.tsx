@@ -77,7 +77,7 @@ export function McpTable({
               {server.name}
             </div>
             {server.description && (
-              <div className="text-[10px] text-foreground-ghost line-clamp-1">
+              <div className="text-xs text-foreground-ghost line-clamp-1">
                 {server.description}
               </div>
             )}
