@@ -1,343 +1,45 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
   Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  ScrollArea,
-  Separator,
+  ErrorState,
+  LoadingState,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@agent-x/design';
-import type { Locale } from 'date-fns';
-import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
 import {
-  AlertTriangle,
   ArrowLeft,
   Bot,
   ChevronDown,
+  Code2,
   MessageSquare,
-  Pencil,
   Plus,
-  Trash2,
 } from 'lucide-react';
 
+import { ChatEmptyState } from '@/components/chat/chat-empty-state';
 import { ChatPanel } from '@/components/chat/chat-panel';
+import { ChatShell } from '@/components/chat/chat-shell';
 import { AppCommandPalette } from '@/components/shared/app-command-palette';
 import { useAgents } from '@/hooks/use-agents';
 import {
-  type ConversationWithAgent,
   useConversations,
   useCreateConversation,
   useDeleteConversation,
   useRenameConversation,
 } from '@/hooks/use-chat';
-import { useDateLocale } from '@/hooks/use-date-locale';
-import { cn } from '@/lib/utils';
-
-function formatDate(dateString: string, locale: Locale): string {
-  const date = new Date(dateString);
-
-  if (isToday(date)) {
-    return format(date, 'HH:mm', { locale });
-  }
-  if (isYesterday(date)) {
-    return formatDistanceToNow(date, { addSuffix: true, locale });
-  }
-  return format(date, 'MMM d', { locale });
-}
-
-function ConversationItem({
-  conversation,
-  isActive,
-  onSelect,
-  onDelete,
-  onRename,
-}: {
-  readonly conversation: ConversationWithAgent;
-  readonly isActive: boolean;
-  readonly onSelect: () => void;
-  readonly onDelete: () => void;
-  readonly onRename: (title: string) => void;
-}) {
-  const { t } = useTranslation();
-  const dateLocale = useDateLocale();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleStartEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditTitle(conversation.title ?? '');
-    setIsEditing(true);
-    setTimeout(() => inputRef.current?.focus(), 0);
-  };
-
-  const handleConfirm = () => {
-    const trimmed = editTitle.trim();
-    if (trimmed && trimmed !== conversation.title) {
-      onRename(trimmed);
-    }
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleConfirm();
-    } else if (e.key === 'Escape') {
-      setIsEditing(false);
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
-        isActive
-          ? 'bg-card text-foreground-secondary'
-          : 'hover:bg-card/50 text-foreground/80'
-      )}
-    >
-      <MessageSquare className="size-4 shrink-0 opacity-60" />
-      <div className="min-w-0 flex-1">
-        {isEditing ? (
-          <input
-            ref={inputRef}
-            value={editTitle}
-            onChange={e => setEditTitle(e.target.value)}
-            onBlur={handleConfirm}
-            onKeyDown={handleKeyDown}
-            onClick={e => e.stopPropagation()}
-            className="bg-background w-full rounded border px-1.5 py-0.5 text-sm font-medium outline-none focus:ring-1 focus:ring-ring"
-          />
-        ) : (
-          <p className="truncate text-sm font-medium">
-            {conversation.title ?? t('chat.newChat')}
-          </p>
-        )}
-        <p className="text-foreground-muted mt-0.5 truncate text-xs">
-          {conversation.agent.name} &middot;{' '}
-          {formatDate(conversation.updatedAt, dateLocale)}
-        </p>
-      </div>
-      {!isEditing && (
-        <div className="hidden shrink-0 items-center gap-0.5 group-hover:flex">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-5"
-            onClick={handleStartEdit}
-            aria-label={t('chat.renameConversation')}
-          >
-            <Pencil className="size-3.5" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-5 hover:text-destructive"
-                onClick={e => e.stopPropagation()}
-                aria-label={t('chat.deleteConversation')}
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent variant="destructive">
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {t('chat.confirmDeleteConversation')}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t('chat.confirmDeleteConversationDesc')}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-                <AlertDialogAction onClick={onDelete}>
-                  {t('common.delete')}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      )}
-    </button>
-  );
-}
-
-function Sidebar({
-  conversations,
-  activeConversationId,
-  selectedAgentId,
-  agents,
-  onSelectConversation,
-  onDeleteConversation,
-  onRenameConversation,
-  onNewChat,
-  onSelectAgent,
-}: {
-  readonly conversations: ConversationWithAgent[];
-  readonly activeConversationId: string | null;
-  readonly selectedAgentId: string | null;
-  readonly agents: Array<{
-    readonly id: string;
-    readonly name: string;
-    readonly status: string;
-  }>;
-  readonly onSelectConversation: (id: string) => void;
-  readonly onDeleteConversation: (id: string) => void;
-  readonly onRenameConversation: (id: string, title: string) => void;
-  readonly onNewChat: () => void;
-  readonly onSelectAgent: (id: string) => void;
-}) {
-  const { t } = useTranslation();
-  const publishedAgents = agents.filter(a => a.status === 'ACTIVE');
-  const selectedAgent = publishedAgents.find(a => a.id === selectedAgentId);
-  const filteredConversations = selectedAgentId
-    ? conversations.filter(c => c.agentId === selectedAgentId)
-    : conversations;
-
-  return (
-    <div className="flex h-full w-full flex-col border-r bg-background md:w-(--chat-sidebar)">
-      {/* Back to dashboard + title */}
-      <div className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8" asChild>
-              <Link to="/agents">
-                <ArrowLeft className="size-4" />
-              </Link>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('chat.backToDashboard')}</TooltipContent>
-        </Tooltip>
-        <span className="text-primary text-lg font-bold tracking-tight">
-          {t('chat.title')}
-        </span>
-      </div>
-
-      {/* Agent selector */}
-      <div className="px-3 pt-3 pb-1">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-between"
-              size="sm"
-            >
-              <span className="flex items-center gap-2 truncate">
-                <Bot className="size-4 shrink-0" />
-                <span className="truncate">
-                  {selectedAgent?.name ?? t('chat.allAgents')}
-                </span>
-              </span>
-              <ChevronDown className="size-3.5 shrink-0 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64" align="start">
-            <DropdownMenuItem onClick={() => onSelectAgent('')}>
-              {t('chat.allAgents')}
-            </DropdownMenuItem>
-            {publishedAgents.map(agent => (
-              <DropdownMenuItem
-                key={agent.id}
-                onClick={() => onSelectAgent(agent.id)}
-                className="cursor-pointer"
-              >
-                {agent.name}
-              </DropdownMenuItem>
-            ))}
-            {publishedAgents.length === 0 && (
-              <div className="text-foreground-muted px-2 py-1.5 text-sm">
-                {t('chat.noAgentsAvailable')}
-              </div>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* New chat button */}
-      <div className="px-3 pb-2">
-        <Button
-          variant="primary"
-          className="w-full"
-          size="sm"
-          onClick={onNewChat}
-          disabled={!selectedAgentId}
-        >
-          <Plus className="mr-2 size-4" />
-          {t('chat.newChat')}
-        </Button>
-      </div>
-
-      <Separator />
-
-      {/* Conversation list */}
-      <ScrollArea className="min-h-0 flex-1">
-        <div className="flex flex-col gap-1 p-2">
-          {filteredConversations.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-8">
-              <MessageSquare className="text-foreground-muted mb-2 size-8 opacity-40" />
-              <p className="text-foreground-muted text-xs">
-                {selectedAgentId
-                  ? t('chat.noConversationsYet')
-                  : t('chat.selectAgentToStart')}
-              </p>
-            </div>
-          )}
-          {filteredConversations.map(conv => (
-            <ConversationItem
-              key={conv.id}
-              conversation={conv}
-              isActive={conv.id === activeConversationId}
-              onSelect={() => onSelectConversation(conv.id)}
-              onDelete={() => onDeleteConversation(conv.id)}
-              onRename={title => onRenameConversation(conv.id, title)}
-            />
-          ))}
-        </div>
-      </ScrollArea>
-    </div>
-  );
-}
-
-function NoChatSelected() {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center">
-      <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full">
-        <MessageSquare className="size-8 text-white" />
-      </div>
-      <h3 className="mb-1 text-lg font-semibold">
-        {t('chat.selectConversation')}
-      </h3>
-      <p className="text-foreground-muted text-sm">
-        {t('chat.chooseConversation')}
-      </p>
-    </div>
-  );
-}
+import { useWorkspaceFiles } from '@/hooks/use-workspace';
+import type { ChatConversation } from '@/lib/chat-types';
 
 export default function ChatPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const agentParam = searchParams.get('agent');
   const conversationParam = searchParams.get('conversation');
@@ -348,9 +50,6 @@ export default function ChatPage() {
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(conversationParam);
-  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>(
-    conversationParam ? 'chat' : 'sidebar'
-  );
 
   const {
     data: conversations,
@@ -361,6 +60,38 @@ export default function ChatPage() {
   const createConversation = useCreateConversation();
   const renameConversation = useRenameConversation();
   const deleteConversation = useDeleteConversation();
+
+  const publishedAgents = useMemo(
+    () => (agents ?? []).filter(a => a.status === 'ACTIVE'),
+    [agents]
+  );
+  const selectedAgent = publishedAgents.find(a => a.id === selectedAgentId);
+
+  // Map to ChatConversation[], filtered by selected agent
+  const mappedConversations: ChatConversation[] = useMemo(
+    () =>
+      (conversations ?? [])
+        .filter(c => !selectedAgentId || c.agentId === selectedAgentId)
+        .map(c => ({
+          id: c.id,
+          title: c.title,
+          updatedAt: c.updatedAt,
+          agentName: c.agent.name,
+        })),
+    [conversations, selectedAgentId]
+  );
+
+  // Active conversation metadata
+  const activeConversation = conversations?.find(
+    c => c.id === activeConversationId
+  );
+  const agentName = activeConversation?.agent.name ?? 'Assistant';
+
+  // Workspace files for chat header workspace button
+  const { data: workspaceFiles } = useWorkspaceFiles(
+    activeConversationId ?? undefined
+  );
+  const hasFiles = workspaceFiles && workspaceFiles.length > 0;
 
   // Sync URL params
   useEffect(() => {
@@ -377,7 +108,6 @@ export default function ChatPage() {
 
   const handleSelectConversation = useCallback((id: string) => {
     setActiveConversationId(id);
-    setMobileView('chat');
   }, []);
 
   const handleRenameConversation = useCallback(
@@ -402,88 +132,146 @@ export default function ChatPage() {
 
   const handleNewChat = useCallback(() => {
     if (!selectedAgentId) return;
-
     createConversation.mutate(
       { agentId: selectedAgentId },
       {
         onSuccess: data => {
           setActiveConversationId(data.id);
-          setMobileView('chat');
         },
       }
     );
   }, [selectedAgentId, createConversation]);
 
-  // Find the active conversation's agent name
-  const activeConversation = conversations?.find(
-    c => c.id === activeConversationId
-  );
-  const agentName = activeConversation?.agent.name ?? 'Assistant';
-
   if (conversationsError) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <AlertTriangle className="text-destructive size-10" />
-          <p className="text-foreground-muted">
-            {t('chat.failedToLoadConversations')}
-          </p>
-          <Button variant="outline" asChild>
-            <Link to="/agents">{t('chat.backToDashboard')}</Link>
-          </Button>
-        </div>
-      </div>
+      <ErrorState
+        title={t('chat.failedToLoadConversations')}
+        description={t('chat.failedToLoadConversations')}
+        actionLabel={t('chat.backToDashboard')}
+        onAction={() => void navigate('/agents')}
+        className="h-screen"
+      />
     );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <>
       <AppCommandPalette />
-      {/* Sidebar：手机端根据 mobileView 显示/隐藏 */}
-      <div
-        className={cn(
-          'md:flex',
-          mobileView === 'sidebar' ? 'flex w-full' : 'hidden'
-        )}
-      >
-        <Sidebar
-          conversations={conversations ?? []}
-          activeConversationId={activeConversationId}
-          selectedAgentId={selectedAgentId}
-          agents={agents ?? []}
-          onSelectConversation={handleSelectConversation}
-          onDeleteConversation={handleDeleteConversation}
-          onRenameConversation={handleRenameConversation}
-          onNewChat={handleNewChat}
-          onSelectAgent={handleSelectAgent}
-        />
-      </div>
-
-      {/* Main chat area：手机端根据 mobileView 显示/隐藏 */}
-      <div
-        className={cn(
-          'flex-1 flex-col overflow-hidden',
-          mobileView === 'chat' ? 'flex' : 'hidden md:flex'
-        )}
+      <ChatShell
+        sidebarHeader={
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="size-8" asChild>
+                  <Link to="/agents">
+                    <ArrowLeft className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('chat.backToDashboard')}</TooltipContent>
+            </Tooltip>
+            <span className="text-primary text-sm font-semibold">
+              {t('chat.title')}
+            </span>
+          </>
+        }
+        sidebarActions={
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between"
+                  size="sm"
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <Bot className="size-4 shrink-0" />
+                    <span className="truncate">
+                      {selectedAgent?.name ?? t('chat.allAgents')}
+                    </span>
+                  </span>
+                  <ChevronDown className="size-3.5 shrink-0 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64" align="start">
+                <DropdownMenuItem onClick={() => handleSelectAgent('')}>
+                  {t('chat.allAgents')}
+                </DropdownMenuItem>
+                {publishedAgents.map(agent => (
+                  <DropdownMenuItem
+                    key={agent.id}
+                    onClick={() => handleSelectAgent(agent.id)}
+                    className="cursor-pointer"
+                  >
+                    {agent.name}
+                  </DropdownMenuItem>
+                ))}
+                {publishedAgents.length === 0 && (
+                  <div className="text-foreground-muted px-2 py-1.5 text-sm">
+                    {t('chat.noAgentsAvailable')}
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="primary"
+              className="w-full"
+              size="sm"
+              onClick={handleNewChat}
+              disabled={!selectedAgentId}
+            >
+              <Plus className="mr-2 size-4" />
+              {t('chat.newChat')}
+            </Button>
+          </>
+        }
+        conversations={mappedConversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={handleSelectConversation}
+        onDeleteConversation={handleDeleteConversation}
+        onRenameConversation={handleRenameConversation}
+        chatHeader={
+          activeConversationId ? (
+            <>
+              <MessageSquare className="text-primary size-5" />
+              <h2 className="truncate text-sm font-semibold">
+                {activeConversation?.title ?? agentName}
+              </h2>
+              {hasFiles && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="ml-auto size-8"
+                      asChild
+                    >
+                      <Link to={`/chat/${activeConversationId}/workspace`}>
+                        <Code2 className="size-4" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t('workspace.openIde')}</TooltipContent>
+                </Tooltip>
+              )}
+            </>
+          ) : undefined
+        }
       >
         {conversationsLoading ? (
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-foreground-muted text-sm">
-              {t('common.loading')}
-            </p>
-          </div>
+          <LoadingState message={t('common.loading')} className="flex-1" />
         ) : activeConversationId ? (
           <ChatPanel
             key={activeConversationId}
             conversationId={activeConversationId}
             agentName={agentName}
             title={activeConversation?.title ?? undefined}
-            onBack={() => setMobileView('sidebar')}
+            hideHeader
           />
         ) : (
-          <NoChatSelected />
+          <ChatEmptyState />
         )}
-      </div>
-    </div>
+      </ChatShell>
+    </>
   );
 }

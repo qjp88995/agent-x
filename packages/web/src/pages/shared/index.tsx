@@ -1,38 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams, useSearchParams } from 'react-router';
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
   Button,
-  ScrollArea,
-  Separator,
+  LoadingState,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@agent-x/design';
 import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  Bot,
-  ChevronLeft,
-  Code2,
-  MessageSquare,
-  Pencil,
-  Plus,
-  Trash2,
-} from 'lucide-react';
+import { Bot, Code2, MessageSquare, Plus } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
+import { ChatShell } from '@/components/chat/chat-shell';
 import { MessageList } from '@/components/chat/message-list';
+import { SharedWelcome } from '@/components/chat/shared-welcome';
 import {
   sharedConversationsKey,
   useCreateSharedConversation,
@@ -44,125 +28,11 @@ import {
   useSharedWorkspaceFiles,
 } from '@/hooks/use-shared-chat';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
+import type { ChatConversation } from '@/lib/chat-types';
 import { toUIMessages } from '@/lib/message-utils';
 import { SharedChatTransport } from '@/lib/shared-chat-transport';
-import { cn } from '@/lib/utils';
 
 import SharedExpiredPage from './expired';
-
-function SharedConversationItem({
-  title,
-  isActive,
-  onSelect,
-  onRename,
-  onDelete,
-}: {
-  readonly title: string;
-  readonly isActive: boolean;
-  readonly onSelect: () => void;
-  readonly onRename: (title: string) => void;
-  readonly onDelete: () => void;
-}) {
-  const { t } = useTranslation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleStartEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditTitle(title);
-    setIsEditing(true);
-    setTimeout(() => inputRef.current?.focus(), 0);
-  };
-
-  const handleConfirm = () => {
-    const trimmed = editTitle.trim();
-    if (trimmed && trimmed !== title) {
-      onRename(trimmed);
-    }
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleConfirm();
-    } else if (e.key === 'Escape') {
-      setIsEditing(false);
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
-        isActive
-          ? 'bg-card text-foreground-secondary'
-          : 'hover:bg-card/50 text-foreground/80'
-      )}
-    >
-      <MessageSquare className="size-4 shrink-0 opacity-60" />
-      <div className="min-w-0 flex-1">
-        {isEditing ? (
-          <input
-            ref={inputRef}
-            value={editTitle}
-            onChange={e => setEditTitle(e.target.value)}
-            onBlur={handleConfirm}
-            onKeyDown={handleKeyDown}
-            onClick={e => e.stopPropagation()}
-            className="bg-background w-full rounded border px-1.5 py-0.5 text-sm font-medium outline-none focus:ring-1 focus:ring-ring"
-          />
-        ) : (
-          <p className="truncate text-sm font-medium">{title}</p>
-        )}
-      </div>
-      {!isEditing && (
-        <div className="hidden shrink-0 items-center gap-0.5 group-hover:flex">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-5"
-            onClick={handleStartEdit}
-            aria-label={t('chat.renameConversation')}
-          >
-            <Pencil className="size-3.5" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-5 hover:text-destructive"
-                onClick={e => e.stopPropagation()}
-                aria-label={t('chat.deleteConversation')}
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent variant="destructive">
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {t('chat.confirmDeleteConversation')}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t('chat.confirmDeleteConversationDesc')}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-                <AlertDialogAction onClick={onDelete}>
-                  {t('common.delete')}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      )}
-    </button>
-  );
-}
 
 function SharedChatContent({
   token,
@@ -184,9 +54,6 @@ function SharedChatContent({
 
   const [searchParams, setSearchParams] = useSearchParams();
   const conversationId = searchParams.get('c');
-  const [mobileView, setMobileView] = useState<'sidebar' | 'chat'>(
-    conversationId ? 'chat' : 'sidebar'
-  );
 
   const setConversationId = useCallback(
     (id: string | null) => {
@@ -303,12 +170,10 @@ function SharedChatContent({
     setConversationId(null);
     setMessages([]);
     historyLoadedRef.current = null;
-    setMobileView('chat');
   }, [setConversationId, setMessages]);
 
   const handleSelectConversation = useCallback(
     (id: string) => {
-      setMobileView('chat');
       if (id === conversationId) return;
       transportRef.current?.destroy();
       setConversationId(id);
@@ -343,104 +208,65 @@ function SharedChatContent({
     [deleteConversation, token, conversationId, setConversationId, setMessages]
   );
 
+  const mappedConversations: ChatConversation[] = useMemo(
+    () =>
+      (conversations ?? []).map(c => ({
+        id: c.id,
+        title: c.title,
+        updatedAt: c.updatedAt,
+      })),
+    [conversations]
+  );
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <div
-        className={cn(
-          'md:flex',
-          mobileView === 'sidebar' ? 'flex w-full' : 'hidden'
-        )}
-      >
-        <div className="flex h-full w-full flex-col border-r bg-background md:w-72">
-          {/* Agent info header */}
-          <div className="flex h-12 shrink-0 items-center gap-2.5 border-b px-4">
-            <div className="bg-primary flex size-8 shrink-0 items-center justify-center rounded-full">
-              {agentInfo.agentAvatar &&
-              /^https?:\/\//.test(agentInfo.agentAvatar) ? (
-                <img
-                  src={agentInfo.agentAvatar}
-                  alt={agentInfo.agentName}
-                  className="size-8 rounded-full object-cover"
-                />
-              ) : (
-                <Bot className="size-4 text-white" />
-              )}
-            </div>
-            <span className="truncate text-sm font-semibold">
-              {agentInfo.agentName}
-            </span>
+    <ChatShell
+      sidebarHeader={
+        <>
+          <div className="bg-primary flex size-8 shrink-0 items-center justify-center rounded-full">
+            {agentInfo.agentAvatar &&
+            /^https?:\/\//.test(agentInfo.agentAvatar) ? (
+              <img
+                src={agentInfo.agentAvatar}
+                alt={agentInfo.agentName}
+                className="size-8 rounded-full object-cover"
+              />
+            ) : (
+              <Bot className="size-4 text-white" />
+            )}
           </div>
-
-          {/* New chat button */}
-          <div className="px-3 py-2">
-            <Button
-              variant="primary"
-              className="w-full"
-              size="sm"
-              onClick={handleNewChat}
-            >
-              <Plus className="mr-2 size-4" />
-              {t('chat.newChat')}
-            </Button>
-          </div>
-
-          <Separator />
-
-          {/* Conversation list */}
-          <ScrollArea className="min-h-0 flex-1">
-            <div className="flex flex-col gap-1 p-2">
-              {(!conversations || conversations.length === 0) && (
-                <div className="flex flex-col items-center justify-center py-8">
-                  <MessageSquare className="text-foreground-muted mb-2 size-8 opacity-40" />
-                  <p className="text-foreground-muted text-xs">
-                    {t('chat.noConversationsYet')}
-                  </p>
-                </div>
-              )}
-              {conversations?.map(conv => (
-                <SharedConversationItem
-                  key={conv.id}
-                  title={conv.title ?? t('chat.newChat')}
-                  isActive={conv.id === conversationId}
-                  onSelect={() => handleSelectConversation(conv.id)}
-                  onRename={title => handleRenameConversation(conv.id, title)}
-                  onDelete={() => handleDeleteConversation(conv.id)}
-                />
-              ))}
-            </div>
-          </ScrollArea>
-
-          {/* Footer */}
-          <div className="py-2 text-center text-xs">
-            <span className="text-foreground-muted">
-              {t('common.poweredBy')}{' '}
-            </span>
-            <span className="text-primary font-semibold">Agent-X</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main chat area */}
-      <div
-        className={cn(
-          'flex-1 flex-col overflow-hidden',
-          mobileView === 'chat' ? 'flex' : 'hidden md:flex'
-        )}
-      >
-        {/* Header */}
-        <div className="flex h-12 shrink-0 items-center gap-3 border-b px-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-1 size-8 md:hidden"
-            onClick={() => setMobileView('sidebar')}
-            aria-label="返回"
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
+          <span className="truncate text-sm font-semibold">
+            {agentInfo.agentName}
+          </span>
+        </>
+      }
+      sidebarActions={
+        <Button
+          variant="primary"
+          className="w-full"
+          size="sm"
+          onClick={handleNewChat}
+        >
+          <Plus className="mr-2 size-4" />
+          {t('chat.newChat')}
+        </Button>
+      }
+      sidebarFooter={
+        <>
+          <span className="text-foreground-muted">
+            {t('common.poweredBy')}{' '}
+          </span>
+          <span className="text-primary font-semibold">Agent-X</span>
+        </>
+      }
+      conversations={mappedConversations}
+      activeConversationId={conversationId}
+      onSelectConversation={handleSelectConversation}
+      onDeleteConversation={handleDeleteConversation}
+      onRenameConversation={handleRenameConversation}
+      chatHeader={
+        <>
           <MessageSquare className="text-primary size-5" />
-          <h2 className="truncate font-semibold">
+          <h2 className="truncate text-sm font-semibold">
             {conversationId
               ? (conversations?.find(c => c.id === conversationId)?.title ??
                 t('chat.newChat'))
@@ -463,45 +289,35 @@ function SharedChatContent({
               <TooltipContent>{t('workspace.openIde')}</TooltipContent>
             </Tooltip>
           )}
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto">
-          {messages.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center px-4">
-              <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full">
-                <Bot className="size-8 text-white" />
-              </div>
-              <h3 className="mb-1 text-lg font-semibold">
-                {agentInfo.agentName}
-              </h3>
-              <p className="text-foreground-muted text-sm">
-                {t('chat.startConversation')}
-              </p>
-            </div>
-          ) : (
-            <MessageList
-              ref={messagesEndRef}
-              messages={messages}
-              className="mx-auto max-w-160"
-              isStreaming={isStreaming}
-              showTyping={
-                isStreaming &&
-                messages.length > 0 &&
-                messages[messages.length - 1].role === 'user'
-              }
-            />
-          )}
-        </div>
-
-        {/* Input */}
-        <ChatInput
-          onSend={handleSend}
-          onStop={handleStop}
-          isLoading={isStreaming}
+        </>
+      }
+    >
+      {messages.length === 0 ? (
+        <SharedWelcome
+          agentName={agentInfo.agentName}
+          agentDescription={agentInfo.agentDescription}
         />
-      </div>
-    </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto">
+          <MessageList
+            ref={messagesEndRef}
+            messages={messages}
+            className="mx-auto max-w-160"
+            isStreaming={isStreaming}
+            showTyping={
+              isStreaming &&
+              messages.length > 0 &&
+              messages[messages.length - 1].role === 'user'
+            }
+          />
+        </div>
+      )}
+      <ChatInput
+        onSend={handleSend}
+        onStop={handleStop}
+        isLoading={isStreaming}
+      />
+    </ChatShell>
   );
 }
 
@@ -512,11 +328,7 @@ export default function SharedChatPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-foreground-muted text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
+      <LoadingState message={t('common.loading')} className="min-h-screen" />
     );
   }
 

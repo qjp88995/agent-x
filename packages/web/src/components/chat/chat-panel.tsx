@@ -26,6 +26,8 @@ interface ChatPanelProps {
   readonly agentName: string;
   readonly title?: string;
   readonly onBack?: () => void;
+  /** Hide the built-in header (use when ChatShell provides the header). */
+  readonly hideHeader?: boolean;
 }
 
 function EmptyChat({ agentName }: { readonly agentName: string }) {
@@ -48,6 +50,7 @@ export function ChatPanel({
   agentName,
   title,
   onBack,
+  hideHeader,
 }: ChatPanelProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -153,43 +156,47 @@ export function ChatPanel({
   const hasFiles = workspaceFiles && workspaceFiles.length > 0;
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       {/* Header */}
-      <div className="flex h-12 shrink-0 items-center gap-3 border-b px-4">
-        {onBack && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-1 size-8 md:hidden"
-            onClick={onBack}
-            aria-label="返回"
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
-        )}
-        <MessageSquare className="text-primary size-5" />
-        <h2 className="truncate font-semibold">{title ?? agentName}</h2>
-        {hasFiles && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="ml-auto size-8"
-                asChild
-              >
-                <Link to={`/chat/${conversationId}/workspace`}>
-                  <Code2 className="size-4" />
-                </Link>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t('workspace.openIde')}</TooltipContent>
-          </Tooltip>
-        )}
-      </div>
+      {!hideHeader && (
+        <div className="flex h-12 shrink-0 items-center gap-3 border-b px-4">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-1 size-8 md:hidden"
+              onClick={onBack}
+              aria-label="返回"
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+          )}
+          <MessageSquare className="text-primary size-5" />
+          <h2 className="truncate text-sm font-semibold">
+            {title ?? agentName}
+          </h2>
+          {hasFiles && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-auto size-8"
+                  asChild
+                >
+                  <Link to={`/chat/${conversationId}/workspace`}>
+                    <Code2 className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('workspace.openIde')}</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      )}
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex flex-1 flex-col overflow-y-auto">
         {messages.length === 0 ? (
           <EmptyChat agentName={agentName} />
         ) : (
