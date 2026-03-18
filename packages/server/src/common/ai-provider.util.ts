@@ -19,18 +19,19 @@ export interface ModelInfo {
 }
 
 export const ANTHROPIC_MODELS: readonly ModelInfo[] = [
+  { id: 'claude-opus-4-6-20250205', name: 'Claude Opus 4.6' },
+  { id: 'claude-sonnet-4-6-20250217', name: 'Claude Sonnet 4.6' },
+  { id: 'claude-sonnet-4-5-20250929', name: 'Claude Sonnet 4.5' },
+  { id: 'claude-haiku-4-5-20251001', name: 'Claude Haiku 4.5' },
   { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4' },
   { id: 'claude-haiku-4-20250414', name: 'Claude Haiku 4' },
-  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
-  { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku' },
 ] as const;
 
 export const GEMINI_MODELS: readonly ModelInfo[] = [
+  { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro' },
+  { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash' },
   { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
   { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
-  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
-  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' },
-  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -141,13 +142,13 @@ export function getThinkingProviderOptions(
 
 /** Default lightweight model per protocol, used for connection tests etc. */
 const DEFAULT_MODEL_ID: Record<string, string> = {
-  OPENAI: 'gpt-4o-mini',
-  ANTHROPIC: 'claude-3-5-haiku-20241022',
-  GEMINI: 'gemini-2.0-flash',
+  OPENAI: 'gpt-4.1-mini',
+  ANTHROPIC: 'claude-haiku-4-5-20251001',
+  GEMINI: 'gemini-2.5-flash',
   DEEPSEEK: 'deepseek-chat',
-  QWEN: 'qwen-turbo',
-  ZHIPU: 'glm-4-flash',
-  MOONSHOT: 'moonshot-v1-8k',
+  QWEN: 'qwen-flash',
+  ZHIPU: 'glm-4.7-flash',
+  MOONSHOT: 'kimi-k2.5',
 };
 
 export function getDefaultModelId(protocol: string): string {
