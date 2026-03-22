@@ -1,0 +1,331 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
+import { FileImage, Loader2, X } from 'lucide-react';
+
+import { agentxDark, agentxLight } from '../lib/monaco-themes';
+import { useIsDark } from '../lib/use-is-dark';
+import { cn } from '../lib/utils';
+import { Button } from '../primitives/button';
+import type { OpenTab, WorkspaceFile } from './types';
+import { useWorkspaceApi } from './workspace-api-context';
+
+export interface FileEditorLabels {
+  readonly selectFile?: string;
+  readonly binaryFile?: string;
+  readonly fileSaved?: string;
+  readonly saveFailed?: string;
+}
+
+const LANGUAGE_MAP: Record<string, string> = {
+  'text/javascript': 'javascript',
+  'application/javascript': 'javascript',
+  'text/typescript': 'typescript',
+  'application/typescript': 'typescript',
+  'text/html': 'html',
+  'text/css': 'css',
+  'application/json': 'json',
+  'text/xml': 'xml',
+  'application/xml': 'xml',
+  'text/markdown': 'markdown',
+  'text/x-python': 'python',
+  'text/x-java': 'java',
+  'text/x-go': 'go',
+  'text/x-rust': 'rust',
+  'text/x-c': 'c',
+  'text/x-cpp': 'cpp',
+  'text/x-csharp': 'csharp',
+  'text/x-ruby': 'ruby',
+  'text/x-php': 'php',
+  'text/yaml': 'yaml',
+  'application/yaml': 'yaml',
+  'application/x-yaml': 'yaml',
+  'text/x-shellscript': 'shell',
+  'text/x-sql': 'sql',
+  'image/svg+xml': 'xml',
+};
+
+const EXT_LANGUAGE_MAP: Record<string, string> = {
+  js: 'javascript',
+  jsx: 'javascript',
+  ts: 'typescript',
+  tsx: 'typescript',
+  py: 'python',
+  rb: 'ruby',
+  go: 'go',
+  rs: 'rust',
+  java: 'java',
+  kt: 'kotlin',
+  cs: 'csharp',
+  php: 'php',
+  html: 'html',
+  htm: 'html',
+  css: 'css',
+  scss: 'scss',
+  less: 'less',
+  json: 'json',
+  xml: 'xml',
+  yaml: 'yaml',
+  yml: 'yaml',
+  toml: 'ini',
+  md: 'markdown',
+  mdx: 'markdown',
+  sql: 'sql',
+  sh: 'shell',
+  bash: 'shell',
+  zsh: 'shell',
+  dockerfile: 'dockerfile',
+  graphql: 'graphql',
+  gql: 'graphql',
+  prisma: 'graphql',
+  vue: 'html',
+  svelte: 'html',
+  c: 'c',
+  h: 'c',
+  cpp: 'cpp',
+  cc: 'cpp',
+  hpp: 'cpp',
+  swift: 'swift',
+  r: 'r',
+  lua: 'lua',
+  dart: 'dart',
+};
+
+function detectLanguage(file: WorkspaceFile): string {
+  const fromMime = LANGUAGE_MAP[file.mimeType];
+  if (fromMime) return fromMime;
+
+  const ext = file.path.split('.').pop()?.toLowerCase() ?? '';
+  const baseName = file.path.split('/').pop()?.toLowerCase() ?? '';
+
+  if (baseName === 'dockerfile') return 'dockerfile';
+  if (baseName === 'makefile') return 'makefile';
+
+  return EXT_LANGUAGE_MAP[ext] ?? 'plaintext';
+}
+
+function isTextFile(mimeType: string): boolean {
+  return (
+    mimeType.startsWith('text/') ||
+    mimeType === 'application/json' ||
+    mimeType === 'application/javascript' ||
+    mimeType === 'application/typescript' ||
+    mimeType === 'application/xml' ||
+    mimeType === 'application/yaml' ||
+    mimeType === 'application/x-yaml' ||
+    mimeType === 'image/svg+xml'
+  );
+}
+
+interface FileEditorProps {
+  readonly conversationId: string;
+  readonly tabs: readonly OpenTab[];
+  readonly activeFileId: string | undefined;
+  readonly onSelectTab: (fileId: string) => void;
+  readonly onCloseTab: (fileId: string) => void;
+  readonly onTabModified: (fileId: string, modified: boolean) => void;
+  readonly labels?: FileEditorLabels;
+  readonly onToastSuccess?: (message: string) => void;
+  readonly onToastError?: (message: string) => void;
+}
+
+export function FileEditor({
+  conversationId,
+  tabs,
+  activeFileId,
+  onSelectTab,
+  onCloseTab,
+  onTabModified,
+  labels,
+  onToastSuccess,
+  onToastError,
+}: FileEditorProps) {
+  const activeTab = tabs.find(tab => tab.file.id === activeFileId);
+  const activeFile = activeTab?.file;
+
+  const { client, filesUrl, downloadUrl } = useWorkspaceApi();
+  const isDark = useIsDark();
+  const editorTheme = isDark ? 'agentx-dark' : 'agentx-light';
+
+  const [content, setContent] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!activeFile || !conversationId) {
+      setContent(undefined);
+      return;
+    }
+    setIsLoading(true);
+    client
+      .get<{ content: string }>(`${filesUrl(conversationId)}/${activeFile.id}/content`)
+      .then(({ data }) => setContent(data.content))
+      .finally(() => setIsLoading(false));
+  }, [activeFile?.id, conversationId, client, filesUrl]);
+
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+
+  const handleEditorMount: OnMount = useCallback(editor => {
+    editorRef.current = editor;
+
+    editor.addAction({
+      id: 'save-file',
+      label: 'Save File',
+      keybindings: [
+        // Monaco KeyMod.CtrlCmd | Monaco KeyCode.KeyS
+        2048 | 49,
+      ],
+      run: () => {
+        document.dispatchEvent(new CustomEvent('workspace-save'));
+      },
+    });
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (!activeFile || !conversationId) return;
+
+    const currentContent = pendingContent[activeFile.id];
+    if (currentContent === undefined) return;
+
+    client
+      .put(`${filesUrl(conversationId)}/${activeFile.id}/content`, { content: currentContent })
+      .then(() => {
+        onTabModified(activeFile.id, false);
+        setPendingContent(prev => {
+          const next = { ...prev };
+          delete next[activeFile.id];
+          return next;
+        });
+        document.dispatchEvent(
+          new CustomEvent('workspace-file-saved', {
+            detail: { conversationId, fileId: activeFile.id },
+          })
+        );
+        onToastSuccess?.(labels?.fileSaved ?? '文件已保存');
+      })
+      .catch(() => {
+        onToastError?.(labels?.saveFailed ?? '保存失败');
+      });
+  }, [
+    activeFile,
+    conversationId,
+    pendingContent,
+    client,
+    filesUrl,
+    onTabModified,
+    labels,
+    onToastSuccess,
+    onToastError,
+  ]);
+
+  useEffect(() => {
+    const listener = () => handleSave();
+    document.addEventListener('workspace-save', listener);
+    return () => document.removeEventListener('workspace-save', listener);
+  }, [handleSave]);
+
+  const handleEditorChange = useCallback(
+    (value: string | undefined) => {
+      if (!activeFile || value === undefined) return;
+      setPendingContent(prev => ({ ...prev, [activeFile.id]: value }));
+      onTabModified(activeFile.id, value !== content);
+    },
+    [activeFile, content, onTabModified]
+  );
+
+  const handleBeforeMount: BeforeMount = useCallback(monaco => {
+    monaco.editor.defineTheme('agentx-light', agentxLight);
+    monaco.editor.defineTheme('agentx-dark', agentxDark);
+  }, []);
+
+  if (tabs.length === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center text-foreground-muted">
+        <FileImage className="mb-2 size-8 opacity-40" />
+        <p className="text-sm">{labels?.selectFile ?? '选择文件以开始编辑'}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* Tab bar */}
+      <div className="flex h-9 shrink-0 items-center border-b bg-surface/20 overflow-x-auto">
+        {tabs.map(tab => (
+          <button
+            key={tab.file.id}
+            type="button"
+            className={cn(
+              'flex items-center gap-1.5 border-r px-3 py-1.5 text-xs transition-colors shrink-0',
+              tab.file.id === activeFileId
+                ? 'bg-background text-foreground'
+                : 'text-foreground-muted hover:bg-background/50'
+            )}
+            onClick={() => onSelectTab(tab.file.id)}
+          >
+            <span className="truncate max-w-30">
+              {tab.file.path.split('/').pop()}
+            </span>
+            {tab.modified && (
+              <span className="size-1.5 rounded-full bg-primary shrink-0" />
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-4 hover:bg-card"
+              onClick={e => {
+                e.stopPropagation();
+                onCloseTab(tab.file.id);
+              }}
+            >
+              <X className="size-3" />
+            </Button>
+          </button>
+        ))}
+      </div>
+
+      {/* Editor area */}
+      <div className="flex-1 overflow-hidden">
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <Loader2 className="size-6 animate-spin text-foreground-muted" />
+          </div>
+        ) : activeFile && !isTextFile(activeFile.mimeType) ? (
+          <div className="flex h-full flex-col items-center justify-center text-foreground-muted gap-2">
+            <FileImage className="size-8 opacity-40" />
+            <p className="text-sm">{labels?.binaryFile ?? '二进制文件'}</p>
+            {activeFile.mimeType.startsWith('image/') && (
+              <img
+                src={downloadUrl(conversationId, activeFile.id)}
+                alt={activeFile.path}
+                className="max-h-[60%] max-w-[80%] object-contain mt-2"
+              />
+            )}
+          </div>
+        ) : (
+          <Editor
+            key={activeFile?.id}
+            language={activeFile ? detectLanguage(activeFile) : 'plaintext'}
+            value={
+              activeFile ? (pendingContent[activeFile.id] ?? content ?? '') : ''
+            }
+            theme={editorTheme}
+            beforeMount={handleBeforeMount}
+            onMount={handleEditorMount}
+            onChange={handleEditorChange}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 13,
+              lineNumbers: 'on',
+              wordWrap: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              tabSize: 2,
+              padding: { top: 8 },
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}

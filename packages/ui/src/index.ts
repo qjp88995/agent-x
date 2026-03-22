@@ -249,3 +249,4 @@ export {
 } from './workspace/file-tree';
 export { type FileTreeLabels } from './workspace/tree-node-item';
 export { type ClipboardItem, type WorkspaceFile } from './workspace/types';
+export { FileEditor, type FileEditorLabels } from './workspace/file-editor';
