@@ -242,3 +242,10 @@ export {
   WorkspaceApiProvider,
 } from './workspace/workspace-api-context';
 export { InlineInput, type InlineInputLabels } from './workspace/inline-input';
+export {
+  FileTree,
+  type DeleteTarget,
+  type EditingNode,
+} from './workspace/file-tree';
+export { type FileTreeLabels } from './workspace/tree-node-item';
+export { type ClipboardItem, type WorkspaceFile } from './workspace/types';
