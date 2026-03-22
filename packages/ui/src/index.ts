@@ -250,3 +250,5 @@ export {
 export { type FileTreeLabels } from './workspace/tree-node-item';
 export { type ClipboardItem, type WorkspaceFile } from './workspace/types';
 export { FileEditor, type FileEditorLabels } from './workspace/file-editor';
+export { WorkspacePanel, type WorkspacePanelLabels } from './workspace/workspace-panel';
+export { type OpenTab } from './workspace/types';
