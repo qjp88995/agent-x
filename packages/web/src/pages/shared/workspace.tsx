@@ -280,7 +280,11 @@ export default function SharedWorkspacePage() {
   if (!token || !conversationId) return null;
 
   return (
-    <WorkspaceApiProvider client={publicApi} filesUrl={filesUrl}>
+    <WorkspaceApiProvider
+      client={publicApi}
+      filesUrl={filesUrl}
+      downloadUrl={(id, fileId) => `/api${filesUrl(id)}/${fileId}/download`}
+    >
       <SharedWorkspaceContent token={token} conversationId={conversationId} />
     </WorkspaceApiProvider>
   );
