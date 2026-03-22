@@ -286,7 +286,7 @@ export function WorkspacePanel({
 
       {/* Desktop: resizable split */}
       <div className="hidden flex-1 md:flex">
-        <ResizablePanelGroup direction="horizontal" className="flex-1">
+        <ResizablePanelGroup orientation="horizontal" className="flex-1">
           <ResizablePanel
             defaultSize={25}
             minSize={15}
