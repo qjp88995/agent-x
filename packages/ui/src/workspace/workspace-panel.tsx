@@ -288,7 +288,7 @@ export function WorkspacePanel({
       <div className="hidden flex-1 md:flex">
         <ResizablePanelGroup orientation="horizontal" className="flex-1">
           <ResizablePanel
-            defaultSize={25}
+            defaultSize={30}
             minSize={15}
             maxSize={50}
             className="overflow-hidden"
@@ -296,7 +296,7 @@ export function WorkspacePanel({
             <FileTree {...fileTreeProps} onSelectFile={handleSelectFile} />
           </ResizablePanel>
           <ResizableHandle />
-          <ResizablePanel defaultSize={75}>
+          <ResizablePanel defaultSize={70}>
             <FileEditor
               conversationId={conversationId}
               tabs={openTabs}
