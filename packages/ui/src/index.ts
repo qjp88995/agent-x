@@ -58,6 +58,28 @@ export { Tabs, TabsContent, TabsList, TabsTrigger } from './primitives/tabs';
 export { Textarea } from './primitives/textarea';
 export { CodeEditor, type CodeEditorProps } from './primitives/code-editor';
 
+// context-menu
+export {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuPortal,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from './primitives/context-menu';
+
+// resizable
+export { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './primitives/resizable';
+
 // Data
 export { CompactCardItem, CompactCardList } from './data/compact-card-list';
 export { type Column, DataTable, type DataTableProps } from './data/data-table';
