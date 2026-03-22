@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import { FileImage, Loader2, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { agentxDark, agentxLight } from '../lib/monaco-themes';
 import { useIsDark } from '../lib/use-is-dark';
@@ -125,8 +126,6 @@ interface FileEditorProps {
   readonly onCloseTab: (fileId: string) => void;
   readonly onTabModified: (fileId: string, modified: boolean) => void;
   readonly labels?: FileEditorLabels;
-  readonly onToastSuccess?: (message: string) => void;
-  readonly onToastError?: (message: string) => void;
 }
 
 export function FileEditor({
@@ -137,8 +136,6 @@ export function FileEditor({
   onCloseTab,
   onTabModified,
   labels,
-  onToastSuccess,
-  onToastError,
 }: FileEditorProps) {
   const activeTab = tabs.find(tab => tab.file.id === activeFileId);
   const activeFile = activeTab?.file;
@@ -201,22 +198,12 @@ export function FileEditor({
             detail: { conversationId, fileId: activeFile.id },
           })
         );
-        onToastSuccess?.(labels?.fileSaved ?? '文件已保存');
+        toast.success(labels?.fileSaved ?? '文件已保存');
       })
       .catch(() => {
-        onToastError?.(labels?.saveFailed ?? '保存失败');
+        toast.error(labels?.saveFailed ?? '保存失败');
       });
-  }, [
-    activeFile,
-    conversationId,
-    pendingContent,
-    client,
-    filesUrl,
-    onTabModified,
-    labels,
-    onToastSuccess,
-    onToastError,
-  ]);
+  }, [activeFile, conversationId, pendingContent, client, filesUrl, onTabModified, labels]);
 
   useEffect(() => {
     const listener = () => handleSave();
