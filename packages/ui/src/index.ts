@@ -241,3 +241,4 @@ export {
   useWorkspaceApi,
   WorkspaceApiProvider,
 } from './workspace/workspace-api-context';
+export { InlineInput, type InlineInputLabels } from './workspace/inline-input';
