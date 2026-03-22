@@ -29,15 +29,18 @@ import { AgentXChatTransport } from '@/lib/chat-transport';
 import { toUIMessages } from '@/lib/message-utils';
 import { cn } from '@/lib/utils';
 
-export default function WorkspacePage() {
+function WorkspacePageContent({
+  conversationId,
+}: {
+  readonly conversationId: string;
+}) {
   const { t } = useTranslation();
-  const { conversationId } = useParams<{ conversationId: string }>();
   const [activeTab, setActiveTab] = useState<'workspace' | 'chat'>('workspace');
   const queryClient = useQueryClient();
   const transportRef = useRef<AgentXChatTransport | null>(null);
 
   const transport = useMemo(
-    () => (conversationId ? new AgentXChatTransport(conversationId) : null),
+    () => new AgentXChatTransport(conversationId),
     [conversationId]
   );
 
@@ -47,7 +50,7 @@ export default function WorkspacePage() {
 
   const { messages, sendMessage, status, setMessages, stop } = useChat({
     id: conversationId,
-    transport: transport ?? undefined,
+    transport,
     resume: true,
   });
 
@@ -62,7 +65,7 @@ export default function WorkspacePage() {
   const downloadWorkspace = useDownloadWorkspace();
 
   const handleDownloadWorkspace = useCallback(() => {
-    if (conversationId) downloadWorkspace.mutate(conversationId);
+    downloadWorkspace.mutate(conversationId);
   }, [conversationId, downloadWorkspace]);
 
   const statusRef = useRef(status);
@@ -77,9 +80,7 @@ export default function WorkspacePage() {
         statusRef.current === 'streaming' ||
         statusRef.current === 'submitted'
       ) {
-        queryClient.removeQueries({
-          queryKey: messagesKey(conversationId ?? ''),
-        });
+        queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
       }
     };
   }, [conversationId, queryClient]);
@@ -93,7 +94,6 @@ export default function WorkspacePage() {
     if (
       savedMessages &&
       savedMessages.length > 0 &&
-      conversationId &&
       historyLoadedRef.current !== conversationId
     ) {
       const history = toUIMessages(savedMessages as any);
@@ -126,6 +126,153 @@ export default function WorkspacePage() {
     void transportRef.current?.stopStream();
   }, [stop]);
 
+  return (
+    <div className="flex h-screen flex-col overflow-hidden">
+      {/* Header */}
+      <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8" asChild>
+              <Link to={`/chat?conversation=${conversationId}`}>
+                <ArrowLeft className="size-4" />
+              </Link>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('workspace.backToChat')}</TooltipContent>
+        </Tooltip>
+        <span className="text-primary shrink-0 font-semibold">
+          {t('workspace.title')}
+        </span>
+        {conversationTitle && (
+          <>
+            <span className="text-foreground-muted hidden md:inline">·</span>
+            <span className="hidden truncate text-sm text-foreground-muted md:inline">
+              {conversationTitle}
+            </span>
+          </>
+        )}
+        <div className="ml-auto shrink-0">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={handleDownloadWorkspace}
+                disabled={!workspaceFiles || workspaceFiles.length === 0}
+              >
+                <Download className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('workspace.downloadZip')}</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+
+      {/* Mobile tab bar */}
+      <div className="flex shrink-0 border-b md:hidden">
+        <button
+          type="button"
+          onClick={() => setActiveTab('workspace')}
+          className={cn(
+            'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
+            activeTab === 'workspace'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-foreground-muted hover:text-foreground'
+          )}
+        >
+          <FileCode2 className="size-4" />
+          {t('workspace.title')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('chat')}
+          className={cn(
+            'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
+            activeTab === 'chat'
+              ? 'border-b-2 border-primary text-primary'
+              : 'text-foreground-muted hover:text-foreground'
+          )}
+        >
+          <MessageSquare className="size-4" />
+          {t('chat.title')}
+        </button>
+      </div>
+
+      {/* Mobile content */}
+      <div className="flex flex-1 overflow-hidden md:hidden">
+        <div
+          className={cn('h-full w-full', activeTab !== 'workspace' && 'hidden')}
+        >
+          <WorkspaceContainer conversationId={conversationId} />
+        </div>
+        <div
+          className={cn(
+            'flex h-full w-full flex-col',
+            activeTab !== 'chat' && 'hidden'
+          )}
+        >
+          <div className="flex-1 overflow-y-auto">
+            <MessageList
+              ref={messagesEndRef}
+              messages={messages}
+              className="mx-auto max-w-full px-2"
+              isStreaming={isLoading}
+              showTyping={
+                isLoading &&
+                messages.length > 0 &&
+                messages[messages.length - 1].role === 'user'
+              }
+            />
+          </div>
+          <ChatInput
+            onSend={handleSend}
+            onStop={handleStop}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
+
+      {/* Desktop: resizable split layout */}
+      <div className="hidden min-h-0 flex-1 overflow-hidden md:flex">
+        <ResizablePanelGroup orientation="horizontal" className="flex-1">
+          <ResizablePanel defaultSize="60%" minSize="30%">
+            <WorkspaceContainer conversationId={conversationId} />
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          <ResizablePanel defaultSize="40%" minSize="20%">
+            <div className="flex h-full flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <MessageList
+                  ref={messagesEndRef}
+                  messages={messages}
+                  className="mx-auto max-w-full px-2"
+                  isStreaming={isLoading}
+                  showTyping={
+                    isLoading &&
+                    messages.length > 0 &&
+                    messages[messages.length - 1].role === 'user'
+                  }
+                />
+              </div>
+              <ChatInput
+                onSend={handleSend}
+                onStop={handleStop}
+                isLoading={isLoading}
+              />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+    </div>
+  );
+}
+
+export default function WorkspacePage() {
+  const { conversationId } = useParams<{ conversationId: string }>();
+
   if (!conversationId) return null;
 
   const filesUrl = (id: string) => `/conversations/${id}/files`;
@@ -134,151 +281,11 @@ export default function WorkspacePage() {
     <WorkspaceApiProvider
       client={api}
       filesUrl={filesUrl}
-      downloadUrl={(id, fileId) => `/api${filesUrl(id)}/${fileId}/download`}
+      downloadUrl={(id: string, fileId: string) =>
+        `/api${filesUrl(id)}/${fileId}/download`
+      }
     >
-      <div className="flex h-screen flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8" asChild>
-                <Link to={`/chat?conversation=${conversationId}`}>
-                  <ArrowLeft className="size-4" />
-                </Link>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t('workspace.backToChat')}</TooltipContent>
-          </Tooltip>
-          <span className="text-primary shrink-0 font-semibold">
-            {t('workspace.title')}
-          </span>
-          {conversationTitle && (
-            <>
-              <span className="text-foreground-muted hidden md:inline">·</span>
-              <span className="hidden truncate text-sm text-foreground-muted md:inline">
-                {conversationTitle}
-              </span>
-            </>
-          )}
-          <div className="ml-auto shrink-0">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  onClick={handleDownloadWorkspace}
-                  disabled={!workspaceFiles || workspaceFiles.length === 0}
-                >
-                  <Download className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('workspace.downloadZip')}</TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-
-        {/* Mobile tab bar */}
-        <div className="flex shrink-0 border-b md:hidden">
-          <button
-            type="button"
-            onClick={() => setActiveTab('workspace')}
-            className={cn(
-              'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
-              activeTab === 'workspace'
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-foreground-muted hover:text-foreground'
-            )}
-          >
-            <FileCode2 className="size-4" />
-            {t('workspace.title')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('chat')}
-            className={cn(
-              'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
-              activeTab === 'chat'
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-foreground-muted hover:text-foreground'
-            )}
-          >
-            <MessageSquare className="size-4" />
-            {t('chat.title')}
-          </button>
-        </div>
-
-        {/* Mobile content */}
-        <div className="flex flex-1 overflow-hidden md:hidden">
-          <div
-            className={cn(
-              'h-full w-full',
-              activeTab !== 'workspace' && 'hidden'
-            )}
-          >
-            <WorkspaceContainer conversationId={conversationId} />
-          </div>
-          <div
-            className={cn(
-              'flex h-full w-full flex-col',
-              activeTab !== 'chat' && 'hidden'
-            )}
-          >
-            <div className="flex-1 overflow-y-auto">
-              <MessageList
-                ref={messagesEndRef}
-                messages={messages}
-                className="mx-auto max-w-full px-2"
-                isStreaming={isLoading}
-                showTyping={
-                  isLoading &&
-                  messages.length > 0 &&
-                  messages[messages.length - 1].role === 'user'
-                }
-              />
-            </div>
-            <ChatInput
-              onSend={handleSend}
-              onStop={handleStop}
-              isLoading={isLoading}
-            />
-          </div>
-        </div>
-
-        {/* Desktop: resizable split layout */}
-        <div className="hidden min-h-0 flex-1 overflow-hidden md:flex">
-          <ResizablePanelGroup orientation="horizontal" className="flex-1">
-            <ResizablePanel defaultSize="60%" minSize="30%">
-              <WorkspaceContainer conversationId={conversationId} />
-            </ResizablePanel>
-
-            <ResizableHandle withHandle />
-
-            <ResizablePanel defaultSize="40%" minSize="20%">
-              <div className="flex h-full flex-col">
-                <div className="flex-1 overflow-y-auto">
-                  <MessageList
-                    ref={messagesEndRef}
-                    messages={messages}
-                    className="mx-auto max-w-full px-2"
-                    isStreaming={isLoading}
-                    showTyping={
-                      isLoading &&
-                      messages.length > 0 &&
-                      messages[messages.length - 1].role === 'user'
-                    }
-                  />
-                </div>
-                <ChatInput
-                  onSend={handleSend}
-                  onStop={handleStop}
-                  isLoading={isLoading}
-                />
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-      </div>
+      <WorkspacePageContent conversationId={conversationId} />
     </WorkspaceApiProvider>
   );
 }
