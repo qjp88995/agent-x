@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import { agentxDark, agentxLight } from '../lib/monaco-themes';
 import { useIsDark } from '../lib/use-is-dark';
 import { cn } from '../lib/utils';
-import { Button } from '../primitives/button';
 import type { OpenTab, WorkspaceFile } from './types';
 import { useWorkspaceApi } from './workspace-api-context';
 
@@ -256,17 +255,17 @@ export function FileEditor({
             {tab.modified && (
               <span className="size-1.5 rounded-full bg-primary shrink-0" />
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-4 hover:bg-card"
+            <span
+              role="button"
+              aria-label="Close tab"
+              className="inline-flex size-4 shrink-0 items-center justify-center rounded hover:bg-card"
               onClick={e => {
                 e.stopPropagation();
                 onCloseTab(tab.file.id);
               }}
             >
               <X className="size-3" />
-            </Button>
+            </span>
           </button>
         ))}
       </div>
