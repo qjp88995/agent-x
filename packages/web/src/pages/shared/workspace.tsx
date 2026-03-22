@@ -18,7 +18,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
-import { WorkspacePanel } from '@/components/workspace/workspace-panel';
+import { WorkspaceContainer } from '@/components/workspace/workspace-container';
 import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
 import {
   useSharedConversations,
@@ -200,7 +200,7 @@ function SharedWorkspaceContent({
         <div
           className={cn('h-full w-full', activeTab !== 'workspace' && 'hidden')}
         >
-          <WorkspacePanel conversationId={conversationId} />
+          <WorkspaceContainer conversationId={conversationId} />
         </div>
         <div
           className={cn(
@@ -233,7 +233,7 @@ function SharedWorkspaceContent({
       <div className="hidden flex-1 md:flex">
         <ResizablePanelGroup orientation="horizontal" className="flex-1">
           <ResizablePanel defaultSize="60%" minSize="30%">
-            <WorkspacePanel conversationId={conversationId} />
+            <WorkspaceContainer conversationId={conversationId} />
           </ResizablePanel>
 
           <ResizableHandle withHandle />

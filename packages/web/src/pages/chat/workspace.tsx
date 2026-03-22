@@ -19,7 +19,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
-import { WorkspacePanel } from '@/components/workspace/workspace-panel';
+import { WorkspaceContainer } from '@/components/workspace/workspace-container';
 import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
 import { messagesKey, useConversations, useMessages } from '@/hooks/use-chat';
 import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
@@ -216,7 +216,7 @@ export default function WorkspacePage() {
               activeTab !== 'workspace' && 'hidden'
             )}
           >
-            <WorkspacePanel conversationId={conversationId} />
+            <WorkspaceContainer conversationId={conversationId} />
           </div>
           <div
             className={cn(
@@ -249,7 +249,7 @@ export default function WorkspacePage() {
         <div className="hidden min-h-0 flex-1 overflow-hidden md:flex">
           <ResizablePanelGroup orientation="horizontal" className="flex-1">
             <ResizablePanel defaultSize="60%" minSize="30%">
-              <WorkspacePanel conversationId={conversationId} />
+              <WorkspaceContainer conversationId={conversationId} />
             </ResizablePanel>
 
             <ResizableHandle withHandle />
