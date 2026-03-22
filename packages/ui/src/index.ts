@@ -233,3 +233,11 @@ export { ThinkingBlock } from './chat/thinking-block';
 export { TimeCard } from './chat/time-card';
 export { ToolCallBlock, type ToolState } from './chat/tool-call-block';
 export { VoiceRecorder, type VoiceRecorderState } from './chat/voice-recorder';
+
+// Workspace
+export {
+  type HttpClient,
+  type WorkspaceApiConfig,
+  useWorkspaceApi,
+  WorkspaceApiProvider,
+} from './workspace/workspace-api-context';
