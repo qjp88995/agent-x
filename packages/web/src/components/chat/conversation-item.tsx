@@ -71,11 +71,15 @@ export function ConversationItem({
   };
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onSelect}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') onSelect();
+      }}
       className={cn(
-        'group flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
+        'group flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
         isActive
           ? 'bg-card text-foreground-secondary'
           : 'hover:bg-card/50 text-foreground/80'
@@ -145,6 +149,6 @@ export function ConversationItem({
           </AlertDialog>
         </div>
       )}
-    </button>
+    </div>
   );
 }
