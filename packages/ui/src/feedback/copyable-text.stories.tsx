@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { TooltipProvider } from './tooltip';
 import { CopyableText } from './copyable-text';
+import { TooltipProvider } from './tooltip';
 
 const meta: Meta<typeof CopyableText> = {
   title: 'Feedback/CopyableText',
@@ -20,9 +20,7 @@ export default meta;
 type Story = StoryObj<typeof CopyableText>;
 
 export const Default: Story = {
-  render: () => (
-    <CopyableText text="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />
-  ),
+  render: () => <CopyableText text="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />,
 };
 
 export const WithTruncation: Story = {
@@ -53,7 +51,5 @@ export const CustomLabels: Story = {
 };
 
 export const FullText: Story = {
-  render: () => (
-    <CopyableText text="short-key" />
-  ),
+  render: () => <CopyableText text="short-key" />,
 };

@@ -20,7 +20,9 @@ type Story = StoryObj<typeof FileChangeCard>;
 
 export const SingleFile: Story = {
   args: {
-    changes: [{ path: 'src/components/chat/message-list.tsx', operation: 'updated' }],
+    changes: [
+      { path: 'src/components/chat/message-list.tsx', operation: 'updated' },
+    ],
   },
 };
 
@@ -51,7 +53,6 @@ export const WithClickHandler: Story = {
       { path: 'src/hooks/use-workspace.ts', operation: 'updated' },
     ],
     onClickFile: (path: string) => {
-      // eslint-disable-next-line no-console
       console.log('Clicked file:', path);
     },
   },

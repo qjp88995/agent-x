@@ -15,6 +15,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
+import { cn } from '../lib/utils';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -22,12 +23,10 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '../primitives/context-menu';
-import { cn } from '../lib/utils';
-
-import type { ClipboardItem, WorkspaceFile } from './types';
 import type { TreeNode } from './file-tree-utils';
 import { formatFileSize, getFileIcon, getParentDir } from './file-tree-utils';
 import { InlineInput } from './inline-input';
+import type { ClipboardItem, WorkspaceFile } from './types';
 
 export interface FileTreeLabels {
   readonly newFile?: string;

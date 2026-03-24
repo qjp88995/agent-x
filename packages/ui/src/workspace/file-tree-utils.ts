@@ -1,5 +1,6 @@
-import type { WorkspaceFile } from './types';
 import { File, FileCode, FileImage, FileJson, FileText } from 'lucide-react';
+
+import type { WorkspaceFile } from './types';
 
 export interface TreeNode {
   readonly name: string;

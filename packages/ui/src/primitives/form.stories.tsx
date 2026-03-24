@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useForm } from 'react-hook-form';
+
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Button } from './button';
 import {
@@ -85,7 +86,11 @@ export const WithValidation: Story = {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="you@example.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,7 +109,9 @@ export const WithValidation: Story = {
                 <FormControl>
                   <Input type="password" placeholder="••••••••" {...field} />
                 </FormControl>
-                <FormDescription>Must be at least 8 characters.</FormDescription>
+                <FormDescription>
+                  Must be at least 8 characters.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

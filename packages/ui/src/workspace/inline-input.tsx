@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Input } from '../primitives/input';
 import { cn } from '../lib/utils';
+import { Input } from '../primitives/input';
 import { validateFileName } from './file-tree-utils';
 
 export interface InlineInputLabels {

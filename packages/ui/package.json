@@ -20,7 +20,7 @@
     "dev": "cp src/lib.css dist/index.css && tsup --watch",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build -o dist-storybook",
-    "lint": "eslint . && tsc --noEmit",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

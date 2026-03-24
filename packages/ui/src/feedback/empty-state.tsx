@@ -1,5 +1,6 @@
-import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+
+import type { LucideIcon } from 'lucide-react';
 
 import { cn } from '../lib/utils';
 
@@ -22,7 +23,7 @@ export function EmptyState({
     <div
       className={cn(
         'flex flex-col items-center justify-center rounded-lg border border-dashed py-16',
-        className,
+        className
       )}
     >
       <div className="bg-primary mb-4 flex size-16 items-center justify-center rounded-full text-white">

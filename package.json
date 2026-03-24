@@ -15,10 +15,15 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.1.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.15.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
     "prettier": "^3.8.1",
-    "turbo": "^2"
+    "turbo": "^2",
+    "typescript-eslint": "^8.57.2"
   },
   "lint-staged": {
     "packages/web/**/*.{ts,tsx}": [
@@ -30,7 +35,12 @@
       "eslint --fix -c packages/server/eslint.config.mjs"
     ],
     "packages/shared/**/*.ts": [
-      "prettier --write"
+      "prettier --write",
+      "eslint --fix -c packages/shared/eslint.config.mjs"
+    ],
+    "packages/ui/**/*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix -c packages/ui/eslint.config.js"
     ],
     "*.{json,md,css}": [
       "prettier --write"

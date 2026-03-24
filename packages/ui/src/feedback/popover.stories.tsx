@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { Button } from '../primitives/button';
 import { Input } from '../primitives/input';
 import { Label } from '../primitives/label';
-import { Button } from '../primitives/button';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
 const meta: Meta = {

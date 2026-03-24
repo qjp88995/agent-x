@@ -1,9 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
-
 import { AlertTriangle } from 'lucide-react';
 
-import { Button } from '../primitives/button';
 import { cn } from '../lib/utils';
+import { Button } from '../primitives/button';
 
 interface ErrorStateProps {
   readonly icon?: LucideIcon;
@@ -24,7 +23,10 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div
-      className={cn('flex flex-col items-center justify-center py-16', className)}
+      className={cn(
+        'flex flex-col items-center justify-center py-16',
+        className
+      )}
     >
       <Icon className="text-destructive mb-4 size-10" />
       <h3 className="mb-1 font-semibold">{title}</h3>

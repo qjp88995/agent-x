@@ -12,9 +12,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../feedback/alert-dialog';
-import { Button } from '../primitives/button';
-import { ScrollArea } from '../primitives/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../feedback/tooltip';
+import { Button } from '../primitives/button';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -22,12 +21,12 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '../primitives/context-menu';
-
-import type { ClipboardItem, WorkspaceFile } from './types';
-import type { DeleteTarget, EditingNode } from './tree-node-item';
-import { TreeNodeItem, type FileTreeLabels } from './tree-node-item';
+import { ScrollArea } from '../primitives/scroll-area';
 import { buildTree } from './file-tree-utils';
 import { InlineInput } from './inline-input';
+import type { DeleteTarget, EditingNode } from './tree-node-item';
+import { type FileTreeLabels, TreeNodeItem } from './tree-node-item';
+import type { ClipboardItem, WorkspaceFile } from './types';
 
 export type { DeleteTarget, EditingNode };
 

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Separator } from './separator';
 import { ScrollArea, ScrollBar } from './scroll-area';
+import { Separator } from './separator';
 
 const meta: Meta = {
   title: 'Primitives/ScrollArea',
