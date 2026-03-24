@@ -16,7 +16,7 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
-    "db:promote-admin": "npx tsx prisma/seed.ts"
+    "db:promote-admin": "pnpm dlx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@agent-x/shared": "workspace:*",
