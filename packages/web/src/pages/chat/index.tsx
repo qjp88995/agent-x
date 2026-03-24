@@ -27,6 +27,7 @@ import { ChatEmptyState } from '@/components/chat/chat-empty-state';
 import { ChatPanel } from '@/components/chat/chat-panel';
 import { ChatShell } from '@/components/chat/chat-shell';
 import { AppCommandPalette } from '@/components/shared/app-command-palette';
+import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
 import { useAgents } from '@/hooks/use-agents';
 import {
   useConversations,
@@ -35,9 +36,10 @@ import {
   useRenameConversation,
 } from '@/hooks/use-chat';
 import { useWorkspaceFiles } from '@/hooks/use-workspace';
+import { api } from '@/lib/api';
 import type { ChatConversation } from '@/lib/chat-types';
 
-export default function ChatPage() {
+function ChatPageContent() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -273,5 +275,21 @@ export default function ChatPage() {
         )}
       </ChatShell>
     </>
+  );
+}
+
+export default function ChatPage() {
+  const filesUrl = (id: string) => `/conversations/${id}/files`;
+
+  return (
+    <WorkspaceApiProvider
+      client={api}
+      filesUrl={filesUrl}
+      downloadUrl={(id: string, fileId: string) =>
+        `/api${filesUrl(id)}/${fileId}/download`
+      }
+    >
+      <ChatPageContent />
+    </WorkspaceApiProvider>
   );
 }
