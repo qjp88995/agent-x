@@ -13,6 +13,11 @@ src/
 │   ├── shared/     # Reusable form components (form-card, page-header, prompt-editor, etc.)
 │   ├── users/      # User management components (create-user-dialog)
 │   ├── auth/       # Protected route, login/register forms
+│   ├── api-keys/   # API key creation dialog, delete confirm, usage docs
+│   ├── mcp/        # MCP server cards, marketplace card, transport badge
+│   ├── prompts/    # Prompt cards, picker dialog, preview dialog, marketplace card
+│   ├── providers/  # Provider empty state
+│   ├── skills/     # Skill cards, delete dialog, preview dialog, marketplace card
 │   └── ui/         # shadcn/ui primitives (button, dialog, input, etc.)
 ├── contexts/       # React contexts (workspace-api-context for auth/public API switching)
 ├── hooks/          # React Query hooks (use-agents, use-chat, use-workspace, etc.)
@@ -24,11 +29,14 @@ src/
     ├── api.ts              # Axios client with auth interceptor + token refresh
     ├── public-api.ts       # Unauthenticated Axios client for public endpoints
     ├── chat-transport.ts   # Authenticated chat streaming transport
+    ├── chat-types.ts       # Shared TypeScript types for chat (messages, etc.)
     ├── shared-chat-transport.ts  # Public chat streaming transport
     ├── message-utils.ts    # Backend MessageResponse[] → AI SDK UIMessage[] conversion
     ├── stream-parser.ts    # SSE stream parsing utilities
     ├── workspace-utils.ts  # Extract file changes from AI tool calls
     ├── sync-preferences.ts # Centralized backend preference sync (persistPreference)
+    ├── date-utils.ts       # Date formatting utilities
+    ├── provider-constants.ts # Provider-related constants (icons, labels, etc.)
     ├── utils.ts            # General utilities (cn, etc.)
     └── schemas/            # Zod validation schemas (agent, provider, skill, mcp, api-key, user)
 ```
@@ -38,14 +46,15 @@ src/
 - **Design standards (colors, spacing, layout widths, component conventions) are in `README.md`**
 - React Router v7 for routing
 - All dashboard pages lazy-loaded via `React.lazy()`
-- React Query v5 hooks in `src/hooks/` for all API calls
+- React Query v5 hooks in `src/hooks/` for all API calls:
+  `use-agents`, `use-agent-versions`, `use-api-keys`, `use-auth`, `use-chat`, `use-chat-stream` (shared streaming lifecycle), `use-date-locale`, `use-filtered-search`, `use-mcp`, `use-preferences`, `use-prompts`, `use-providers`, `use-share-tokens`, `use-shared-chat`, `use-shared-conversations`, `use-skills`, `use-system-config`, `use-users`, `use-view-mode`, `use-workspace`, `use-workspace-sync`
 - Zustand v5 stores: `auth-store.ts` (auth state + server preference sync), `theme-store.ts` (system/light/dark theme with persist + auto backend sync)
 - i18n via `react-i18next` + `i18next-browser-languagedetector`: auto-detects browser language, falls back to English, persists preference in localStorage. Use exported `changeLanguage(lng, opts?)` from `@/i18n` (not `i18n.changeLanguage()` directly) to ensure backend sync. Translation files in `src/locales/{en,zh}.json`. All UI strings use `t()` calls.
 - Toast notifications via `sonner` (`@/components/ui/sonner`). Use `toast.success()` / `toast.error()` for mutation feedback.
 - shadcn/ui components (Radix UI) in `src/components/ui/`
 - Axios client at `src/lib/api.ts` with auth interceptors + token refresh
 - Dashboard routes inside `DashboardLayout`, chat is full-screen outside
-- Client-side streaming via native `fetch` + `ReadableStream` in `use-chat` and `use-shared-chat` hooks
+- Client-side streaming via native `fetch` + `ReadableStream`; `use-chat-stream.ts` is the shared streaming lifecycle hook used by `use-chat` and `use-shared-chat`
 - Chat history rendering unified via `MessageList` component (`components/chat/message-list.tsx`)
 - Backend `MessageResponse[]` → AI SDK `UIMessage[]` conversion via `toUIMessages()` (`lib/message-utils.ts`)
 - Tokens stored in localStorage, auto-refresh on 401 via Axios interceptor
@@ -84,6 +93,7 @@ src/
 - `/skills` - skills list, `/skills/new`, `/skills/:id/edit`
 - `/mcp-servers` - MCP server list, `/mcp-servers/new`, `/mcp-servers/:id/edit`
 - `/prompts` - prompts list, `/prompts/new`, `/prompts/:id/edit`
+- `/marketplace` - skills/MCP marketplace
 - `/api-keys` - API key management
 - `/users` - user management (admin-only), `/users/:id` (user detail)
 - `/settings` - user preferences (theme, language)
