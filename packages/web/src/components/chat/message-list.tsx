@@ -43,7 +43,7 @@ export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(
     }
 
     return (
-      <div className={cn('py-4', className)}>
+      <div className={cn('py-4 w-full', className)}>
         {messages.map((message, i) => (
           <MessageItem
             key={message.id}
