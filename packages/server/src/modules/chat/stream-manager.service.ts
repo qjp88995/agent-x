@@ -145,8 +145,17 @@ export class StreamManagerService implements OnModuleInit, OnModuleDestroy {
     });
 
     res.on('close', () => {
-      if (onChunk) session.emitter.off('chunk', onChunk);
-      if (onEnd) session.emitter.off('end', onEnd);
+      if (onChunk) {
+        session.emitter.off('chunk', onChunk);
+        onChunk = undefined;
+      }
+      if (onEnd) {
+        session.emitter.off('end', onEnd);
+        // Actively close ReadableStream B so pipeUIMessageStreamToResponse
+        // can exit cleanly instead of waiting indefinitely for more chunks.
+        onEnd();
+        onEnd = undefined;
+      }
     });
 
     pipeUIMessageStreamToResponse({ response: res, stream });
@@ -175,28 +184,31 @@ export class StreamManagerService implements OnModuleInit, OnModuleDestroy {
         this.logger.error(`onComplete callback failed: ${err}`);
       }
     } catch (err: unknown) {
-      if (session.abortController.signal.aborted) {
-        session.status = 'completed';
-        session.completedAt = Date.now();
-        session.emitter.emit('end');
-
-        try {
-          await onComplete();
-        } catch (cbErr) {
-          this.logger.error(`onComplete callback failed after abort: ${cbErr}`);
-        }
-        return;
-      }
-
+      const isAborted = session.abortController.signal.aborted;
       const errorMessage =
         err instanceof Error ? err.message : 'Unknown stream error';
-      this.logger.error(
-        `Stream error for ${session.messageId}: ${errorMessage}`
-      );
-      session.status = 'error';
-      session.error = errorMessage;
+
+      if (isAborted) {
+        this.logger.log(`Stream aborted for ${session.messageId}`);
+        session.status = 'completed';
+      } else {
+        this.logger.error(
+          `Stream error for ${session.messageId}: ${errorMessage}`
+        );
+        session.status = 'error';
+        session.error = errorMessage;
+      }
+
       session.completedAt = Date.now();
       session.emitter.emit('end');
+
+      try {
+        await onComplete();
+      } catch (cbErr) {
+        this.logger.error(
+          `onComplete callback failed after ${isAborted ? 'abort' : 'error'}: ${cbErr}`
+        );
+      }
     }
   }
 
