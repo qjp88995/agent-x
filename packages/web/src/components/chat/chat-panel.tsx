@@ -8,15 +8,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@agent-x/design';
-import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bot, ChevronLeft, Code2, MessageSquare } from 'lucide-react';
 
 import { CONVERSATIONS_KEY, messagesKey, useMessages } from '@/hooks/use-chat';
+import { useChatStream } from '@/hooks/use-chat-stream';
 import { useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { AgentXChatTransport } from '@/lib/chat-transport';
-import { toUIMessages } from '@/lib/message-utils';
 
 import { ChatInput } from './chat-input';
 import { MessageList } from './message-list';
@@ -54,89 +53,37 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const transportRef = useRef<AgentXChatTransport | null>(null);
   const transport = useMemo(
     () => new AgentXChatTransport(conversationId),
     [conversationId]
   );
 
-  useEffect(() => {
-    transportRef.current = transport;
-  }, [transport]);
+  const { data: savedMessages } = useMessages(conversationId);
 
-  const { messages, sendMessage, status, setMessages, stop } = useChat({
-    id: conversationId,
-    transport,
-    resume: true,
-  });
+  const { messages, sendMessage, status, handleStop, isLoading } =
+    useChatStream({
+      conversationId,
+      transport,
+      savedMessages,
+      messagesQueryKey: messagesKey(conversationId),
+    });
 
   useWorkspaceSync(conversationId, messages);
 
-  const statusRef = useRef(status);
-  statusRef.current = status;
-  const currentMessagesRef = useRef(messages);
-  currentMessagesRef.current = messages;
-
-  // Abort active SSE connection and clear stale cache on unmount
-  useEffect(() => {
-    return () => {
-      transportRef.current?.destroy();
-      // When streaming is active, the messages cache is stale (missing the user
-      // message that triggered the stream). Remove it so remount fetches fresh data.
-      if (
-        statusRef.current === 'streaming' ||
-        statusRef.current === 'submitted'
-      ) {
-        queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
-      }
-    };
-  }, [conversationId, queryClient]);
-
-  const isLoading = status === 'submitted' || status === 'streaming';
-  const { data: savedMessages } = useMessages(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const historyLoadedRef = useRef<string | null>(null);
 
-  // Refresh conversation list after streaming completes (for auto-generated title),
-  // and clear the messages cache so navigating back to this conversation always
-  // loads fresh data (the pre-stream snapshot in cache would be missing the AI response).
+  // Refresh conversation list after streaming completes (for auto-generated title)
   const prevStatusRef = useRef(status);
   useEffect(() => {
     const prev = prevStatusRef.current;
     prevStatusRef.current = status;
     if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
-      queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
       const timer = setTimeout(() => {
         void queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [status, queryClient, conversationId]);
-
-  // Load saved messages when conversation changes
-  useEffect(() => {
-    if (
-      savedMessages &&
-      savedMessages.length > 0 &&
-      historyLoadedRef.current !== conversationId
-    ) {
-      const history = toUIMessages(savedMessages as any);
-      // If a resumed stream is active, preserve the streaming message(s)
-      const currentStatus = statusRef.current;
-      const currentMessages = currentMessagesRef.current;
-      const isStreaming =
-        currentStatus === 'streaming' || currentStatus === 'submitted';
-
-      if (isStreaming && currentMessages.length > 0) {
-        const savedIds = new Set(savedMessages.map(m => m.id));
-        const streamingMsgs = currentMessages.filter(m => !savedIds.has(m.id));
-        setMessages([...history, ...streamingMsgs]);
-      } else {
-        setMessages(history);
-      }
-      historyLoadedRef.current = conversationId;
-    }
-  }, [savedMessages, conversationId, setMessages]);
+  }, [status, queryClient]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -149,11 +96,6 @@ export function ChatPanel({
     },
     [sendMessage]
   );
-
-  const handleStop = useCallback(() => {
-    stop();
-    void transportRef.current?.stopStream();
-  }, [stop]);
 
   const { data: workspaceFiles } = useWorkspaceFiles(conversationId);
   const hasFiles = workspaceFiles && workspaceFiles.length > 0;

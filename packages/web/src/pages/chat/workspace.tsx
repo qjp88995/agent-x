@@ -8,8 +8,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@agent-x/design';
-import { useChat } from '@ai-sdk/react';
-import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Download, FileCode2, MessageSquare } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
@@ -22,11 +20,11 @@ import {
 import { WorkspaceContainer } from '@/components/workspace/workspace-container';
 import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
 import { messagesKey, useConversations, useMessages } from '@/hooks/use-chat';
+import { useChatStream } from '@/hooks/use-chat-stream';
 import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import { api } from '@/lib/api';
 import { AgentXChatTransport } from '@/lib/chat-transport';
-import { toUIMessages } from '@/lib/message-utils';
 import { cn } from '@/lib/utils';
 
 function WorkspacePageContent({
@@ -36,22 +34,19 @@ function WorkspacePageContent({
 }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'workspace' | 'chat'>('workspace');
-  const queryClient = useQueryClient();
-  const transportRef = useRef<AgentXChatTransport | null>(null);
 
   const transport = useMemo(
     () => new AgentXChatTransport(conversationId),
     [conversationId]
   );
 
-  useEffect(() => {
-    transportRef.current = transport;
-  }, [transport]);
+  const { data: savedMessages } = useMessages(conversationId);
 
-  const { messages, sendMessage, status, setMessages, stop } = useChat({
-    id: conversationId,
+  const { messages, sendMessage, handleStop, isLoading } = useChatStream({
+    conversationId,
     transport,
-    resume: true,
+    savedMessages,
+    messagesQueryKey: messagesKey(conversationId),
   });
 
   useWorkspaceSync(conversationId, messages);
@@ -68,61 +63,7 @@ function WorkspacePageContent({
     downloadWorkspace.mutate(conversationId);
   }, [conversationId, downloadWorkspace]);
 
-  const statusRef = useRef(status);
-  statusRef.current = status;
-  const currentMessagesRef = useRef(messages);
-  currentMessagesRef.current = messages;
-
-  useEffect(() => {
-    return () => {
-      transportRef.current?.destroy();
-      if (
-        statusRef.current === 'streaming' ||
-        statusRef.current === 'submitted'
-      ) {
-        queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
-      }
-    };
-  }, [conversationId, queryClient]);
-
-  // Clear messages cache when streaming completes so navigation back always
-  // loads fresh data (the pre-stream snapshot in cache would be missing the AI response).
-  const prevStatusRef = useRef(status);
-  useEffect(() => {
-    const prev = prevStatusRef.current;
-    prevStatusRef.current = status;
-    if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
-      queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
-    }
-  }, [status, queryClient, conversationId]);
-
-  const isLoading = status === 'submitted' || status === 'streaming';
-  const { data: savedMessages } = useMessages(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const historyLoadedRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (
-      savedMessages &&
-      savedMessages.length > 0 &&
-      historyLoadedRef.current !== conversationId
-    ) {
-      const history = toUIMessages(savedMessages as any);
-      const currentStatus = statusRef.current;
-      const currentMessages = currentMessagesRef.current;
-      const isStreaming =
-        currentStatus === 'streaming' || currentStatus === 'submitted';
-
-      if (isStreaming && currentMessages.length > 0) {
-        const savedIds = new Set(savedMessages.map(m => m.id));
-        const streamingMsgs = currentMessages.filter(m => !savedIds.has(m.id));
-        setMessages([...history, ...streamingMsgs]);
-      } else {
-        setMessages(history);
-      }
-      historyLoadedRef.current = conversationId;
-    }
-  }, [savedMessages, conversationId, setMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -131,11 +72,6 @@ function WorkspacePageContent({
   const handleSend = (content: string) => {
     void sendMessage({ text: content });
   };
-
-  const handleStop = useCallback(() => {
-    stop();
-    void transportRef.current?.stopStream();
-  }, [stop]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">

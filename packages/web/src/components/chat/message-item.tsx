@@ -67,15 +67,6 @@ function isWorkspaceTool(part: ToolUIPart): boolean {
   return WORKSPACE_TOOLS.has(getToolName(part));
 }
 
-function StreamingIndicator() {
-  return (
-    <div className="mt-1 flex items-center gap-1.5 py-1">
-      <span className="bg-primary/60 size-1.5 animate-pulse rounded-full" />
-      <span className="text-foreground-muted/50 text-xs">···</span>
-    </div>
-  );
-}
-
 interface WorkspaceToolGroup {
   readonly startIndex: number;
   readonly indices: Set<number>;
@@ -142,13 +133,7 @@ function finalizeGroup(current: {
   };
 }
 
-function AssistantContent({
-  parts,
-  streaming,
-}: {
-  readonly parts: UIMessage['parts'];
-  readonly streaming?: boolean;
-}) {
+function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
   const { t } = useTranslation();
   const groupMap = useMemo(() => computeWorkspaceGroups(parts), [parts]);
 
@@ -266,7 +251,6 @@ function AssistantContent({
         }
         return null;
       })}
-      {streaming && <StreamingIndicator />}
     </div>
   );
 }
@@ -307,7 +291,7 @@ export const MessageItem = memo(function MessageItem({
             .join('')}
         </p>
       ) : (
-        <AssistantContent parts={message.parts} streaming={streaming} />
+        <AssistantContent parts={message.parts} />
       )}
     </MessageBubble>
   );

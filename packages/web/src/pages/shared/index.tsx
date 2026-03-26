@@ -9,7 +9,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@agent-x/design';
-import { useChat } from '@ai-sdk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bot, Code2, MessageSquare, Plus } from 'lucide-react';
 
@@ -17,6 +16,7 @@ import { ChatInput } from '@/components/chat/chat-input';
 import { ChatShell } from '@/components/chat/chat-shell';
 import { MessageList } from '@/components/chat/message-list';
 import { SharedWelcome } from '@/components/chat/shared-welcome';
+import { useChatStream } from '@/hooks/use-chat-stream';
 import {
   sharedConversationsKey,
   useCreateSharedConversation,
@@ -29,7 +29,6 @@ import {
 } from '@/hooks/use-shared-chat';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
 import type { ChatConversation } from '@/lib/chat-types';
-import { toUIMessages } from '@/lib/message-utils';
 import { SharedChatTransport } from '@/lib/shared-chat-transport';
 
 import SharedExpiredPage from './expired';
@@ -62,21 +61,27 @@ function SharedChatContent({
     [setSearchParams]
   );
 
-  const transportRef = useRef<SharedChatTransport | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pendingMessageRef = useRef<string | null>(null);
 
   const transport = useMemo(() => {
     if (!token || !conversationId) return undefined;
-    const t = new SharedChatTransport(token, conversationId);
-    transportRef.current = t;
-    return t;
+    return new SharedChatTransport(token, conversationId);
   }, [token, conversationId]);
 
-  const { messages, sendMessage, status, setMessages, stop } = useChat({
-    id: conversationId ?? 'shared-pending',
-    transport,
-  });
+  const { data: savedMessages } = useSharedMessages(
+    token,
+    conversationId ?? undefined
+  );
+
+  const { messages, sendMessage, status, handleStop, isLoading } =
+    useChatStream({
+      conversationId: conversationId ?? 'shared-pending',
+      transport,
+      savedMessages,
+      messagesQueryKey: ['shared-messages', token, conversationId],
+      resume: true,
+    });
 
   useWorkspaceSync(conversationId ?? undefined, messages);
 
@@ -85,25 +90,6 @@ function SharedChatContent({
     conversationId ?? undefined
   );
   const hasFiles = workspaceFiles && workspaceFiles.length > 0;
-
-  const { data: savedMessages } = useSharedMessages(
-    token,
-    conversationId ?? undefined
-  );
-  const historyLoadedRef = useRef<string | null>(null);
-
-  // Load saved messages when conversation changes
-  useEffect(() => {
-    if (
-      savedMessages &&
-      savedMessages.length > 0 &&
-      conversationId &&
-      historyLoadedRef.current !== conversationId
-    ) {
-      setMessages(toUIMessages(savedMessages as any));
-      historyLoadedRef.current = conversationId;
-    }
-  }, [savedMessages, conversationId, setMessages]);
 
   // Refresh conversation list after streaming completes (for auto-generated title)
   const prevStatusRef = useRef(status);
@@ -125,12 +111,6 @@ function SharedChatContent({
   }, [status, queryClient, token]);
 
   useEffect(() => {
-    return () => {
-      transportRef.current?.destroy();
-    };
-  }, [conversationId]);
-
-  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -142,8 +122,6 @@ function SharedChatContent({
       void sendMessage({ text: msg });
     }
   }, [transport, sendMessage]);
-
-  const isStreaming = status === 'submitted' || status === 'streaming';
 
   const handleSend = useCallback(
     async (content: string) => {
@@ -161,26 +139,16 @@ function SharedChatContent({
     [token, conversationId, createConversation, sendMessage, setConversationId]
   );
 
-  const handleStop = useCallback(() => {
-    stop();
-    void transportRef.current?.stopStream();
-  }, [stop]);
-
   const handleNewChat = useCallback(() => {
     setConversationId(null);
-    setMessages([]);
-    historyLoadedRef.current = null;
-  }, [setConversationId, setMessages]);
+  }, [setConversationId]);
 
   const handleSelectConversation = useCallback(
     (id: string) => {
       if (id === conversationId) return;
-      transportRef.current?.destroy();
       setConversationId(id);
-      historyLoadedRef.current = null;
-      setMessages([]);
     },
-    [conversationId, setConversationId, setMessages]
+    [conversationId, setConversationId]
   );
 
   const handleRenameConversation = useCallback(
@@ -198,14 +166,12 @@ function SharedChatContent({
           onSuccess: () => {
             if (conversationId === id) {
               setConversationId(null);
-              setMessages([]);
-              historyLoadedRef.current = null;
             }
           },
         }
       );
     },
-    [deleteConversation, token, conversationId, setConversationId, setMessages]
+    [deleteConversation, token, conversationId, setConversationId]
   );
 
   const mappedConversations: ChatConversation[] = useMemo(
@@ -303,9 +269,9 @@ function SharedChatContent({
             ref={messagesEndRef}
             messages={messages}
             className="mx-auto max-w-160"
-            isStreaming={isStreaming}
+            isStreaming={isLoading}
             showTyping={
-              isStreaming &&
+              isLoading &&
               messages.length > 0 &&
               messages[messages.length - 1].role === 'user'
             }
@@ -315,7 +281,7 @@ function SharedChatContent({
       <ChatInput
         onSend={handleSend}
         onStop={handleStop}
-        isLoading={isStreaming}
+        isLoading={isLoading}
       />
     </ChatShell>
   );

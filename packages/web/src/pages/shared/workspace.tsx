@@ -8,7 +8,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@agent-x/design';
-import { useChat } from '@ai-sdk/react';
 import { ArrowLeft, Download, FileCode2, MessageSquare } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
@@ -20,13 +19,13 @@ import {
 } from '@/components/ui/resizable';
 import { WorkspaceContainer } from '@/components/workspace/workspace-container';
 import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
+import { useChatStream } from '@/hooks/use-chat-stream';
 import {
   useSharedConversations,
   useSharedMessages,
 } from '@/hooks/use-shared-chat';
 import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
-import { toUIMessages } from '@/lib/message-utils';
 import { publicApi } from '@/lib/public-api';
 import { SharedChatTransport } from '@/lib/shared-chat-transport';
 import { cn } from '@/lib/utils';
@@ -40,20 +39,20 @@ function SharedWorkspaceContent({
 }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'workspace' | 'chat'>('workspace');
-  const transportRef = useRef<SharedChatTransport | null>(null);
 
   const transport = useMemo(
     () => new SharedChatTransport(token, conversationId),
     [token, conversationId]
   );
 
-  useEffect(() => {
-    transportRef.current = transport;
-  }, [transport]);
+  const { data: savedMessages } = useSharedMessages(token, conversationId);
 
-  const { messages, sendMessage, status, setMessages, stop } = useChat({
-    id: conversationId,
+  const { messages, sendMessage, handleStop, isLoading } = useChatStream({
+    conversationId,
     transport,
+    savedMessages,
+    messagesQueryKey: ['shared-messages', token, conversationId],
+    resume: true,
   });
 
   useWorkspaceSync(conversationId, messages);
@@ -70,44 +69,7 @@ function SharedWorkspaceContent({
     downloadWorkspace.mutate(conversationId);
   }, [conversationId, downloadWorkspace]);
 
-  const statusRef = useRef(status);
-  statusRef.current = status;
-  const currentMessagesRef = useRef(messages);
-  currentMessagesRef.current = messages;
-
-  useEffect(() => {
-    return () => {
-      transportRef.current?.destroy();
-    };
-  }, [conversationId]);
-
-  const isLoading = status === 'submitted' || status === 'streaming';
-  const { data: savedMessages } = useSharedMessages(token, conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const historyLoadedRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (
-      savedMessages &&
-      savedMessages.length > 0 &&
-      historyLoadedRef.current !== conversationId
-    ) {
-      const history = toUIMessages(savedMessages as any);
-      const currentStatus = statusRef.current;
-      const currentMessages = currentMessagesRef.current;
-      const isStreaming =
-        currentStatus === 'streaming' || currentStatus === 'submitted';
-
-      if (isStreaming && currentMessages.length > 0) {
-        const savedIds = new Set(savedMessages.map(m => m.id));
-        const streamingMsgs = currentMessages.filter(m => !savedIds.has(m.id));
-        setMessages([...history, ...streamingMsgs]);
-      } else {
-        setMessages(history);
-      }
-      historyLoadedRef.current = conversationId;
-    }
-  }, [savedMessages, conversationId, setMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -116,11 +78,6 @@ function SharedWorkspaceContent({
   const handleSend = (content: string) => {
     void sendMessage({ text: content });
   };
-
-  const handleStop = useCallback(() => {
-    stop();
-    void transportRef.current?.stopStream();
-  }, [stop]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
