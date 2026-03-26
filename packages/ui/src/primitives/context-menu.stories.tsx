@@ -35,7 +35,7 @@ type Story = StoryObj;
 export const Default: Story = {
   render: () => (
     <ContextMenu>
-      <ContextMenuTrigger asChild>
+      <ContextMenuTrigger>
         <Trigger />
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
@@ -51,7 +51,7 @@ export const Default: Story = {
 export const WithShortcuts: Story = {
   render: () => (
     <ContextMenu>
-      <ContextMenuTrigger asChild>
+      <ContextMenuTrigger>
         <Trigger />
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
@@ -124,7 +124,7 @@ export const WithRadioGroup: Story = {
 export const WithSubMenu: Story = {
   render: () => (
     <ContextMenu>
-      <ContextMenuTrigger asChild>
+      <ContextMenuTrigger>
         <Trigger />
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
@@ -147,7 +147,7 @@ export const WithSubMenu: Story = {
 export const WithDestructiveItem: Story = {
   render: () => (
     <ContextMenu>
-      <ContextMenuTrigger asChild>
+      <ContextMenuTrigger>
         <Trigger />
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
