@@ -75,7 +75,7 @@ export const WithCheckboxItems: Story = {
     const [showHistory, setShowHistory] = React.useState(false);
     return (
       <ContextMenu>
-        <ContextMenuTrigger asChild>
+        <ContextMenuTrigger>
           <Trigger />
         </ContextMenuTrigger>
         <ContextMenuContent className="w-48">
@@ -104,7 +104,7 @@ export const WithRadioGroup: Story = {
     const [view, setView] = React.useState('list');
     return (
       <ContextMenu>
-        <ContextMenuTrigger asChild>
+        <ContextMenuTrigger>
           <Trigger />
         </ContextMenuTrigger>
         <ContextMenuContent className="w-48">
