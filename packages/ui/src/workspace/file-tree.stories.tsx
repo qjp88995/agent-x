@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { TooltipProvider } from '../feedback/tooltip';
 import { FileTree } from './file-tree';
 import type { ClipboardItem, WorkspaceFile } from './types';
 
@@ -75,9 +76,11 @@ const meta: Meta<typeof FileTree> = {
   parameters: { layout: 'fullscreen' },
   decorators: [
     Story => (
-      <div className="h-[600px] w-64 border">
-        <Story />
-      </div>
+      <TooltipProvider>
+        <div className="h-[600px] w-64 border">
+          <Story />
+        </div>
+      </TooltipProvider>
     ),
   ],
 };

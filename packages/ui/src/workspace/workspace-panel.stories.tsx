@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { TooltipProvider } from '../feedback/tooltip';
 import type { WorkspaceFile } from './types';
 import type { HttpClient } from './workspace-api-context';
 import { WorkspaceApiProvider } from './workspace-api-context';
@@ -64,9 +65,11 @@ const meta: Meta<typeof WorkspacePanel> = {
         filesUrl={mockFilesUrl}
         downloadUrl={mockDownloadUrl}
       >
-        <div className="h-[600px]">
-          <Story />
-        </div>
+        <TooltipProvider>
+          <div className="h-[600px]">
+            <Story />
+          </div>
+        </TooltipProvider>
       </WorkspaceApiProvider>
     ),
   ],
