@@ -6,7 +6,7 @@ NestJS 11 backend with Prisma v7 and PostgreSQL.
 
 ```
 src/
-├── common/         # Shared utilities (crypto.util.ts, ai-provider.util.ts, request-logger.middleware.ts)
+├── common/         # Shared utilities (crypto.util.ts, ai-provider.util.ts, token.util.ts, pick-defined.util.ts, types.ts, request-logger.middleware.ts)
 ├── generated/prisma/  # Generated Prisma client (gitignored)
 ├── prisma/         # PrismaModule (global)
 ├── telemetry.ts    # OpenTelemetry SDK (opt-in via AI_SDK_TELEMETRY=true)
@@ -85,7 +85,7 @@ npx prisma studio                      # visual editor
 
 Built-in tools available to agents during chat (defined in `chat/tools/`):
 
-- **Workspace tools** (14): createFile, readFile, updateFile, deleteFile, writeFiles (atomic batch), fileExists, fileInfo, readFileLines, listFiles, searchFiles, patchFile, renameFile, createDirectory, deleteDirectory, renameDirectory
+- **Workspace tools** (15): createFile, readFile, updateFile, deleteFile, writeFiles (atomic batch), fileExists, fileInfo, readFileLines, listFiles, searchFiles, patchFile, renameFile, createDirectory, deleteDirectory, renameDirectory
 - **Utility tools**: getCurrentTime (with timezone support)
 
 ## Auth
