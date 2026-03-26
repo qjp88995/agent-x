@@ -85,6 +85,17 @@ function WorkspacePageContent({
     };
   }, [conversationId, queryClient]);
 
+  // Clear messages cache when streaming completes so navigation back always
+  // loads fresh data (the pre-stream snapshot in cache would be missing the AI response).
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = status;
+    if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
+      queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
+    }
+  }, [status, queryClient, conversationId]);
+
   const isLoading = status === 'submitted' || status === 'streaming';
   const { data: savedMessages } = useMessages(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);

@@ -97,18 +97,21 @@ export function ChatPanel({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const historyLoadedRef = useRef<string | null>(null);
 
-  // Refresh conversation list after streaming completes (for auto-generated title)
+  // Refresh conversation list after streaming completes (for auto-generated title),
+  // and clear the messages cache so navigating back to this conversation always
+  // loads fresh data (the pre-stream snapshot in cache would be missing the AI response).
   const prevStatusRef = useRef(status);
   useEffect(() => {
     const prev = prevStatusRef.current;
     prevStatusRef.current = status;
     if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
+      queryClient.removeQueries({ queryKey: messagesKey(conversationId) });
       const timer = setTimeout(() => {
         void queryClient.invalidateQueries({ queryKey: CONVERSATIONS_KEY });
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [status, queryClient]);
+  }, [status, queryClient, conversationId]);
 
   // Load saved messages when conversation changes
   useEffect(() => {
