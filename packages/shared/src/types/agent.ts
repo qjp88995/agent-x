@@ -41,7 +41,18 @@ export interface AgentResponse {
   thinkingEnabled: boolean;
   status: AgentStatus;
   latestVersion: number | null;
-  skills: { id: string; skillId: string; priority: number }[];
+  skills: {
+    id: string;
+    skillId: string;
+    priority: number;
+    skill: {
+      id: string;
+      name: string;
+      description: string | null;
+      type: string;
+      tags: string[];
+    };
+  }[];
   mcpServers: {
     id: string;
     mcpServerId: string;

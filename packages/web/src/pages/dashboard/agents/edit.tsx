@@ -35,6 +35,7 @@ import { toast } from 'sonner';
 import { AgentBasicInfoTab } from '@/components/agents/agent-basic-info-tab';
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
 import { AgentPromptTab } from '@/components/agents/agent-prompt-tab';
+import { AgentSkillsTab } from '@/components/agents/agent-skills-tab';
 import { ArchiveAgentDialog } from '@/components/agents/archive-agent-dialog';
 import { PublishVersionDialog } from '@/components/agents/publish-version-dialog';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
@@ -319,6 +320,7 @@ function AgentEditForm({
                   <TabsTrigger value="prompt">
                     {t('agents.systemPrompt')}
                   </TabsTrigger>
+                  <TabsTrigger value="skills">{t('agents.skills')}</TabsTrigger>
                   <TabsTrigger value="mcp">
                     {t('agents.mcpServers')}
                   </TabsTrigger>
@@ -347,6 +349,16 @@ function AgentEditForm({
                     form={form}
                     isBusy={isBusy}
                     isSaving={isSaving}
+                  />
+                </TabsContent>
+
+                <TabsContent
+                  value="skills"
+                  className="flex min-h-0 flex-1 flex-col"
+                >
+                  <AgentSkillsTab
+                    agentId={agentId}
+                    currentSkills={agent.skills}
                   />
                 </TabsContent>
 

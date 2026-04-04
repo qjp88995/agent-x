@@ -106,6 +106,56 @@ export function useUnarchiveAgent() {
   });
 }
 
+export function useAddAgentSkill() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      agentId,
+      skillId,
+      priority,
+    }: {
+      agentId: string;
+      skillId: string;
+      priority?: number;
+    }) => {
+      const { data } = await api.post(`/agents/${agentId}/skills`, {
+        skillId,
+        priority,
+      });
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: agentKey(variables.agentId),
+      });
+    },
+  });
+}
+
+export function useRemoveAgentSkill() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      agentId,
+      skillId,
+    }: {
+      agentId: string;
+      skillId: string;
+    }) => {
+      await api.delete(`/agents/${agentId}/skills/${skillId}`);
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: AGENTS_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: agentKey(variables.agentId),
+      });
+    },
+  });
+}
+
 export function useAddAgentMcp() {
   const queryClient = useQueryClient();
 

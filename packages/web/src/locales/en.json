@@ -193,6 +193,7 @@
     "publishFailed": "Failed to publish version. Please try again.",
     "basicInfo": "Basic Info",
     "systemPrompt": "System Prompt",
+    "skills": "Skills",
     "mcpServers": "MCP Servers",
     "versions": "Versions",
     "shareLinks": "Share Links",
@@ -494,6 +495,15 @@
     "clear": "Clear",
     "saveTools": "Save Tools",
     "noTools": "No tools discovered for this server. Try testing the connection on the MCP Servers page first."
+  },
+  "agentSkills": {
+    "boundSkills": "Bound Skills",
+    "boundSkillsDesc": "Skills currently attached to this agent.",
+    "noBound": "No skills bound yet. Add one from the list below.",
+    "availableSkills": "Available Skills",
+    "availableSkillsDesc": "Add skills to give your agent additional capabilities.",
+    "noAvailable": "No additional skills available. Create one in the Skills page first.",
+    "add": "Add"
   },
   "apiKeys": {
     "title": "API Keys",

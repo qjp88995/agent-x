@@ -193,6 +193,7 @@
     "publishFailed": "发布版本失败，请重试。",
     "basicInfo": "基本信息",
     "systemPrompt": "系统提示词",
+    "skills": "技能",
     "mcpServers": "MCP 服务",
     "versions": "版本",
     "shareLinks": "分享链接",
@@ -494,6 +495,15 @@
     "clear": "清除",
     "saveTools": "保存工具",
     "noTools": "未发现此服务的工具。请先在 MCP 服务页面测试连接。"
+  },
+  "agentSkills": {
+    "boundSkills": "已绑定的技能",
+    "boundSkillsDesc": "当前附加到此智能体的技能。",
+    "noBound": "暂未绑定技能。请从下方列表中添加。",
+    "availableSkills": "可用的技能",
+    "availableSkillsDesc": "为智能体添加技能以增强其能力。",
+    "noAvailable": "没有更多可用的技能。请先在技能页面创建。",
+    "add": "添加"
   },
   "apiKeys": {
     "title": "API 密钥",
