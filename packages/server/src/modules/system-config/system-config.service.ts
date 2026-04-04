@@ -8,7 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 
 import { DeleteResponse } from '@agent-x/shared';
-import { generateText, Output } from 'ai';
+import { generateText } from 'ai';
 import { z } from 'zod';
 
 import {
@@ -337,18 +337,24 @@ export class SystemConfigService implements OnModuleInit {
       feature.modelId
     );
 
-    // Build Zod schema dynamically from outputSchema
-    const shape: Record<string, z.ZodString> = {};
-    for (const [key, field] of Object.entries(outputSchema)) {
-      shape[key] = z.string().describe(field.description);
-    }
-    const zodSchema = z.object(shape);
+    // Build a JSON format instruction that works across all providers,
+    // including those that don't support native structured output (e.g. GLM).
+    const schemaLines = Object.entries(outputSchema)
+      .map(([key, field]) => `  "${key}": "<${field.description}>"`)
+      .join(',\n');
+    const jsonInstruction = `Respond ONLY with a valid JSON object in this exact format, no extra text:\n{\n${schemaLines}\n}`;
+    const prompt = `${jsonInstruction}\n\n---\n\n${content}`;
 
-    const { output } = await generateText({
+    const zodSchema = z.object(
+      Object.fromEntries(
+        Object.keys(outputSchema).map(key => [key, z.string()])
+      )
+    );
+
+    const { text } = await generateText({
       model,
-      output: Output.object({ schema: zodSchema }),
       system: feature.systemPrompt ?? undefined,
-      prompt: content,
+      prompt,
       temperature:
         feature.temperature != null
           ? clampTemperature(
@@ -365,6 +371,26 @@ export class SystemConfigService implements OnModuleInit {
       ),
     });
 
-    return output!;
+    // Extract the JSON object from the response (handle markdown code fences)
+    const match = text.match(/\{[\s\S]*\}/);
+    const jsonStr = match ? match[0] : text;
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonStr);
+    } catch {
+      throw new BadRequestException(
+        'Model returned an invalid JSON response. Try again.'
+      );
+    }
+
+    const result = zodSchema.safeParse(parsed);
+    if (!result.success) {
+      throw new BadRequestException(
+        'Model response did not match the expected schema. Try again.'
+      );
+    }
+
+    return result.data;
   }
 }
