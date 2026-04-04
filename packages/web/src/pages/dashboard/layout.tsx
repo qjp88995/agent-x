@@ -268,7 +268,7 @@ export default function DashboardLayout() {
 
         <main className="flex min-h-0 flex-1 flex-col overflow-auto">
           <AnimatePresence mode="wait">
-            <PageTransition key={location.pathname}>
+            <PageTransition key={location.pathname} className="min-h-0">
               <Outlet />
             </PageTransition>
           </AnimatePresence>

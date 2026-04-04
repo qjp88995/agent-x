@@ -174,13 +174,13 @@ export default function SkillEditorPage() {
         }
         title={pageTitle}
       />
-      <div className="flex-1 overflow-auto p-5">
+      <div className="min-h-0 flex-1 flex flex-col overflow-auto p-5">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
+            className="min-h-0 flex-1 flex flex-col gap-6"
           >
-            <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="min-h-0 flex-1 flex flex-col gap-6 lg:flex-row">
               {/* Left: Basic Info */}
               <div className="flex w-full flex-col gap-6 lg:w-1/2">
                 <FormField
@@ -295,7 +295,7 @@ export default function SkillEditorPage() {
                   control={form.control}
                   name="content"
                   render={({ field }) => (
-                    <FormItem className="flex flex-1 flex-col">
+                    <FormItem className="min-h-0 flex flex-1 flex-col">
                       <FormControl>
                         <CodeEditor
                           value={field.value}
