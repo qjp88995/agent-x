@@ -1,13 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { Navigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
+
+import { Button, ErrorState, LoadingState, PageHeader } from '@agent-x/design';
+import { ArrowLeft } from 'lucide-react';
 
 import { VersionList } from '@/components/agents/version-list';
-import { PageHeader } from '@/components/shared/page-header';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useAgent } from '@/hooks/use-agents';
 
 export default function AgentVersionsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { data: agent, isLoading, error } = useAgent(id);
 
@@ -21,26 +23,36 @@ export default function AgentVersionsPage() {
 
   if (error || !agent) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('agents.notFound')}
         description={t('agents.notFoundDesc')}
-        backLabel={t('agents.backToAgents')}
-        backTo="/agents"
+        actionLabel={t('agents.backToAgents')}
+        onAction={() => navigate('/agents')}
       />
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       <PageHeader
-        backTo={-1}
-        backLabel={t('common.back')}
+        leading={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="size-3.5" />
+          </Button>
+        }
         title={t('agents.versionManagement')}
-        description={t('agents.versionManagementDesc', { name: agent.name })}
+        description={agent.name}
       />
 
-      <div className="max-w-4xl">
-        <VersionList agentId={id} />
+      <div className="flex-1 overflow-auto p-5">
+        <div className="max-w-4xl">
+          <VersionList agentId={id} />
+        </div>
       </div>
     </div>
   );

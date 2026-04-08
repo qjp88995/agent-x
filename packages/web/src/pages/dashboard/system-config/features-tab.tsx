@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { EmptyState, SettingsAccordion, Skeleton } from '@agent-x/design';
 import { AlertTriangle, Wrench } from 'lucide-react';
 
 import {
@@ -7,19 +9,20 @@ import {
   useSystemProviders,
 } from '@/hooks/use-system-config';
 
-import { FeatureRow } from './feature-row';
+import { FeatureAccordionItem } from './feature-row';
 
 export function FeaturesTab() {
   const { t } = useTranslation();
   const { data: features, isLoading, error } = useSystemFeatures();
   const { data: providers } = useSystemProviders();
+  const [expanded, setExpanded] = useState('');
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('common.loading')}
-        </div>
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 rounded-lg" />
+        ))}
       </div>
     );
   }
@@ -33,35 +36,37 @@ export function FeaturesTab() {
             resource: t('systemConfig.featuresTab').toLowerCase(),
           })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
     );
   }
 
+  if (!features || features.length === 0) {
+    return <EmptyState icon={Wrench} title={t('common.noResults')} />;
+  }
+
   return (
-    <div className="flex flex-col gap-6">
-      {!features || features.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-          <div className="gradient-bg mb-4 flex size-16 items-center justify-center rounded-full text-white">
-            <Wrench className="size-8" />
-          </div>
-          <h3 className="mb-1 text-lg font-semibold">
-            {t('common.noResults')}
-          </h3>
-        </div>
-      ) : (
-        <div className="flex max-w-4xl flex-col gap-4">
-          {features.map(feature => (
-            <FeatureRow
-              key={feature.id}
-              feature={feature}
-              providers={providers ?? []}
-            />
-          ))}
-        </div>
-      )}
+    <div className="flex flex-col gap-5">
+      <div>
+        <h2 className="text-base font-semibold">
+          {t('systemConfig.featuresTab')}
+        </h2>
+        <p className="text-foreground-muted mt-0.5 text-sm">
+          {t('systemConfig.subtitle')}
+        </p>
+      </div>
+
+      <SettingsAccordion value={expanded} onValueChange={setExpanded}>
+        {features.map(feature => (
+          <FeatureAccordionItem
+            key={feature.id}
+            feature={feature}
+            providers={providers ?? []}
+          />
+        ))}
+      </SettingsAccordion>
     </div>
   );
 }

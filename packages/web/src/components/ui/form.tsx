@@ -12,10 +12,9 @@ import {
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-import type { Label as LabelPrimitive } from 'radix-ui';
-import { Slot } from 'radix-ui';
+import { Label } from '@agent-x/design';
+import { Slot } from '@radix-ui/react-slot';
 
-import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 const Form = FormProvider;
@@ -92,7 +91,7 @@ function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
 function FormLabel({
   className,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+}: React.ComponentProps<typeof Label>) {
   const { error, isTouched, formItemId } = useFormField();
 
   return (
@@ -106,12 +105,12 @@ function FormLabel({
   );
 }
 
-function FormControl({ ...props }: React.ComponentProps<typeof Slot.Root>) {
+function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot.Root
+    <Slot
       data-slot="form-control"
       id={formItemId}
       aria-describedby={
@@ -132,7 +131,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
     <p
       data-slot="form-description"
       id={formDescriptionId}
-      className={cn('text-sm text-muted-foreground', className)}
+      className={cn('text-sm text-foreground-muted', className)}
       {...props}
     />
   );

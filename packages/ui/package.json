@@ -1,0 +1,93 @@
+{
+  "name": "@agent-x/design",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./index.css": "./dist/index.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup && cp src/lib.css dist/index.css",
+    "dev": "cp src/lib.css dist/index.css && tsup --watch",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build -o dist-storybook",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.0.0"
+  },
+  "dependencies": {
+    "@codemirror/lang-markdown": "catalog:",
+    "@codemirror/language": "catalog:",
+    "@codemirror/state": "catalog:",
+    "@codemirror/view": "catalog:",
+    "@lezer/highlight": "catalog:",
+    "@monaco-editor/react": "catalog:",
+    "@radix-ui/react-alert-dialog": "^1.1.15",
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-checkbox": "^1.1.0",
+    "@radix-ui/react-collapsible": "^1.1.0",
+    "@radix-ui/react-context-menu": "^2.2.16",
+    "@radix-ui/react-dialog": "^1.1.0",
+    "@radix-ui/react-dropdown-menu": "^2.1.0",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-popover": "^1.1.0",
+    "@radix-ui/react-scroll-area": "^1.2.0",
+    "@radix-ui/react-select": "^2.1.0",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slider": "^1.2.0",
+    "@radix-ui/react-slot": "catalog:",
+    "@radix-ui/react-switch": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-tooltip": "^1.1.0",
+    "@uiw/react-codemirror": "catalog:",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "catalog:",
+    "cmdk": "^1.1.1",
+    "framer-motion": "catalog:",
+    "highlight.js": "catalog:",
+    "lucide-react": "catalog:",
+    "react-markdown": "catalog:",
+    "react-resizable-panels": "catalog:",
+    "rehype-highlight": "catalog:",
+    "rehype-sanitize": "catalog:",
+    "remark-gfm": "catalog:",
+    "sonner": "catalog:",
+    "tailwind-merge": "catalog:"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@storybook/addon-docs": "^10.2.17",
+    "@storybook/addon-themes": "^10.2.17",
+    "@storybook/react": "^10.2.17",
+    "@storybook/react-vite": "^10.2.17",
+    "@tailwindcss/vite": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
+    "eslint-plugin-react-refresh": "catalog:",
+    "eslint-plugin-simple-import-sort": "catalog:",
+    "globals": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "^10.2.17",
+    "tailwindcss": "catalog:",
+    "tsup": "^8.5.1",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
+}

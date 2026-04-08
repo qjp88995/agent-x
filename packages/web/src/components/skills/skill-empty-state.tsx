@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
-import { Sparkles } from 'lucide-react';
-
-import { EmptyState } from '@/components/shared/empty-state';
+import { Button, EmptyState } from '@agent-x/design';
+import { Plus, Sparkles } from 'lucide-react';
 
 interface SkillEmptyStateProps {
   readonly tab: 'marketplace' | 'custom';
@@ -12,6 +12,20 @@ interface SkillEmptyStateProps {
 export function SkillEmptyState({ tab, isAdmin }: SkillEmptyStateProps) {
   const { t } = useTranslation();
   const isMarketplace = tab === 'marketplace';
+
+  const actionTo =
+    isMarketplace && isAdmin
+      ? '/skills/new?type=system'
+      : !isMarketplace
+        ? '/skills/new'
+        : undefined;
+
+  const actionLabel =
+    isMarketplace && isAdmin
+      ? t('skills.addToMarketplace')
+      : !isMarketplace
+        ? t('skills.createSkill')
+        : undefined;
 
   return (
     <EmptyState
@@ -24,19 +38,15 @@ export function SkillEmptyState({ tab, isAdmin }: SkillEmptyStateProps) {
           ? t('skills.noSystemSkillsDesc')
           : t('skills.noCustomSkillsDesc')
       }
-      actionLabel={
-        isMarketplace && isAdmin
-          ? t('skills.addToMarketplace')
-          : !isMarketplace
-            ? t('skills.createSkill')
-            : undefined
-      }
-      actionTo={
-        isMarketplace && isAdmin
-          ? '/skills/new?type=system'
-          : !isMarketplace
-            ? '/skills/new'
-            : undefined
+      action={
+        actionTo && actionLabel ? (
+          <Button asChild variant="primary">
+            <Link to={actionTo}>
+              <Plus className="mr-2 size-4" />
+              {actionLabel}
+            </Link>
+          </Button>
+        ) : undefined
       }
     />
   );

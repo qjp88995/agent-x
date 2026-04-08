@@ -8,32 +8,15 @@ import {
   useSearchParams,
 } from 'react-router';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Plus } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { AutoFillButton } from '@/components/shared/auto-fill-button';
-import { PageHeader } from '@/components/shared/page-header';
-import { PolishButton } from '@/components/shared/polish-button';
-import { PromptEditor } from '@/components/shared/prompt-editor';
-import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
-import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
+  Button,
+  CodeEditor,
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import {
+  ErrorState,
   Form,
   FormControl,
   FormDescription,
@@ -41,16 +24,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
+  Input,
+  LoadingState,
+  PageHeader,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+  Separator,
+  Textarea,
+} from '@agent-x/design';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, Loader2, Plus } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { AutoFillButton } from '@/components/shared/auto-fill-button';
+import { PolishButton } from '@/components/shared/polish-button';
+import { PromptPickerButton } from '@/components/shared/prompt-picker-button';
 import { useIsAdmin } from '@/hooks/use-auth';
 import {
   useCreateMarketplacePrompt,
@@ -173,7 +164,7 @@ export default function PromptEditorPage() {
         }
       }
       toast.success(isEditMode ? t('prompts.updated') : t('prompts.created'));
-      await navigate('/prompts');
+      await navigate(isSystemMode ? '/marketplace?tab=prompts' : '/prompts');
     } catch {
       toast.error(
         isEditMode ? t('prompts.updateFailed') : t('prompts.createFailed')
@@ -189,204 +180,198 @@ export default function PromptEditorPage() {
       ? t('prompts.editPrompt')
       : t('prompts.createPrompt');
 
-  const pageDescription = isSystemMode
-    ? isEditMode
-      ? t('prompts.editSystemPromptDesc')
-      : t('prompts.addSystemPromptDesc')
-    : isEditMode
-      ? t('prompts.editPromptDesc')
-      : t('prompts.createPromptDesc');
-
   if (isEditMode && isLoadingPrompt) {
     return <LoadingState message={t('prompts.loadingPrompt')} />;
   }
 
   if (isEditMode && !isLoadingPrompt && !existingPrompt) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('prompts.notFound')}
         description={t('prompts.notFoundDesc')}
-        backLabel={t('prompts.backToPrompts')}
-        backTo="/prompts"
+        actionLabel={t('prompts.backToPrompts')}
+        onAction={() =>
+          navigate(isSystemMode ? '/marketplace?tab=prompts' : '/prompts')
+        }
       />
     );
   }
 
   return (
-    <div className="-m-6 flex min-h-0 flex-1 flex-col">
-      <div className="flex min-h-0 flex-1 flex-col gap-6 p-6">
-        <PageHeader
-          backTo="/prompts"
-          backLabel={t('prompts.backToPrompts')}
-          title={pageTitle}
-          description={pageDescription}
-        />
-
+    <div className="flex h-full flex-col">
+      <PageHeader
+        leading={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() =>
+              navigate(isSystemMode ? '/marketplace?tab=prompts' : '/prompts')
+            }
+            aria-label={t('prompts.backToPrompts')}
+          >
+            <ArrowLeft className="size-3.5" />
+          </Button>
+        }
+        title={pageTitle}
+      />
+      <div className="min-h-0 flex-1 flex flex-col overflow-auto p-5">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex min-h-0 flex-1 flex-col gap-6"
+            className="min-h-0 flex-1 flex flex-col gap-6"
           >
-            <div className="flex flex-col gap-6 lg:flex-row lg:min-h-0 lg:flex-1">
-              {/* Left: Basic Info */}
-              <Card className="flex w-full flex-col lg:w-1/2">
-                <CardHeader>
-                  <CardTitle>{t('prompts.promptDetails')}</CardTitle>
-                  <CardDescription>
-                    {t('prompts.promptDetailsDesc')}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-1 flex-col gap-6 overflow-y-auto">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-1">
-                          {t('common.name')}
-                          <AutoFillButton
-                            content={form.watch('content')}
-                            fieldDescription="A short, descriptive prompt template name (max 30 characters). Use the same language as the input content."
-                            onResult={v =>
-                              form.setValue('name', v, {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              })
-                            }
-                            disabled={isSaving}
-                          />
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t('prompts.namePlaceholder')}
-                            disabled={isSaving}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t('prompts.nameHint')}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <div className="min-h-0 flex-1 flex flex-col gap-6 lg:flex-row">
+              {/* Left: metadata fields */}
+              <div className="flex w-full flex-col gap-6 lg:w-1/2">
+                {/* Name */}
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1">
+                        {t('common.name')}
+                        <AutoFillButton
+                          content={form.watch('content')}
+                          fieldDescription="A short, descriptive prompt template name (max 30 characters). Use the same language as the input content."
+                          onResult={v =>
+                            form.setValue('name', v, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            })
+                          }
+                          disabled={isSaving}
+                        />
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('prompts.namePlaceholder')}
+                          disabled={isSaving}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('prompts.nameHint')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-1">
-                          {t('common.description')}
-                          <AutoFillButton
-                            content={form.watch('content')}
-                            fieldDescription="A concise description of what this prompt template does (1-2 sentences). Use the same language as the input content."
-                            onResult={v =>
-                              form.setValue('description', v, {
-                                shouldValidate: true,
-                                shouldDirty: true,
-                              })
-                            }
-                            disabled={isSaving}
-                          />
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder={t('prompts.descPlaceholder')}
-                            disabled={isSaving}
-                            rows={3}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t('prompts.descHint')}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                {/* Description */}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1">
+                        {t('common.description')}
+                        <AutoFillButton
+                          content={form.watch('content')}
+                          fieldDescription="A concise description of what this prompt template does (1-2 sentences). Use the same language as the input content."
+                          onResult={v =>
+                            form.setValue('description', v, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            })
+                          }
+                          disabled={isSaving}
+                        />
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={t('prompts.descPlaceholder')}
+                          disabled={isSaving}
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('prompts.descHint')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="categoryId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('prompts.category')}</FormLabel>
-                        <div className="flex flex-row gap-2">
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="flex-1">
-                                <SelectValue
-                                  placeholder={t('prompts.categoryPlaceholder')}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {categories?.map(category => (
-                                <SelectItem
-                                  key={category.id}
-                                  value={category.id}
-                                >
-                                  {category.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setCategoryDialogOpen(true)}
-                            disabled={isSaving}
-                            title={t('prompts.newCategory')}
-                          >
-                            <Plus className="size-4" />
-                          </Button>
-                        </div>
-                        <FormDescription>
-                          {t('prompts.categoryHint')}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <Separator />
 
-                  <FormField
-                    control={form.control}
-                    name="tags"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('prompts.tags')}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t('prompts.tagsPlaceholder')}
-                            disabled={isSaving}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          {t('prompts.tagsHint')}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+                {/* Category */}
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('prompts.category')}</FormLabel>
+                      <div className="flex flex-row gap-2">
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="flex-1">
+                              <SelectValue
+                                placeholder={t('prompts.categoryPlaceholder')}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories?.map(category => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setCategoryDialogOpen(true)}
+                          disabled={isSaving}
+                          title={t('prompts.newCategory')}
+                        >
+                          <Plus className="size-4" />
+                        </Button>
+                      </div>
+                      <FormDescription>
+                        {t('prompts.categoryHint')}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Right: Prompt Content */}
-              <Card className="flex min-h-96 w-full flex-col lg:min-h-0 lg:w-1/2">
-                <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
-                  <div className="flex flex-col gap-1.5">
-                    <CardTitle>{t('prompts.content')}</CardTitle>
-                    <CardDescription>
+                {/* Tags */}
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('prompts.tags')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('prompts.tagsPlaceholder')}
+                          disabled={isSaving}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t('prompts.tagsHint')}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Right: content editor */}
+              <div className="flex min-h-96 w-full flex-col gap-3 lg:min-h-0 lg:w-1/2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium">
+                      {t('prompts.content')}
+                    </h3>
+                    <p className="text-foreground-muted text-xs">
                       {t('prompts.contentHint')}
-                    </CardDescription>
+                    </p>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex gap-2">
                     <PolishButton
                       content={form.watch('content') ?? ''}
                       onApply={handleContentChange}
@@ -397,41 +382,47 @@ export default function PromptEditorPage() {
                       disabled={isSaving}
                     />
                   </div>
-                </CardHeader>
-                <CardContent className="flex min-h-0 flex-1 flex-col">
-                  <FormField
-                    control={form.control}
-                    name="content"
-                    render={({ field }) => (
-                      <FormItem className="flex min-h-0 flex-1 flex-col">
-                        <FormControl>
-                          <PromptEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder={t('prompts.contentPlaceholder')}
-                            disabled={isSaving}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
+                </div>
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem className="min-h-0 flex flex-1 flex-col">
+                      <FormControl>
+                        <CodeEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder={t('prompts.contentPlaceholder')}
+                          disabled={isSaving}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t pt-6">
+            <Separator />
+            <div className="flex items-center gap-3">
+              <div className="flex-1" />
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/prompts')}
+                size="sm"
+                onClick={() =>
+                  navigate(
+                    isSystemMode ? '/marketplace?tab=prompts' : '/prompts'
+                  )
+                }
                 disabled={isSaving}
               >
                 {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
+                size="sm"
                 disabled={!form.formState.isValid || isSaving}
                 variant="primary"
               >
@@ -445,7 +436,7 @@ export default function PromptEditorPage() {
 
       {/* Create Category Dialog */}
       <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-        <DialogContent size="sm">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{t('prompts.newCategory')}</DialogTitle>
           </DialogHeader>

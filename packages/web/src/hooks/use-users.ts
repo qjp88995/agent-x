@@ -39,6 +39,18 @@ export function useUsers(params: UseUsersParams = {}) {
   });
 }
 
+export function useAllUsers() {
+  return useQuery<UserResponse[]>({
+    queryKey: ['users', 'all'],
+    queryFn: async () => {
+      const { data } = await api.get<UserListResponse>('/users', {
+        params: { pageSize: 1000 },
+      });
+      return data.data;
+    },
+  });
+}
+
 export function useUser(id: string | undefined) {
   return useQuery<UserDetailResponse>({
     queryKey: ['users', id],

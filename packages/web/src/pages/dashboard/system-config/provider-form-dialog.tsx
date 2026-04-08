@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
+} from '@agent-x/design';
 import type {
   ProviderProtocol as ProviderProtocolType,
   SystemProviderResponse,
@@ -9,18 +21,6 @@ import { ProviderProtocol } from '@agent-x/shared';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   useCreateSystemProvider,
   useUpdateSystemProvider,
@@ -135,9 +135,9 @@ export function ProviderFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto py-4">
+        <div className="flex flex-1 flex-col gap-6 overflow-y-auto py-4">
           {/* Name */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <Label>{t('common.name')}</Label>
             <Input
               placeholder={t('providers.namePlaceholder')}
@@ -151,7 +151,7 @@ export function ProviderFormDialog({
 
           {/* Protocol */}
           {!isEdit && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               <Label>{t('providers.protocol')}</Label>
               <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                 {PROTOCOL_OPTIONS.map(option => (
@@ -164,14 +164,14 @@ export function ProviderFormDialog({
                       'flex flex-col items-start rounded-md border p-2.5 text-left transition-colors',
                       form.protocol === option.value
                         ? 'border-primary bg-primary/5 ring-primary/20 ring-2'
-                        : 'hover:bg-accent',
+                        : 'hover:bg-card',
                       isSaving && 'cursor-not-allowed opacity-60'
                     )}
                   >
                     <span className="text-sm font-medium">
                       {t(option.labelKey)}
                     </span>
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-foreground-muted text-xs">
                       {t(option.descKey)}
                     </span>
                   </button>
@@ -181,7 +181,7 @@ export function ProviderFormDialog({
           )}
 
           {isEdit && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               <Label>{t('providers.protocol')}</Label>
               <Badge
                 variant="outline"
@@ -196,7 +196,7 @@ export function ProviderFormDialog({
           )}
 
           {/* Base URL */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <Label>{t('providers.baseUrl')}</Label>
             <Input
               type="url"
@@ -210,7 +210,7 @@ export function ProviderFormDialog({
           </div>
 
           {/* API Key */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <Label>{t('providers.apiKey')}</Label>
             <Input
               type="password"
@@ -227,7 +227,7 @@ export function ProviderFormDialog({
               autoComplete="off"
             />
             {isEdit && (
-              <p className="text-muted-foreground text-xs">
+              <p className="text-foreground-muted text-xs">
                 {t('providers.apiKeyKeepHint')}
               </p>
             )}

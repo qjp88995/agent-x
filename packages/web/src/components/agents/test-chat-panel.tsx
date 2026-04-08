@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import { useChat } from '@ai-sdk/react';
 import {
   Bot,
@@ -11,12 +17,6 @@ import {
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
-import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useCreateConversation } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { cn } from '@/lib/utils';
@@ -162,10 +162,10 @@ export function TestChatPanel({ agentId, className }: TestChatPanelProps) {
       <div className="flex-1 overflow-y-auto">
         {messages.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-16">
-            <div className="bg-muted flex size-12 items-center justify-center rounded-full">
-              <Bot className="text-muted-foreground size-6" />
+            <div className="bg-surface flex size-12 items-center justify-center rounded-full">
+              <Bot className="text-foreground-muted size-6" />
             </div>
-            <p className="text-muted-foreground text-center text-sm">
+            <p className="text-foreground-muted text-center text-sm">
               {t('chat.testAgent')}
             </p>
           </div>

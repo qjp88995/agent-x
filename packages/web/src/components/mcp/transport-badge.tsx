@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
+import { Badge } from '@agent-x/design';
 import type { McpTransport as McpTransportType } from '@agent-x/shared';
 
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 const TRANSPORT_BADGE_CONFIG: Record<McpTransportType, { className: string }> =

@@ -59,6 +59,7 @@
     "skills": "技能",
     "apiKeys": "API 密钥",
     "prompts": "提示词",
+    "marketplace": "资源市场",
     "preferences": "用户偏好",
     "systemConfig": "系统配置",
     "openMenu": "打开菜单",
@@ -192,6 +193,7 @@
     "publishFailed": "发布版本失败，请重试。",
     "basicInfo": "基本信息",
     "systemPrompt": "系统提示词",
+    "skills": "技能",
     "mcpServers": "MCP 服务",
     "versions": "版本",
     "shareLinks": "分享链接",
@@ -282,9 +284,25 @@
     "loadingMessages": "加载消息中...",
     "noMessages": "此会话暂无消息。"
   },
+  "marketplace": {
+    "title": "资源市场",
+    "subtitle": "浏览和发现技能、MCP 服务和提示词",
+    "tabs": {
+      "skills": "技能",
+      "mcp": "MCP 服务",
+      "prompts": "提示词"
+    },
+    "browseMarketplace": "浏览资源市场",
+    "addSkill": "添加技能",
+    "addMcp": "添加 MCP 服务",
+    "addPrompt": "添加提示词",
+    "emptySkills": "资源市场中暂无可用技能。",
+    "emptyMcp": "资源市场中暂无可用 MCP 服务。",
+    "emptyPrompts": "资源市场中暂无可用提示词。"
+  },
   "skills": {
-    "title": "技能",
-    "subtitle": "管理智能体的技能模板。",
+    "title": "我的技能",
+    "subtitle": "管理你的自定义技能",
     "createSkill": "创建技能",
     "editSkill": "编辑技能",
     "editSkillDesc": "更新技能配置。",
@@ -331,8 +349,8 @@
     "addSystemSkillDesc": "创建一个对所有用户可用的系统技能。"
   },
   "prompts": {
-    "title": "提示词",
-    "subtitle": "管理你的提示词模板库",
+    "title": "我的提示词",
+    "subtitle": "管理你的自定义提示词",
     "systemPrompts": "市场",
     "myPrompts": "我的提示词",
     "createPrompt": "创建提示词",
@@ -394,8 +412,8 @@
     "noTags": "无标签"
   },
   "mcp": {
-    "title": "MCP 服务",
-    "subtitle": "管理模型上下文协议服务器连接。",
+    "title": "我的 MCP 服务",
+    "subtitle": "管理你的自定义 MCP 服务",
     "addServer": "添加服务",
     "addToMarketplace": "添加到市场",
     "editServer": "编辑 MCP 服务",
@@ -458,7 +476,10 @@
     "headersPlaceholder": "{\n  \"Authorization\": \"Bearer token\"\n}",
     "headersHint": "可选的 HTTP 请求头，JSON 格式。",
     "headersError": "JSON 格式无效，请输入有效的 JSON 对象。",
-    "createServer": "创建服务"
+    "createServer": "创建服务",
+    "createService": "创建服务",
+    "createCustomService": "创建我的服务",
+    "createSystemService": "创建系统服务"
   },
   "agentMcp": {
     "boundServers": "已绑定的 MCP 服务",
@@ -474,6 +495,15 @@
     "clear": "清除",
     "saveTools": "保存工具",
     "noTools": "未发现此服务的工具。请先在 MCP 服务页面测试连接。"
+  },
+  "agentSkills": {
+    "boundSkills": "已绑定的技能",
+    "boundSkillsDesc": "当前附加到此智能体的技能。",
+    "noBound": "暂未绑定技能。请从下方列表中添加。",
+    "availableSkills": "可用的技能",
+    "availableSkillsDesc": "为智能体添加技能以增强其能力。",
+    "noAvailable": "没有更多可用的技能。请先在技能页面创建。",
+    "add": "添加"
   },
   "apiKeys": {
     "title": "API 密钥",
@@ -524,6 +554,10 @@
     "allAgents": "全部智能体",
     "noAgentsAvailable": "暂无可用智能体",
     "noConversationsYet": "暂无对话",
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本周",
+    "earlier": "更早",
     "selectAgentToStart": "选择一个智能体开始",
     "selectConversation": "选择一个对话",
     "chooseConversation": "选择现有对话或开始新对话。",
@@ -615,6 +649,11 @@
     "providers": "系统供应商",
     "providersDesc": "管理平台功能使用的系统级 AI 供应商。",
     "featuresTab": "功能配置",
+    "sections": {
+      "aiConfiguration": "AI 配置"
+    },
+    "notConfigured": "未配置",
+    "newProvider": "新建提供商",
     "addProvider": "添加系统供应商",
     "editProvider": "编辑系统供应商",
     "deleteProvider": "删除系统供应商",

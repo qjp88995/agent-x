@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Bookmark, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+  Input,
+  Label,
+  Textarea,
+} from '@agent-x/design';
+import { Bookmark, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useCreatePrompt } from '@/hooks/use-prompts';
 
 interface SavePromptButtonProps {

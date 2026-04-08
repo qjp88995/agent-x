@@ -1,12 +1,8 @@
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
-import { UserRole } from '@agent-x/shared';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -14,16 +10,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@agent-x/design';
+import { UserRole } from '@agent-x/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+
 import { useCreateUser } from '@/hooks/use-users';
 import {
   type CreateUserFormValues,

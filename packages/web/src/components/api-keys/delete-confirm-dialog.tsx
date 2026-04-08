@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next';
 
-import { toast } from 'sonner';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +9,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@agent-x/design';
+import { toast } from 'sonner';
+
 import type { ApiKeyResponse } from '@/hooks/use-api-keys';
 import { useDeleteApiKey } from '@/hooks/use-api-keys';
 

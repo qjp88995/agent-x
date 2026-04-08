@@ -59,6 +59,7 @@
     "skills": "Skills",
     "apiKeys": "API Keys",
     "prompts": "Prompts",
+    "marketplace": "Marketplace",
     "preferences": "Preferences",
     "systemConfig": "System Config",
     "openMenu": "Open menu",
@@ -192,6 +193,7 @@
     "publishFailed": "Failed to publish version. Please try again.",
     "basicInfo": "Basic Info",
     "systemPrompt": "System Prompt",
+    "skills": "Skills",
     "mcpServers": "MCP Servers",
     "versions": "Versions",
     "shareLinks": "Share Links",
@@ -282,9 +284,25 @@
     "loadingMessages": "Loading messages...",
     "noMessages": "No messages in this conversation."
   },
+  "marketplace": {
+    "title": "Marketplace",
+    "subtitle": "Browse and discover skills, MCP servers, and prompts",
+    "tabs": {
+      "skills": "Skills",
+      "mcp": "MCP Servers",
+      "prompts": "Prompts"
+    },
+    "browseMarketplace": "Browse Marketplace",
+    "addSkill": "Add Skill",
+    "addMcp": "Add MCP Server",
+    "addPrompt": "Add Prompt",
+    "emptySkills": "No skills available in the marketplace yet.",
+    "emptyMcp": "No MCP servers available in the marketplace yet.",
+    "emptyPrompts": "No prompts available in the marketplace yet."
+  },
   "skills": {
-    "title": "Skills",
-    "subtitle": "Manage skill templates for your agents.",
+    "title": "My Skills",
+    "subtitle": "Manage your custom skills",
     "createSkill": "Create Skill",
     "editSkill": "Edit Skill",
     "editSkillDesc": "Update your skill configuration.",
@@ -331,8 +349,8 @@
     "addSystemSkillDesc": "Create a new system skill available to all users."
   },
   "prompts": {
-    "title": "Prompts",
-    "subtitle": "Manage your prompt template library",
+    "title": "My Prompts",
+    "subtitle": "Manage your custom prompts",
     "systemPrompts": "Marketplace",
     "myPrompts": "My Prompts",
     "createPrompt": "Create Prompt",
@@ -394,8 +412,8 @@
     "noTags": "No tags"
   },
   "mcp": {
-    "title": "MCP Servers",
-    "subtitle": "Manage Model Context Protocol server connections.",
+    "title": "My MCP Servers",
+    "subtitle": "Manage your custom MCP services",
     "addServer": "Add Server",
     "addToMarketplace": "Add to Marketplace",
     "editServer": "Edit MCP Server",
@@ -458,7 +476,10 @@
     "headersPlaceholder": "{\n  \"Authorization\": \"Bearer token\"\n}",
     "headersHint": "Optional HTTP headers as JSON object.",
     "headersError": "Invalid JSON format. Please enter a valid JSON object.",
-    "createServer": "Create Server"
+    "createServer": "Create Server",
+    "createService": "Create Service",
+    "createCustomService": "Create My Service",
+    "createSystemService": "Create System Service"
   },
   "agentMcp": {
     "boundServers": "Bound MCP Servers",
@@ -474,6 +495,15 @@
     "clear": "Clear",
     "saveTools": "Save Tools",
     "noTools": "No tools discovered for this server. Try testing the connection on the MCP Servers page first."
+  },
+  "agentSkills": {
+    "boundSkills": "Bound Skills",
+    "boundSkillsDesc": "Skills currently attached to this agent.",
+    "noBound": "No skills bound yet. Add one from the list below.",
+    "availableSkills": "Available Skills",
+    "availableSkillsDesc": "Add skills to give your agent additional capabilities.",
+    "noAvailable": "No additional skills available. Create one in the Skills page first.",
+    "add": "Add"
   },
   "apiKeys": {
     "title": "API Keys",
@@ -524,6 +554,10 @@
     "allAgents": "All Agents",
     "noAgentsAvailable": "No agents available",
     "noConversationsYet": "No conversations yet",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "earlier": "Earlier",
     "selectAgentToStart": "Select an agent to start",
     "selectConversation": "Select a conversation",
     "chooseConversation": "Choose an existing conversation or start a new one.",
@@ -615,6 +649,11 @@
     "providers": "System Providers",
     "providersDesc": "Manage system-level AI provider connections for platform features.",
     "featuresTab": "Feature Config",
+    "sections": {
+      "aiConfiguration": "AI Configuration"
+    },
+    "notConfigured": "Not configured",
+    "newProvider": "New Provider",
     "addProvider": "Add System Provider",
     "editProvider": "Edit System Provider",
     "deleteProvider": "Delete System Provider",

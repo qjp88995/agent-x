@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 
+import { CurrentUserPayload } from '../../common/types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateMcpServerDto } from './dto/create-mcp-server.dto';
@@ -42,12 +43,15 @@ export class McpController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: { id: string }) {
+  findAll(@CurrentUser() user: CurrentUserPayload) {
     return this.mcpService.findAll(user.id);
   }
 
   @Post()
-  create(@CurrentUser() user: { id: string }, @Body() dto: CreateMcpServerDto) {
+  create(
+    @CurrentUser() user: CurrentUserPayload,
+    @Body() dto: CreateMcpServerDto
+  ) {
     return this.mcpService.create(user.id, dto);
   }
 
@@ -59,19 +63,22 @@ export class McpController {
   @Put(':id')
   update(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() dto: UpdateMcpServerDto
   ) {
     return this.mcpService.update(id, user.id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  remove(@Param('id') id: string, @CurrentUser() user: CurrentUserPayload) {
     return this.mcpService.remove(id, user.id);
   }
 
   @Post(':id/test')
-  testConnection(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  testConnection(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserPayload
+  ) {
     return this.mcpService.testConnection(id, user.id);
   }
 }

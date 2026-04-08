@@ -1,24 +1,13 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 
-export class UpdatePromptDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
+import { IsOptional, IsString } from 'class-validator';
 
-  @IsOptional()
-  @IsString()
-  description?: string;
+import { CreatePromptDto } from './create-prompt.dto';
 
-  @IsOptional()
-  @IsString()
-  content?: string;
-
+export class UpdatePromptDto extends PartialType(
+  OmitType(CreatePromptDto, ['categoryId'] as const)
+) {
   @IsOptional()
   @IsString()
   categoryId?: string | null;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  tags?: string[];
 }

@@ -1,28 +1,25 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type { SkillResponse } from '@agent-x/shared';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import type { SkillResponse } from '@agent-x/shared';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 
 interface SkillCardProps {
   readonly skill: SkillResponse;
   readonly onDelete: (skill: SkillResponse) => void;
-  readonly onPreview: (skill: SkillResponse) => void;
+  readonly onPreview?: (skill: SkillResponse) => void;
 }
 
 export function SkillCard({ skill, onDelete, onPreview }: SkillCardProps) {
@@ -52,11 +49,11 @@ export function SkillCard({ skill, onDelete, onPreview }: SkillCardProps) {
 
       <CardContent className="flex-1">
         {skill.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-foreground-muted line-clamp-2 text-sm">
             {skill.description}
           </p>
         ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
+          <p className="text-foreground-muted/50 text-sm italic">
             {t('common.noDescription')}
           </p>
         )}
@@ -67,12 +64,12 @@ export function SkillCard({ skill, onDelete, onPreview }: SkillCardProps) {
           <div className="flex flex-wrap gap-1.5">
             {skill.tags.length > 0 ? (
               skill.tags.map(tag => (
-                <Badge key={tag} variant="secondary" className="text-xs">
+                <Badge key={tag} variant="muted" className="text-xs">
                   {tag}
                 </Badge>
               ))
             ) : (
-              <span className="text-muted-foreground text-xs">
+              <span className="text-foreground-muted text-xs">
                 {t('skills.noTags')}
               </span>
             )}
@@ -84,7 +81,7 @@ export function SkillCard({ skill, onDelete, onPreview }: SkillCardProps) {
                   variant="ghost"
                   size="icon"
                   className="size-7"
-                  onClick={() => onPreview(skill)}
+                  onClick={() => onPreview?.(skill)}
                 >
                   <Eye className="size-3.5" />
                 </Button>

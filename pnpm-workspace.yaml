@@ -1,2 +1,68 @@
 packages:
   - "packages/*"
+
+catalog:
+  # CodeMirror — single versions enforced here to prevent duplicate instance errors
+  "@codemirror/lang-markdown": "^6.5.0"
+  "@codemirror/language": "^6.12.3"
+  "@codemirror/state": "^6.6.0"
+  "@codemirror/view": "^6.41.0"
+  "@lezer/highlight": "^1.2.3"
+  "@uiw/react-codemirror": "^4.25.8"
+
+  # AI SDK
+  ai: "^6.0.146"
+  "@ai-sdk/alibaba": "^1.0.14"
+  "@ai-sdk/anthropic": "^3.0.66"
+  "@ai-sdk/deepseek": "^2.0.27"
+  "@ai-sdk/google": "^3.0.58"
+  "@ai-sdk/mcp": "^1.0.32"
+  "@ai-sdk/moonshotai": "^2.0.13"
+  "@ai-sdk/openai": "^3.0.50"
+  "@ai-sdk/react": "^3.0.148"
+  zhipu-ai-provider: "^0.3.0"
+
+  # React
+  react: "^19.0.0"
+  react-dom: "^19.0.0"
+  "@types/react": "^19.0.10"
+  "@types/react-dom": "^19.0.4"
+
+  # UI / styling
+  "@monaco-editor/react": "^4.7.0"
+  "@radix-ui/react-slot": "^1.1.0"
+  clsx: "^2.1.0"
+  framer-motion: "^12.35.2"
+  highlight.js: "^11.11.1"
+  lucide-react: "^0.469.0"
+  react-markdown: "^10.1.0"
+  react-resizable-panels: "^4.7.1"
+  rehype-highlight: "^7.0.2"
+  rehype-sanitize: "^6.0.0"
+  remark-gfm: "^4.0.1"
+  sonner: "^2.0.7"
+  tailwind-merge: "^2.6.0"
+
+  # Shared utils
+  zod: "^4.3.6"
+
+  # Dev tooling
+  "@eslint/js": "^9.39.3"
+  "@tailwindcss/vite": "^4.0.0"
+  "@types/node": "^22.10.0"
+  "@vitejs/plugin-react": "^4.3.4"
+  eslint: "^9.39.3"
+  eslint-plugin-react-hooks: "^5.2.0"
+  eslint-plugin-react-refresh: "^0.4.26"
+  eslint-plugin-simple-import-sort: "^12.1.1"
+  globals: "^15.15.0"
+  tailwindcss: "^4.0.0"
+  typescript: "~5.7.2"
+  typescript-eslint: "^8.56.1"
+
+allowBuilds:
+  '@nestjs/core': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  protobufjs: true

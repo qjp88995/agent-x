@@ -3,6 +3,18 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useParams } from 'react-router';
 
+import {
+  Badge,
+  Button,
+  ErrorState,
+  Form,
+  LoadingState,
+  PageHeader,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@agent-x/design';
 import type {
   AgentResponse,
   AgentStatus as AgentStatusType,
@@ -13,6 +25,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Archive,
   ArchiveRestore,
+  ArrowLeft,
   GitBranch,
   Loader2,
   Rocket,
@@ -22,15 +35,10 @@ import { toast } from 'sonner';
 import { AgentBasicInfoTab } from '@/components/agents/agent-basic-info-tab';
 import { AgentMcpTab } from '@/components/agents/agent-mcp-tab';
 import { AgentPromptTab } from '@/components/agents/agent-prompt-tab';
+import { AgentSkillsTab } from '@/components/agents/agent-skills-tab';
 import { ArchiveAgentDialog } from '@/components/agents/archive-agent-dialog';
 import { PublishVersionDialog } from '@/components/agents/publish-version-dialog';
 import { TestChatPanel } from '@/components/agents/test-chat-panel';
-import { PageHeader } from '@/components/shared/page-header';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePublishVersion } from '@/hooks/use-agent-versions';
 import {
   useAgent,
@@ -60,6 +68,7 @@ const STATUS_BADGE_CONFIG: Record<
 
 export default function EditAgentPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const {
     data: agent,
@@ -78,11 +87,11 @@ export default function EditAgentPage() {
 
   if (agentError || !agent) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('agents.notFound')}
         description={t('agents.notFoundDesc')}
-        backLabel={t('agents.backToAgents')}
-        backTo="/agents"
+        actionLabel={t('agents.backToAgents')}
+        onAction={() => navigate('/agents')}
       />
     );
   }
@@ -215,56 +224,62 @@ function AgentEditForm({
   const statusConfig = STATUS_BADGE_CONFIG[agent.status];
 
   return (
-    <div className="-m-6 flex min-h-0 flex-1">
-      <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
-        <PageHeader
-          backTo="/agents"
-          backLabel={t('agents.backToAgents')}
-          title={t('agents.editAgent')}
-          description={t('agents.editAgentDesc')}
-          titleExtra={
-            <>
-              <Badge
-                variant="outline"
-                className={cn('border-0', statusConfig.className)}
-              >
-                {t(statusConfig.labelKey)}
-              </Badge>
-              {agent.latestVersion !== null && (
-                <span className="text-muted-foreground text-sm">
-                  v{agent.latestVersion}
-                </span>
-              )}
-            </>
-          }
-        >
-          <div className="flex flex-wrap items-center gap-2">
+    <div className="flex h-full flex-col">
+      <PageHeader
+        leading={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => navigate('/agents')}
+            aria-label={t('agents.backToAgents')}
+          >
+            <ArrowLeft className="size-3.5" />
+          </Button>
+        }
+        title={t('agents.editAgent')}
+        actions={
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className={cn('border-0', statusConfig.className)}
+            >
+              {t(statusConfig.labelKey)}
+            </Badge>
+            {agent.latestVersion !== null && (
+              <span className="text-foreground-muted text-xs">
+                v{agent.latestVersion}
+              </span>
+            )}
             <Button
               variant="outline"
+              size="sm"
               onClick={() => navigate(`/agents/${agentId}/versions`)}
             >
-              <GitBranch className="mr-2 size-4" />
+              <GitBranch className="mr-2 size-3.5" />
               {t('agents.versionManagement')}
             </Button>
             {agent.status === AgentStatus.ACTIVE && (
               <>
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => setArchiveDialogOpen(true)}
                   disabled={isBusy}
                 >
                   {isArchiving && (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    <Loader2 className="mr-2 size-3.5 animate-spin" />
                   )}
-                  <Archive className="mr-2 size-4" />
+                  <Archive className="mr-2 size-3.5" />
                   {t('agents.archive')}
                 </Button>
                 <Button
+                  size="sm"
                   onClick={() => setPublishDialogOpen(true)}
                   disabled={isBusy}
                   variant="primary"
                 >
-                  <Rocket className="mr-2 size-4" />
+                  <Rocket className="mr-2 size-3.5" />
                   {t('agents.publishVersion')}
                 </Button>
               </>
@@ -272,82 +287,108 @@ function AgentEditForm({
             {agent.status === AgentStatus.ARCHIVED && (
               <Button
                 variant="outline"
+                size="sm"
                 onClick={handleUnarchive}
                 disabled={isBusy}
               >
                 {isUnarchiving && (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="mr-2 size-3.5 animate-spin" />
                 )}
-                <ArchiveRestore className="mr-2 size-4" />
+                <ArchiveRestore className="mr-2 size-3.5" />
                 {t('agents.unarchive')}
               </Button>
             )}
           </div>
-        </PageHeader>
+        }
+      />
 
-        <PublishVersionDialog
-          open={publishDialogOpen}
-          onOpenChange={setPublishDialogOpen}
-          changelog={changelog}
-          onChangelogChange={setChangelog}
-          onPublish={handlePublishVersion}
-          isPublishing={isPublishing}
-        />
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex min-h-0 flex-1 flex-col"
-          >
-            <Tabs defaultValue="basic" className="flex min-h-0 flex-1 flex-col">
-              <TabsList>
-                <TabsTrigger value="basic">{t('agents.basicInfo')}</TabsTrigger>
-                <TabsTrigger value="prompt">
-                  {t('agents.systemPrompt')}
-                </TabsTrigger>
-                <TabsTrigger value="mcp">{t('agents.mcpServers')}</TabsTrigger>
-              </TabsList>
-
-              <TabsContent
-                value="basic"
-                className="flex min-h-0 flex-1 flex-col"
+      <div className="flex min-h-0 flex-1">
+        <div className="flex flex-1 flex-col overflow-auto p-5">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <Tabs
+                defaultValue="basic"
+                className="flex min-h-0 flex-1 flex-col gap-6"
               >
-                <AgentBasicInfoTab
-                  form={form}
-                  activeProviders={activeProviders}
-                  activeModels={activeModels}
-                  watchedProviderId={watchedProviderId}
-                  isBusy={isBusy}
-                  isSaving={isSaving}
-                  systemPrompt={form.watch('systemPrompt')}
-                />
-              </TabsContent>
+                <TabsList>
+                  <TabsTrigger value="basic">
+                    {t('agents.basicInfo')}
+                  </TabsTrigger>
+                  <TabsTrigger value="prompt">
+                    {t('agents.systemPrompt')}
+                  </TabsTrigger>
+                  <TabsTrigger value="skills">{t('agents.skills')}</TabsTrigger>
+                  <TabsTrigger value="mcp">
+                    {t('agents.mcpServers')}
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent
-                value="prompt"
-                className="flex min-h-0 flex-1 flex-col"
-              >
-                <AgentPromptTab
-                  form={form}
-                  isBusy={isBusy}
-                  isSaving={isSaving}
-                />
-              </TabsContent>
+                <TabsContent
+                  value="basic"
+                  className="flex min-h-0 flex-1 flex-col"
+                >
+                  <AgentBasicInfoTab
+                    form={form}
+                    activeProviders={activeProviders}
+                    activeModels={activeModels}
+                    watchedProviderId={watchedProviderId}
+                    isBusy={isBusy}
+                    isSaving={isSaving}
+                    systemPrompt={form.watch('systemPrompt')}
+                  />
+                </TabsContent>
 
-              <TabsContent value="mcp" className="flex min-h-0 flex-1 flex-col">
-                <AgentMcpTab
-                  agentId={agentId}
-                  currentMcpServers={agent.mcpServers}
-                />
-              </TabsContent>
-            </Tabs>
-          </form>
-        </Form>
+                <TabsContent
+                  value="prompt"
+                  className="flex min-h-0 flex-1 flex-col"
+                >
+                  <AgentPromptTab
+                    form={form}
+                    isBusy={isBusy}
+                    isSaving={isSaving}
+                  />
+                </TabsContent>
+
+                <TabsContent
+                  value="skills"
+                  className="flex min-h-0 flex-1 flex-col"
+                >
+                  <AgentSkillsTab
+                    agentId={agentId}
+                    currentSkills={agent.skills}
+                  />
+                </TabsContent>
+
+                <TabsContent
+                  value="mcp"
+                  className="flex min-h-0 flex-1 flex-col"
+                >
+                  <AgentMcpTab
+                    agentId={agentId}
+                    currentMcpServers={agent.mcpServers}
+                  />
+                </TabsContent>
+              </Tabs>
+            </form>
+          </Form>
+        </div>
+
+        {agent.status === AgentStatus.ACTIVE && (
+          <TestChatPanel agentId={agentId} className="hidden lg:flex" />
+        )}
       </div>
 
-      {agent.status === AgentStatus.ACTIVE && (
-        <TestChatPanel agentId={agentId} className="hidden lg:flex" />
-      )}
+      <PublishVersionDialog
+        open={publishDialogOpen}
+        onOpenChange={setPublishDialogOpen}
+        changelog={changelog}
+        onChangelogChange={setChangelog}
+        onPublish={handlePublishVersion}
+        isPublishing={isPublishing}
+      />
 
       <ArchiveAgentDialog
         open={archiveDialogOpen}

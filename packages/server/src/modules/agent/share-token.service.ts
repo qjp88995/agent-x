@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { createHash, randomBytes } from 'crypto';
-
+import { generateToken, hashToken } from '../../common/token.util';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateShareTokenDto } from './dto/create-share-token.dto';
 
@@ -25,8 +24,8 @@ export class ShareTokenService {
       throw new NotFoundException('Agent version not found');
     }
 
-    const rawToken = `${TOKEN_PREFIX}${randomBytes(32).toString('hex')}`;
-    const hashedToken = this.hashToken(rawToken);
+    const rawToken = generateToken(TOKEN_PREFIX);
+    const hashedToken = hashToken(rawToken);
 
     const record = await this.prisma.shareToken.create({
       data: {
@@ -77,7 +76,7 @@ export class ShareTokenService {
   }
 
   async validate(rawToken: string) {
-    const hashedToken = this.hashToken(rawToken);
+    const hashedToken = hashToken(rawToken);
 
     const token = await this.prisma.shareToken.findUnique({
       where: { token: hashedToken },
@@ -128,9 +127,5 @@ export class ShareTokenService {
       where: { id: tokenId },
       data: { usedConversations: { increment: 1 } },
     });
-  }
-
-  private hashToken(rawToken: string): string {
-    return createHash('sha256').update(rawToken).digest('hex');
   }
 }

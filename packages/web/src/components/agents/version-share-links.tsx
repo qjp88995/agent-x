@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { formatDistanceToNow } from 'date-fns';
-import { Ban, Check, Copy, Link2, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,10 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
+  Badge,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -26,14 +20,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
+  Input,
+  Label,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { formatDistanceToNow } from 'date-fns';
+import { Ban, Check, Copy, Link2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useDateLocale } from '@/hooks/use-date-locale';
 import {
   useCreateShareToken,
@@ -130,7 +126,7 @@ export function VersionShareLinks({
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground py-4 text-center text-sm">
+      <div className="text-foreground-muted py-4 text-center text-sm">
         {t('shareLinks.loading')}
       </div>
     );
@@ -139,7 +135,7 @@ export function VersionShareLinks({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs">
+        <span className="text-foreground-muted text-xs">
           {tokens?.length ?? 0} {t('shareLinks.linksCount')}
         </span>
         <Dialog
@@ -260,7 +256,7 @@ export function VersionShareLinks({
       </div>
 
       {!tokens?.length ? (
-        <p className="text-muted-foreground py-2 text-center text-sm">
+        <p className="text-foreground-muted py-2 text-center text-sm">
           {t('shareLinks.noLinks')}
         </p>
       ) : (
@@ -273,10 +269,10 @@ export function VersionShareLinks({
               <div className="min-w-0 flex-1 flex flex-col gap-1.5">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-medium">{token.name}</span>
-                  <Badge variant={token.isActive ? 'default' : 'secondary'}>
+                  <Badge variant={token.isActive ? 'default' : 'muted'}>
                     {token.isActive ? t('common.active') : t('common.inactive')}
                   </Badge>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-foreground-muted text-xs">
                     {token.usedConversations}
                     {token.maxConversations !== null
                       ? `/${token.maxConversations}`
@@ -284,7 +280,7 @@ export function VersionShareLinks({
                     {t('shareLinks.conversations')}
                   </span>
                   {token.expiresAt && (
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-foreground-muted text-xs">
                       {t('shareLinks.expires')}{' '}
                       {formatDistanceToNow(new Date(token.expiresAt), {
                         addSuffix: true,
@@ -295,7 +291,7 @@ export function VersionShareLinks({
                 </div>
                 {token.tokenSlug && (
                   <div className="flex items-center gap-1.5">
-                    <code className="text-muted-foreground truncate text-xs">
+                    <code className="text-foreground-muted truncate text-xs">
                       {getShareUrl(token.tokenSlug)}
                     </code>
                     <Tooltip>

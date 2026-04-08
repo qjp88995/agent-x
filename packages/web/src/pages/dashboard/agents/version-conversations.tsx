@@ -1,14 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
 
+import { Button, ErrorState, LoadingState, PageHeader } from '@agent-x/design';
 import type { SharedConversationResponse } from '@agent-x/shared';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare } from 'lucide-react';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
 
 import { MessageList } from '@/components/chat/message-list';
-import { PageHeader } from '@/components/shared/page-header';
-import { LoadingState, NotFoundState } from '@/components/shared/status-states';
 import { useAgentVersions } from '@/hooks/use-agent-versions';
 import { useAgent } from '@/hooks/use-agents';
 import { useDateLocale } from '@/hooks/use-date-locale';
@@ -39,7 +38,7 @@ function ConversationMessages({
 
   if (isLoading) {
     return (
-      <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+      <div className="flex flex-1 items-center justify-center text-sm text-foreground-muted">
         {t('conversations.loadingMessages')}
       </div>
     );
@@ -47,7 +46,7 @@ function ConversationMessages({
 
   if (!uiMessages.length) {
     return (
-      <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+      <div className="flex flex-1 items-center justify-center text-sm text-foreground-muted">
         {t('conversations.noMessages')}
       </div>
     );
@@ -74,8 +73,8 @@ function ConversationList({
 
   if (!conversations.length) {
     return (
-      <div className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-2 p-4">
-        <MessageSquare className="text-muted-foreground/50 size-8" />
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 p-4 text-foreground-muted">
+        <MessageSquare className="size-8 text-foreground-muted/50" />
         <p className="text-sm">{t('conversations.noConversations')}</p>
         <p className="text-xs">{t('conversations.noConversationsDesc')}</p>
       </div>
@@ -89,16 +88,16 @@ function ConversationList({
           key={conv.id}
           type="button"
           className={cn(
-            'flex flex-col gap-1 border-b px-4 py-3 text-left transition-colors',
-            'hover:bg-muted/50 cursor-pointer',
-            selectedId === conv.id && 'bg-muted/70'
+            'flex flex-col gap-1 border-b border-border px-4 py-3 text-left transition-colors',
+            'cursor-pointer hover:bg-surface/50',
+            selectedId === conv.id && 'bg-surface/70'
           )}
           onClick={() => onSelect(conv)}
         >
           <span className="line-clamp-1 text-sm font-medium">
             {conv.title ?? t('conversations.untitled')}
           </span>
-          <div className="text-muted-foreground flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-xs text-foreground-muted">
             {conv.shareToken && <span>via {conv.shareToken.name}</span>}
             <span>
               {formatDistanceToNow(new Date(conv.updatedAt), {
@@ -119,6 +118,7 @@ function ConversationList({
 
 export default function VersionConversationsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { id, versionId } = useParams<{ id: string; versionId: string }>();
   const { data: agent, isLoading: isLoadingAgent, error } = useAgent(id);
   const { data: versions } = useAgentVersions(id);
@@ -148,34 +148,37 @@ export default function VersionConversationsPage() {
 
   if (error || !agent) {
     return (
-      <NotFoundState
+      <ErrorState
         title={t('agents.notFound')}
         description={t('agents.notFoundDesc')}
-        backLabel={t('agents.backToAgents')}
-        backTo="/agents"
+        actionLabel={t('agents.backToAgents')}
+        onAction={() => navigate('/agents')}
       />
     );
   }
 
   return (
-    <div className="-m-6 flex min-h-0 flex-1 flex-col">
-      <div className="p-6 pb-0">
-        <PageHeader
-          backTo={-1}
-          backLabel={t('common.back')}
-          title={t('conversations.title')}
-          description={t('conversations.pageDesc', {
-            name: agent.name,
-            version: version?.version ?? '?',
-          })}
-        />
-      </div>
+    <div className="flex h-full flex-col">
+      <PageHeader
+        leading={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="size-3.5" />
+          </Button>
+        }
+        title={t('conversations.title')}
+        description={`${agent.name} · v${version?.version ?? '?'}`}
+      />
 
-      <div className="mt-6 flex min-h-0 flex-1 border-t">
+      <div className="flex min-h-0 flex-1">
         {/* Left: conversation list */}
-        <div className="flex w-80 shrink-0 flex-col overflow-y-auto border-r">
+        <div className="flex w-72 shrink-0 flex-col overflow-y-auto border-r border-border">
           {isLoadingConversations ? (
-            <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+            <div className="flex flex-1 items-center justify-center text-sm text-foreground-muted">
               {t('common.loading')}
             </div>
           ) : (
@@ -195,7 +198,7 @@ export default function VersionConversationsPage() {
               conversationId={selectedConv.id}
             />
           ) : (
-            <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
+            <div className="flex flex-1 items-center justify-center text-sm text-foreground-muted">
               {t('conversations.selectConversation')}
             </div>
           )}

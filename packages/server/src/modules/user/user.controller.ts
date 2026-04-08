@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 
+import { CurrentUserPayload } from '../../common/types';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -43,7 +44,7 @@ export class UserController {
   updateRole(
     @Param('id') id: string,
     @Body() dto: UpdateRoleDto,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.userService.updateRole(id, dto.role, user.id);
   }
@@ -53,7 +54,7 @@ export class UserController {
   updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateStatusDto,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.userService.updateStatus(id, dto.status, user.id);
   }

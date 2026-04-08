@@ -1,23 +1,25 @@
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import {
+  type FileChange,
+  FileChangeCard,
+  MarkdownContent,
+  MessageBubble,
+  ThinkingBlock,
+  TimeCard,
+  ToolCallBlock,
+} from '@agent-x/design';
 import type { ReasoningUIPart, UIMessage } from 'ai';
-import { Bot, User } from 'lucide-react';
 
-import { FileChangeCard } from '@/components/workspace/file-change-card';
-import { cn } from '@/lib/utils';
-import { extractFileChanges, type FileChange } from '@/lib/workspace-utils';
-
-import { MarkdownRenderer } from './markdown-renderer';
-import { ThinkingBlock } from './thinking-block';
-import { TimeCard } from './time-card';
-import { ToolCallBlock } from './tool-call-block';
+import { extractFileChanges } from '@/lib/workspace-utils';
 
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1">
-      <span className="bg-muted-foreground/60 size-1.5 animate-bounce rounded-full [animation-delay:0ms]" />
-      <span className="bg-muted-foreground/60 size-1.5 animate-bounce rounded-full [animation-delay:150ms]" />
-      <span className="bg-muted-foreground/60 size-1.5 animate-bounce rounded-full [animation-delay:300ms]" />
+      <span className="bg-foreground-muted/60 size-1.5 animate-bounce rounded-full [animation-delay:0ms]" />
+      <span className="bg-foreground-muted/60 size-1.5 animate-bounce rounded-full [animation-delay:150ms]" />
+      <span className="bg-foreground-muted/60 size-1.5 animate-bounce rounded-full [animation-delay:300ms]" />
     </div>
   );
 }
@@ -63,15 +65,6 @@ const WORKSPACE_TOOLS = new Set([
 
 function isWorkspaceTool(part: ToolUIPart): boolean {
   return WORKSPACE_TOOLS.has(getToolName(part));
-}
-
-function StreamingIndicator() {
-  return (
-    <div className="mt-1 flex items-center gap-1.5 py-1">
-      <span className="bg-primary/60 size-1.5 animate-pulse rounded-full" />
-      <span className="text-muted-foreground/50 text-[10px]">···</span>
-    </div>
-  );
 }
 
 interface WorkspaceToolGroup {
@@ -140,14 +133,51 @@ function finalizeGroup(current: {
   };
 }
 
-function AssistantContent({
-  parts,
-  streaming,
-}: {
-  readonly parts: UIMessage['parts'];
-  readonly streaming?: boolean;
-}) {
+function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
+  const { t } = useTranslation();
   const groupMap = useMemo(() => computeWorkspaceGroups(parts), [parts]);
+
+  const toolCallLabels = useMemo(
+    () => ({
+      preparing: t('toolCall.preparing'),
+      calling: t('toolCall.calling'),
+      completed: t('toolCall.completed'),
+      error: t('toolCall.error'),
+      input: t('toolCall.input'),
+      output: t('toolCall.output'),
+    }),
+    [t]
+  );
+
+  const timeCardLabels = useMemo(
+    () => ({
+      loading: t('toolCall.gettingTime'),
+      error: t('toolCall.error'),
+    }),
+    [t]
+  );
+
+  const fileChangeLabels = useMemo(
+    () => ({
+      writing: t('workspace.fileWriting'),
+      filesWriting: (count: number) => t('workspace.filesWriting', { count }),
+      filesChanged: (count: number) => t('workspace.filesChanged', { count }),
+      operations: {
+        created: t('workspace.fileCreated'),
+        updated: t('workspace.fileUpdated'),
+        deleted: t('workspace.fileDeleted'),
+        renamed: t('workspace.fileRenamed'),
+        read: t('workspace.fileRead'),
+        listed: t('workspace.fileListed'),
+        searched: t('workspace.fileSearched'),
+        checked: t('workspace.fileChecked'),
+        'dir-created': t('workspace.folderCreated'),
+        'dir-deleted': t('workspace.folderDeleted'),
+        'dir-renamed': t('workspace.folderRenamed'),
+      },
+    }),
+    [t]
+  );
 
   return (
     <div>
@@ -157,15 +187,16 @@ function AssistantContent({
           return (
             <ThinkingBlock
               key={`reasoning-${i}`}
-              content={rp.text}
-              done={rp.state === 'done'}
-            />
+              defaultOpen={rp.state !== 'done'}
+            >
+              <div className="whitespace-pre-wrap">{rp.text || '...'}</div>
+            </ThinkingBlock>
           );
         }
         if (part.type === 'text') {
           const text = (part as { type: 'text'; text: string }).text;
           if (!text) return null;
-          return <MarkdownRenderer key={`text-${i}`} content={text} />;
+          return <MarkdownContent key={`text-${i}`} content={text} />;
         }
         if (isToolPart(part)) {
           // Render workspace tools as grouped file change cards
@@ -179,6 +210,7 @@ function AssistantContent({
                     key={`file-changes-${i}`}
                     changes={group.changes}
                     loading={group.loading}
+                    labels={fileChangeLabels}
                   />
                 );
               }
@@ -194,6 +226,7 @@ function AssistantContent({
                 key={part.toolCallId ?? `tool-${i}`}
                 state={part.state}
                 output={part.output as any}
+                labels={timeCardLabels}
               />
             );
           }
@@ -212,12 +245,12 @@ function AssistantContent({
               input={part.input}
               output={part.output}
               errorText={part.errorText}
+              labels={toolCallLabels}
             />
           );
         }
         return null;
       })}
-      {streaming && <StreamingIndicator />}
     </div>
   );
 }
@@ -240,45 +273,26 @@ export const MessageItem = memo(function MessageItem({
   const showTyping = !isUser && !hasContent;
 
   return (
-    <div
-      className={cn('flex gap-3 px-4 py-3', isUser ? 'flex-row-reverse' : '')}
+    <MessageBubble
+      role={isUser ? 'user' : 'assistant'}
+      avatar={isUser ? undefined : { name: 'Agent-X' }}
+      streaming={streaming && !isUser}
+      className="px-4 py-3"
     >
-      {/* Avatar */}
-      <div
-        className={cn(
-          'flex size-8 shrink-0 items-center justify-center rounded-full',
-          isUser
-            ? 'bg-primary/15 text-primary dark:bg-primary/20'
-            : 'gradient-bg text-white'
-        )}
-      >
-        {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
-      </div>
-
-      {/* Message bubble */}
-      <div
-        className={cn(
-          'max-w-[75%] rounded-2xl px-4 py-2.5',
-          isUser
-            ? 'bg-primary/10 text-foreground dark:bg-primary/15'
-            : 'bg-card border border-border/50 text-foreground'
-        )}
-      >
-        {showTyping ? (
-          <TypingIndicator />
-        ) : isUser ? (
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">
-            {message.parts
-              .filter(
-                (p): p is { type: 'text'; text: string } => p.type === 'text'
-              )
-              .map(p => p.text)
-              .join('')}
-          </p>
-        ) : (
-          <AssistantContent parts={message.parts} streaming={streaming} />
-        )}
-      </div>
-    </div>
+      {showTyping ? (
+        <TypingIndicator />
+      ) : isUser ? (
+        <p className="whitespace-pre-wrap">
+          {message.parts
+            .filter(
+              (p): p is { type: 'text'; text: string } => p.type === 'text'
+            )
+            .map(p => p.text)
+            .join('')}
+        </p>
+      ) : (
+        <AssistantContent parts={message.parts} />
+      )}
+    </MessageBubble>
   );
 });

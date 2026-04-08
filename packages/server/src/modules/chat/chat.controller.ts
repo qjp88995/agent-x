@@ -11,14 +11,11 @@ import {
   Res,
 } from '@nestjs/common';
 
-import {
-  pipeUIMessageStreamToResponse,
-  type UIMessage,
-  type UIMessageChunk,
-} from 'ai';
+import { type UIMessage } from 'ai';
 import { randomUUID } from 'crypto';
 import { Response } from 'express';
 
+import { CurrentUserPayload } from '../../common/types';
 import { MessageRole } from '../../generated/prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AgentRuntimeService } from './agent-runtime.service';
@@ -27,6 +24,7 @@ import { StreamManagerService } from './stream-manager.service';
 import {
   extractPartsFromBuffer,
   extractPartsFromSteps,
+  extractUserMessageContent,
 } from './stream-parts-extractor';
 
 @Controller('conversations')
@@ -41,7 +39,7 @@ export class ChatController {
 
   @Post()
   createConversation(
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { agentId: string; title?: string }
   ) {
     return this.chatService.createConversation(
@@ -52,12 +50,15 @@ export class ChatController {
   }
 
   @Get()
-  getConversations(@CurrentUser() user: { id: string }) {
+  getConversations(@CurrentUser() user: CurrentUserPayload) {
     return this.chatService.getConversations(user.id);
   }
 
   @Get(':id/messages')
-  getMessages(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+  getMessages(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserPayload
+  ) {
     return this.chatService.getMessages(id, user.id);
   }
 
@@ -65,7 +66,7 @@ export class ChatController {
   @HttpCode(202)
   async chat(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { messages: UIMessage[] }
   ) {
     const start = Date.now();
@@ -76,11 +77,7 @@ export class ChatController {
       `[chat] verifyOwnership OK agentId=${conversation.agentId} +${Date.now() - start}ms`
     );
 
-    const lastMsg = body.messages[body.messages.length - 1];
-    const content = lastMsg.parts
-      .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
-      .map(p => p.text)
-      .join('');
+    const content = extractUserMessageContent(body.messages);
 
     await this.chatService.saveMessage(id, MessageRole.USER, [
       { type: 'text', text: content },
@@ -118,24 +115,38 @@ export class ChatController {
           const usage = await result.usage;
           const parts = extractPartsFromSteps(steps);
 
-          await this.chatService.saveMessageWithId(
-            messageId,
+          await this.chatService.saveMessage(
             id,
             MessageRole.ASSISTANT,
             parts,
-            usage
+            usage,
+            messageId
           );
           this.logger.log(
             `[chat] onComplete OK messageId=${messageId} usage=${JSON.stringify(usage)}`
           );
 
           // Auto-generate title on first conversation round
-          this.maybeGenerateTitle(id, conversation.agentId, content).catch(
-            err =>
+          this.chatService
+            .maybeGenerateTitle(id, content, (userMsg, assistantMsg) =>
+              this.runtime.generateTitle(
+                conversation.agentId,
+                userMsg,
+                assistantMsg
+              )
+            )
+            .then(title => {
+              if (title) {
+                this.logger.log(
+                  `[chat] title generated conversationId=${id} title="${title}"`
+                );
+              }
+            })
+            .catch(err =>
               this.logger.warn(
                 `[chat] title generation failed conversationId=${id}: ${err}`
               )
-          );
+            );
         } catch (err) {
           this.logger.warn(
             `[chat] onComplete steps failed messageId=${messageId}: ${err}`
@@ -145,11 +156,12 @@ export class ChatController {
           if (session && session.buffer.length > 0) {
             const parts = extractPartsFromBuffer(session.buffer);
             if (parts.length > 0) {
-              await this.chatService.saveMessageWithId(
-                messageId,
+              await this.chatService.saveMessage(
                 id,
                 MessageRole.ASSISTANT,
-                parts
+                parts,
+                undefined,
+                messageId
               );
             }
           }
@@ -167,7 +179,7 @@ export class ChatController {
   async streamMessage(
     @Param('id') id: string,
     @Param('messageId') messageId: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Res() res: Response
   ) {
     await this.chatService.verifyOwnership(id, user.id);
@@ -178,53 +190,13 @@ export class ChatController {
       return;
     }
 
-    let onChunk: ((c: UIMessageChunk) => void) | undefined;
-    let onEnd: (() => void) | undefined;
-
-    const stream = new ReadableStream<UIMessageChunk>({
-      start(controller) {
-        for (const chunk of session.buffer) {
-          controller.enqueue(chunk);
-        }
-        if (session.status !== 'streaming') {
-          controller.close();
-          return;
-        }
-        onChunk = (c: UIMessageChunk) => {
-          try {
-            controller.enqueue(c);
-          } catch {
-            // Controller already closed
-          }
-        };
-        onEnd = () => {
-          try {
-            controller.close();
-          } catch {
-            // Controller already closed
-          }
-        };
-        session.emitter.on('chunk', onChunk);
-        session.emitter.once('end', onEnd);
-      },
-      cancel() {
-        if (onChunk) session.emitter.off('chunk', onChunk);
-        if (onEnd) session.emitter.off('end', onEnd);
-      },
-    });
-
-    res.on('close', () => {
-      if (onChunk) session.emitter.off('chunk', onChunk);
-      if (onEnd) session.emitter.off('end', onEnd);
-    });
-
-    pipeUIMessageStreamToResponse({ response: res, stream });
+    this.streamManager.pipeSessionToResponse(session, res);
   }
 
   @Get(':id/active-stream')
   async getActiveStream(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     await this.chatService.verifyOwnership(id, user.id);
 
@@ -237,7 +209,7 @@ export class ChatController {
   async stopStream(
     @Param('id') id: string,
     @Param('messageId') messageId: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     await this.chatService.verifyOwnership(id, user.id);
 
@@ -248,7 +220,7 @@ export class ChatController {
   @Patch(':id')
   async renameConversation(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserPayload,
     @Body() body: { title: string }
   ) {
     await this.chatService.verifyOwnership(id, user.id);
@@ -259,38 +231,8 @@ export class ChatController {
   @Delete(':id')
   deleteConversation(
     @Param('id') id: string,
-    @CurrentUser() user: { id: string }
+    @CurrentUser() user: CurrentUserPayload
   ) {
     return this.chatService.deleteConversation(id, user.id);
-  }
-
-  private async maybeGenerateTitle(
-    conversationId: string,
-    agentId: string,
-    userMessage: string
-  ): Promise<void> {
-    // Only generate on first round (2 messages: 1 user + 1 assistant)
-    const count = await this.chatService.getMessageCount(conversationId);
-    if (count !== 2) return;
-
-    const title = await this.chatService.getConversationTitle(conversationId);
-    if (title && title !== 'New Chat') return;
-
-    const messages = await this.chatService.getMessagesForAI(conversationId);
-    const assistantMsg = messages.find(m => m.role === 'assistant');
-    if (!assistantMsg) return;
-
-    const generated = await this.runtime.generateTitle(
-      agentId,
-      userMessage,
-      assistantMsg.content
-    );
-
-    if (generated) {
-      await this.chatService.updateTitle(conversationId, generated);
-      this.logger.log(
-        `[chat] title generated conversationId=${conversationId} title="${generated}"`
-      );
-    }
   }
 }

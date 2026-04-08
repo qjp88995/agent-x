@@ -1,81 +1,79 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  PageHeader,
+  Skeleton,
+  StaggerItem,
+  StaggerList,
+  ViewToggle,
+} from '@agent-x/design';
 import type { SkillResponse } from '@agent-x/shared';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { AddCard } from '@/components/shared/add-card';
 import { DeleteDialog } from '@/components/skills/delete-dialog';
-import { MarketplaceCard } from '@/components/skills/marketplace-card';
 import { PreviewDialog } from '@/components/skills/preview-dialog';
 import { SkillCard } from '@/components/skills/skill-card';
 import { SkillEmptyState } from '@/components/skills/skill-empty-state';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsAdmin } from '@/hooks/use-auth';
-import {
-  useDeleteMarketplaceSkill,
-  useDeleteSkill,
-  useSkillMarket,
-  useSkills,
-} from '@/hooks/use-skills';
+import { useFilteredSearch } from '@/hooks/use-filtered-search';
+import { useDeleteSkill, useSkills } from '@/hooks/use-skills';
+import { useViewMode } from '@/hooks/use-view-mode';
+
+import { SkillTable } from './skill-table';
+
+function SkillCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-4 w-20 rounded-full" />
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="mt-1.5 h-4 w-2/3" />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function SkillsPage() {
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
-  const {
-    data: marketSkills,
-    isLoading: isLoadingMarket,
-    error: marketError,
-  } = useSkillMarket();
-  const {
-    data: customSkills,
-    isLoading: isLoadingCustom,
-    error: customError,
-  } = useSkills();
+  const [view, setView] = useViewMode('skills');
+
+  const { data: skills, isLoading, error } = useSkills();
+
   const deleteSkill = useDeleteSkill();
-  const deleteMarketplaceSkill = useDeleteMarketplaceSkill();
   const [deleteTarget, setDeleteTarget] = useState<SkillResponse | null>(null);
-  const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
-    'custom'
-  );
   const [previewTarget, setPreviewTarget] = useState<SkillResponse | null>(
     null
   );
-  const isLoading = isLoadingMarket || isLoadingCustom;
-  const error = marketError ?? customError;
-  const isDeleting = deleteSkill.isPending || deleteMarketplaceSkill.isPending;
 
-  function handleDeleteCustom(skill: SkillResponse) {
-    setDeleteTarget(skill);
-    setDeleteMode('custom');
-  }
+  const isDeleting = deleteSkill.isPending;
 
-  function handleDeleteMarketplace(skill: SkillResponse) {
+  const { filtered } = useFilteredSearch<SkillResponse>(skills ?? [], {
+    searchKeys: ['name', 'description'],
+  });
+
+  function handleDelete(skill: SkillResponse) {
     setDeleteTarget(skill);
-    setDeleteMode('marketplace');
   }
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    const mutation =
-      deleteMode === 'marketplace' ? deleteMarketplaceSkill : deleteSkill;
-    mutation.mutate(deleteTarget.id, {
+    deleteSkill.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
         toast.success(t('skills.deleted'));
       },
     });
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
   }
 
   if (error) {
@@ -85,7 +83,7 @@ export default function SkillsPage() {
         <h3 className="mb-1 font-semibold">
           {t('common.failedToLoad', { resource: t('nav.skills') })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -93,68 +91,94 @@ export default function SkillsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('skills.title')}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {t('skills.subtitle')}
-          </p>
-        </div>
+    <div className="flex h-full flex-col">
+      <PageHeader
+        title={t('skills.title')}
+        description={t('skills.subtitle')}
+        search
+        actions={
+          <Button variant="primary" asChild>
+            <Link to="/skills/new">
+              <Plus />
+              {t('skills.createSkill')}
+            </Link>
+          </Button>
+        }
+      />
+
+      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
-      <Tabs defaultValue="marketplace">
-        <TabsList>
-          <TabsTrigger value="marketplace">
-            {t('skills.systemSkills')}
-          </TabsTrigger>
-          <TabsTrigger value="custom">{t('skills.mySkills')}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="marketplace">
-          {!marketSkills?.length ? (
-            <SkillEmptyState tab="marketplace" isAdmin={isAdmin} />
+      <div className="flex-1 overflow-auto p-5">
+        {isLoading ? (
+          view === 'table' ? (
+            <SkillTable
+              skills={[]}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+              loading
+            />
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {isAdmin && (
-                <AddCard
-                  to="/skills/new?type=system"
-                  label={t('skills.addToMarketplace')}
-                />
-              )}
-              {marketSkills.map(skill => (
-                <MarketplaceCard
-                  key={skill.id}
-                  skill={skill}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteMarketplace}
-                  onPreview={setPreviewTarget}
-                />
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkillCardSkeleton key={i} />
               ))}
             </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="custom">
-          {!customSkills?.length ? (
+          )
+        ) : !filtered.length ? (
+          <>
             <SkillEmptyState tab="custom" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              <AddCard to="/skills/new" label={t('skills.createSkill')} />
-              {customSkills.map(skill => (
-                <SkillCard
-                  key={skill.id}
-                  skill={skill}
-                  onDelete={handleDeleteCustom}
-                  onPreview={setPreviewTarget}
-                />
-              ))}
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=skills"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
             </div>
-          )}
-        </TabsContent>
-      </Tabs>
+          </>
+        ) : view === 'table' ? (
+          <>
+            <SkillTable
+              skills={filtered}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+              onPreview={setPreviewTarget}
+            />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=skills"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtered.map(skill => (
+                <StaggerItem key={skill.id}>
+                  <SkillCard
+                    skill={skill}
+                    onDelete={handleDelete}
+                    onPreview={setPreviewTarget}
+                  />
+                </StaggerItem>
+              ))}
+            </StaggerList>
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=skills"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
 
       <PreviewDialog
         skill={previewTarget}
@@ -166,7 +190,7 @@ export default function SkillsPage() {
 
       <DeleteDialog
         target={deleteTarget}
-        mode={deleteMode}
+        mode="custom"
         open={deleteTarget !== null}
         onOpenChange={open => {
           if (!open) setDeleteTarget(null);

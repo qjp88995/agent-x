@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import type { SkillResponse } from '@agent-x/shared';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -11,8 +9,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  ScrollArea,
+} from '@agent-x/design';
+import type { SkillResponse } from '@agent-x/shared';
 
 interface PreviewDialogProps {
   readonly skill: SkillResponse | null;
@@ -29,7 +28,7 @@ export function PreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>{skill?.name}</DialogTitle>
           <DialogDescription>
@@ -37,7 +36,7 @@ export function PreviewDialog({
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh]">
-          <pre className="whitespace-pre-wrap rounded-md bg-muted p-4 font-mono text-sm">
+          <pre className="whitespace-pre-wrap rounded-md bg-surface p-4 font-mono text-sm">
             {skill?.content}
           </pre>
         </ScrollArea>

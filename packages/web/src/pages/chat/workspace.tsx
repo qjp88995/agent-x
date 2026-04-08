@@ -2,51 +2,51 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 
-import { useChat } from '@ai-sdk/react';
-import { useQueryClient } from '@tanstack/react-query';
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@agent-x/design';
 import { ArrowLeft, Download, FileCode2, MessageSquare } from 'lucide-react';
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
-import { Button } from '@/components/ui/button';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { WorkspacePanel } from '@/components/workspace/workspace-panel';
+import { WorkspaceContainer } from '@/components/workspace/workspace-container';
+import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
 import { messagesKey, useConversations, useMessages } from '@/hooks/use-chat';
+import { useChatStream } from '@/hooks/use-chat-stream';
 import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
 import { useWorkspaceSync } from '@/hooks/use-workspace-sync';
+import { api } from '@/lib/api';
 import { AgentXChatTransport } from '@/lib/chat-transport';
-import { toUIMessages } from '@/lib/message-utils';
 import { cn } from '@/lib/utils';
 
-export default function WorkspacePage() {
+function WorkspacePageContent({
+  conversationId,
+}: {
+  readonly conversationId: string;
+}) {
   const { t } = useTranslation();
-  const { conversationId } = useParams<{ conversationId: string }>();
   const [activeTab, setActiveTab] = useState<'workspace' | 'chat'>('workspace');
-  const queryClient = useQueryClient();
-  const transportRef = useRef<AgentXChatTransport | null>(null);
 
   const transport = useMemo(
-    () => (conversationId ? new AgentXChatTransport(conversationId) : null),
+    () => new AgentXChatTransport(conversationId),
     [conversationId]
   );
 
-  useEffect(() => {
-    transportRef.current = transport;
-  }, [transport]);
+  const { data: savedMessages } = useMessages(conversationId);
 
-  const { messages, sendMessage, status, setMessages, stop } = useChat({
-    id: conversationId,
-    transport: transport ?? undefined,
-    resume: true,
+  const { messages, sendMessage, handleStop, isLoading } = useChatStream({
+    conversationId,
+    transport,
+    savedMessages,
+    messagesQueryKey: messagesKey(conversationId),
   });
 
   useWorkspaceSync(conversationId, messages);
@@ -60,56 +60,10 @@ export default function WorkspacePage() {
   const downloadWorkspace = useDownloadWorkspace();
 
   const handleDownloadWorkspace = useCallback(() => {
-    if (conversationId) downloadWorkspace.mutate(conversationId);
+    downloadWorkspace.mutate(conversationId);
   }, [conversationId, downloadWorkspace]);
 
-  const statusRef = useRef(status);
-  statusRef.current = status;
-  const currentMessagesRef = useRef(messages);
-  currentMessagesRef.current = messages;
-
-  useEffect(() => {
-    return () => {
-      transportRef.current?.destroy();
-      if (
-        statusRef.current === 'streaming' ||
-        statusRef.current === 'submitted'
-      ) {
-        queryClient.removeQueries({
-          queryKey: messagesKey(conversationId ?? ''),
-        });
-      }
-    };
-  }, [conversationId, queryClient]);
-
-  const isLoading = status === 'submitted' || status === 'streaming';
-  const { data: savedMessages } = useMessages(conversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const historyLoadedRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (
-      savedMessages &&
-      savedMessages.length > 0 &&
-      conversationId &&
-      historyLoadedRef.current !== conversationId
-    ) {
-      const history = toUIMessages(savedMessages as any);
-      const currentStatus = statusRef.current;
-      const currentMessages = currentMessagesRef.current;
-      const isStreaming =
-        currentStatus === 'streaming' || currentStatus === 'submitted';
-
-      if (isStreaming && currentMessages.length > 0) {
-        const savedIds = new Set(savedMessages.map(m => m.id));
-        const streamingMsgs = currentMessages.filter(m => !savedIds.has(m.id));
-        setMessages([...history, ...streamingMsgs]);
-      } else {
-        setMessages(history);
-      }
-      historyLoadedRef.current = conversationId;
-    }
-  }, [savedMessages, conversationId, setMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -118,13 +72,6 @@ export default function WorkspacePage() {
   const handleSend = (content: string) => {
     void sendMessage({ text: content });
   };
-
-  const handleStop = useCallback(() => {
-    stop();
-    void transportRef.current?.stopStream();
-  }, [stop]);
-
-  if (!conversationId) return null;
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
@@ -140,13 +87,13 @@ export default function WorkspacePage() {
           </TooltipTrigger>
           <TooltipContent>{t('workspace.backToChat')}</TooltipContent>
         </Tooltip>
-        <span className="gradient-text shrink-0 font-semibold">
+        <span className="text-primary shrink-0 font-semibold">
           {t('workspace.title')}
         </span>
         {conversationTitle && (
           <>
-            <span className="text-muted-foreground hidden md:inline">·</span>
-            <span className="hidden truncate text-sm text-muted-foreground md:inline">
+            <span className="text-foreground-muted hidden md:inline">·</span>
+            <span className="hidden truncate text-sm text-foreground-muted md:inline">
               {conversationTitle}
             </span>
           </>
@@ -178,7 +125,7 @@ export default function WorkspacePage() {
             'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
             activeTab === 'workspace'
               ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-foreground-muted hover:text-foreground'
           )}
         >
           <FileCode2 className="size-4" />
@@ -191,7 +138,7 @@ export default function WorkspacePage() {
             'flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors',
             activeTab === 'chat'
               ? 'border-b-2 border-primary text-primary'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-foreground-muted hover:text-foreground'
           )}
         >
           <MessageSquare className="size-4" />
@@ -204,7 +151,7 @@ export default function WorkspacePage() {
         <div
           className={cn('h-full w-full', activeTab !== 'workspace' && 'hidden')}
         >
-          <WorkspacePanel conversationId={conversationId} />
+          <WorkspaceContainer conversationId={conversationId} />
         </div>
         <div
           className={cn(
@@ -237,7 +184,7 @@ export default function WorkspacePage() {
       <div className="hidden min-h-0 flex-1 overflow-hidden md:flex">
         <ResizablePanelGroup orientation="horizontal" className="flex-1">
           <ResizablePanel defaultSize="60%" minSize="30%">
-            <WorkspacePanel conversationId={conversationId} />
+            <WorkspaceContainer conversationId={conversationId} />
           </ResizablePanel>
 
           <ResizableHandle withHandle />
@@ -267,5 +214,25 @@ export default function WorkspacePage() {
         </ResizablePanelGroup>
       </div>
     </div>
+  );
+}
+
+export default function WorkspacePage() {
+  const { conversationId } = useParams<{ conversationId: string }>();
+
+  if (!conversationId) return null;
+
+  const filesUrl = (id: string) => `/conversations/${id}/files`;
+
+  return (
+    <WorkspaceApiProvider
+      client={api}
+      filesUrl={filesUrl}
+      downloadUrl={(id: string, fileId: string) =>
+        `/api${filesUrl(id)}/${fileId}/download`
+      }
+    >
+      <WorkspacePageContent conversationId={conversationId} />
+    </WorkspaceApiProvider>
   );
 }

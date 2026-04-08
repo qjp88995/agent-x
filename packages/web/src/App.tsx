@@ -1,11 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { BrowserRouter } from 'react-router';
 
+import { Button, Toaster, TooltipProvider } from '@agent-x/design';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-import { Button } from '@/components/ui/button';
-import { Toaster } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
 
 import { AppRoutes } from './routes';
 
@@ -37,10 +34,10 @@ class ErrorBoundary extends Component<
       return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4">
           <h1 className="text-2xl font-bold">Something went wrong</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             An unexpected error occurred. Please refresh the page.
           </p>
-          <Button variant="link" onClick={() => window.location.reload()}>
+          <Button variant="ghost" onClick={() => window.location.reload()}>
             Refresh
           </Button>
         </div>

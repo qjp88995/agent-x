@@ -1,10 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
-import type { PromptResponse } from '@agent-x/shared';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -12,8 +10,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  ScrollArea,
+} from '@agent-x/design';
+import type { PromptResponse } from '@agent-x/shared';
 
 interface PreviewDialogProps {
   readonly prompt: PromptResponse | null;
@@ -30,7 +29,7 @@ export function PreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>{prompt?.name}</DialogTitle>
           <DialogDescription>
@@ -40,7 +39,7 @@ export function PreviewDialog({
         {(prompt?.category || (prompt?.tags && prompt.tags.length > 0)) && (
           <div className="flex flex-wrap gap-1.5">
             {prompt.category && (
-              <Badge variant="secondary">{prompt.category.name}</Badge>
+              <Badge variant="muted">{prompt.category.name}</Badge>
             )}
             {prompt.tags.map(tag => (
               <Badge key={tag} variant="outline">
@@ -50,7 +49,7 @@ export function PreviewDialog({
           </div>
         )}
         <ScrollArea className="max-h-[60vh]">
-          <pre className="whitespace-pre-wrap rounded-md bg-muted p-4 font-mono text-sm">
+          <pre className="whitespace-pre-wrap rounded-md bg-surface p-4 font-mono text-sm">
             {prompt?.content}
           </pre>
         </ScrollArea>

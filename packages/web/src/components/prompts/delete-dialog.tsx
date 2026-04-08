@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next';
 
-import type { PromptResponse } from '@agent-x/shared';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +9,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@agent-x/design';
+import type { PromptResponse } from '@agent-x/shared';
 
 interface DeleteDialogProps {
   readonly target: PromptResponse | null;

@@ -1,18 +1,17 @@
 import { useTranslation } from 'react-i18next';
 
-import { Loader2 } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+  Label,
+  Textarea,
+} from '@agent-x/design';
+import { Loader2 } from 'lucide-react';
 
 type PublishVersionDialogProps = {
   open: boolean;

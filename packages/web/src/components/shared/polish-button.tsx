@@ -1,30 +1,26 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Loader2, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { PromptEditor } from '@/components/shared/prompt-editor';
-import { Button } from '@/components/ui/button';
 import {
+  Button,
+  CodeEditor,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
-import {
+  Textarea,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import { Loader2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useFeatureStatus, usePolishPrompt } from '@/hooks/use-system-config';
 
 const PRESET_KEYS = [
@@ -143,7 +139,7 @@ export function PolishButton({
                     className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
                       isActive
                         ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border bg-muted/50 text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                        : 'border-border bg-surface/50 text-foreground-muted hover:border-primary/50 hover:text-foreground'
                     }`}
                     onClick={() =>
                       setDescription(prev => (prev === label ? '' : label))
@@ -198,7 +194,7 @@ export function PolishButton({
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-auto">
-            <PromptEditor
+            <CodeEditor
               value={polishedContent}
               disabled
               className="max-h-[50vh]"

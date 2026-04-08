@@ -1,14 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 
-import type { McpServerResponse } from '@agent-x/shared';
-import { AlertTriangle } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { MarketplaceCard } from '@/components/mcp/marketplace-card';
-import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
-import { McpServerCard } from '@/components/mcp/mcp-server-card';
-import { AddCard } from '@/components/shared/add-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,74 +11,77 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  PageHeader,
+  Skeleton,
+  StaggerItem,
+  StaggerList,
+  ViewToggle,
+} from '@agent-x/design';
+import type { McpServerResponse } from '@agent-x/shared';
+import { AlertTriangle, Plus } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
+import { McpServerCard } from '@/components/mcp/mcp-server-card';
 import { useIsAdmin } from '@/hooks/use-auth';
-import {
-  useDeleteMarketplaceMcpServer,
-  useDeleteMcpServer,
-  useMcpMarket,
-  useMcpServers,
-} from '@/hooks/use-mcp';
+import { useFilteredSearch } from '@/hooks/use-filtered-search';
+import { useDeleteMcpServer, useMcpServers } from '@/hooks/use-mcp';
+import { useViewMode } from '@/hooks/use-view-mode';
+
+import { McpTable } from './mcp-table';
+
+function McpCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-4 w-20 rounded-full" />
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="mt-1.5 h-4 w-2/3" />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function McpPage() {
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
-  const {
-    data: marketServers,
-    isLoading: isLoadingMarket,
-    error: marketError,
-  } = useMcpMarket();
-  const {
-    data: customServers,
-    isLoading: isLoadingCustom,
-    error: customError,
-  } = useMcpServers();
+  const [view, setView] = useViewMode('mcp');
+
+  const { data: customServers, isLoading, error } = useMcpServers();
+
   const deleteMcpServer = useDeleteMcpServer();
-  const deleteMarketplaceMcpServer = useDeleteMarketplaceMcpServer();
   const [deleteTarget, setDeleteTarget] = useState<McpServerResponse | null>(
     null
   );
-  const [deleteMode, setDeleteMode] = useState<'custom' | 'marketplace'>(
-    'custom'
+
+  const isDeleting = deleteMcpServer.isPending;
+
+  const { filtered } = useFilteredSearch<McpServerResponse>(
+    customServers ?? [],
+    {
+      searchKeys: ['name', 'description'],
+    }
   );
-  const isLoading = isLoadingMarket || isLoadingCustom;
-  const error = marketError ?? customError;
-  const isDeleting =
-    deleteMcpServer.isPending || deleteMarketplaceMcpServer.isPending;
 
-  function handleDeleteCustom(server: McpServerResponse) {
+  function handleDelete(server: McpServerResponse) {
     setDeleteTarget(server);
-    setDeleteMode('custom');
-  }
-
-  function handleDeleteMarketplace(server: McpServerResponse) {
-    setDeleteTarget(server);
-    setDeleteMode('marketplace');
   }
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
-    const mutation =
-      deleteMode === 'marketplace'
-        ? deleteMarketplaceMcpServer
-        : deleteMcpServer;
-    mutation.mutate(deleteTarget.id, {
+    deleteMcpServer.mutate(deleteTarget.id, {
       onSuccess: () => {
         setDeleteTarget(null);
         toast.success(t('mcp.deleted'));
       },
     });
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
   }
 
   if (error) {
@@ -95,7 +91,7 @@ export default function McpPage() {
         <h3 className="mb-1 font-semibold">
           {t('common.failedToLoad', { resource: t('nav.mcpServers') })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -103,62 +99,89 @@ export default function McpPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('mcp.title')}
-          </h1>
-          <p className="text-muted-foreground text-sm">{t('mcp.subtitle')}</p>
-        </div>
+    <div className="flex h-full flex-col">
+      <PageHeader
+        title={t('mcp.title')}
+        description={t('mcp.subtitle')}
+        search
+        actions={
+          <Button variant="primary" asChild>
+            <Link to="/mcp-servers/new">
+              <Plus />
+              {t('mcp.createService')}
+            </Link>
+          </Button>
+        }
+      />
+
+      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
-      <Tabs defaultValue="marketplace">
-        <TabsList>
-          <TabsTrigger value="marketplace">{t('mcp.marketplace')}</TabsTrigger>
-          <TabsTrigger value="custom">{t('mcp.myServers')}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="marketplace">
-          {!marketServers?.length ? (
-            <McpEmptyState tab="marketplace" isAdmin={isAdmin} />
+      <div className="flex-1 overflow-auto p-5">
+        {isLoading ? (
+          view === 'table' ? (
+            <McpTable
+              servers={[]}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+              loading
+            />
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {isAdmin && (
-                <AddCard
-                  to="/mcp-servers/new?type=official"
-                  label={t('mcp.addToMarketplace')}
-                />
-              )}
-              {marketServers.map(server => (
-                <MarketplaceCard
-                  key={server.id}
-                  server={server}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteMarketplace}
-                />
+              {Array.from({ length: 4 }).map((_, i) => (
+                <McpCardSkeleton key={i} />
               ))}
             </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="custom">
-          {!customServers?.length ? (
+          )
+        ) : !filtered.length ? (
+          <>
             <McpEmptyState tab="custom" isAdmin={isAdmin} />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              <AddCard to="/mcp-servers/new" label={t('mcp.addServer')} />
-              {customServers.map(server => (
-                <McpServerCard
-                  key={server.id}
-                  server={server}
-                  onDelete={handleDeleteCustom}
-                />
-              ))}
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=mcp"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
             </div>
-          )}
-        </TabsContent>
-      </Tabs>
+          </>
+        ) : view === 'table' ? (
+          <>
+            <McpTable
+              servers={filtered}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+            />
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=mcp"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtered.map(server => (
+                <StaggerItem key={server.id}>
+                  <McpServerCard server={server} onDelete={handleDelete} />
+                </StaggerItem>
+              ))}
+            </StaggerList>
+            <div className="mt-5 text-center">
+              <Link
+                to="/marketplace?tab=mcp"
+                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
+              >
+                {t('marketplace.browseMarketplace')} →
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
 
       <AlertDialog
         open={deleteTarget !== null}
@@ -168,17 +191,9 @@ export default function McpPage() {
       >
         <AlertDialogContent variant="destructive">
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {deleteMode === 'marketplace'
-                ? t('mcp.deleteMarketplace')
-                : t('mcp.deleteServer')}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{t('mcp.deleteServer')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteMode === 'marketplace'
-                ? t('mcp.deleteMarketplaceConfirm', {
-                    name: deleteTarget?.name,
-                  })
-                : t('mcp.deleteConfirm', { name: deleteTarget?.name })}
+              {t('mcp.deleteConfirm', { name: deleteTarget?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

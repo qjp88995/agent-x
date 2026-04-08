@@ -4,6 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { DeleteResponse } from '@agent-x/shared';
+
+import { pickDefined } from '../../common/pick-defined.util';
 import { SkillType } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -74,28 +77,13 @@ export class SkillService {
       throw new ForbiddenException('You can only update your own skills');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.content !== undefined) {
-      data.content = dto.content;
-    }
-    if (dto.tags !== undefined) {
-      data.tags = dto.tags;
-    }
-
     return this.prisma.skill.update({
       where: { id },
-      data,
+      data: pickDefined(dto),
     });
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string, userId: string): Promise<DeleteResponse> {
     const skill = await this.prisma.skill.findUnique({
       where: { id },
     });
@@ -144,28 +132,13 @@ export class SkillService {
       throw new ForbiddenException('This skill is not a SYSTEM skill');
     }
 
-    const data: Record<string, unknown> = {};
-
-    if (dto.name !== undefined) {
-      data.name = dto.name;
-    }
-    if (dto.description !== undefined) {
-      data.description = dto.description;
-    }
-    if (dto.content !== undefined) {
-      data.content = dto.content;
-    }
-    if (dto.tags !== undefined) {
-      data.tags = dto.tags;
-    }
-
     return this.prisma.skill.update({
       where: { id },
-      data,
+      data: pickDefined(dto),
     });
   }
 
-  async removeSystem(id: string) {
+  async removeSystem(id: string): Promise<DeleteResponse> {
     const skill = await this.prisma.skill.findUnique({
       where: { id },
     });

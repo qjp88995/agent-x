@@ -2,7 +2,34 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type { ProviderProtocol, ProviderResponse } from '@agent-x/shared';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  type FilterTab,
+  FilterTabs,
+  PageHeader,
+  Skeleton,
+  StaggerItem,
+  StaggerList,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  ViewToggle,
+} from '@agent-x/design';
+import type { ProviderResponse } from '@agent-x/shared';
 import {
   AlertTriangle,
   ExternalLink,
@@ -14,66 +41,18 @@ import {
 import { toast } from 'sonner';
 
 import { ProviderEmptyState } from '@/components/providers/provider-empty-state';
-import { AddCard } from '@/components/shared/add-card';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
 import {
   useDeleteProvider,
   useProviders,
   useSyncModels,
   useTestProvider,
 } from '@/hooks/use-providers';
+import { useViewMode } from '@/hooks/use-view-mode';
 import { PROTOCOL_CONFIG } from '@/lib/provider-constants';
 import { cn } from '@/lib/utils';
 
-function ProtocolBadge({ protocol }: { readonly protocol: ProviderProtocol }) {
-  const { t } = useTranslation();
-  const config = PROTOCOL_CONFIG[protocol];
-  return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {t(config.labelKey)}
-    </Badge>
-  );
-}
-
-function StatusDot({ active }: { readonly active: boolean }) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center gap-1.5">
-      <span
-        className={cn(
-          'inline-block size-2 rounded-full',
-          active ? 'bg-green-500' : 'bg-gray-400'
-        )}
-      />
-      <span className="text-muted-foreground text-xs">
-        {active ? t('common.active') : t('common.inactive')}
-      </span>
-    </div>
-  );
-}
+import { ProviderTable } from './provider-table';
 
 function truncateUrl(url: string, maxLength = 40): string {
   if (url.length <= maxLength) return url;
@@ -90,6 +69,7 @@ function ProviderCard({
   const { t } = useTranslation();
   const testProvider = useTestProvider();
   const syncModels = useSyncModels();
+  const config = PROTOCOL_CONFIG[provider.protocol];
 
   function handleTest() {
     testProvider.mutate(provider.id, {
@@ -123,8 +103,15 @@ function ProviderCard({
         <div className="flex flex-col gap-1.5">
           <CardTitle className="text-base">{provider.name}</CardTitle>
           <div className="flex items-center gap-2">
-            <ProtocolBadge protocol={provider.protocol} />
-            <StatusDot active={provider.isActive} />
+            <Badge
+              variant="outline"
+              className={cn('border-0', config.className)}
+            >
+              {t(config.labelKey)}
+            </Badge>
+            <Badge variant={provider.isActive ? 'success' : 'muted'}>
+              {provider.isActive ? t('common.active') : t('common.inactive')}
+            </Badge>
           </div>
         </div>
         <Tooltip>
@@ -144,7 +131,7 @@ function ProviderCard({
       </CardHeader>
 
       <CardContent className="flex-1">
-        <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+        <div className="text-foreground-muted flex items-center gap-1.5 text-sm">
           <ExternalLink className="size-3.5 shrink-0" />
           <span className="truncate">{truncateUrl(provider.baseUrl)}</span>
         </div>
@@ -152,7 +139,7 @@ function ProviderCard({
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-sm">
+          <div className="text-foreground-muted text-sm">
             {t('providers.modelCount', { count: provider.models.length })}
           </div>
           <div className="flex items-center gap-1">
@@ -214,13 +201,69 @@ function ProviderCard({
   );
 }
 
+function ProviderCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-5 w-32" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-5 w-16 rounded-full" />
+            <Skeleton className="h-5 w-14 rounded-full" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-48" />
+      </CardContent>
+      <CardFooter className="border-t pt-4">
+        <div className="flex w-full items-center justify-between">
+          <Skeleton className="h-4 w-20" />
+          <div className="flex items-center gap-1">
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
 export default function ProviderListPage() {
   const { t } = useTranslation();
-  const { data: providers, isLoading, error } = useProviders();
+  const { data: allProviders, isLoading, error } = useProviders();
+  const [view, setView] = useViewMode('providers');
   const deleteProvider = useDeleteProvider();
   const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(
     null
   );
+
+  const { filter, setFilter, filtered } = useFilteredSearch(allProviders, {
+    searchKeys: ['name'],
+    filterKey: 'isActive',
+  });
+
+  const activeCount = allProviders?.filter(p => p.isActive).length;
+  const inactiveCount = allProviders?.filter(p => !p.isActive).length;
+
+  const filterTabs: FilterTab[] = [
+    {
+      key: FILTER_ALL,
+      label: t('agents.all', { defaultValue: 'All' }),
+      count: allProviders?.length,
+    },
+    {
+      key: 'true',
+      label: t('common.active'),
+      count: activeCount,
+    },
+    {
+      key: 'false',
+      label: t('common.inactive'),
+      count: inactiveCount,
+    },
+  ];
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;
@@ -232,16 +275,6 @@ export default function ProviderListPage() {
     });
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('common.loading')}
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -251,7 +284,7 @@ export default function ProviderListPage() {
             resource: t('providers.title').toLowerCase(),
           })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -259,34 +292,51 @@ export default function ProviderListPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('providers.title')}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {t('providers.subtitle')}
-          </p>
-        </div>
+      <PageHeader
+        title={t('providers.title')}
+        description={t('providers.subtitle')}
+        search
+        actions={
+          <Button variant="primary" asChild>
+            <Link to="/providers/new">{t('providers.addProvider')}</Link>
+          </Button>
+        }
+      />
+
+      {/* Filter bar */}
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
+        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
-      {/* Provider grid */}
-      {!providers?.length ? (
-        <ProviderEmptyState />
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <AddCard to="/providers/new" label={t('providers.addProvider')} />
-          {providers.map(provider => (
-            <ProviderCard
-              key={provider.id}
-              provider={provider}
-              onDelete={setDeleteTarget}
-            />
-          ))}
-        </div>
-      )}
+      {/* Provider list */}
+      <div className="flex-1 overflow-auto p-5">
+        {isLoading ? (
+          view === 'table' ? (
+            <ProviderTable providers={[]} onDelete={setDeleteTarget} loading />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ProviderCardSkeleton key={i} />
+              ))}
+            </div>
+          )
+        ) : !filtered.length ? (
+          <ProviderEmptyState />
+        ) : view === 'table' ? (
+          <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
+        ) : (
+          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filtered.map(provider => (
+              <StaggerItem key={provider.id}>
+                <ProviderCard provider={provider} onDelete={setDeleteTarget} />
+              </StaggerItem>
+            ))}
+          </StaggerList>
+        )}
+      </div>
 
       {/* Delete confirmation dialog */}
       <AlertDialog

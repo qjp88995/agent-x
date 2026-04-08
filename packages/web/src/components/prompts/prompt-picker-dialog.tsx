@@ -1,27 +1,25 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { PromptResponse } from '@agent-x/shared';
-import { ArrowLeft, Eye, Search } from 'lucide-react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import {
+  Input,
+  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@agent-x/design';
+import type { PromptResponse } from '@agent-x/shared';
+import { ArrowLeft, Eye, Search } from 'lucide-react';
+
 import { usePromptMarket, usePrompts } from '@/hooks/use-prompts';
 
 const ALL_CATEGORIES = '__all__';
@@ -96,7 +94,7 @@ export function PromptPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent size="xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>{t('prompts.selectPrompt')}</DialogTitle>
           <DialogDescription>{t('prompts.selectPromptDesc')}</DialogDescription>
@@ -120,7 +118,7 @@ export function PromptPickerDialog({
               (preview.tags && preview.tags.length > 0)) && (
               <div className="flex flex-wrap gap-1.5">
                 {preview.category && (
-                  <Badge variant="secondary">{preview.category.name}</Badge>
+                  <Badge variant="muted">{preview.category.name}</Badge>
                 )}
                 {preview.tags.map(tag => (
                   <Badge key={tag} variant="outline">
@@ -130,7 +128,7 @@ export function PromptPickerDialog({
               </div>
             )}
             <ScrollArea className="max-h-[60vh]">
-              <pre className="bg-muted whitespace-pre-wrap rounded-md p-4 font-mono text-sm">
+              <pre className="bg-surface whitespace-pre-wrap rounded-md p-4 font-mono text-sm">
                 {preview.content}
               </pre>
             </ScrollArea>
@@ -148,7 +146,7 @@ export function PromptPickerDialog({
           <div className="flex flex-col gap-4">
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="text-muted-foreground absolute left-2.5 top-2.5 size-4" />
+                <Search className="text-foreground-muted absolute left-2.5 top-2.5 size-4" />
                 <Input
                   placeholder={t('prompts.searchPrompts')}
                   value={search}
@@ -157,7 +155,7 @@ export function PromptPickerDialog({
                 />
               </div>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-45">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,14 +174,14 @@ export function PromptPickerDialog({
             <ScrollArea className="max-h-[60vh]">
               <div className="flex flex-col gap-2">
                 {filtered.length === 0 ? (
-                  <p className="text-muted-foreground py-8 text-center text-sm">
+                  <p className="text-foreground-muted py-8 text-center text-sm">
                     {t('common.noResults')}
                   </p>
                 ) : (
                   filtered.map(prompt => (
                     <div
                       key={prompt.id}
-                      className="hover:bg-muted/50 flex items-center justify-between rounded-md border p-3"
+                      className="hover:bg-surface/50 flex items-center justify-between rounded-md border p-3"
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-1">
                         <div className="flex items-center gap-2">
@@ -191,13 +189,13 @@ export function PromptPickerDialog({
                             {prompt.name}
                           </span>
                           {prompt.category && (
-                            <Badge variant="secondary" className="shrink-0">
+                            <Badge variant="muted" className="shrink-0">
                               {prompt.category.name}
                             </Badge>
                           )}
                         </div>
                         {prompt.description && (
-                          <p className="text-muted-foreground truncate text-xs">
+                          <p className="text-foreground-muted truncate text-xs">
                             {prompt.description}
                           </p>
                         )}

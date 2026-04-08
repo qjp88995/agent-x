@@ -1,23 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type { McpServerResponse } from '@agent-x/shared';
-import { Pencil, PlugZap, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from '@agent-x/design';
+import type { McpServerResponse } from '@agent-x/shared';
+import { Pencil, PlugZap, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useTestMcpServer } from '@/hooks/use-mcp';
 
 import { TransportBadge } from './transport-badge';
@@ -72,11 +70,11 @@ export function McpServerCard({ server, onDelete }: McpServerCardProps) {
 
       <CardContent className="flex-1">
         {server.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-foreground-muted line-clamp-2 text-sm">
             {server.description}
           </p>
         ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
+          <p className="text-foreground-muted/50 text-sm italic">
             {t('common.noDescription')}
           </p>
         )}
@@ -84,7 +82,7 @@ export function McpServerCard({ server, onDelete }: McpServerCardProps) {
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-sm">
+          <div className="text-foreground-muted text-sm">
             {toolCount > 0
               ? t('mcp.toolCount', { count: toolCount })
               : t('mcp.noTools')}

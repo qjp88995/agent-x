@@ -1,11 +1,41 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import type {
-  AgentResponse,
-  AgentStatus as AgentStatusType,
-} from '@agent-x/shared';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  type FilterTab,
+  FilterTabs,
+  PageHeader,
+  Skeleton,
+  StaggerItem,
+  StaggerList,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  ViewToggle,
+} from '@agent-x/design';
+import type { AgentResponse } from '@agent-x/shared';
 import { AgentStatus } from '@agent-x/shared';
 import {
   AlertTriangle,
@@ -20,78 +50,45 @@ import {
 import { toast } from 'sonner';
 
 import { AgentEmptyState } from '@/components/agents/agent-empty-state';
-import { AddCard } from '@/components/shared/add-card';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
   useAgents,
   useArchiveAgent,
   useDeleteAgent,
   useUnarchiveAgent,
 } from '@/hooks/use-agents';
-import { cn } from '@/lib/utils';
+import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
+import { useViewMode } from '@/hooks/use-view-mode';
 
-const STATUS_BADGE_CONFIG: Record<
-  AgentStatusType,
-  { labelKey: string; className: string }
-> = {
-  ACTIVE: {
-    labelKey: 'agents.active',
-    className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  },
-  ARCHIVED: {
-    labelKey: 'agents.archived',
-    className:
-      'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-  },
-};
+import { AgentTable } from './agent-table';
 
-type FilterTab = 'all' | AgentStatusType;
-
-function StatusBadge({ status }: { readonly status: AgentStatusType }) {
-  const { t } = useTranslation();
-  const config = STATUS_BADGE_CONFIG[status];
+function AgentCardSkeleton() {
   return (
-    <Badge variant="outline" className={cn('border-0', config.className)}>
-      {t(config.labelKey)}
-    </Badge>
+    <Card className="flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+        <div className="flex items-center gap-3">
+          <Skeleton className="size-8 rounded-md" />
+          <div className="flex flex-col gap-1">
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="mt-1.5 h-4 w-2/3" />
+      </CardContent>
+      <CardFooter className="border-t pt-4">
+        <div className="flex w-full items-center justify-between">
+          <Skeleton className="h-4 w-24" />
+          <div className="flex items-center gap-1">
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+            <Skeleton className="size-7 rounded-md" />
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
   );
-}
-
-function getAgentInitial(name: string): string {
-  return name.charAt(0).toUpperCase();
 }
 
 function AgentCard({
@@ -110,17 +107,21 @@ function AgentCard({
     <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
         <div className="flex items-center gap-3">
-          <Avatar className="size-10">
-            <AvatarFallback className="gradient-bg text-white text-sm font-semibold">
-              {getAgentInitial(agent.name)}
-            </AvatarFallback>
-          </Avatar>
+          <Avatar name={agent.name} size="lg" />
           <div className="flex flex-col gap-1">
             <CardTitle className="text-base">{agent.name}</CardTitle>
             <div className="flex items-center gap-2">
-              <StatusBadge status={agent.status} />
+              <Badge
+                variant={
+                  agent.status === AgentStatus.ACTIVE ? 'success' : 'muted'
+                }
+              >
+                {agent.status === AgentStatus.ACTIVE
+                  ? t('agents.active')
+                  : t('agents.archived')}
+              </Badge>
               {agent.latestVersion !== null && (
-                <span className="text-muted-foreground text-xs">
+                <span className="text-foreground-muted text-xs">
                   v{agent.latestVersion}
                 </span>
               )}
@@ -163,11 +164,11 @@ function AgentCard({
 
       <CardContent className="flex-1">
         {agent.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-sm">
+          <p className="text-foreground-muted line-clamp-2 text-sm">
             {agent.description}
           </p>
         ) : (
-          <p className="text-muted-foreground/50 text-sm italic">
+          <p className="text-foreground-muted/50 text-sm italic">
             {t('common.noDescription')}
           </p>
         )}
@@ -175,7 +176,7 @@ function AgentCard({
 
       <CardFooter className="border-t pt-4">
         <div className="flex w-full items-center justify-between">
-          <div className="text-muted-foreground text-xs">{agent.modelId}</div>
+          <div className="text-foreground-muted text-xs">{agent.modelId}</div>
           <div className="flex items-center gap-1">
             {agent.status === AgentStatus.ACTIVE && (
               <Tooltip>
@@ -223,16 +224,35 @@ function AgentCard({
 
 export default function AgentListPage() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const { data: allAgents, isLoading, error } = useAgents();
+  const [view, setView] = useViewMode('agents');
 
-  const agents = useMemo(
-    () =>
-      activeTab === 'all'
-        ? allAgents
-        : allAgents?.filter(a => a.status === activeTab),
-    [allAgents, activeTab]
-  );
+  const { filter, setFilter, filtered } = useFilteredSearch(allAgents, {
+    searchKeys: ['name', 'description', 'modelId'],
+    filterKey: 'status',
+  });
+
+  const activeCount = allAgents?.filter(
+    a => a.status === AgentStatus.ACTIVE
+  ).length;
+  const archivedCount = allAgents?.filter(
+    a => a.status === AgentStatus.ARCHIVED
+  ).length;
+
+  const filterTabs: FilterTab[] = [
+    { key: FILTER_ALL, label: t('agents.all'), count: allAgents?.length },
+    {
+      key: AgentStatus.ACTIVE,
+      label: t('agents.active'),
+      count: activeCount,
+    },
+    {
+      key: AgentStatus.ARCHIVED,
+      label: t('agents.archived'),
+      count: archivedCount,
+    },
+  ];
+
   const deleteAgent = useDeleteAgent();
   const archiveAgent = useArchiveAgent();
   const unarchiveAgent = useUnarchiveAgent();
@@ -269,16 +289,6 @@ export default function AgentListPage() {
     });
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground text-sm">
-          {t('agents.loadingAgents')}
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -288,7 +298,7 @@ export default function AgentListPage() {
             resource: t('agents.title').toLowerCase(),
           })}
         </h3>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground-muted text-sm">
           {t('common.tryRefreshing')}
         </p>
       </div>
@@ -296,52 +306,67 @@ export default function AgentListPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('agents.title')}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {t('agents.subtitle')}
-          </p>
-        </div>
+      <PageHeader
+        title={t('agents.title')}
+        description={t('agents.subtitle')}
+        search
+        actions={
+          <Button variant="primary" asChild>
+            <Link to="/agents/new">{t('agents.createAgent')}</Link>
+          </Button>
+        }
+      />
+
+      {/* Filter bar */}
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
+        <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
+        <ViewToggle value={view} onChange={setView} />
       </div>
 
-      {/* Filter tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={value => setActiveTab(value as FilterTab)}
-      >
-        <TabsList>
-          <TabsTrigger value="all">{t('agents.all')}</TabsTrigger>
-          <TabsTrigger value={AgentStatus.ACTIVE}>
-            {t('agents.active')}
-          </TabsTrigger>
-          <TabsTrigger value={AgentStatus.ARCHIVED}>
-            {t('agents.archived')}
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Agent grid */}
-      {!agents?.length ? (
-        <AgentEmptyState />
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <AddCard to="/agents/new" label={t('agents.createAgent')} />
-          {agents.map(agent => (
-            <AgentCard
-              key={agent.id}
-              agent={agent}
+      {/* Agent list */}
+      <div className="flex-1 overflow-auto p-5">
+        {isLoading ? (
+          view === 'table' ? (
+            <AgentTable
+              agents={[]}
               onDelete={setDeleteTarget}
               onArchive={setArchiveTarget}
               onUnarchive={handleUnarchive}
+              loading
             />
-          ))}
-        </div>
-      )}
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <AgentCardSkeleton key={i} />
+              ))}
+            </div>
+          )
+        ) : !filtered.length ? (
+          <AgentEmptyState />
+        ) : view === 'table' ? (
+          <AgentTable
+            agents={filtered}
+            onDelete={setDeleteTarget}
+            onArchive={setArchiveTarget}
+            onUnarchive={handleUnarchive}
+          />
+        ) : (
+          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filtered.map(agent => (
+              <StaggerItem key={agent.id}>
+                <AgentCard
+                  agent={agent}
+                  onDelete={setDeleteTarget}
+                  onArchive={setArchiveTarget}
+                  onUnarchive={handleUnarchive}
+                />
+              </StaggerItem>
+            ))}
+          </StaggerList>
+        )}
+      </div>
 
       {/* Delete confirmation dialog */}
       <AlertDialog

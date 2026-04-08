@@ -13,6 +13,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { McpClientService } from '../mcp/mcp-client.service';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { getBuiltInTools } from './tools';
+import { createSkillTools, type SkillEntry } from './tools/skill-tools';
 
 interface AgentWithRelations {
   readonly status: string;
@@ -27,7 +28,13 @@ interface AgentWithRelations {
     readonly apiKey: string;
   };
   readonly skills: ReadonlyArray<{
-    readonly skill: { readonly content: string };
+    readonly skillId: string;
+    readonly skill: {
+      readonly id: string;
+      readonly name: string;
+      readonly description: string | null;
+      readonly content: string;
+    };
   }>;
   readonly mcpServers: ReadonlyArray<{
     readonly enabledTools: string[];
@@ -47,7 +54,7 @@ interface StreamParams {
   readonly encryptedApiKey: string;
   readonly modelId: string;
   readonly systemPrompt: string;
-  readonly skillContents: string;
+  readonly skills: readonly SkillEntry[];
   readonly temperature: number;
   readonly maxTokens: number;
   readonly thinkingEnabled: boolean;
@@ -95,9 +102,12 @@ export class AgentRuntimeService {
       throw new BadRequestException('Cannot chat with an archived agent');
     }
 
-    const skillContents = agent.skills
-      .map(entry => entry.skill.content)
-      .join('\n\n---\n\n');
+    const skills: SkillEntry[] = agent.skills.map(entry => ({
+      skillId: entry.skillId,
+      name: entry.skill.name,
+      description: entry.skill.description,
+      content: entry.skill.content,
+    }));
 
     this.logger.log(`[createStream] collecting MCP tools...`);
     const result = await this.buildAndStream({
@@ -106,7 +116,7 @@ export class AgentRuntimeService {
       encryptedApiKey: agent.provider.apiKey,
       modelId: agent.modelId,
       systemPrompt: agent.systemPrompt,
-      skillContents,
+      skills,
       temperature: agent.temperature,
       maxTokens: agent.maxTokens,
       thinkingEnabled: agent.thinkingEnabled,
@@ -132,8 +142,16 @@ export class AgentRuntimeService {
       include: { provider: true },
     });
 
-    const skills = version.skillsSnapshot as Array<{ content: string }>;
-    const skillContents = skills.map(s => s.content).join('\n\n---\n\n');
+    const skillsSnapshot = version.skillsSnapshot as Array<{
+      skillId?: string;
+      name?: string;
+      content: string;
+    }>;
+    const skills: SkillEntry[] = skillsSnapshot.map((s, i) => ({
+      skillId: s.skillId ?? String(i),
+      name: s.name ?? `Skill ${i + 1}`,
+      content: s.content,
+    }));
 
     const mcpSnapshot = version.mcpServersSnapshot as Array<{
       transport: string;
@@ -151,7 +169,7 @@ export class AgentRuntimeService {
       encryptedApiKey: version.provider.apiKey,
       modelId: version.modelId,
       systemPrompt: version.systemPrompt,
-      skillContents,
+      skills,
       temperature: version.temperature,
       maxTokens: version.maxTokens,
       thinkingEnabled: version.thinkingEnabled,
@@ -216,15 +234,12 @@ export class AgentRuntimeService {
       params.modelId
     );
 
-    const fullSystemPrompt = params.skillContents
-      ? `${params.systemPrompt}\n\n## Skills\n\n${params.skillContents}`
-      : params.systemPrompt;
-
     const { tools: mcpTools, cleanups } = await this.collectMcpTools(
       params.mcpServers
     );
     const built = getBuiltInTools(this.workspaceService, params.conversationId);
-    const tools: McpToolSet = { ...built, ...mcpTools };
+    const skillTools = createSkillTools(params.skills);
+    const tools: McpToolSet = { ...built, ...mcpTools, ...skillTools };
     const hasTools = Object.keys(tools).length > 0;
 
     const thinkingOptions = getThinkingProviderOptions(
@@ -235,7 +250,7 @@ export class AgentRuntimeService {
 
     return streamText({
       model,
-      system: fullSystemPrompt,
+      system: params.systemPrompt,
       messages: params.messages as any,
       temperature: params.thinkingEnabled
         ? undefined

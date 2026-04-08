@@ -1,51 +1,10 @@
-import {
-  IsBoolean,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-  MinLength,
-} from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 
-export class UpdateAgentDto {
-  @IsOptional()
-  @IsString()
-  @MinLength(1)
-  name?: string;
+import { IsOptional, IsString } from 'class-validator';
 
-  @IsOptional()
-  @IsString()
-  description?: string;
+import { CreateAgentDto } from './create-agent.dto';
 
-  @IsOptional()
-  @IsString()
-  providerId?: string;
-
-  @IsOptional()
-  @IsString()
-  modelId?: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(1)
-  systemPrompt?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(2)
-  temperature?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  maxTokens?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  thinkingEnabled?: boolean;
-
+export class UpdateAgentDto extends PartialType(CreateAgentDto) {
   @IsOptional()
   @IsString()
   avatar?: string;
