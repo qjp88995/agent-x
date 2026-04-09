@@ -11,6 +11,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { Bot, ChevronLeft, Code2, MessageSquare } from 'lucide-react';
 
+import { useAutoScroll } from '@/hooks/use-auto-scroll';
 import { CONVERSATIONS_KEY, messagesKey, useMessages } from '@/hooks/use-chat';
 import { useChatStream } from '@/hooks/use-chat-stream';
 import { useWorkspaceFiles } from '@/hooks/use-workspace';
@@ -70,7 +71,8 @@ export function ChatPanel({
 
   useWorkspaceSync(conversationId, messages);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { scrollContainerRef, sentinelRef, handleScroll, scrollToBottom } =
+    useAutoScroll(isLoading);
 
   // Refresh conversation list after streaming completes (for auto-generated title)
   const prevStatusRef = useRef(status);
@@ -85,16 +87,12 @@ export function ChatPanel({
     }
   }, [status, queryClient]);
 
-  // Auto-scroll to bottom on new messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   const handleSend = useCallback(
     (content: string) => {
+      scrollToBottom();
       void sendMessage({ text: content });
     },
-    [sendMessage]
+    [sendMessage, scrollToBottom]
   );
 
   const { data: workspaceFiles } = useWorkspaceFiles(conversationId);
@@ -141,12 +139,16 @@ export function ChatPanel({
       )}
 
       {/* Messages area */}
-      <div className="flex flex-1 flex-col overflow-y-auto">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex flex-1 flex-col overflow-y-auto"
+      >
         {messages.length === 0 ? (
           <EmptyChat agentName={agentName} />
         ) : (
           <MessageList
-            ref={messagesEndRef}
+            ref={sentinelRef}
             messages={messages}
             className="mx-auto max-w-160"
             isStreaming={isLoading}

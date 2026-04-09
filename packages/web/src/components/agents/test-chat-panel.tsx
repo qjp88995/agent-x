@@ -17,6 +17,7 @@ import {
 
 import { ChatInput } from '@/components/chat/chat-input';
 import { MessageList } from '@/components/chat/message-list';
+import { useAutoScroll } from '@/hooks/use-auto-scroll';
 import { useCreateConversation } from '@/hooks/use-chat';
 import { AgentXChatTransport } from '@/lib/chat-transport';
 import { cn } from '@/lib/utils';
@@ -32,7 +33,6 @@ export function TestChatPanel({ agentId, className }: TestChatPanelProps) {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const createConversation = useCreateConversation();
   const transportRef = useRef<AgentXChatTransport | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const transport = useMemo(
     () => (conversationId ? new AgentXChatTransport(conversationId) : null),
@@ -54,14 +54,16 @@ export function TestChatPanel({ agentId, className }: TestChatPanelProps) {
     };
   }, [conversationId]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   const isLoading = status === 'submitted' || status === 'streaming';
+
+  const { scrollContainerRef, sentinelRef, handleScroll, scrollToBottom } =
+    useAutoScroll(isLoading);
+
+  const pendingMessageRef = useRef<string | null>(null);
 
   const handleSend = useCallback(
     async (content: string) => {
+      scrollToBottom();
       let cid = conversationId;
       if (!cid) {
         const conv = await createConversation.mutateAsync({
@@ -70,22 +72,15 @@ export function TestChatPanel({ agentId, className }: TestChatPanelProps) {
         });
         cid = conv.id;
         setConversationId(cid);
-        // Wait for next render to get transport
-        // sendMessage will be called after state update
       }
-      // If we just created the conversation, transport isn't ready yet.
-      // We need to defer the send until transport is available.
       if (conversationId) {
         void sendMessage({ text: content });
       } else {
-        // Store the pending message and send after transport is ready
         pendingMessageRef.current = content;
       }
     },
-    [conversationId, agentId, createConversation, sendMessage]
+    [conversationId, agentId, createConversation, sendMessage, scrollToBottom]
   );
-
-  const pendingMessageRef = useRef<string | null>(null);
 
   // Send pending message once transport is ready
   useEffect(() => {
@@ -159,7 +154,11 @@ export function TestChatPanel({ agentId, className }: TestChatPanelProps) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto"
+      >
         {messages.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-16">
             <div className="bg-surface flex size-12 items-center justify-center rounded-full">
@@ -171,7 +170,7 @@ export function TestChatPanel({ agentId, className }: TestChatPanelProps) {
           </div>
         ) : (
           <MessageList
-            ref={messagesEndRef}
+            ref={sentinelRef}
             messages={messages}
             isStreaming={isLoading}
             showTyping={

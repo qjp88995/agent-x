@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 
@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/resizable';
 import { WorkspaceContainer } from '@/components/workspace/workspace-container';
 import { WorkspaceApiProvider } from '@/contexts/workspace-api-context';
+import { useAutoScroll } from '@/hooks/use-auto-scroll';
 import { messagesKey, useConversations, useMessages } from '@/hooks/use-chat';
 import { useChatStream } from '@/hooks/use-chat-stream';
 import { useDownloadWorkspace, useWorkspaceFiles } from '@/hooks/use-workspace';
@@ -63,13 +64,12 @@ function WorkspacePageContent({
     downloadWorkspace.mutate(conversationId);
   }, [conversationId, downloadWorkspace]);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const mobile = useAutoScroll(isLoading);
+  const desktop = useAutoScroll(isLoading);
 
   const handleSend = (content: string) => {
+    mobile.scrollToBottom();
+    desktop.scrollToBottom();
     void sendMessage({ text: content });
   };
 
@@ -159,9 +159,13 @@ function WorkspacePageContent({
             activeTab !== 'chat' && 'hidden'
           )}
         >
-          <div className="flex-1 overflow-y-auto">
+          <div
+            ref={mobile.scrollContainerRef}
+            onScroll={mobile.handleScroll}
+            className="flex-1 overflow-y-auto"
+          >
             <MessageList
-              ref={messagesEndRef}
+              ref={mobile.sentinelRef}
               messages={messages}
               className="mx-auto max-w-full px-2"
               isStreaming={isLoading}
@@ -191,9 +195,13 @@ function WorkspacePageContent({
 
           <ResizablePanel defaultSize="40%" minSize="20%">
             <div className="flex h-full flex-col">
-              <div className="flex-1 overflow-y-auto">
+              <div
+                ref={desktop.scrollContainerRef}
+                onScroll={desktop.handleScroll}
+                className="flex-1 overflow-y-auto"
+              >
                 <MessageList
-                  ref={messagesEndRef}
+                  ref={desktop.sentinelRef}
                   messages={messages}
                   className="mx-auto max-w-full px-2"
                   isStreaming={isLoading}

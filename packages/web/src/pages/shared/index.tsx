@@ -16,6 +16,7 @@ import { ChatInput } from '@/components/chat/chat-input';
 import { ChatShell } from '@/components/chat/chat-shell';
 import { MessageList } from '@/components/chat/message-list';
 import { SharedWelcome } from '@/components/chat/shared-welcome';
+import { useAutoScroll } from '@/hooks/use-auto-scroll';
 import { useChatStream } from '@/hooks/use-chat-stream';
 import {
   sharedConversationsKey,
@@ -61,7 +62,6 @@ function SharedChatContent({
     [setSearchParams]
   );
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const pendingMessageRef = useRef<string | null>(null);
 
   const transport = useMemo(() => {
@@ -84,6 +84,9 @@ function SharedChatContent({
     });
 
   useWorkspaceSync(conversationId ?? undefined, messages);
+
+  const { scrollContainerRef, sentinelRef, handleScroll, scrollToBottom } =
+    useAutoScroll(isLoading);
 
   const { data: workspaceFiles } = useSharedWorkspaceFiles(
     token,
@@ -110,10 +113,6 @@ function SharedChatContent({
     }
   }, [status, queryClient, token]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   // Send pending message once transport is ready
   useEffect(() => {
     if (transport && pendingMessageRef.current) {
@@ -126,6 +125,7 @@ function SharedChatContent({
   const handleSend = useCallback(
     async (content: string) => {
       if (!token) return;
+      scrollToBottom();
 
       if (!conversationId) {
         const conv = await createConversation.mutateAsync({ token });
@@ -136,7 +136,14 @@ function SharedChatContent({
 
       void sendMessage({ text: content });
     },
-    [token, conversationId, createConversation, sendMessage, setConversationId]
+    [
+      token,
+      conversationId,
+      createConversation,
+      sendMessage,
+      setConversationId,
+      scrollToBottom,
+    ]
   );
 
   const handleNewChat = useCallback(() => {
@@ -264,9 +271,13 @@ function SharedChatContent({
           agentDescription={agentInfo.agentDescription}
         />
       ) : (
-        <div className="flex-1 overflow-y-auto">
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto"
+        >
           <MessageList
-            ref={messagesEndRef}
+            ref={sentinelRef}
             messages={messages}
             className="mx-auto max-w-160"
             isStreaming={isLoading}
