@@ -92,11 +92,28 @@ jobs:
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 
+  check-tcr:
+    name: Check TCR configuration
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - name: Check if TCR secrets are configured
+        id: check
+        env:
+          TCR_REGISTRY: ${{ secrets.TCR_REGISTRY }}
+        run: |
+          if [ -n "$TCR_REGISTRY" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+          fi
+
   push-tcr:
     name: Push staging to Tencent TCR
     runs-on: ubuntu-latest
-    needs: [build-server, build-web]
-    if: ${{ secrets.TCR_REGISTRY != '' }}
+    needs: [build-server, build-web, check-tcr]
+    if: needs.check-tcr.outputs.enabled == 'true'
     permissions:
       packages: read
 

@@ -9,10 +9,28 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  check-tcr:
+    name: Check TCR configuration
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - name: Check if TCR secrets are configured
+        id: check
+        env:
+          TCR_REGISTRY: ${{ secrets.TCR_REGISTRY }}
+        run: |
+          if [ -n "$TCR_REGISTRY" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+          fi
+
   push-tcr:
     name: Push latest to Tencent TCR
     runs-on: ubuntu-latest
-    if: ${{ secrets.TCR_REGISTRY != '' }}
+    needs: [check-tcr]
+    if: needs.check-tcr.outputs.enabled == 'true'
     permissions:
       packages: read
 
