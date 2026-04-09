@@ -9,6 +9,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_SERVER: ghcr.io/${{ github.repository_owner }}/agent-x-server
   IMAGE_WEB: ghcr.io/${{ github.repository_owner }}/agent-x-web
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-server:
