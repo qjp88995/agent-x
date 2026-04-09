@@ -12,6 +12,7 @@ jobs:
   push-tcr:
     name: Push latest to Tencent TCR
     runs-on: ubuntu-latest
+    if: ${{ secrets.TCR_REGISTRY != '' }}
     permissions:
       packages: read
 
