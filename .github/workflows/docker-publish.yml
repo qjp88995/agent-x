@@ -133,11 +133,11 @@ jobs:
       - name: Push server latest to TCR
         run: |
           docker pull ${{ env.IMAGE_SERVER }}:latest
-          docker tag ${{ env.IMAGE_SERVER }}:latest ${{ secrets.TCR_REGISTRY }}/agent-x-server:latest
-          docker push ${{ secrets.TCR_REGISTRY }}/agent-x-server:latest
+          docker tag ${{ env.IMAGE_SERVER }}:latest ${{ secrets.TCR_REGISTRY }}/${{ secrets.TCR_NAMESPACE }}/agent-x-server:latest
+          docker push ${{ secrets.TCR_REGISTRY }}/${{ secrets.TCR_NAMESPACE }}/agent-x-server:latest
 
       - name: Push web latest to TCR
         run: |
           docker pull ${{ env.IMAGE_WEB }}:latest
-          docker tag ${{ env.IMAGE_WEB }}:latest ${{ secrets.TCR_REGISTRY }}/agent-x-web:latest
-          docker push ${{ secrets.TCR_REGISTRY }}/agent-x-web:latest
+          docker tag ${{ env.IMAGE_WEB }}:latest ${{ secrets.TCR_REGISTRY }}/${{ secrets.TCR_NAMESPACE }}/agent-x-web:latest
+          docker push ${{ secrets.TCR_REGISTRY }}/${{ secrets.TCR_NAMESPACE }}/agent-x-web:latest
