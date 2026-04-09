@@ -35,12 +35,12 @@ jobs:
 
       - name: Push server latest to TCR
         run: |
-          docker buildx imagetools create \
-            --tag ${{ secrets.TCR_REGISTRY }}/agent-x-server:latest \
-            ${{ env.IMAGE_SERVER }}:latest
+          docker pull ${{ env.IMAGE_SERVER }}:latest
+          docker tag ${{ env.IMAGE_SERVER }}:latest ${{ secrets.TCR_REGISTRY }}/agent-x-server:latest
+          docker push ${{ secrets.TCR_REGISTRY }}/agent-x-server:latest
 
       - name: Push web latest to TCR
         run: |
-          docker buildx imagetools create \
-            --tag ${{ secrets.TCR_REGISTRY }}/agent-x-web:latest \
-            ${{ env.IMAGE_WEB }}:latest
+          docker pull ${{ env.IMAGE_WEB }}:latest
+          docker tag ${{ env.IMAGE_WEB }}:latest ${{ secrets.TCR_REGISTRY }}/agent-x-web:latest
+          docker push ${{ secrets.TCR_REGISTRY }}/agent-x-web:latest
