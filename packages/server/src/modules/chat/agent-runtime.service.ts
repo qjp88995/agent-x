@@ -327,18 +327,15 @@ export class AgentRuntimeService {
     const apiKey = decrypt(encryptedApiKey, encryptionSecret);
     const model = createLanguageModel(protocol, baseUrl, apiKey, modelId);
 
-    const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [
-      { role: 'user', content: userMessage },
-    ];
-    if (assistantMessage) {
-      messages.push({ role: 'assistant', content: assistantMessage });
-    }
+    const conversationText = assistantMessage
+      ? `User: ${userMessage}\nAssistant: ${assistantMessage}`
+      : `User: ${userMessage}`;
 
     const { text } = await generateText({
       model,
       system:
         'Generate a short conversation title (max 20 characters) based on the following conversation. Return ONLY the title text, nothing else. Use the same language as the user message.',
-      messages,
+      messages: [{ role: 'user', content: conversationText }],
       maxOutputTokens: 50,
     });
 
