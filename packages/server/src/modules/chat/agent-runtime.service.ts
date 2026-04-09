@@ -337,6 +337,7 @@ export class AgentRuntimeService {
         'Generate a short conversation title (max 20 characters) based on the following conversation. Return ONLY the title text, nothing else. Use the same language as the user message.',
       messages: [{ role: 'user', content: conversationText }],
       maxOutputTokens: 50,
+      ...getThinkingProviderOptions(protocol, false),
     });
 
     return text.replace(/^["']+|["']+$/g, '').trim();
