@@ -5,6 +5,8 @@ import { ChevronRight } from 'lucide-react';
 
 import { cn } from '../lib/utils';
 
+const SCROLL_THRESHOLD = 8;
+
 type ThinkingBlockProps = {
   duration?: number;
   isStreaming?: boolean;
@@ -21,6 +23,29 @@ function ThinkingBlock({
   className,
 }: ThinkingBlockProps) {
   const [open, setOpen] = React.useState(defaultOpen);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const autoScrollRef = React.useRef(true);
+
+  // Auto-scroll to bottom when content changes, if auto-scroll is enabled
+  React.useEffect(() => {
+    if (!isStreaming || !autoScrollRef.current) return;
+    const el = contentRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  });
+
+  // Reset auto-scroll when streaming starts
+  React.useEffect(() => {
+    if (isStreaming) autoScrollRef.current = true;
+  }, [isStreaming]);
+
+  function handleScroll() {
+    if (!isStreaming) return;
+    const el = contentRef.current;
+    if (!el) return;
+    const atBottom =
+      el.scrollHeight - el.scrollTop - el.clientHeight <= SCROLL_THRESHOLD;
+    autoScrollRef.current = atBottom;
+  }
 
   return (
     <div
@@ -63,7 +88,11 @@ function ThinkingBlock({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="px-3 pb-3 text-[12px] text-foreground-muted leading-relaxed border-t border-primary/10 max-h-64 overflow-y-auto">
+            <div
+              ref={contentRef}
+              onScroll={handleScroll}
+              className="px-3 pb-3 text-[12px] text-foreground-muted leading-relaxed border-t border-primary/10 max-h-64 overflow-y-auto"
+            >
               {children}
             </div>
           </motion.div>
