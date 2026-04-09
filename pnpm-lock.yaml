@@ -348,6 +348,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@codemirror/commands':
+        specifier: 6.10.3
+        version: 6.10.3
       '@codemirror/lang-markdown':
         specifier: 'catalog:'
         version: 6.5.0
@@ -538,6 +541,9 @@ importers:
       '@ai-sdk/react':
         specifier: 'catalog:'
         version: 3.0.148(react@19.2.4)(zod@4.3.6)
+      '@codemirror/commands':
+        specifier: 6.10.3
+        version: 6.10.3
       '@codemirror/lang-markdown':
         specifier: 'catalog:'
         version: 6.5.0

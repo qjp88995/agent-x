@@ -14,6 +14,7 @@
     "@agent-x/design": "workspace:*",
     "@agent-x/shared": "workspace:*",
     "@ai-sdk/react": "catalog:",
+    "@codemirror/commands": "catalog:",
     "@codemirror/lang-markdown": "catalog:",
     "@codemirror/language": "catalog:",
     "@codemirror/state": "catalog:",

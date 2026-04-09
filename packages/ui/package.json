@@ -29,6 +29,7 @@
     "react-hook-form": "^7.0.0"
   },
   "dependencies": {
+    "@codemirror/commands": "catalog:",
     "@codemirror/lang-markdown": "catalog:",
     "@codemirror/language": "catalog:",
     "@codemirror/state": "catalog:",
