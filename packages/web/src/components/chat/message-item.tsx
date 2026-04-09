@@ -187,6 +187,7 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
           return (
             <ThinkingBlock
               key={`reasoning-${i}`}
+              isStreaming={rp.state !== 'done'}
               defaultOpen={rp.state !== 'done'}
             >
               <div className="whitespace-pre-wrap">{rp.text || '...'}</div>
