@@ -7,6 +7,6 @@ dist/
 coverage/
 .next/
 *.tsbuildinfo
-.claude/*
+.claude/
 !.claude/agents/
 .superpowers/
