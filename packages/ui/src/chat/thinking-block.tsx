@@ -93,7 +93,7 @@ function ThinkingBlock({
             <div
               ref={contentRef}
               onScroll={handleScroll}
-              className="px-3 pb-3 text-[12px] text-foreground-muted leading-relaxed border-t border-primary/10 max-h-64 overflow-y-auto"
+              className="px-3 py-3 text-[12px] text-foreground-muted leading-relaxed border-t border-primary/10 max-h-64 overflow-y-auto"
             >
               {children}
             </div>
