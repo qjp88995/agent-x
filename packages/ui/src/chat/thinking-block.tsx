@@ -13,6 +13,7 @@ type ThinkingBlockProps = {
   children: React.ReactNode;
   defaultOpen?: boolean;
   className?: string;
+  label?: string;
 };
 
 function ThinkingBlock({
@@ -21,6 +22,7 @@ function ThinkingBlock({
   children,
   defaultOpen = false,
   className,
+  label = 'Thinking',
 }: ThinkingBlockProps) {
   const [open, setOpen] = React.useState(defaultOpen);
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -65,7 +67,7 @@ function ThinkingBlock({
             open && 'rotate-90'
           )}
         />
-        <span>Thinking</span>
+        <span>{label}</span>
         {duration != null && (
           <span className="text-foreground-ghost ml-0.5">
             &middot; {duration}s
