@@ -138,6 +138,7 @@ export function FileEditor({
 }: FileEditorProps) {
   const activeTab = tabs.find(tab => tab.file.id === activeFileId);
   const activeFile = activeTab?.file;
+  const activeFileId = activeFile?.id;
 
   const { client, filesUrl, downloadUrl } = useWorkspaceApi();
   const isDark = useIsDark();
@@ -147,19 +148,23 @@ export function FileEditor({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!activeFile || !conversationId) {
+    if (!activeFileId || !conversationId) {
       setContent(undefined);
       return;
     }
     setIsLoading(true);
     client
-      .get<{ content: string }>(`${filesUrl(conversationId)}/${activeFile.id}/content`)
+      .get<{ content: string }>(
+        `${filesUrl(conversationId)}/${activeFileId}/content`
+      )
       .then(({ data }) => setContent(data.content))
       .finally(() => setIsLoading(false));
-  }, [activeFile?.id, conversationId, client, filesUrl]);
+  }, [activeFileId, conversationId, client, filesUrl]);
 
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
-  const [pendingContent, setPendingContent] = useState<Record<string, string>>({});
+  const [pendingContent, setPendingContent] = useState<Record<string, string>>(
+    {}
+  );
 
   const handleEditorMount: OnMount = useCallback(editor => {
     editorRef.current = editor;
@@ -184,7 +189,9 @@ export function FileEditor({
     if (currentContent === undefined) return;
 
     client
-      .put(`${filesUrl(conversationId)}/${activeFile.id}/content`, { content: currentContent })
+      .put(`${filesUrl(conversationId)}/${activeFile.id}/content`, {
+        content: currentContent,
+      })
       .then(() => {
         onTabModified(activeFile.id, false);
         setPendingContent(prev => {
@@ -202,7 +209,15 @@ export function FileEditor({
       .catch(() => {
         toast.error(labels?.saveFailed ?? '保存失败');
       });
-  }, [activeFile, conversationId, pendingContent, client, filesUrl, onTabModified, labels]);
+  }, [
+    activeFile,
+    conversationId,
+    pendingContent,
+    client,
+    filesUrl,
+    onTabModified,
+    labels,
+  ]);
 
   useEffect(() => {
     const listener = () => handleSave();
