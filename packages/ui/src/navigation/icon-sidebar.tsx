@@ -11,18 +11,11 @@ type SidebarItem = {
   badge?: string | number;
 };
 
-type SidebarFooter = {
-  avatar: ReactNode;
-  label?: string;
-  actions?: ReactNode;
-};
-
 type IconSidebarProps = {
   expanded: boolean;
   items: SidebarItem[];
   bottomItems?: SidebarItem[];
   logo?: ReactNode;
-  footer?: SidebarFooter;
   onItemClick?: (item: SidebarItem) => void;
   className?: string;
 };
@@ -117,7 +110,6 @@ function IconSidebar({
   items,
   bottomItems,
   logo,
-  footer,
   onItemClick,
   className,
 }: IconSidebarProps) {
@@ -161,42 +153,8 @@ function IconSidebar({
           ))}
         </nav>
       )}
-
-      {/* Footer */}
-      {footer && (
-        <div className="shrink-0 px-2 py-2 overflow-hidden">
-          <div className="border-t border-border mb-2" />
-          <div className="flex h-9 items-center rounded-md px-2 gap-2.5">
-            <span className="shrink-0 flex items-center justify-center">
-              {footer.avatar}
-            </span>
-            {footer.label && (
-              <span
-                className={cn(
-                  'flex-1 truncate text-[12px] font-medium text-foreground-muted',
-                  'transition-opacity duration-150',
-                  expanded ? 'opacity-100' : 'opacity-0'
-                )}
-              >
-                {footer.label}
-              </span>
-            )}
-          </div>
-          {footer.actions && (
-            <div
-              className={cn(
-                'flex items-center gap-1 px-2 pt-1',
-                'transition-opacity duration-150',
-                expanded ? 'opacity-100' : 'opacity-0'
-              )}
-            >
-              {footer.actions}
-            </div>
-          )}
-        </div>
-      )}
     </aside>
   );
 }
 
-export { IconSidebar, type SidebarFooter, type SidebarItem };
+export { IconSidebar, type SidebarItem };

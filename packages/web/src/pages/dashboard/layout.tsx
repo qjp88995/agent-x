@@ -5,6 +5,12 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import {
   Avatar,
   Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   IconSidebar,
   PageTransition,
   ScrollArea,
@@ -12,7 +18,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  type SidebarFooter,
   type SidebarItem,
   Tooltip,
   TooltipContent,
@@ -107,36 +112,41 @@ function ThemeToggle() {
   );
 }
 
-function useSidebarFooter(): SidebarFooter {
+function UserMenu() {
   const { t } = useTranslation();
   const user = useAuthStore(s => s.user);
   const logout = useAuthStore(s => s.logout);
-
   const displayName = user?.name ?? user?.email ?? 'User';
 
-  return {
-    avatar: <Avatar name={displayName} size="sm" />,
-    label: displayName,
-    actions: (
-      <>
-        <ThemeToggle />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={logout}
-              className="text-foreground-ghost hover:text-foreground-muted"
-              aria-label={t('auth.signOut')}
-            >
-              <LogOut className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('auth.signOut')}</TooltipContent>
-        </Tooltip>
-      </>
-    ),
-  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="text-foreground-ghost hover:text-foreground-muted"
+          aria-label={displayName}
+        >
+          <Avatar name={displayName} size="sm" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel className="font-normal">
+          <span className="block truncate text-xs text-foreground-muted">
+            {displayName}
+          </span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={logout}
+          className="text-foreground-ghost cursor-pointer"
+        >
+          <LogOut className="size-4" />
+          {t('auth.signOut')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 function useNavItems(defs: readonly NavDef[]): SidebarItem[] {
@@ -230,7 +240,6 @@ export default function DashboardLayout() {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const items = useNavItems(NAV_ITEMS);
   const bottomItems = useNavItems(BOTTOM_NAV_ITEMS);
-  const footer = useSidebarFooter();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -241,7 +250,6 @@ export default function DashboardLayout() {
           items={items}
           bottomItems={bottomItems}
           onItemClick={item => navigate(item.href)}
-          footer={footer}
         />
       </div>
 
@@ -301,6 +309,14 @@ export default function DashboardLayout() {
               {sidebarExpanded ? t('nav.collapse') : t('nav.expand')}
             </TooltipContent>
           </Tooltip>
+
+          <div className="flex-1" />
+
+          {/* Right side: theme + user */}
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <UserMenu />
+          </div>
         </header>
 
         <main className="flex min-h-0 flex-1 flex-col overflow-auto">

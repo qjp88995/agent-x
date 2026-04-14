@@ -169,19 +169,3 @@ export const WithBadges: Story = {
     bottomItems,
   },
 };
-
-export const WithFooter: Story = {
-  name: 'With Footer (avatar area)',
-  args: {
-    items: mainItems,
-    bottomItems,
-    footer: {
-      avatar: (
-        <div className="flex size-5.5 shrink-0 items-center justify-center rounded-full bg-card text-[9px] text-foreground-muted">
-          U
-        </div>
-      ),
-      label: 'User Name',
-    },
-  },
-};

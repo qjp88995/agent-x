@@ -192,11 +192,7 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from './navigation/breadcrumb';
-export {
-  IconSidebar,
-  type SidebarFooter,
-  type SidebarItem,
-} from './navigation/icon-sidebar';
+export { IconSidebar, type SidebarItem } from './navigation/icon-sidebar';
 export { PageHeader } from './navigation/page-header';
 export {
   Pagination,
