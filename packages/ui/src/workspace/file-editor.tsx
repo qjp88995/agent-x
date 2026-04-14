@@ -138,7 +138,6 @@ export function FileEditor({
 }: FileEditorProps) {
   const activeTab = tabs.find(tab => tab.file.id === activeFileId);
   const activeFile = activeTab?.file;
-  const activeFileId = activeFile?.id;
 
   const { client, filesUrl, downloadUrl } = useWorkspaceApi();
   const isDark = useIsDark();
