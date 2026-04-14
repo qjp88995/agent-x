@@ -2,11 +2,13 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import {
-  type CoreMessage,
   generateText,
+  type ModelMessage,
   stepCountIs,
   streamText,
+  type StreamTextResult,
   type Tool,
+  type ToolSet,
 } from 'ai';
 
 import {
@@ -85,7 +87,7 @@ export class AgentRuntimeService {
     agentId: string,
     messages: Array<{ role: string; content: string }>,
     options?: { abortSignal?: AbortSignal; conversationId?: string }
-  ) {
+  ): Promise<StreamTextResult<ToolSet, never>> {
     const start = Date.now();
     this.logger.log(`[createStream] START agentId=${agentId}`);
 
@@ -142,7 +144,7 @@ export class AgentRuntimeService {
     agentVersionId: string,
     messages: Array<{ role: string; content: string }>,
     options?: { abortSignal?: AbortSignal; conversationId?: string }
-  ) {
+  ): Promise<StreamTextResult<ToolSet, never>> {
     const version = await this.prisma.agentVersion.findUniqueOrThrow({
       where: { id: agentVersionId },
       include: { provider: true },
@@ -257,7 +259,7 @@ export class AgentRuntimeService {
     return streamText({
       model,
       system: params.systemPrompt,
-      messages: params.messages as CoreMessage[],
+      messages: params.messages as ModelMessage[],
       temperature: params.thinkingEnabled
         ? undefined
         : clampTemperature(params.protocol, params.temperature),
