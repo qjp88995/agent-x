@@ -29,6 +29,7 @@ import {
   Monitor,
   Moon,
   PanelLeft,
+  PanelLeftClose,
   Server,
   Settings,
   Sparkles,
@@ -289,7 +290,11 @@ export default function DashboardLayout() {
                 }
                 className="hidden md:flex text-foreground-ghost hover:text-foreground-muted"
               >
-                <PanelLeft className="size-4.5" />
+                {sidebarExpanded ? (
+                  <PanelLeftClose className="size-4.5" />
+                ) : (
+                  <PanelLeft className="size-4.5" />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
