@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '../feedback/tooltip';
 import { cn } from '../lib/utils';
 
 type SidebarItem = {
@@ -56,7 +57,7 @@ function NavItem({
   expanded: boolean;
   onItemClick?: (item: SidebarItem) => void;
 }) {
-  return (
+  const anchor = (
     <a
       href={item.href}
       onClick={e => {
@@ -99,6 +100,15 @@ function NavItem({
         </span>
       )}
     </a>
+  );
+
+  if (expanded) return anchor;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{anchor}</TooltipTrigger>
+      <TooltipContent side="right">{item.label}</TooltipContent>
+    </Tooltip>
   );
 }
 
