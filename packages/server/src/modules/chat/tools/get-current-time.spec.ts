@@ -4,7 +4,11 @@ describe('getCurrentTimeTool', () => {
   it('should return current time in UTC by default', async () => {
     const result = await getCurrentTimeTool.execute!(
       {},
-      { toolCallId: 'test', messages: [], abortSignal: undefined as any }
+      {
+        toolCallId: 'test',
+        messages: [],
+        abortSignal: undefined as unknown as AbortSignal,
+      }
     );
 
     expect(result).toEqual(
@@ -21,7 +25,11 @@ describe('getCurrentTimeTool', () => {
   it('should return time in specified timezone', async () => {
     const result = await getCurrentTimeTool.execute!(
       { timezone: 'Asia/Shanghai' },
-      { toolCallId: 'test', messages: [], abortSignal: undefined as any }
+      {
+        toolCallId: 'test',
+        messages: [],
+        abortSignal: undefined as unknown as AbortSignal,
+      }
     );
 
     expect(result).toEqual(
@@ -38,7 +46,11 @@ describe('getCurrentTimeTool', () => {
   it('should return error for invalid timezone', async () => {
     const result = await getCurrentTimeTool.execute!(
       { timezone: 'Invalid/Timezone' },
-      { toolCallId: 'test', messages: [], abortSignal: undefined as any }
+      {
+        toolCallId: 'test',
+        messages: [],
+        abortSignal: undefined as unknown as AbortSignal,
+      }
     );
 
     expect(result).toEqual(

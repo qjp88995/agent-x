@@ -31,8 +31,10 @@ function countCompletedWorkspaceTools(messages: UIMessage[]): number {
       if (
         'toolCallId' in part &&
         'state' in part &&
-        (part as any).state === 'output-available' &&
-        WORKSPACE_TOOLS.has(getToolName(part as any))
+        (part as Record<string, unknown>).state === 'output-available' &&
+        WORKSPACE_TOOLS.has(
+          getToolName(part as { type: string; toolName?: string })
+        )
       ) {
         count++;
       }

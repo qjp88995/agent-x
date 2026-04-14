@@ -1,7 +1,13 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { generateText, stepCountIs, streamText, type Tool } from 'ai';
+import {
+  type CoreMessage,
+  generateText,
+  stepCountIs,
+  streamText,
+  type Tool,
+} from 'ai';
 
 import {
   clampTemperature,
@@ -79,7 +85,7 @@ export class AgentRuntimeService {
     agentId: string,
     messages: Array<{ role: string; content: string }>,
     options?: { abortSignal?: AbortSignal; conversationId?: string }
-  ): Promise<any> {
+  ) {
     const start = Date.now();
     this.logger.log(`[createStream] START agentId=${agentId}`);
 
@@ -136,7 +142,7 @@ export class AgentRuntimeService {
     agentVersionId: string,
     messages: Array<{ role: string; content: string }>,
     options?: { abortSignal?: AbortSignal; conversationId?: string }
-  ): Promise<any> {
+  ) {
     const version = await this.prisma.agentVersion.findUniqueOrThrow({
       where: { id: agentVersionId },
       include: { provider: true },
@@ -224,7 +230,7 @@ export class AgentRuntimeService {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  private async buildAndStream(params: StreamParams): Promise<any> {
+  private async buildAndStream(params: StreamParams) {
     const encryptionSecret = this.config.get<string>('ENCRYPTION_SECRET')!;
     const apiKey = decrypt(params.encryptedApiKey, encryptionSecret);
     const model = createLanguageModel(
@@ -251,7 +257,7 @@ export class AgentRuntimeService {
     return streamText({
       model,
       system: params.systemPrompt,
-      messages: params.messages as any,
+      messages: params.messages as CoreMessage[],
       temperature: params.thinkingEnabled
         ? undefined
         : clampTemperature(params.protocol, params.temperature),

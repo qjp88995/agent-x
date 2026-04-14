@@ -1,3 +1,4 @@
+import type { WorkspaceService } from '../../workspace/workspace.service';
 import { createWorkspaceTools } from './workspace-tools';
 
 const MOCK_CONVERSATION_ID = 'cuid-conv-1';
@@ -5,7 +6,7 @@ const MOCK_CONVERSATION_ID = 'cuid-conv-1';
 const toolCtx = {
   toolCallId: 'test',
   messages: [],
-  abortSignal: undefined as any,
+  abortSignal: undefined as unknown as AbortSignal,
 };
 
 const mockFile = {
@@ -40,7 +41,7 @@ describe('workspace tools', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     tools = createWorkspaceTools(
-      mockWorkspaceService as any,
+      mockWorkspaceService as unknown as WorkspaceService,
       MOCK_CONVERSATION_ID
     );
   });

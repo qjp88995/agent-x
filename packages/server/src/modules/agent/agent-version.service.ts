@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import type { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateVersionDto } from './dto/create-version.dto';
 
@@ -73,8 +74,9 @@ export class AgentVersionService {
         temperature: agent.temperature,
         maxTokens: agent.maxTokens,
         thinkingEnabled: agent.thinkingEnabled,
-        skillsSnapshot: skillsSnapshot as any,
-        mcpServersSnapshot: mcpServersSnapshot as any,
+        skillsSnapshot: skillsSnapshot as unknown as Prisma.InputJsonValue,
+        mcpServersSnapshot:
+          mcpServersSnapshot as unknown as Prisma.InputJsonValue,
         changelog: dto.changelog ?? null,
       },
     });

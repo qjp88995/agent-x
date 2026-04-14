@@ -41,8 +41,8 @@ export function createWorkspaceTools(
               size: file.size,
             },
           };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -69,8 +69,8 @@ export function createWorkspaceTools(
             mimeType: result.mimeType,
             size: result.size,
           };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -107,8 +107,8 @@ export function createWorkspaceTools(
               size: file.size,
             },
           };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -129,8 +129,8 @@ export function createWorkspaceTools(
         try {
           await workspaceService.deleteFile(conversationId, path);
           return { success: true, path };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -179,8 +179,8 @@ export function createWorkspaceTools(
               size: f.size,
             })),
           };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -205,8 +205,8 @@ export function createWorkspaceTools(
             path
           );
           return { success: true, ...result };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -231,8 +231,8 @@ export function createWorkspaceTools(
             path
           );
           return { success: true, ...result };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -271,8 +271,8 @@ export function createWorkspaceTools(
             endLine
           );
           return { success: true, ...result };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -302,8 +302,8 @@ export function createWorkspaceTools(
               size: f.size,
             })),
           };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -333,8 +333,8 @@ export function createWorkspaceTools(
             path
           );
           return { success: true, results };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -373,8 +373,8 @@ export function createWorkspaceTools(
             replace
           );
           return { success: true, ...result };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -411,8 +411,8 @@ export function createWorkspaceTools(
               size: file.size,
             },
           };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -440,8 +440,8 @@ export function createWorkspaceTools(
             success: true,
             directory: { id: dir.id, path: dir.path },
           };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -466,8 +466,8 @@ export function createWorkspaceTools(
             path
           );
           return { success: true, deletedPaths };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),
@@ -497,8 +497,8 @@ export function createWorkspaceTools(
             newPath
           );
           return { success: true, oldPath, newPath };
-        } catch (error: any) {
-          return { success: false, error: error.message };
+        } catch (error) {
+          return { success: false, error: (error as Error).message };
         }
       },
     }),

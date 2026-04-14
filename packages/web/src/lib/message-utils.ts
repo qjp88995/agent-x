@@ -33,7 +33,7 @@ export function toUIMessages(messages: MessageResponse[]): UIMessage[] {
           state: result ? 'output-available' : 'input-available',
           input: p.args,
           ...(result ? { output: result.result } : {}),
-        } as any);
+        } as unknown as UIMessage['parts'][number]);
       } else if (p.type === 'tool-result') {
         // Skip - already merged into tool-call above
       } else if (p.type === 'text') {

@@ -227,7 +227,13 @@ function AssistantContent({ parts }: { readonly parts: UIMessage['parts'] }) {
               <TimeCard
                 key={part.toolCallId ?? `tool-${i}`}
                 state={part.state}
-                output={part.output as any}
+                output={
+                  part.output as {
+                    localTime?: string;
+                    timezone?: string;
+                    error?: string;
+                  }
+                }
                 labels={timeCardLabels}
               />
             );
