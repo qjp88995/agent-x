@@ -38,7 +38,7 @@ function LogoMark() {
 
 function DefaultLogo() {
   return (
-    <div className="flex h-9 items-center gap-2">
+    <div className="flex items-center gap-2">
       <LogoMark />
       <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">
         Agent-X
@@ -122,12 +122,12 @@ function IconSidebar({
       )}
     >
       {/* Logo */}
-      <div className="flex shrink-0 items-center px-2 pt-1.5 mb-3 overflow-hidden">
+      <div className="flex shrink-0 h-(--header-height) items-center px-2 overflow-hidden border-b border-border">
         {logo ?? (expanded ? <DefaultLogo /> : <LogoMark />)}
       </div>
 
       {/* Main nav */}
-      <nav className="flex flex-1 flex-col gap-1 overflow-hidden px-2">
+      <nav className="flex flex-1 flex-col gap-1 overflow-hidden px-2 pt-2">
         {items.map(item => (
           <NavItem
             key={item.href}
