@@ -62,7 +62,7 @@ const meta: Meta<typeof IconSidebar> = {
     docs: {
       description: {
         component:
-          'A collapsible icon sidebar that expands on hover. Width transitions from 52px (collapsed) to 200px (expanded). Expand is pure CSS via group hover — no JS state required.',
+          'A collapsible icon sidebar with controlled expand/collapse state. Width transitions from 52px (collapsed) to 200px (expanded) via the `expanded` prop. When collapsed, hovering over nav items shows a label tooltip on the right side.',
       },
     },
   },
@@ -70,9 +70,6 @@ const meta: Meta<typeof IconSidebar> = {
     Story => (
       <div className="relative h-150 bg-background">
         <Story />
-        <div className="pl-13 p-6 text-foreground-muted text-[12px]">
-          Hover the sidebar to expand it
-        </div>
       </div>
     ),
   ],
@@ -81,9 +78,19 @@ const meta: Meta<typeof IconSidebar> = {
 export default meta;
 type Story = StoryObj<typeof IconSidebar>;
 
-export const Default: Story = {
-  name: 'Default (hover to expand)',
+export const Collapsed: Story = {
+  name: 'Collapsed',
   args: {
+    expanded: false,
+    items: mainItems,
+    bottomItems,
+  },
+};
+
+export const Expanded: Story = {
+  name: 'Expanded',
+  args: {
+    expanded: true,
     items: mainItems,
     bottomItems,
   },
