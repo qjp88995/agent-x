@@ -28,6 +28,7 @@ import {
   MessageSquarePlus,
   Monitor,
   Moon,
+  PanelLeft,
   Server,
   Settings,
   Sparkles,
@@ -225,6 +226,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const items = useNavItems(NAV_ITEMS);
   const bottomItems = useNavItems(BOTTOM_NAV_ITEMS);
   const footer = useSidebarFooter();
@@ -234,6 +236,7 @@ export default function DashboardLayout() {
       {/* Desktop sidebar */}
       <div className="hidden md:block">
         <IconSidebar
+          expanded={sidebarExpanded}
           items={items}
           bottomItems={bottomItems}
           onItemClick={item => navigate(item.href)}
@@ -245,18 +248,27 @@ export default function DashboardLayout() {
       <MobileNav open={mobileOpen} onOpenChange={setMobileOpen} />
 
       {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden md:ml-(--sidebar-collapsed)">
-        {/* Mobile top bar */}
-        <header className="flex h-12 items-center gap-3 border-b bg-background px-4 md:hidden">
+      <div
+        className={cn(
+          'flex flex-1 flex-col overflow-hidden transition-[margin] duration-200 ease-in-out',
+          sidebarExpanded
+            ? 'md:ml-(--sidebar-expanded)'
+            : 'md:ml-(--sidebar-collapsed)'
+        )}
+      >
+        {/* Top bar */}
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-3">
+          {/* Mobile: hamburger + logo */}
           <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => setMobileOpen(true)}
             aria-label={t('nav.openMenu')}
+            className="md:hidden"
           >
             <Menu className="size-5" />
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 md:hidden">
             <div className="flex size-6 items-center justify-center rounded-sm bg-primary">
               <span className="text-xs font-bold text-primary-foreground leading-none">
                 X
@@ -264,6 +276,26 @@ export default function DashboardLayout() {
             </div>
             <span className="text-sm font-semibold">Agent-X</span>
           </div>
+
+          {/* Desktop: sidebar toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setSidebarExpanded(v => !v)}
+                aria-label={
+                  sidebarExpanded ? t('nav.collapse') : t('nav.expand')
+                }
+                className="hidden md:flex text-foreground-ghost hover:text-foreground-muted"
+              >
+                <PanelLeft className="size-4.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {sidebarExpanded ? t('nav.collapse') : t('nav.expand')}
+            </TooltipContent>
+          </Tooltip>
         </header>
 
         <main className="flex min-h-0 flex-1 flex-col overflow-auto">

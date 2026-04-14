@@ -17,6 +17,7 @@ type SidebarFooter = {
 };
 
 type IconSidebarProps = {
+  expanded: boolean;
   items: SidebarItem[];
   bottomItems?: SidebarItem[];
   logo?: ReactNode;
@@ -25,15 +26,21 @@ type IconSidebarProps = {
   className?: string;
 };
 
+function LogoMark() {
+  return (
+    <div className="flex shrink-0 size-8 items-center justify-center rounded-md bg-primary">
+      <span className="text-[13px] font-bold text-primary-foreground leading-none">
+        X
+      </span>
+    </div>
+  );
+}
+
 function DefaultLogo() {
   return (
-    <div className="flex h-12 items-center">
-      <div className="flex shrink-0 items-center justify-center rounded-md bg-primary size-8">
-        <span className="text-[13px] font-bold text-primary-foreground leading-none">
-          X
-        </span>
-      </div>
-      <span className="ml-2 text-[13px] font-semibold text-foreground whitespace-nowrap opacity-0 transition-opacity duration-150 delay-50 group-hover/sidebar:opacity-100">
+    <div className="flex h-9 items-center gap-2">
+      <LogoMark />
+      <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">
         Agent-X
       </span>
     </div>
@@ -42,9 +49,11 @@ function DefaultLogo() {
 
 function NavItem({
   item,
+  expanded,
   onItemClick,
 }: {
   item: SidebarItem;
+  expanded: boolean;
   onItemClick?: (item: SidebarItem) => void;
 }) {
   return (
@@ -69,8 +78,8 @@ function NavItem({
 
       <span
         className={cn(
-          'flex-1 text-[12px] font-medium whitespace-nowrap',
-          'opacity-0 transition-opacity duration-150 delay-50 group-hover/sidebar:opacity-100'
+          'flex-1 text-[12px] font-medium whitespace-nowrap transition-opacity duration-150',
+          expanded ? 'opacity-100' : 'opacity-0'
         )}
       >
         {item.label}
@@ -82,7 +91,8 @@ function NavItem({
             'ml-auto flex min-w-4 h-4 items-center justify-center rounded-full px-1',
             'text-[9px] font-semibold leading-none',
             'bg-primary text-primary-foreground',
-            'opacity-0 transition-opacity duration-150 delay-50 group-hover/sidebar:opacity-100'
+            'transition-opacity duration-150',
+            expanded ? 'opacity-100' : 'opacity-0'
           )}
         >
           {item.badge}
@@ -93,6 +103,7 @@ function NavItem({
 }
 
 function IconSidebar({
+  expanded,
   items,
   bottomItems,
   logo,
@@ -103,22 +114,27 @@ function IconSidebar({
   return (
     <aside
       className={cn(
-        'group/sidebar fixed left-0 top-0 z-40 flex h-full flex-col overflow-hidden',
-        'w-(--sidebar-collapsed) hover:w-(--sidebar-expanded)',
+        'fixed left-0 top-0 z-40 flex h-full flex-col overflow-hidden',
+        expanded ? 'w-(--sidebar-expanded)' : 'w-(--sidebar-collapsed)',
         'transition-[width] duration-200 ease-in-out',
         'border-r border-border bg-background',
         className
       )}
     >
       {/* Logo */}
-      <div className="flex shrink-0 items-center px-2 mb-4">
-        {logo ?? <DefaultLogo />}
+      <div className="flex shrink-0 items-center px-2 pt-1.5 mb-3 overflow-hidden">
+        {logo ?? (expanded ? <DefaultLogo /> : <LogoMark />)}
       </div>
 
       {/* Main nav */}
       <nav className="flex flex-1 flex-col gap-1 overflow-hidden px-2">
         {items.map(item => (
-          <NavItem key={item.href} item={item} onItemClick={onItemClick} />
+          <NavItem
+            key={item.href}
+            item={item}
+            expanded={expanded}
+            onItemClick={onItemClick}
+          />
         ))}
       </nav>
 
@@ -126,7 +142,12 @@ function IconSidebar({
       {bottomItems && bottomItems.length > 0 && (
         <nav className="flex shrink-0 flex-col gap-1 px-2 py-2">
           {bottomItems.map(item => (
-            <NavItem key={item.href} item={item} onItemClick={onItemClick} />
+            <NavItem
+              key={item.href}
+              item={item}
+              expanded={expanded}
+              onItemClick={onItemClick}
+            />
           ))}
         </nav>
       )}
@@ -143,7 +164,8 @@ function IconSidebar({
               <span
                 className={cn(
                   'flex-1 truncate text-[12px] font-medium text-foreground-muted',
-                  'opacity-0 transition-opacity duration-150 delay-50 group-hover/sidebar:opacity-100'
+                  'transition-opacity duration-150',
+                  expanded ? 'opacity-100' : 'opacity-0'
                 )}
               >
                 {footer.label}
@@ -154,7 +176,8 @@ function IconSidebar({
             <div
               className={cn(
                 'flex items-center gap-1 px-2 pt-1',
-                'opacity-0 transition-opacity duration-150 delay-50 group-hover/sidebar:opacity-100'
+                'transition-opacity duration-150',
+                expanded ? 'opacity-100' : 'opacity-0'
               )}
             >
               {footer.actions}
@@ -166,4 +189,4 @@ function IconSidebar({
   );
 }
 
-export { IconSidebar, type SidebarFooter,type SidebarItem };
+export { IconSidebar, type SidebarFooter, type SidebarItem };

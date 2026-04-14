@@ -63,6 +63,8 @@
     "preferences": "Preferences",
     "systemConfig": "System Config",
     "openMenu": "Open menu",
+    "collapse": "Collapse",
+    "expand": "Expand",
     "users": "Users"
   },
   "settings": {

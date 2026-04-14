@@ -63,6 +63,8 @@
     "preferences": "用户偏好",
     "systemConfig": "系统配置",
     "openMenu": "打开菜单",
+    "collapse": "收起",
+    "expand": "展开",
     "users": "用户管理"
   },
   "settings": {
