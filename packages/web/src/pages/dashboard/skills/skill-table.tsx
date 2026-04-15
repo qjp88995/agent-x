@@ -90,12 +90,14 @@ export function SkillTable({
       key: 'type',
       header: t('common.type', { defaultValue: 'Type' }),
       width: '120px',
+      hideOnMobile: true,
       render: skill => <TypeBadge type={skill.type} />,
     },
     {
       key: 'tags',
       header: t('common.tags', { defaultValue: 'Tags' }),
       width: '200px',
+      hideOnMobile: true,
       render: skill =>
         skill.tags.length > 0 ? (
           <div className="flex flex-wrap gap-1">

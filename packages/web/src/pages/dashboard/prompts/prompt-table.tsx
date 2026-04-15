@@ -90,6 +90,7 @@ export function PromptTable({
       key: 'category',
       header: t('common.category', { defaultValue: 'Category' }),
       width: '160px',
+      hideOnMobile: true,
       render: prompt =>
         prompt.category ? (
           <Badge variant="outline" className="text-xs">
@@ -103,6 +104,7 @@ export function PromptTable({
       key: 'type',
       header: t('common.type', { defaultValue: 'Type' }),
       width: '120px',
+      hideOnMobile: true,
       render: prompt => <TypeBadge type={prompt.type} />,
     },
   ];

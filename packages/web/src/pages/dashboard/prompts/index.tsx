@@ -2,51 +2,23 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  PageHeader,
-  Skeleton,
-  StaggerItem,
-  StaggerList,
-  ViewToggle,
-} from '@agent-x/design';
+import { Button, PageHeader } from '@agent-x/design';
 import type { PromptResponse } from '@agent-x/shared';
 import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DeleteDialog } from '@/components/prompts/delete-dialog';
 import { PreviewDialog } from '@/components/prompts/preview-dialog';
-import { PromptCard } from '@/components/prompts/prompt-card';
 import { PromptEmptyState } from '@/components/prompts/prompt-empty-state';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { useFilteredSearch } from '@/hooks/use-filtered-search';
 import { useDeletePrompt, usePrompts } from '@/hooks/use-prompts';
-import { useViewMode } from '@/hooks/use-view-mode';
 
 import { PromptTable } from './prompt-table';
-
-function PromptCardSkeleton() {
-  return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-4 w-20 rounded-full" />
-      </CardHeader>
-      <CardContent className="flex-1">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="mt-1.5 h-4 w-2/3" />
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function PromptsPage() {
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
-  const [view, setView] = useViewMode('prompts');
 
   const { data: prompts, isLoading, error } = usePrompts();
 
@@ -106,26 +78,14 @@ export default function PromptsPage() {
         }
       />
 
-      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
-        <ViewToggle value={view} onChange={setView} />
-      </div>
-
       <div className="flex-1 overflow-auto p-5">
         {isLoading ? (
-          view === 'table' ? (
-            <PromptTable
-              prompts={[]}
-              isAdmin={isAdmin}
-              onDelete={handleDelete}
-              loading
-            />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <PromptCardSkeleton key={i} />
-              ))}
-            </div>
-          )
+          <PromptTable
+            prompts={[]}
+            isAdmin={isAdmin}
+            onDelete={handleDelete}
+            loading
+          />
         ) : !filtered.length ? (
           <>
             <PromptEmptyState tab="custom" isAdmin={isAdmin} />
@@ -138,7 +98,7 @@ export default function PromptsPage() {
               </Link>
             </div>
           </>
-        ) : view === 'table' ? (
+        ) : (
           <>
             <PromptTable
               prompts={filtered}
@@ -146,28 +106,6 @@ export default function PromptsPage() {
               onDelete={handleDelete}
               onPreview={setPreviewTarget}
             />
-            <div className="mt-5 text-center">
-              <Link
-                to="/marketplace?tab=prompts"
-                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
-              >
-                {t('marketplace.browseMarketplace')} →
-              </Link>
-            </div>
-          </>
-        ) : (
-          <>
-            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filtered.map(prompt => (
-                <StaggerItem key={prompt.id}>
-                  <PromptCard
-                    prompt={prompt}
-                    onDelete={handleDelete}
-                    onPreview={setPreviewTarget}
-                  />
-                </StaggerItem>
-              ))}
-            </StaggerList>
             <div className="mt-5 text-center">
               <Link
                 to="/marketplace?tab=prompts"

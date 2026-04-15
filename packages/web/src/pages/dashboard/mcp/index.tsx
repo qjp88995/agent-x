@@ -12,47 +12,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   Button,
-  Card,
-  CardContent,
-  CardHeader,
   PageHeader,
-  Skeleton,
-  StaggerItem,
-  StaggerList,
-  ViewToggle,
 } from '@agent-x/design';
 import type { McpServerResponse } from '@agent-x/shared';
 import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { McpEmptyState } from '@/components/mcp/mcp-empty-state';
-import { McpServerCard } from '@/components/mcp/mcp-server-card';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { useFilteredSearch } from '@/hooks/use-filtered-search';
 import { useDeleteMcpServer, useMcpServers } from '@/hooks/use-mcp';
-import { useViewMode } from '@/hooks/use-view-mode';
 
 import { McpTable } from './mcp-table';
-
-function McpCardSkeleton() {
-  return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-4 w-20 rounded-full" />
-      </CardHeader>
-      <CardContent className="flex-1">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="mt-1.5 h-4 w-2/3" />
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function McpPage() {
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
-  const [view, setView] = useViewMode('mcp');
 
   const { data: customServers, isLoading, error } = useMcpServers();
 
@@ -114,26 +89,14 @@ export default function McpPage() {
         }
       />
 
-      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
-        <ViewToggle value={view} onChange={setView} />
-      </div>
-
       <div className="flex-1 overflow-auto p-5">
         {isLoading ? (
-          view === 'table' ? (
-            <McpTable
-              servers={[]}
-              isAdmin={isAdmin}
-              onDelete={handleDelete}
-              loading
-            />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <McpCardSkeleton key={i} />
-              ))}
-            </div>
-          )
+          <McpTable
+            servers={[]}
+            isAdmin={isAdmin}
+            onDelete={handleDelete}
+            loading
+          />
         ) : !filtered.length ? (
           <>
             <McpEmptyState tab="custom" isAdmin={isAdmin} />
@@ -146,31 +109,13 @@ export default function McpPage() {
               </Link>
             </div>
           </>
-        ) : view === 'table' ? (
+        ) : (
           <>
             <McpTable
               servers={filtered}
               isAdmin={isAdmin}
               onDelete={handleDelete}
             />
-            <div className="mt-5 text-center">
-              <Link
-                to="/marketplace?tab=mcp"
-                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
-              >
-                {t('marketplace.browseMarketplace')} →
-              </Link>
-            </div>
-          </>
-        ) : (
-          <>
-            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filtered.map(server => (
-                <StaggerItem key={server.id}>
-                  <McpServerCard server={server} onDelete={handleDelete} />
-                </StaggerItem>
-              ))}
-            </StaggerList>
             <div className="mt-5 text-center">
               <Link
                 to="/marketplace?tab=mcp"

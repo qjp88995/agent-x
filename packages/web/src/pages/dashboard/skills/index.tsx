@@ -2,51 +2,23 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  PageHeader,
-  Skeleton,
-  StaggerItem,
-  StaggerList,
-  ViewToggle,
-} from '@agent-x/design';
+import { Button, PageHeader } from '@agent-x/design';
 import type { SkillResponse } from '@agent-x/shared';
 import { AlertTriangle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { DeleteDialog } from '@/components/skills/delete-dialog';
 import { PreviewDialog } from '@/components/skills/preview-dialog';
-import { SkillCard } from '@/components/skills/skill-card';
 import { SkillEmptyState } from '@/components/skills/skill-empty-state';
 import { useIsAdmin } from '@/hooks/use-auth';
 import { useFilteredSearch } from '@/hooks/use-filtered-search';
 import { useDeleteSkill, useSkills } from '@/hooks/use-skills';
-import { useViewMode } from '@/hooks/use-view-mode';
 
 import { SkillTable } from './skill-table';
-
-function SkillCardSkeleton() {
-  return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-4 w-20 rounded-full" />
-      </CardHeader>
-      <CardContent className="flex-1">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="mt-1.5 h-4 w-2/3" />
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function SkillsPage() {
   const { t } = useTranslation();
   const isAdmin = useIsAdmin();
-  const [view, setView] = useViewMode('skills');
 
   const { data: skills, isLoading, error } = useSkills();
 
@@ -106,26 +78,14 @@ export default function SkillsPage() {
         }
       />
 
-      <div className="flex h-10 shrink-0 items-center justify-end border-b border-border px-5">
-        <ViewToggle value={view} onChange={setView} />
-      </div>
-
       <div className="flex-1 overflow-auto p-5">
         {isLoading ? (
-          view === 'table' ? (
-            <SkillTable
-              skills={[]}
-              isAdmin={isAdmin}
-              onDelete={handleDelete}
-              loading
-            />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <SkillCardSkeleton key={i} />
-              ))}
-            </div>
-          )
+          <SkillTable
+            skills={[]}
+            isAdmin={isAdmin}
+            onDelete={handleDelete}
+            loading
+          />
         ) : !filtered.length ? (
           <>
             <SkillEmptyState tab="custom" isAdmin={isAdmin} />
@@ -138,7 +98,7 @@ export default function SkillsPage() {
               </Link>
             </div>
           </>
-        ) : view === 'table' ? (
+        ) : (
           <>
             <SkillTable
               skills={filtered}
@@ -146,28 +106,6 @@ export default function SkillsPage() {
               onDelete={handleDelete}
               onPreview={setPreviewTarget}
             />
-            <div className="mt-5 text-center">
-              <Link
-                to="/marketplace?tab=skills"
-                className="text-foreground-muted hover:text-foreground text-sm transition-colors"
-              >
-                {t('marketplace.browseMarketplace')} →
-              </Link>
-            </div>
-          </>
-        ) : (
-          <>
-            <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filtered.map(skill => (
-                <StaggerItem key={skill.id}>
-                  <SkillCard
-                    skill={skill}
-                    onDelete={handleDelete}
-                    onPreview={setPreviewTarget}
-                  />
-                </StaggerItem>
-              ))}
-            </StaggerList>
             <div className="mt-5 text-center">
               <Link
                 to="/marketplace?tab=skills"

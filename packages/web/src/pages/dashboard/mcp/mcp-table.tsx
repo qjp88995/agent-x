@@ -89,12 +89,14 @@ export function McpTable({
       key: 'type',
       header: t('common.type', { defaultValue: 'Type' }),
       width: '130px',
+      hideOnMobile: true,
       render: server => <TypeBadge type={server.type} />,
     },
     {
       key: 'transport',
       header: t('mcp.transport', { defaultValue: 'Transport' }),
       width: '160px',
+      hideOnMobile: true,
       render: server => <TransportBadge transport={server.transport} />,
     },
   ];

@@ -99,6 +99,7 @@ export function ProviderTable({
       key: 'protocol',
       header: t('providers.protocol', { defaultValue: 'Protocol' }),
       width: '140px',
+      hideOnMobile: true,
       render: provider => {
         const config = PROTOCOL_CONFIG[provider.protocol];
         return (
@@ -112,6 +113,7 @@ export function ProviderTable({
       key: 'models',
       header: t('providers.models', { defaultValue: 'Models' }),
       width: '100px',
+      hideOnMobile: true,
       render: provider => (
         <span className="text-sm text-foreground-muted">
           {t('providers.modelCount', { count: provider.models.length })}
@@ -122,6 +124,7 @@ export function ProviderTable({
       key: 'status',
       header: t('common.status'),
       width: '120px',
+      hideOnMobile: true,
       render: provider => (
         <Badge variant={provider.isActive ? 'success' : 'muted'}>
           {provider.isActive ? t('common.active') : t('common.inactive')}

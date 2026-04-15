@@ -70,6 +70,7 @@ export function AgentTable({
       key: 'model',
       header: t('agents.model'),
       width: '200px',
+      hideOnMobile: true,
       render: agent => (
         <Badge variant="outline" className="text-xs font-mono">
           {agent.modelId}
@@ -80,6 +81,7 @@ export function AgentTable({
       key: 'status',
       header: t('common.status'),
       width: '120px',
+      hideOnMobile: true,
       render: agent => (
         <Badge
           variant={agent.status === AgentStatus.ACTIVE ? 'success' : 'muted'}

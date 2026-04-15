@@ -11,229 +11,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  Badge,
   Button,
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
   type FilterTab,
   FilterTabs,
   PageHeader,
-  Skeleton,
-  StaggerItem,
-  StaggerList,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  ViewToggle,
 } from '@agent-x/design';
 import type { ProviderResponse } from '@agent-x/shared';
-import {
-  AlertTriangle,
-  ExternalLink,
-  Pencil,
-  PlugZap,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { ProviderEmptyState } from '@/components/providers/provider-empty-state';
 import { FILTER_ALL, useFilteredSearch } from '@/hooks/use-filtered-search';
-import {
-  useDeleteProvider,
-  useProviders,
-  useSyncModels,
-  useTestProvider,
-} from '@/hooks/use-providers';
-import { useViewMode } from '@/hooks/use-view-mode';
-import { PROTOCOL_CONFIG } from '@/lib/provider-constants';
-import { cn } from '@/lib/utils';
+import { useDeleteProvider, useProviders } from '@/hooks/use-providers';
 
 import { ProviderTable } from './provider-table';
-
-function truncateUrl(url: string, maxLength = 40): string {
-  if (url.length <= maxLength) return url;
-  return `${url.slice(0, maxLength)}...`;
-}
-
-function ProviderCard({
-  provider,
-  onDelete,
-}: {
-  readonly provider: ProviderResponse;
-  readonly onDelete: (provider: ProviderResponse) => void;
-}) {
-  const { t } = useTranslation();
-  const testProvider = useTestProvider();
-  const syncModels = useSyncModels();
-  const config = PROTOCOL_CONFIG[provider.protocol];
-
-  function handleTest() {
-    testProvider.mutate(provider.id, {
-      onSuccess: result => {
-        if (result.success) {
-          toast.success(t('providers.testSuccess'));
-        } else {
-          toast.error(t('providers.testFailed'));
-        }
-      },
-      onError: () => {
-        toast.error(t('providers.testFailed'));
-      },
-    });
-  }
-
-  function handleSync() {
-    syncModels.mutate(provider.id, {
-      onSuccess: result => {
-        toast.success(t('providers.syncSuccess', { count: result.synced }));
-      },
-      onError: () => {
-        toast.error(t('providers.syncFailed'));
-      },
-    });
-  }
-
-  return (
-    <Card className="flex flex-col hover:shadow-md hover:border-primary/20 transition-all duration-200">
-      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
-        <div className="flex flex-col gap-1.5">
-          <CardTitle className="text-base">{provider.name}</CardTitle>
-          <div className="flex items-center gap-2">
-            <Badge
-              variant="outline"
-              className={cn('border-0', config.className)}
-            >
-              {t(config.labelKey)}
-            </Badge>
-            <Badge variant={provider.isActive ? 'success' : 'muted'}>
-              {provider.isActive ? t('common.active') : t('common.inactive')}
-            </Badge>
-          </div>
-        </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost-destructive"
-              size="icon"
-              className="size-8"
-              onClick={() => onDelete(provider)}
-            >
-              <Trash2 className="size-4" />
-              <span className="sr-only">{t('common.delete')}</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('common.delete')}</TooltipContent>
-        </Tooltip>
-      </CardHeader>
-
-      <CardContent className="flex-1">
-        <div className="text-foreground-muted flex items-center gap-1.5 text-sm">
-          <ExternalLink className="size-3.5 shrink-0" />
-          <span className="truncate">{truncateUrl(provider.baseUrl)}</span>
-        </div>
-      </CardContent>
-
-      <CardFooter className="border-t pt-4">
-        <div className="flex w-full items-center justify-between">
-          <div className="text-foreground-muted text-sm">
-            {t('providers.modelCount', { count: provider.models.length })}
-          </div>
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={handleSync}
-                  disabled={syncModels.isPending}
-                >
-                  <RefreshCw
-                    className={cn(
-                      'size-3.5',
-                      syncModels.isPending && 'animate-spin'
-                    )}
-                  />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {syncModels.isPending
-                  ? t('providers.syncing')
-                  : t('providers.syncModels')}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={handleTest}
-                  disabled={testProvider.isPending}
-                >
-                  <PlugZap className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {testProvider.isPending
-                  ? t('providers.testing')
-                  : t('providers.testConnection')}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-7" asChild>
-                  <Link to={`/providers/${provider.id}/edit`}>
-                    <Pencil className="size-3.5" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('common.edit')}</TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function ProviderCardSkeleton() {
-  return (
-    <Card className="flex flex-col">
-      <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
-        <div className="flex flex-col gap-1.5">
-          <Skeleton className="h-5 w-32" />
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-5 w-16 rounded-full" />
-            <Skeleton className="h-5 w-14 rounded-full" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex-1">
-        <Skeleton className="h-4 w-48" />
-      </CardContent>
-      <CardFooter className="border-t pt-4">
-        <div className="flex w-full items-center justify-between">
-          <Skeleton className="h-4 w-20" />
-          <div className="flex items-center gap-1">
-            <Skeleton className="size-7 rounded-md" />
-            <Skeleton className="size-7 rounded-md" />
-            <Skeleton className="size-7 rounded-md" />
-          </div>
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
 
 export default function ProviderListPage() {
   const { t } = useTranslation();
   const { data: allProviders, isLoading, error } = useProviders();
-  const [view, setView] = useViewMode('providers');
   const deleteProvider = useDeleteProvider();
   const [deleteTarget, setDeleteTarget] = useState<ProviderResponse | null>(
     null
@@ -308,33 +103,16 @@ export default function ProviderListPage() {
       {/* Filter bar */}
       <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-5">
         <FilterTabs tabs={filterTabs} value={filter} onChange={setFilter} />
-        <ViewToggle value={view} onChange={setView} />
       </div>
 
       {/* Provider list */}
       <div className="flex-1 overflow-auto p-5">
         {isLoading ? (
-          view === 'table' ? (
-            <ProviderTable providers={[]} onDelete={setDeleteTarget} loading />
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <ProviderCardSkeleton key={i} />
-              ))}
-            </div>
-          )
+          <ProviderTable providers={[]} onDelete={setDeleteTarget} loading />
         ) : !filtered.length ? (
           <ProviderEmptyState />
-        ) : view === 'table' ? (
-          <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
         ) : (
-          <StaggerList className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map(provider => (
-              <StaggerItem key={provider.id}>
-                <ProviderCard provider={provider} onDelete={setDeleteTarget} />
-              </StaggerItem>
-            ))}
-          </StaggerList>
+          <ProviderTable providers={filtered} onDelete={setDeleteTarget} />
         )}
       </div>
 
