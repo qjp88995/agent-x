@@ -87,6 +87,7 @@ export function UserTable({
       key: 'role',
       header: t('users.columnRole'),
       width: '120px',
+      hideOnMobile: true,
       render: user => (
         <Badge variant={user.role === 'ADMIN' ? 'info' : 'default'}>
           {user.role === 'ADMIN' ? t('users.roleAdmin') : t('users.roleUser')}
@@ -97,6 +98,7 @@ export function UserTable({
       key: 'status',
       header: t('common.status'),
       width: '120px',
+      hideOnMobile: true,
       render: user => {
         const variantMap: Record<
           string,
@@ -122,6 +124,7 @@ export function UserTable({
       key: 'lastActive',
       header: t('users.columnLastActive'),
       width: '160px',
+      hideOnMobile: true,
       render: user => (
         <span className="text-foreground-muted text-xs">
           {formatDistanceToNow(new Date(user.updatedAt), {
