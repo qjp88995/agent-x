@@ -106,7 +106,7 @@ function SettingsAccordionTrigger({
         </div>
         <div className="flex items-center gap-3">
           {summary && (
-            <div className="flex items-center gap-1.5 group-data-[state=open]:hidden">
+            <div className="hidden items-center gap-1.5 group-data-[state=open]:hidden sm:flex">
               {summary}
             </div>
           )}

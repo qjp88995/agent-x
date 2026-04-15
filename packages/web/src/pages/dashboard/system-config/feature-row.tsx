@@ -127,7 +127,7 @@ export function FeatureAccordionItem({
       <SettingsAccordionContent>
         <div className="flex flex-col gap-4">
           {/* Row 1: Provider + Model */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
               <Label>{t('systemConfig.selectProvider')}</Label>
               <Select value={providerId} onValueChange={setProviderId}>
@@ -176,7 +176,7 @@ export function FeatureAccordionItem({
           </div>
 
           {/* Row 3: Temperature + MaxTokens + Thinking */}
-          <div className="grid grid-cols-3 items-end gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:items-end">
             <div className="flex flex-col gap-1">
               <Label>
                 {t('agents.temperature')}{' '}
