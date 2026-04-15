@@ -57,6 +57,7 @@ export function ApiKeyTable({ apiKeys, onRevoke, loading }: ApiKeyTableProps) {
     {
       key: 'key',
       header: t('apiKeys.key'),
+      hideOnMobile: true,
       render: apiKey => (
         <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">
           {apiKey.key}
@@ -67,6 +68,7 @@ export function ApiKeyTable({ apiKeys, onRevoke, loading }: ApiKeyTableProps) {
       key: 'agent',
       header: t('apiKeys.agent'),
       width: '140px',
+      hideOnMobile: true,
       render: apiKey =>
         apiKey.agent ? (
           <span className="text-sm">{apiKey.agent.name}</span>
@@ -80,6 +82,7 @@ export function ApiKeyTable({ apiKeys, onRevoke, loading }: ApiKeyTableProps) {
       key: 'lastUsed',
       header: t('apiKeys.lastUsed'),
       width: '160px',
+      hideOnMobile: true,
       render: apiKey => (
         <span className="text-sm text-foreground-muted">
           {formatDate(apiKey.lastUsedAt, dateLocale)}
@@ -90,6 +93,7 @@ export function ApiKeyTable({ apiKeys, onRevoke, loading }: ApiKeyTableProps) {
       key: 'expires',
       header: t('apiKeys.expires'),
       width: '160px',
+      hideOnMobile: true,
       render: apiKey => (
         <span className="text-sm text-foreground-muted">
           {formatDate(apiKey.expiresAt, dateLocale)}
