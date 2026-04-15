@@ -30,7 +30,14 @@ function SettingsNav({
 }) {
   return (
     <SettingsNavContext value={{ value, onValueChange }}>
-      <nav className={cn('flex flex-col gap-4', className)}>{children}</nav>
+      <nav
+        className={cn(
+          'flex flex-row gap-1 overflow-x-auto sm:flex-col sm:gap-4',
+          className
+        )}
+      >
+        {children}
+      </nav>
     </SettingsNavContext>
   );
 }
@@ -43,11 +50,11 @@ function SettingsNavGroup({
   readonly children: ReactNode;
 }) {
   return (
-    <div>
-      <div className="text-foreground-ghost px-2 pb-1.5 text-[9px] font-semibold uppercase tracking-wider">
+    <div className="contents sm:block">
+      <div className="text-foreground-ghost hidden px-2 pb-1.5 text-[9px] font-semibold uppercase tracking-wider sm:block">
         {title}
       </div>
-      <div className="flex flex-col gap-0.5">{children}</div>
+      <div className="flex flex-row gap-0.5 sm:flex-col">{children}</div>
     </div>
   );
 }
@@ -71,14 +78,15 @@ function SettingsNavItem({
       type="button"
       onClick={() => onValueChange(value)}
       className={cn(
-        'flex items-center gap-2 rounded-r-md border-l-2 px-2 py-1.5 text-left text-sm transition-colors',
+        'flex shrink-0 items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors',
+        'rounded-md sm:rounded-r-md sm:border-l-2 sm:px-2',
         isActive
-          ? 'border-primary bg-primary/6 text-primary font-medium'
-          : 'border-transparent text-foreground-muted hover:bg-card'
+          ? 'bg-primary/8 text-primary font-medium sm:border-primary sm:bg-primary/6'
+          : 'border-transparent text-foreground-muted hover:bg-card sm:border-transparent'
       )}
     >
       <Icon className="size-4 shrink-0" />
-      <span className="flex-1 truncate">{children}</span>
+      <span className="truncate">{children}</span>
       {count !== undefined && (
         <span
           className={cn(

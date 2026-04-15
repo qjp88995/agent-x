@@ -220,7 +220,7 @@ export function ProvidersTab() {
   return (
     <div className="flex flex-col gap-5">
       {/* Section header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-base font-semibold">
             {t('systemConfig.providers')}
@@ -229,7 +229,11 @@ export function ProvidersTab() {
             {t('systemConfig.providersDesc')}
           </p>
         </div>
-        <Button variant="primary" onClick={handleNew}>
+        <Button
+          variant="primary"
+          onClick={handleNew}
+          className="self-start sm:self-auto"
+        >
           {t('systemConfig.newProvider')}
         </Button>
       </div>
