@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ChevronDown,ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 import { cn } from '../lib/utils';
 import { Skeleton } from '../primitives/skeleton';
@@ -11,6 +11,7 @@ export type Column<T> = {
   width?: string;
   render: (item: T) => React.ReactNode;
   sortable?: boolean;
+  hideOnMobile?: boolean;
 };
 
 type DataTableProps<T> = {
@@ -48,15 +49,18 @@ function DataTable<T>({
     <table className={cn('w-full border-collapse', className)}>
       <thead>
         <tr className="border-b border-border">
-          {columns.map((col) => (
+          {columns.map(col => (
             <th
               key={col.key}
               style={col.width ? { width: col.width } : undefined}
               className={cn(
                 'px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-foreground-dim',
-                col.sortable && onSort && 'cursor-pointer select-none'
+                col.sortable && onSort && 'cursor-pointer select-none',
+                col.hideOnMobile && 'hidden sm:table-cell'
               )}
-              onClick={col.sortable && onSort ? () => onSort(col.key) : undefined}
+              onClick={
+                col.sortable && onSort ? () => onSort(col.key) : undefined
+              }
             >
               <span className="inline-flex items-center gap-1">
                 {col.header}
@@ -81,11 +85,22 @@ function DataTable<T>({
         {loading ? (
           Array.from({ length: loadingRows }).map((_, rowIdx) => (
             <tr key={rowIdx} className="border-b border-border-subtle">
-              {Array.from({ length: totalCols }).map((_, colIdx) => (
-                <td key={colIdx} className="px-3 py-2.5">
+              {columns.map(col => (
+                <td
+                  key={col.key}
+                  className={cn(
+                    'px-3 py-2.5',
+                    col.hideOnMobile && 'hidden sm:table-cell'
+                  )}
+                >
                   <Skeleton className="h-4 w-full" />
                 </td>
               ))}
+              {rowActions && (
+                <td className="px-3 py-2.5">
+                  <Skeleton className="h-4 w-full" />
+                </td>
+              )}
             </tr>
           ))
         ) : data.length === 0 ? (
@@ -98,7 +113,7 @@ function DataTable<T>({
             </td>
           </tr>
         ) : (
-          data.map((item) => (
+          data.map(item => (
             <tr
               key={keyExtractor(item)}
               className={cn(
@@ -107,10 +122,13 @@ function DataTable<T>({
               )}
               onClick={onRowClick ? () => onRowClick(item) : undefined}
             >
-              {columns.map((col) => (
+              {columns.map(col => (
                 <td
                   key={col.key}
-                  className="px-3 py-2.5 text-[12px] text-foreground-muted"
+                  className={cn(
+                    'px-3 py-2.5 text-[12px] text-foreground-muted',
+                    col.hideOnMobile && 'hidden sm:table-cell'
+                  )}
                 >
                   {col.render(item)}
                 </td>
