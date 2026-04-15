@@ -175,8 +175,14 @@ export default function VersionConversationsPage() {
       />
 
       <div className="flex min-h-0 flex-1">
-        {/* Left: conversation list */}
-        <div className="flex w-72 shrink-0 flex-col overflow-y-auto border-r border-border">
+        {/* Left: conversation list — full screen on mobile when no conv selected */}
+        <div
+          className={cn(
+            'flex shrink-0 flex-col overflow-y-auto border-r border-border',
+            'w-full sm:w-72',
+            selectedConv ? 'hidden sm:flex' : 'flex'
+          )}
+        >
           {isLoadingConversations ? (
             <div className="flex flex-1 items-center justify-center text-sm text-foreground-muted">
               {t('common.loading')}
@@ -190,13 +196,34 @@ export default function VersionConversationsPage() {
           )}
         </div>
 
-        {/* Right: conversation messages */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        {/* Right: conversation messages — full screen on mobile when conv selected */}
+        <div
+          className={cn(
+            'min-w-0 flex-1 flex-col',
+            selectedConv ? 'flex' : 'hidden sm:flex'
+          )}
+        >
           {selectedConv ? (
-            <ConversationMessages
-              agentId={id}
-              conversationId={selectedConv.id}
-            />
+            <>
+              {/* Mobile back button */}
+              <div className="flex items-center gap-2 border-b border-border px-3 py-2 sm:hidden">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0"
+                  onClick={() => setSelectedConv(null)}
+                >
+                  <ArrowLeft className="size-3.5" />
+                </Button>
+                <span className="truncate text-sm font-medium">
+                  {selectedConv.title ?? t('conversations.untitled')}
+                </span>
+              </div>
+              <ConversationMessages
+                agentId={id}
+                conversationId={selectedConv.id}
+              />
+            </>
           ) : (
             <div className="flex flex-1 items-center justify-center text-sm text-foreground-muted">
               {t('conversations.selectConversation')}
